@@ -87,7 +87,7 @@ firebase init
  - Choose "Single-page app" if you're using React Router
 ```
 npm run build
-firebase deploy
+firebase deploy --only hosting:explified-home
 ```
 
 # 📁 Project Structure
