@@ -95,35 +95,19 @@ firebase deploy --only hosting:explified-home
 ```
 src/
 ├── assets/         # Static assets
-├── components/     # Reusable components
+├── network/        # API Calling
 ├── pages/          # Page components (if using routing)
-├── firebase.js     # Firebase config/init
+├── reusable_components/            # Reusable components
+│   ├── animated_component/         # Animated components
+│   ├── design_components/          # Design components (sections design, etc.)
+│   └── NavBar & Footer/            # Universal Navbar and Footer
+├── sections        # Pages small sections
+├── utils           # Necessary Utils and Redux
+│   ├── authSlice/
 ├── App.jsx         # Main app component
 └── main.jsx        # Entry point
 ```
 
-# 🔒 Optional: Enable Firebase Auth
-
-To use Firebase Authentication:
-
-1. Enable an auth provider in Firebase Console > Authentication > Sign-in method
-
-2. Use the Firebase Auth SDK in your app:
-
-```
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-
-const auth = getAuth();
-const provider = new GoogleAuthProvider();
-
-signInWithPopup(auth, provider)
-  .then((result) => {
-    // User signed in
-  })
-  .catch((error) => {
-    console.error(error);
-  });
-```
 
 # 💡 Tips
  - Use .env for sensitive config in production builds.
