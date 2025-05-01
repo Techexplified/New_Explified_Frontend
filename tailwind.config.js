@@ -1,11 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 
-import {heroui} from "@heroui/react"
+import { heroui } from "@heroui/react";
 
 export default {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
+    "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
@@ -16,79 +17,79 @@ export default {
         splash: {
           "0%": {
             transform: "scale(0)",
-            opacity: "0.5"
+            opacity: "0.5",
           },
           "100%": {
             transform: "scale(4)",
-            opacity: "0"
+            opacity: "0",
           },
         },
         gradient: {
-          '0%': {
-            backgroundPosition: '0% 50%'
+          "0%": {
+            backgroundPosition: "0% 50%",
           },
-          '50%': {
-            backgroundPosition: '100% 50%'
+          "50%": {
+            backgroundPosition: "100% 50%",
           },
-          '100%': {
-            backgroundPosition: '0% 50%'
+          "100%": {
+            backgroundPosition: "0% 50%",
           },
         },
         fadeInFromBottom: {
           "0%": {
             opacity: 0,
-            transform: "translateY(20px)"
+            transform: "translateY(20px)",
           },
           "100%": {
             opacity: 1,
-            transform: "translateY(0)"
+            transform: "translateY(0)",
           },
         },
         scroll: {
           "0%": {
-            transform: "translateX(0)"
+            transform: "translateX(0)",
           },
           "100%": {
-            transform: "translateX(-50%)"
+            transform: "translateX(-50%)",
           },
         },
         reverse_scroll: {
           "0%": {
-            transform: "translateX(-50%)"
+            transform: "translateX(-50%)",
           },
           "100%": {
-            transform: "translateX(0)"
+            transform: "translateX(0)",
           },
         },
         fadeIn: {
           "0%": {
             opacity: 0,
-            transform: "scale(0.8)"
+            transform: "scale(0.8)",
           },
           "100%": {
             opacity: 1,
-            transform: "scale(1)"
-          }
+            transform: "scale(1)",
+          },
         },
         fadeOut: {
           "0%": {
             opacity: 1,
-            transform: "scale(1)"
+            transform: "scale(1)",
           },
           "100%": {
             opacity: 0,
-            transform: "scale(0.8)"
-          }
-        }
+            transform: "scale(0.8)",
+          },
+        },
       },
       animation: {
         splash: "splash 1s ease-out",
-        gradient: 'gradient 8s linear infinite',
+        gradient: "gradient 8s linear infinite",
         fadeInFromBottom: "fadeInFromBottom 0.5s ease-out",
         scroll: "scroll 30s linear infinite",
         fadeIn: "fadeIn 1s ease-in-out",
         fadeOut: "fadeOut 1s ease-in-out",
-        reverse_scroll: "reverse_scroll 30s linear infinite"
+        reverse_scroll: "reverse_scroll 30s linear infinite",
       },
       fontFamily: {
         maven: ["Maven Pro", "sans-serif"],
@@ -169,4 +170,4 @@ export default {
       },
     }),
   ],
-}
+};

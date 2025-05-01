@@ -19,7 +19,18 @@ import ContentMarketingServicePage from "./pages/work_&_services/services_landin
 import YoutubeManagementServicePage from "./pages/work_&_services/services_landing_page/YoutubeManagementServicePage";
 import MarketResearchAnalysisPage from "./pages/work_&_services/services_landing_page/MarketResearchAnalysisPage";
 import SEOServicePage from "./pages/work_&_services/services_landing_page/SEOServicePage";
-
+import AgeingVideoMaker from "./pages/explified_tools/ageing_video_maker/AgeingVideoMaker";
+import Subtitling from "./pages/explified_tools/subtitling/Subtitling";
+import ImageCartoonizer from "./pages/explified_tools/image_cartoonizer/ImageCartoonizer";
+import AIImageStyler from "./pages/explified_tools/ai_image_styler/AIImageStyler";
+import AISlideshow from "./pages/explified_tools/ai_slideshow/AISlideShow";
+import RemoveBackground from "./pages/explified_tools/background_remover/BackgroundRemover";
+import GIFGenerator from "./pages/explified_tools/gif_generator/GIFGenerator";
+import Scribbling from "./pages/explified_tools/scribbling/Scribbling";
+import Clipper from "./pages/explified_tools/clipper/Clipper";
+import ImageToVideoConvertor from "./pages/explified_tools/image_to_video_convertor/ImageToVideoConvertor";
+import VideoFromLink from "./pages/explified_tools/video_from_link/VideoFromLink";
+import TextToVideo from "./pages/explified_tools/text_to_video/TextToVideo";
 
 function App() {
   return (
@@ -62,21 +73,18 @@ function App() {
             <Route path="/" element={<ExplifiedTools />} />
 
             {/* Tools Page */}
-            {/* <Route path="/clipper" element={<Clipper />} />
+            <Route path="/clipper" element={<Clipper />} />
             <Route path="/subtitling" element={<Subtitling />} />
             <Route path="/video-generator" element={<VideoFromLink />} />
             <Route path="/gif-generator" element={<GIFGenerator />} />
             <Route path="/scribble" element={<Scribbling />} />
             <Route path="/remove-bg" element={<RemoveBackground />} />
-            <Route
-              path="/image-cartoonizer"
-              element={<ImageCartoonizer />}
-            />
-            <Route path="/image-to-video" element={<ImageToVideoAI />} />
+            <Route path="/image-cartoonizer" element={<ImageCartoonizer />} />
+            <Route path="/image-to-video" element={<ImageToVideoConvertor />} />
             <Route path="/text-to-video" element={<TextToVideo />} />
             <Route path="/ai-image-styler" element={<AIImageStyler />} />
             <Route path="/slideshow" element={<AISlideshow />} />
-            <Route path="/ageing_ai" element={<AgeingVideoMaker />} /> */}
+            <Route path="/ageing_ai" element={<AgeingVideoMaker />} />
 
             {/* Landing Page */}
             {/* <Route path="/clipper-landing" element={<ClipperLandingPage />} /> */}
