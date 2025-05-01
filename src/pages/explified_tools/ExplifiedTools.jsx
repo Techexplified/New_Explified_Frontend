@@ -38,6 +38,7 @@ const ExplifiedTools = () => {
     { name: "Background Remover", path: "/remove-bg" },
     { name: "Image Cartoonizer", path: "/image-cartoonizer" },
     { name: "Image To Video", path: "/image-to-video" },
+    { name: "Text To Image", path: "/text-to-image" },
     { name: "Text To Video", path: "/text-to-video" },
     { name: "AI Image Styler", path: "/ai-image-styler" },
     { name: "Gif generator", path: "/gif-generator" },

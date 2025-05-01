@@ -31,6 +31,7 @@ import Clipper from "./pages/explified_tools/clipper/Clipper";
 import ImageToVideoConvertor from "./pages/explified_tools/image_to_video_convertor/ImageToVideoConvertor";
 import VideoFromLink from "./pages/explified_tools/video_from_link/VideoFromLink";
 import TextToVideo from "./pages/explified_tools/text_to_video/TextToVideo";
+import TextToImage from "./pages/explified_tools/text_to_image/TextToImage";
 
 function App() {
   return (
@@ -82,6 +83,7 @@ function App() {
             <Route path="/image-cartoonizer" element={<ImageCartoonizer />} />
             <Route path="/image-to-video" element={<ImageToVideoConvertor />} />
             <Route path="/text-to-video" element={<TextToVideo />} />
+            <Route path="/text-to-image" element={<TextToImage />} />
             <Route path="/ai-image-styler" element={<AIImageStyler />} />
             <Route path="/slideshow" element={<AISlideshow />} />
             <Route path="/ageing_ai" element={<AgeingVideoMaker />} />
