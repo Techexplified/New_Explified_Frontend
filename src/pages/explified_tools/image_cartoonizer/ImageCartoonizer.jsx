@@ -84,9 +84,6 @@ function ImageCartoonizer() {
       formData.append("type", type);
 
       const res = await axiosInstance.post("api/imageCartoonizer", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
         withCredentials: true,
       });
 
