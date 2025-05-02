@@ -83,9 +83,13 @@ function ImageCartoonizer() {
       formData.append("image", image);
       formData.append("type", type);
 
-      const res = await axiosInstance.post("api/imageCartoonizer", formData, {
-        withCredentials: true,
-      });
+      const res = await axiosInstance.post(
+        "api/imageCartoonizer/cartoonize",
+        formData,
+        {
+          withCredentials: true,
+        }
+      );
 
       console.log(res.data);
       setCartoonImage(res?.data?.data);
