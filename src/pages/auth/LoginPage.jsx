@@ -40,7 +40,7 @@ const LoginPage = () => {
       // );
 
       dispatch(loginUser(res.data.user));
-      navigate("/");
+      navigate("/subtitling");
     } catch (error) {
       console.error("Error during login:", error);
     }
@@ -121,7 +121,7 @@ const LoginPage = () => {
               const decoded = jwtDecode(resp.credential);
               console.log("Login Success: currentUser:", decoded);
               dispatch(loginUser(resp.credential.displayName));
-              navigate("/");
+              navigate("/subtitling");
             } catch (error) {
               console.error("Error decoding JWT:", error);
             }
