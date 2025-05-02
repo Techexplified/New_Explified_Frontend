@@ -4,13 +4,16 @@ import { FaCheckCircle } from "react-icons/fa";
 import { MdArrowBack, MdOutlineFileUpload } from "react-icons/md";
 import { LogOutIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { removeUser } from "../../../utils/auth_slice/UserSlice";
 
 const Subtitling = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const user = useSelector((state) => state.user);
+  console.log(user);
 
   const handleLogout = async () => {
     try {
@@ -37,7 +40,7 @@ const Subtitling = () => {
         <Tooltip content="Back">
           <button
             className="rounded-full p-[10px] border-2 border-white hover:bg-gray-200/20 cursor-pointer"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/")}
           >
             <MdArrowBack />
           </button>
