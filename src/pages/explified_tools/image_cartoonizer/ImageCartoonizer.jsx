@@ -35,18 +35,8 @@ function ImageCartoonizer() {
     const file = e.target.files[0];
 
     if (file) {
-      const reader = new FileReader();
-
-      reader.onloadend = () => {
-        const base64String = reader.result.split(",")[1]; // removes the "data:image/jpeg;base64," part
-        setImage(base64String);
-      };
-
-      reader.readAsDataURL(file); // reads as full data URL, then split
-    }
-
-    if (file) {
       const imageUrl = URL.createObjectURL(file);
+      setImage(file);
       setPreviewImage(imageUrl);
     }
   };
@@ -89,9 +79,13 @@ function ImageCartoonizer() {
     try {
       setLoading(true);
 
+      const formData = new FormData();
+      formData.append("image", image);
+      formData.append("type", type);
+
       const res = await axiosInstance.post(
         "api/imageCartoonizer/cartoonize",
-        { image, type },
+        formData,
         {
           withCredentials: true,
         }
