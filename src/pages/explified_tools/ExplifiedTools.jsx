@@ -1,6 +1,6 @@
 import { Tooltip } from "@heroui/react";
 import React, { useState } from "react";
-import axiosInstance from "../../network/axiosInstance";
+// import axiosInstance from "../../network/axiosInstance";
 import { removeUser } from "../../utils/auth_slice/UserSlice";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -38,6 +38,7 @@ const ExplifiedTools = () => {
     { name: "Background Remover", path: "/remove-bg" },
     { name: "Image Cartoonizer", path: "/image-cartoonizer" },
     { name: "Image To Video", path: "/image-to-video" },
+    { name: "Text To Image", path: "/text-to-image" },
     { name: "Text To Video", path: "/text-to-video" },
     { name: "AI Image Styler", path: "/ai-image-styler" },
     { name: "Gif generator", path: "/gif-generator" },

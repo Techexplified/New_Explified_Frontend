@@ -3,7 +3,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../../utils/auth_slice/UserSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../../network/axiosInstance";
 
 const initialState = {
@@ -40,7 +40,7 @@ const LoginPage = () => {
       // );
 
       dispatch(loginUser(res.data.user));
-      navigate("/");
+      navigate("/subtitling");
     } catch (error) {
       console.error("Error during login:", error);
     }
@@ -120,8 +120,8 @@ const LoginPage = () => {
             try {
               const decoded = jwtDecode(resp.credential);
               console.log("Login Success: currentUser:", decoded);
-              dispatch(loginUser(resp.credential.displayName));
-              navigate("/");
+              dispatch(loginUser(decoded));
+              navigate("/subtitling");
             } catch (error) {
               console.error("Error decoding JWT:", error);
             }
