@@ -39,17 +39,12 @@ import TextToImage from "./pages/explified_tools/text_to_image/TextToImage";
 import { useSelector } from "react-redux";
 
 function App() {
-  const user = useSelector((state) => state.user);
-
   return (
     <div>
       <Router>
         <Routes>
           <Route path="/web" element={<MainPage />} />
-          <Route
-            path="/login"
-            element={user ? <Navigate to="/subtitling" /> : <LoginPage />}
-          />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsAndServices />} />

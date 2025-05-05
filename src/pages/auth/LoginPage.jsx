@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { loginUser } from "../../utils/auth_slice/UserSlice";
 import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../../network/axiosInstance";
@@ -14,6 +14,15 @@ const initialState = {
 const LoginPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  let [searchParams, setSearchParams] = useSearchParams();
+  const user = useSelector((state) => state.user);
+  console.log(searchParams);
+
+  useEffect(() => {
+    if (user) {
+      navigate("/subtitling");
+    }
+  }, [user, navigate]);
 
   const [formData, setFormData] = useState(initialState);
   const [isSignInLoading, setIsSignInLoading] = useState(false);
@@ -119,7 +128,11 @@ const LoginPage = () => {
           onSuccess={(resp) => {
             try {
               const decoded = jwtDecode(resp.credential);
-              console.log("Login Success: currentUser:", decoded);
+              // console.log("Login Success: currentUser:", decoded);
+              localStorage.setItem(
+                "explified",
+                JSON.stringify({ isLoggedIn: "true" })
+              );
               dispatch(loginUser(decoded));
               navigate("/subtitling");
             } catch (error) {
