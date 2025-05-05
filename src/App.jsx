@@ -62,8 +62,8 @@ function App() {
             <Route path="/" element={<ExplifiedTools />} />
 
             {/* Tools Page */}
-            {/* <Route path="/clipper" element={<Clipper />} />
-            <Route path="/subtitling" element={<Subtitling />} />
+            {/* <Route path="/clipper" element={<Clipper />} /> */}
+            {/* <Route path="/subtitling" element={<Subtitling />} />
             <Route path="/video-generator" element={<VideoFromLink />} />
             <Route path="/gif-generator" element={<GIFGenerator />} />
             <Route path="/scribble" element={<Scribbling />} />
@@ -71,8 +71,8 @@ function App() {
             <Route
               path="/image-cartoonizer"
               element={<ImageCartoonizer />}
-            />
-            <Route path="/image-to-video" element={<ImageToVideoAI />} />
+            /> */}
+            {/* <Route path="/image-to-video" element={<ImageToVideoAI />} />
             <Route path="/text-to-video" element={<TextToVideo />} />
             <Route path="/ai-image-styler" element={<AIImageStyler />} />
             <Route path="/slideshow" element={<AISlideshow />} />
