@@ -17,7 +17,7 @@ import PrivacyPolicy from "./pages/about_pages/PrivacyPolicy";
 import AffiliatePartnerPolicy from "./pages/about_pages/AffiliatePartnerPolicy";
 import ContactUs from "./pages/about_pages/ContactUs";
 import ExplifiedWork from "./pages/work_&_services/ExplifiedWork";
-import ExplifiedTools from "./pages/explified_tools/ExplifiedTools";
+
 import ExplifiedServices from "./pages/work_&_services/ExplifiedServices";
 import ContentMarketingServicePage from "./pages/work_&_services/services_landing_page/ContentMarketingServicePage";
 import YoutubeManagementServicePage from "./pages/work_&_services/services_landing_page/YoutubeManagementServicePage";
@@ -36,7 +36,8 @@ import ImageToVideoConvertor from "./pages/explified_tools/image_to_video_conver
 import VideoFromLink from "./pages/explified_tools/video_from_link/VideoFromLink";
 import TextToVideo from "./pages/explified_tools/text_to_video/TextToVideo";
 import TextToImage from "./pages/explified_tools/text_to_image/TextToImage";
-import { useSelector } from "react-redux";
+import Dashboard from "./pages/dashboard/Dashboard";
+// import { useSelector } from "react-redux";
 
 function App() {
   return (
@@ -72,7 +73,7 @@ function App() {
           />
           <Route path="/seo-and-smo-service" element={<SEOServicePage />} />
 
-          <Route path="/" element={<ExplifiedTools />} />
+          <Route path="/" element={<Dashboard />} />
 
           {/* Tools Page */}
           <Route path="/clipper" element={<Clipper />} />
