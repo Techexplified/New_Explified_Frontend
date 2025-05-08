@@ -37,6 +37,11 @@ import VideoFromLink from "./pages/explified_tools/video_from_link/VideoFromLink
 import TextToVideo from "./pages/explified_tools/text_to_video/TextToVideo";
 import TextToImage from "./pages/explified_tools/text_to_image/TextToImage";
 import { useSelector } from "react-redux";
+import Publish from "./pages/publish_page/Publish";
+import AllChannels from "./pages/publish_page/AllChannels";
+import ConnectToFacebook from "./pages/publish_page/ConnectToFacebook";
+import ConnectToInstagram from "./pages/publish_page/ConnectToInstagram";
+import ConnectToTwitter from "./pages/publish_page/ConnectToTwitter";
 
 function App() {
   const user = useSelector((state) => state.user);
@@ -79,6 +84,14 @@ function App() {
 
           <Route path="/" element={<ExplifiedTools />} />
 
+          {/* publish dashboard */}
+          <Route path="/publish" element={<Publish/>}>
+            <Route index element={<AllChannels/>}/>
+            <Route path="/publish/connect-to-facebook" element={<ConnectToFacebook/>}/>
+            <Route path="/publish/connect-to-instagram" element={<ConnectToInstagram/>}/>
+            <Route path="/publish/connect-to-twitter" element={<ConnectToTwitter/>}/>
+          </Route>
+
           {/* Tools Page */}
           <Route path="/clipper" element={<Clipper />} />
           <Route path="/subtitling" element={<Subtitling />} />
@@ -93,6 +106,7 @@ function App() {
           <Route path="/ai-image-styler" element={<AIImageStyler />} />
           <Route path="/slideshow" element={<AISlideshow />} />
           <Route path="/ageing_ai" element={<AgeingVideoMaker />} />
+
 
           {/* Landing Page */}
           {/* <Route path="/clipper-landing" element={<ClipperLandingPage />} /> */}

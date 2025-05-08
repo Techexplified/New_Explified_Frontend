@@ -16,6 +16,7 @@ import ServiceIcon from "../assets/icons/service_icon.png";
 import AuthorityIcon from "../assets/icons/authority_icon.png";
 import ContentCreationIcon from "../assets/icons/content_creation_icon.png";
 import DataDrivenIcon from "../assets/icons/data_driven_icon.png";
+import chromeIcon from "../assets/icons/chrome_icon.png"
 
 /// Company Images
 import KushalImgWithBg from "../assets/company_images/kushal_sir_img.jpg";
@@ -67,6 +68,7 @@ export {
     AuthorityIcon,
     ContentCreationIcon,
     DataDrivenIcon,
+    chromeIcon,
     KushalImgWithBg,
     KushalImgWithFrame,
     Background1,
