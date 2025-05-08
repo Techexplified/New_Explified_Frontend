@@ -1,10 +1,18 @@
 import { Tooltip } from "@heroui/react";
 import { useState } from "react";
-import { MdArrowBack, MdOutlineFileUpload } from "react-icons/md";
+import {
+  MdArrowBack,
+  MdOutlineFileDownload,
+  MdOutlineFileUpload,
+} from "react-icons/md";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "../../../network/axiosInstance";
 
 const RemoveBackground = () => {
   const [image, setImage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [previewImage, setPreviewImage] = useState("");
+  const [imageBg, setImageBg] = useState("");
   const navigate = useNavigate();
 
   const handleImageChange = (e) => {
@@ -13,15 +21,43 @@ const RemoveBackground = () => {
       const reader = new FileReader();
 
       reader.onloadend = () => {
-        setImage(reader.result);
+        const base64String = reader.result.split(",")[1]; // Remove the data:image/...;base64, part
+        setImage(base64String);
+        setPreviewImage(reader.result);
       };
 
       reader.readAsDataURL(file);
     }
   };
 
+  const handleBgRemoval = async (e) => {
+    e.preventDefault();
+    if (!image) return;
+
+    try {
+      setLoading(true);
+
+      const res = await axiosInstance.post(
+        "api/bgRemover/",
+        { image },
+        {
+          withCredentials: true,
+        }
+      );
+
+      console.log(res.data);
+      setImageBg(res?.data?.data);
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+    }
+  };
+
+  console.log(imageBg);
+
   return (
-    <div className="w-full h-screen flex flex-col justify-center items-center gap-5">
+    <div className="w-full flex flex-col justify-center items-center gap-5 mt-10">
       <div className="w-full h-10 absolute top-0 p-4 ">
         <Tooltip content="Back">
           <button
@@ -46,15 +82,45 @@ const RemoveBackground = () => {
         </button>
       </form>
 
-      {image && (
-        <div>
-          <img src={image} alt="image" className="h-full w-full object-cover" />
+      {previewImage && (
+        <div className="h-[50%] w-[50%] mx-auto">
+          <img
+            src={previewImage}
+            alt="image"
+            className="h-full w-full object-cover"
+          />
         </div>
       )}
 
-      <button className="w-[60%] rounded-md py-3 bg-purple-500">
+      <button
+        disabled={loading}
+        className="w-[60%] rounded-md py-3 bg-purple-500"
+        onClick={handleBgRemoval}
+      >
         Remove Background
       </button>
+
+      {imageBg && (
+        <>
+          <div className="h-[50%] w-[50%] mx-auto">
+            <img
+              src={`data:image/png;base64,${imageBg}`}
+              alt="image"
+              className="h-full w-full object-cover"
+            />
+          </div>
+
+          <a
+            href={`data:image/png;base64,${imageBg}`}
+            download="bgremoded-image.png"
+          >
+            <button className="rounded-md py-3 px-6 bg-purple-500 flex gap-2 items-center">
+              <MdOutlineFileDownload className="size-6" />
+              Download
+            </button>
+          </a>
+        </>
+      )}
     </div>
   );
 };

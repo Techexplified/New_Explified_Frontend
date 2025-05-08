@@ -17,7 +17,7 @@ import PrivacyPolicy from "./pages/about_pages/PrivacyPolicy";
 import AffiliatePartnerPolicy from "./pages/about_pages/AffiliatePartnerPolicy";
 import ContactUs from "./pages/about_pages/ContactUs";
 import ExplifiedWork from "./pages/work_&_services/ExplifiedWork";
-import ExplifiedTools from "./pages/explified_tools/ExplifiedTools";
+
 import ExplifiedServices from "./pages/work_&_services/ExplifiedServices";
 import ContentMarketingServicePage from "./pages/work_&_services/services_landing_page/ContentMarketingServicePage";
 import YoutubeManagementServicePage from "./pages/work_&_services/services_landing_page/YoutubeManagementServicePage";
@@ -36,6 +36,8 @@ import ImageToVideoConvertor from "./pages/explified_tools/image_to_video_conver
 import VideoFromLink from "./pages/explified_tools/video_from_link/VideoFromLink";
 import TextToVideo from "./pages/explified_tools/text_to_video/TextToVideo";
 import TextToImage from "./pages/explified_tools/text_to_image/TextToImage";
+import Dashboard from "./pages/dashboard/Dashboard";
+// import { useSelector } from "react-redux";
 import { useSelector } from "react-redux";
 import Publish from "./pages/publish_page/Publish";
 import AllChannels from "./pages/publish_page/AllChannels";
@@ -44,17 +46,12 @@ import ConnectToInstagram from "./pages/publish_page/ConnectToInstagram";
 import ConnectToTwitter from "./pages/publish_page/ConnectToTwitter";
 
 function App() {
-  const user = useSelector((state) => state.user);
-
   return (
     <div>
       <Router>
         <Routes>
           <Route path="/web" element={<MainPage />} />
-          <Route
-            path="/login"
-            element={user ? <Navigate to="/subtitling" /> : <LoginPage />}
-          />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsAndServices />} />
@@ -91,6 +88,7 @@ function App() {
             <Route path="/publish/connect-to-instagram" element={<ConnectToInstagram/>}/>
             <Route path="/publish/connect-to-twitter" element={<ConnectToTwitter/>}/>
           </Route>
+          <Route path="/" element={<Dashboard />} />
 
           {/* Tools Page */}
           <Route path="/clipper" element={<Clipper />} />

@@ -3,17 +3,14 @@ import React, { useState } from "react";
 import { FaCheckCircle } from "react-icons/fa";
 import { MdArrowBack, MdOutlineFileUpload } from "react-icons/md";
 import { LogOutIcon } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { removeUser } from "../../../utils/auth_slice/UserSlice";
 
 const Subtitling = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  const user = useSelector((state) => state.user);
-  console.log(user);
 
   const handleLogout = async () => {
     try {
