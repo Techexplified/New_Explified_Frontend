@@ -38,6 +38,12 @@ import TextToVideo from "./pages/explified_tools/text_to_video/TextToVideo";
 import TextToImage from "./pages/explified_tools/text_to_image/TextToImage";
 import Dashboard from "./pages/dashboard/Dashboard";
 // import { useSelector } from "react-redux";
+import { useSelector } from "react-redux";
+import Publish from "./pages/publish_page/Publish";
+import AllChannels from "./pages/publish_page/AllChannels";
+import ConnectToFacebook from "./pages/publish_page/ConnectToFacebook";
+import ConnectToInstagram from "./pages/publish_page/ConnectToInstagram";
+import ConnectToTwitter from "./pages/publish_page/ConnectToTwitter";
 
 function App() {
   return (
@@ -73,6 +79,24 @@ function App() {
           />
           <Route path="/seo-and-smo-service" element={<SEOServicePage />} />
 
+          <Route path="/" element={<ExplifiedTools />} />
+
+          {/* publish dashboard */}
+          <Route path="/publish" element={<Publish />}>
+            <Route index element={<AllChannels />} />
+            <Route
+              path="/publish/connect-to-facebook"
+              element={<ConnectToFacebook />}
+            />
+            <Route
+              path="/publish/connect-to-instagram"
+              element={<ConnectToInstagram />}
+            />
+            <Route
+              path="/publish/connect-to-twitter"
+              element={<ConnectToTwitter />}
+            />
+          </Route>
           <Route path="/" element={<Dashboard />} />
 
           {/* Tools Page */}
