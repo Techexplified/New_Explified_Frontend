@@ -1,10 +1,5 @@
 import "./App.css";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/auth/LoginPage";
 import MainPage from "./pages/landing_pages/MainPage";
 
@@ -37,8 +32,6 @@ import VideoFromLink from "./pages/explified_tools/video_from_link/VideoFromLink
 import TextToVideo from "./pages/explified_tools/text_to_video/TextToVideo";
 import TextToImage from "./pages/explified_tools/text_to_image/TextToImage";
 import Dashboard from "./pages/dashboard/Dashboard";
-// import { useSelector } from "react-redux";
-import { useSelector } from "react-redux";
 import Publish from "./pages/publish_page/Publish";
 import AllChannels from "./pages/publish_page/AllChannels";
 import ConnectToFacebook from "./pages/publish_page/ConnectToFacebook";
@@ -79,14 +72,21 @@ function App() {
           />
           <Route path="/seo-and-smo-service" element={<SEOServicePage />} />
 
-          <Route path="/" element={<ExplifiedTools />} />
-
           {/* publish dashboard */}
-          <Route path="/publish" element={<Publish/>}>
-            <Route index element={<AllChannels/>}/>
-            <Route path="/publish/connect-to-facebook" element={<ConnectToFacebook/>}/>
-            <Route path="/publish/connect-to-instagram" element={<ConnectToInstagram/>}/>
-            <Route path="/publish/connect-to-twitter" element={<ConnectToTwitter/>}/>
+          <Route path="/publish" element={<Publish />}>
+            <Route index element={<AllChannels />} />
+            <Route
+              path="/publish/connect-to-facebook"
+              element={<ConnectToFacebook />}
+            />
+            <Route
+              path="/publish/connect-to-instagram"
+              element={<ConnectToInstagram />}
+            />
+            <Route
+              path="/publish/connect-to-twitter"
+              element={<ConnectToTwitter />}
+            />
           </Route>
           <Route path="/" element={<Dashboard />} />
 
@@ -104,7 +104,6 @@ function App() {
           <Route path="/ai-image-styler" element={<AIImageStyler />} />
           <Route path="/slideshow" element={<AISlideshow />} />
           <Route path="/ageing_ai" element={<AgeingVideoMaker />} />
-
 
           {/* Landing Page */}
           {/* <Route path="/clipper-landing" element={<ClipperLandingPage />} /> */}
