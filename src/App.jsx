@@ -37,6 +37,7 @@ import AllChannels from "./pages/publish_page/AllChannels";
 import ConnectToFacebook from "./pages/publish_page/ConnectToFacebook";
 import ConnectToInstagram from "./pages/publish_page/ConnectToInstagram";
 import ConnectToTwitter from "./pages/publish_page/ConnectToTwitter";
+import Grow from "./pages/grow_page/Grow";
 
 function App() {
   return (
@@ -87,6 +88,11 @@ function App() {
               path="/publish/connect-to-twitter"
               element={<ConnectToTwitter />}
             />
+          </Route>
+          <Route path="/" element={<Dashboard />} />
+
+           {/* grow dashboard */}
+           <Route path="/grow" element={<Grow/>}>
           </Route>
           <Route path="/" element={<Dashboard />} />
 
