@@ -2,6 +2,7 @@ import { MdOutlineCreateNewFolder } from "react-icons/md";
 import ExplifiedTools from "./ExplifiedTools";
 import { IoCreateOutline } from "react-icons/io5";
 import { RiCompassDiscoverLine } from "react-icons/ri";
+import { Link } from "react-router-dom";
 
 function Sidebar() {
   return (
@@ -15,10 +16,12 @@ function Sidebar() {
           <MdOutlineCreateNewFolder size={30} />
           <span className="text-white text-xs text-center">Your Creations</span>
         </div>
-        <div className="flex flex-col items-center justify-center rounded-xl ">
-          <RiCompassDiscoverLine size={30} />
-          <span className="text-white text-xs text-center">Discover</span>
-        </div>
+        <Link to="/dashboard/discover">
+          <div className="flex flex-col items-center justify-center rounded-xl ">
+            <RiCompassDiscoverLine size={30} />
+            <span className="text-white text-xs text-center">Discover</span>
+          </div>
+        </Link>
       </div>
 
       <ExplifiedTools />

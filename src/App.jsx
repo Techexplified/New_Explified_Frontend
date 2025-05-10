@@ -31,13 +31,16 @@ import ImageToVideoConvertor from "./pages/explified_tools/image_to_video_conver
 import VideoFromLink from "./pages/explified_tools/video_from_link/VideoFromLink";
 import TextToVideo from "./pages/explified_tools/text_to_video/TextToVideo";
 import TextToImage from "./pages/explified_tools/text_to_image/TextToImage";
-import Dashboard from "./pages/dashboard/Dashboard";
 import Publish from "./pages/publish_page/Publish";
 import AllChannels from "./pages/publish_page/AllChannels";
 import ConnectToFacebook from "./pages/publish_page/ConnectToFacebook";
 import ConnectToInstagram from "./pages/publish_page/ConnectToInstagram";
 import ConnectToTwitter from "./pages/publish_page/ConnectToTwitter";
 import SignupPage from "./pages/auth/SignupPage";
+import DashboardLayout from "./pages/dashboard/DashboardLayout";
+import Dashboard from "./pages/dashboard/Dashboard";
+import Discover from "./pages/dashboard/Discover";
+import Trending from "./pages/dashboard/Trending";
 
 function App() {
   return (
@@ -90,7 +93,11 @@ function App() {
               element={<ConnectToTwitter />}
             />
           </Route>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={<DashboardLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="/dashboard/discover" element={<Discover />} />
+            <Route path="/dashboard/trending" element={<Trending />} />
+          </Route>
 
           {/* Tools Page */}
           <Route path="/clipper" element={<Clipper />} />
