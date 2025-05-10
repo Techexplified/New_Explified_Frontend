@@ -73,7 +73,7 @@ const tools = [
 function ExplifiedTools() {
   const navigate = useNavigate();
   return (
-    <div className="mt-6 grid grid-cols-2 gap-2">
+    <div className="grid grid-cols-2 gap-2">
       {tools.map((tool, i) => (
         <div
           key={i}

@@ -1,6 +1,6 @@
 const Tabs = () => {
   return (
-    <div className="flex gap-4 ml-52">
+    <div className="flex gap-4 ">
       <button className="bg-[#23b5b5] text-white px-6 py-1 rounded">
         Create
       </button>

@@ -37,6 +37,7 @@ import AllChannels from "./pages/publish_page/AllChannels";
 import ConnectToFacebook from "./pages/publish_page/ConnectToFacebook";
 import ConnectToInstagram from "./pages/publish_page/ConnectToInstagram";
 import ConnectToTwitter from "./pages/publish_page/ConnectToTwitter";
+import SignupPage from "./pages/auth/SignupPage";
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
         <Routes>
           <Route path="/web" element={<MainPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsAndServices />} />

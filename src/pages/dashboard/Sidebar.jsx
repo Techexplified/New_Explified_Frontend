@@ -21,14 +21,7 @@ function Sidebar() {
         </div>
       </div>
 
-      <div>
-        <input
-          type="text"
-          placeholder="Search Tool....."
-          className="w-full p-2 rounded bg-white text-black placeholder-gray-500"
-        />
-        <ExplifiedTools />
-      </div>
+      <ExplifiedTools />
     </aside>
   );
 }

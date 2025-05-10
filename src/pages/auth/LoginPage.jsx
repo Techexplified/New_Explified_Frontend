@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../../utils/auth_slice/UserSlice";
 import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../../network/axiosInstance";
@@ -130,9 +130,11 @@ export default function LoginPage() {
 
               <p className="text-center text-sm text-gray-400">
                 Create an account?{" "}
-                <span className="text-[#23b5b5] cursor-pointer hover:underline">
-                  SignUp
-                </span>
+                <Link to="/signup">
+                  <span className="text-[#23b5b5] cursor-pointer hover:underline">
+                    SignUp
+                  </span>
+                </Link>
               </p>
             </div>
           </div>
@@ -140,9 +142,9 @@ export default function LoginPage() {
 
         <div className="hidden md:flex items-center justify-center">
           <img
-            src="/content_creator.png"
+            src="/images/login.png"
             alt="Login Illustration"
-            className="w-full h-[300px] object-cover"
+            className="w-full h-full object-cover"
           />
         </div>
       </div>

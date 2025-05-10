@@ -26,8 +26,9 @@ function TextToImage() {
   const navigate = useNavigate();
 
   return (
-    <div className="w-full h-screen flex flex-row justify-center items-center">
-      <div className="w-full h-10 absolute top-0 p-4 ">
+    <div className="p-10 space-y-10">
+      {/* Tooltip */}
+      <div className="h-10 absolute top-4">
         <Tooltip content="Back">
           <button
             className="rounded-full p-[10px] border-2 border-white hover:bg-gray-200/20 cursor-pointer"
@@ -37,32 +38,31 @@ function TextToImage() {
           </button>
         </Tooltip>
       </div>
-      <div className="w-1/2 flex flex-col gap-8">
-        <h1 className="text-7xl text-center font-englebert font-bold">
-          Generate Image From Text
+
+      {/* form div */}
+      <div className="max-w-3xl mx-auto flex flex-col justify-center gap-8">
+        <h1 className="text-4xl text-center font-bold">
+          Imagine AI Art Generator
         </h1>
 
-        <form className="space-y-4">
-          <div className="flex flex-col gap-2">
-            <label htmlFor="text">Enter Text Below :</label>
-            <textarea
-              name="text"
-              id="text"
-              rows={5}
-              placeholder="Enter text..."
-              className="border border-gray-100 rounded-md px-4 py-2"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-            ></textarea>
+        <form className="flex gap-2">
+          <textarea
+            name="text"
+            rows={1}
+            placeholder="Enter text..."
+            className="border border-gray-100 w-full rounded-md px-4 py-2"
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+          ></textarea>
+          <div>
+            <button
+              type="submit"
+              onClick={handleSubmit}
+              className="rounded-md py-3 px-10 bg-[#23b5b5]"
+            >
+              Create
+            </button>
           </div>
-
-          <button
-            type="submit"
-            onClick={handleSubmit}
-            className="rounded-md w-full py-3 bg-purple-500"
-          >
-            Generate Image
-          </button>
         </form>
 
         {image && (
@@ -82,29 +82,90 @@ function TextToImage() {
             </a>
           </>
         )}
+      </div>
 
-        <div className="grid grid-cols-3 gap-6">
-          <div className="h-48">
+      {/* collage image */}
+      <div className="grid grid-cols-4 gap-2 p-2">
+        <div>
+          <img
+            src="/images/aitiger.jpg"
+            alt="ai"
+            className="h-full w-full object-cover"
+          />
+        </div>
+        <div>
+          <img
+            src="/images/aigirl.jpg"
+            alt="ai"
+            className="h-full w-full object-cover"
+          />
+        </div>
+
+        <div className="row-span-2">
+          <img
+            src="/images/ai-robot.avif"
+            alt="ai"
+            className="h-full w-full object-cover"
+          />
+        </div>
+        <div className="row-span-2">
+          <img
+            src="/images/reading.jpg"
+            alt="ai"
+            className="h-full w-full object-cover"
+          />
+        </div>
+        <div>
+          <img
+            src="/images/aitree.jpg"
+            alt="ai"
+            className="h-full w-full object-cover"
+          />
+        </div>
+        <div>
+          <img
+            src="/images/aihorse.jpg"
+            alt="ai"
+            className="h-full w-full object-cover"
+          />
+        </div>
+      </div>
+
+      {/* grid box */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-12">
+        <div className="col-span-3 p-8 flex items-center justify-center">
+          <p className="text-xl leading-relaxed">
+            With the power of immersive VR, your hands are no longer bound by
+            reality. Interact with art, emotion, and energy like never before.
+            Whether you're creating, exploring, or expressing—this is where your
+            digital presence feels human.
+          </p>
+        </div>
+        <div className="col-span-2 p-8">
+          <div className="p-2 bg-white rounded-md">
             <img
-              src="/images/brand_design.jpg"
+              src="/images/aiperson.jpg"
               alt="image"
-              className="h-full w-full object-cover rounded-md"
+              className="w-full h-full object-cover rounded-md"
             />
           </div>
-          <div className="h-48">
+        </div>
+        <div className="col-span-2 p-8 order-2 md:order-[0]">
+          <div className="p-2 bg-white rounded-md">
             <img
-              src="/images/content_creator.png"
+              src="/images/airobot.jpg"
               alt="image"
-              className="h-full w-full object-cover rounded-md"
+              className="w-full h-full object-cover rounded-md"
             />
           </div>
-          <div className="h-48">
-            <img
-              src="/images/ui_ux.png"
-              alt="image"
-              className="h-full w-full object-cover rounded-md"
-            />
-          </div>
+        </div>
+        <div className="col-span-3 p-8 flex items-center justify-center">
+          <p className="text-xl leading-relaxed">
+            A surreal fusion of identity and virtuality. With a VR headset,
+            become more than human—experience a dimension where fantasy,
+            creativity, and consciousness collide. This is not just tech. It's a
+            portal to your mind’s most abstract realms.
+          </p>
         </div>
       </div>
     </div>
