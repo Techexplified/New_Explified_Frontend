@@ -24,8 +24,8 @@ const AllChannels = () => {
                 <MdFeedback/>
                 <p>Share Feedback</p>
               </div>
-              <button className='border-1 py-1 px-2 text-sm border-white bg-white text-black hover:bg-[#23b5b5] hover:text-white transition-all duration-300'><div className="flex gap-2 justify-center items-center"><SlCalender /> <p>Calender</p></div></button>
-              <button className='border-1 py-1 px-2 text-sm border-white bg-white text-black hover:bg-[#23b5b5] hover:text-white   transition-all duration-300'> + New Post</button>
+              <button className='border-1 sm:py-1 sm:px-2 p-1 text-sm border-white bg-white text-black hover:bg-[#23b5b5] hover:text-white transition-all duration-300'><div className="flex gap-2 justify-center items-center"><SlCalender /> <p>Calender</p></div></button>
+              <button className='border-1 sm:py-1 sm:px-2 p-1 text-sm border-white bg-white text-black hover:bg-[#23b5b5] hover:text-white   transition-all duration-300'> + New Post</button>
             </div>
 
           </div>
@@ -95,9 +95,9 @@ const AllChannels = () => {
 
                 <p className='mt-5 text-[#dcdcdc]'>Use AI Tools ....</p>
                 <div className="w-full flex gap-5 mt-2 flex-wrap">
-                  <button className='p-8 border-1 border-white rounded hover:bg-[#23b5b5] transition-all duration-200'>Gif Generator</button>
-                  <button className='p-8 border-1 border-white rounded hover:bg-[#23b5b5] transition-all duration-200'>AI Subtitle Tool</button>
-                  <button className='p-8 border-1 border-white rounded hover:bg-[#23b5b5] transition-all duration-200'>Video To Text</button>
+                  <button className='sm:p-8 p-4 border-1 border-white rounded hover:bg-[#23b5b5] transition-all duration-200'>Gif Generator</button>
+                  <button className='sm:p-8 p-4 border-1 border-white rounded hover:bg-[#23b5b5] transition-all duration-200'>AI Subtitle Tool</button>
+                  <button className='sm:p-8 p-4 border-1 border-white rounded hover:bg-[#23b5b5] transition-all duration-200'>Video To Text</button>
                 </div>
 
               </div>

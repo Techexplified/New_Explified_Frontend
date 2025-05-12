@@ -6,6 +6,7 @@ import { GrChannel } from "react-icons/gr";
 import { SlCalender } from "react-icons/sl";
 import { MdFeedback } from "react-icons/md";
 import { Link, Outlet } from 'react-router-dom';
+import Header from '../../reusable_components/Header';
 
 
 const Publish = () => {
@@ -26,23 +27,7 @@ const Publish = () => {
     <>
 
 
-      <div className="header bg-black w-full h-fit py-2 flex flex-row  items-center px-1 sticky top-0 z-50">
-
-        <div className='w-full flex justify-start gap-5 relative'>
-          <button className='bg-white text-black py-2 px-5 rounded-2xl text-xl transition-all duration-200 border-1 border-white hover:bg-[#23b5b5] hover:text-white'><IoArrowBack /></button>
-          <button className='bg-white text-black py-2 px-5 rounded-2xl transition-all duration-200 border-1 border-white hover:bg-[#23b5b5] hover:text-white'>Create</button>
-          <button className='bg-[#23b5b5] text-white py-2 px-5 rounded-2xl transition-all duration-200 border-1 border-white hover:bg-[#23b5b5] hover:text-white'>Publish</button>
-          <button className='bg-white text-black py-2 px-5 rounded-2xl transition-all duration-200 border-1 border-white hover:bg-[#23b5b5] hover:text-white'>Grow</button>
-        </div>
-        <div className='w-full flex sm:justify-end justify-center px-2'>
-          <button className='bg-white text-black py-2 px-5 rounded-full transition-all duration-200 border-1 border-white hover:bg-[#23b5b5] hover:text-white'>
-            <div className="flex gap-1 items-center">
-              <img className='w-[20px] h-[20px]' src={images.chromeIcon} alt="" />
-              <p>Install Extension</p>
-            </div>
-          </button>
-        </div>
-      </div>
+     <Header/>
 
       {/* SIDEBAR  */}
 
@@ -96,11 +81,11 @@ const Publish = () => {
 
       {/* </div>  */}
 
-      <div className="flex">
+      <div className="flex bg-black">
         {/* Sidebar - Fixed */}
         <div
           className={`fixed top-12 left-0 z-20 h-screen bg-black p-5 pt-8 transition-all duration-100 border-r border-[#b3b3b3] ${open ? "w-72" : "w-20"
-            }`}
+            } invisible sm:visible `}
         >
           <p
             className={`text-2xl text-black font-semibold bg-white p-1 absolute cursor-pointer -right-4 top-9 border-[#757575] border-2 rounded-full ${!open && "rotate-180"
@@ -129,7 +114,7 @@ const Publish = () => {
                 to={Menu.path}
                 key={index}
                 className={`flex items-center ${open ? "justify-start" : "justify-center"
-                  } rounded-md p-2 cursor-pointer text-black border border-[#23b5b5] hover:bg-[#23b5b5]
+                  } rounded-md p-2 cursor-pointer border border-[#23b5b5] hover:bg-[#23b5b5]
           ${Menu.gap ? "mt-9" : "mt-2"} ${selectedIndex === index ? "bg-[#23b5b5]" : ""} text-white`}
                 onClick={() => {
                   setSelectedIndex(index);
@@ -151,12 +136,33 @@ const Publish = () => {
         </div>
 
         {/* Main Content - Scrollable */}
-        <div className="w-20 bg-black"></div>
+        <div className="sm:w-20 w-0 bg-black"></div>
         <Outlet />
 
       </div>
 
+      <div className="sm:hidden bg-black w-full h-fit py-2 flex items-center px-1 sticky bottom-0 z-50 visible border-0">
 
+        <div className="w-full flex justify-around">
+          {Menus.map((Menu, index) => (
+            <Link
+              to={Menu.path}
+              key={index}
+              className={`rounded-md p-2 cursor-pointer text-black border border-[#23b5b5] ${selectedIndex === index ? "bg-[#23b5b5]" : ""} text-white`}
+              onClick={() => {
+                setSelectedIndex(index);
+                setOpen(false);
+              }}
+            >
+              <div className="flex gap-2 items-center justify-center">
+                {Menu.icon}
+              </div>
+            </Link>
+          ))}
+
+        </div>
+
+      </div>
 
     </>
   );

@@ -41,6 +41,7 @@ import DashboardLayout from "./pages/dashboard/DashboardLayout";
 import Dashboard from "./pages/dashboard/Dashboard";
 import Discover from "./pages/dashboard/Discover";
 import Trending from "./pages/dashboard/Trending";
+import Grow from "./pages/grow_page/Grow";
 
 function App() {
   return (
@@ -93,6 +94,11 @@ function App() {
               element={<ConnectToTwitter />}
             />
           </Route>
+          <Route path="/" element={<Dashboard />} />
+
+          {/* grow dashboard */}
+          <Route path="/grow" element={<Grow />}></Route>
+          <Route path="/" element={<Dashboard />} />
           <Route path="/" element={<DashboardLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="/dashboard/discover" element={<Discover />} />
