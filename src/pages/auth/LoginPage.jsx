@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../../utils/auth_slice/UserSlice";
 import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../../network/axiosInstance";
-import Logo from "../dashboard/Logo";
+import Logo from "../../reusable_components/Logo";
 
 const initialState = {
   email: "",
