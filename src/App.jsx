@@ -89,12 +89,10 @@ function App() {
               element={<ConnectToTwitter />}
             />
           </Route>
-          <Route path="/" element={<Dashboard />} />
 
            {/* grow dashboard */}
            <Route path="/grow" element={<Grow/>}>
           </Route>
-          <Route path="/" element={<Dashboard />} />
 
           {/* Tools Page */}
           <Route path="/clipper" element={<Clipper />} />
