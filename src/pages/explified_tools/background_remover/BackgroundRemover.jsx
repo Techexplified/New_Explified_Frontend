@@ -54,6 +54,8 @@ const RemoveBackground = () => {
     }
   };
 
+
+  
   console.log(imageBg);
 
   return (
