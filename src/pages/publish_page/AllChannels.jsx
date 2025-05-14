@@ -8,7 +8,7 @@ import { FaFacebook, FaInstagram, FaTwitter ,FaYoutube,FaLinkedin} from "react-i
 
 const AllChannels = () => {
   return (
-    <div className="min-h-screen w-full text-white bg-black px-5 py-2 flex flex-col"> 
+    <div className="min-h-screen w-full text-white bg-black px-5 py-2 flex flex-col pt-20"> 
 
           <div className="flex sm:flex-row flex-col justify-between w-full sm:gap-0 gap-5">
 

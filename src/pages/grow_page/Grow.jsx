@@ -288,9 +288,9 @@ const Grow = () => {
 
     return (
         <>
-            <Header />
+            <Header index ={2} />
 
-            <div className='min-h-screen bg-black'>
+            <div className='min-h-screen bg-black pt-20'>
 
                 <div className="w-full">
 

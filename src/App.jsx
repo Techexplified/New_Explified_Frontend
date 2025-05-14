@@ -98,6 +98,7 @@ function App() {
           {/* grow dashboard */}
           <Route path="/grow" element={<Grow />}></Route>
 
+
           <Route path="/" element={<DashboardLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="/dashboard/discover" element={<Discover />} />
