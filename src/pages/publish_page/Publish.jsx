@@ -7,6 +7,7 @@ import { SlCalender } from "react-icons/sl";
 import { MdFeedback } from "react-icons/md";
 import { Link, Outlet } from 'react-router-dom';
 import Header from '../../reusable_components/Header';
+import DashboardNavbar from '../../reusable_components/DashboardNavbar';
 
 
 const Publish = () => {
@@ -27,7 +28,8 @@ const Publish = () => {
     <>
 
 
-     <Header/>
+     <Header index={1}/>
+     {/* <DashboardNavbar/> */}
 
       {/* SIDEBAR  */}
 
@@ -84,7 +86,7 @@ const Publish = () => {
       <div className="flex bg-black">
         {/* Sidebar - Fixed */}
         <div
-          className={`fixed top-12 left-0 z-20 h-screen bg-black p-5 pt-8 transition-all duration-100 border-r border-[#b3b3b3] ${open ? "w-72" : "w-20"
+          className={`fixed top-16 left-0 z-20 h-screen bg-black p-5 pt-8 transition-all duration-100 border-r border-[#b3b3b3] ${open ? "w-72" : "w-20"
             } invisible sm:visible `}
         >
           <p

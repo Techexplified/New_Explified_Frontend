@@ -10,12 +10,14 @@ import {
   Select,
   SelectItem,
   Tooltip,
+  Spinner,
 } from "@heroui/react";
 import { Settings2Icon } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import { MdArrowBack } from "react-icons/md";
 import { RiAiGenerate } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from '../../../network/axiosInstance'
 
 const styles = ["Cartoon", "Realistic", "Pixel Art", "Watercolor"];
 const quality = ["Low", "Medium", "High", "Ultra"];
@@ -26,7 +28,29 @@ const moods = ["Happy", "Dark", "Whimsical", "Chill"];
 const GIFGenerator = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const navigate = useNavigate();
+  const [gif ,setGif] = useState(null);
+  const [loading ,setLoading] = useState(false);
+  const [prompt ,setPrompt] = useState("");
 
+  const handleGenerateGif = async()=>{
+    try {
+       setGif(null);
+       setLoading(true);
+        const data = {
+          prompt
+        }
+        const res = await axiosInstance.post("api/textToGif",data);
+        console.log(res.data.data.images.original.url);
+        setGif(res.data.data.images.original.url);
+        setLoading(false);
+    } catch (error) {
+        console.log(error);
+    }
+  }
+  const handlePromptChange = (e)=>{
+    // console.log(e.target.value);
+    setPrompt(e.target.value);
+  }
   return (
     <div className="w-full h-screen flex flex-col justify-center items-center">
       <div className="w-full h-10 absolute top-0 p-4 ">
@@ -52,13 +76,15 @@ const GIFGenerator = () => {
             classNames={{
               base: "w-full",
             }}
+            value={prompt}
+            onChange={handlePromptChange}
           />
           <div className="absolute bottom-6 right-6">
             <Button
               size="sm"
               color="secondary"
               className="rounded-md text-sm flex items-center justify-center font-light font-pacifico"
-            >
+            onClick={handleGenerateGif} >
               <RiAiGenerate className="mr-1" /> <span>Generate GIF</span>
             </Button>
           </div>
@@ -139,6 +165,16 @@ const GIFGenerator = () => {
           )}
         </ModalContent>
       </Modal>
+
+      <div className="w-full flex justify-center p-10">
+        {loading && (<div className="flex justify-center">
+         <Spinner/>
+        </div>)}
+        {gif && (
+          <img src={gif} alt="" />
+        )}
+      </div>
+
     </div>
   );
 };

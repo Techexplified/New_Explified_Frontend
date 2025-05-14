@@ -4,7 +4,11 @@ const Tabs = () => {
   return (
     <div className="flex gap-4 ">
       <Link to="/">
-        <button className="bg-[#23b5b5] text-white px-6 py-1 rounded">
+        <button className="bg-[#23b5b5] text-white px-6 py-1 rounded" onClick={() => {
+          console.log(
+            "hello"
+          )
+        }}>
           Create
         </button>
       </Link>
