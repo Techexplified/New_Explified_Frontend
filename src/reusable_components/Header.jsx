@@ -59,7 +59,7 @@ const Header = (props) => {
                 <div className="relative" ref={dropdownRef}>
                     <button
                         onClick={() => setShowApps(!showApps)}
-                        className="text-white text-2xl"
+                        className="text-white text-2xl mt-2"
                     >
                         <MdApps />
                     </button>
