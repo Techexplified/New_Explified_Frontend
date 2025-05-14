@@ -31,12 +31,16 @@ import ImageToVideoConvertor from "./pages/explified_tools/image_to_video_conver
 import VideoFromLink from "./pages/explified_tools/video_from_link/VideoFromLink";
 import TextToVideo from "./pages/explified_tools/text_to_video/TextToVideo";
 import TextToImage from "./pages/explified_tools/text_to_image/TextToImage";
-import Dashboard from "./pages/dashboard/Dashboard";
 import Publish from "./pages/publish_page/Publish";
 import AllChannels from "./pages/publish_page/AllChannels";
 import ConnectToFacebook from "./pages/publish_page/ConnectToFacebook";
 import ConnectToInstagram from "./pages/publish_page/ConnectToInstagram";
 import ConnectToTwitter from "./pages/publish_page/ConnectToTwitter";
+import SignupPage from "./pages/auth/SignupPage";
+import DashboardLayout from "./pages/dashboard/DashboardLayout";
+import Dashboard from "./pages/dashboard/Dashboard";
+import Discover from "./pages/dashboard/Discover";
+import Trending from "./pages/dashboard/Trending";
 import Grow from "./pages/grow_page/Grow";
 
 function App() {
@@ -46,6 +50,7 @@ function App() {
         <Routes>
           <Route path="/web" element={<MainPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsAndServices />} />
@@ -90,8 +95,13 @@ function App() {
             />
           </Route>
 
-           {/* grow dashboard */}
-           <Route path="/grow" element={<Grow/>}>
+          {/* grow dashboard */}
+          <Route path="/grow" element={<Grow />}></Route>
+
+          <Route path="/" element={<DashboardLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="/dashboard/discover" element={<Discover />} />
+            <Route path="/dashboard/trending" element={<Trending />} />
           </Route>
 
           {/* Tools Page */}

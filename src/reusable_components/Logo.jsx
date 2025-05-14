@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ExplifiedLogo } from "../../assets";
+import { ExplifiedLogo } from "../assets";
 
 function Logo() {
   return (

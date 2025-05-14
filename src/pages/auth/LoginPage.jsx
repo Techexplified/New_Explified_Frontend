@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../../utils/auth_slice/UserSlice";
 import { useDispatch, useSelector } from "react-redux";
 import axiosInstance from "../../network/axiosInstance";
-import Logo from "../dashboard/Logo";
+import Logo from "../../reusable_components/Logo";
 
 const initialState = {
   email: "",
@@ -50,14 +50,14 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col px-4">
-      <div className="flex gap-6 w-screen p-4">
+      <div className="p-4">
         <Logo />
       </div>
       <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
         {/* Left Section */}
-        <div className="space-y-6 p-6">
+        <div className="space-y-6 p-6 flex flex-col items-center justify-center">
           <div>
-            <h2 className="text-4xl font-bold">
+            <h2 className="text-4xl text-center font-bold">
               Welcome back to <span className="text-white">Explified</span> ,
             </h2>
             <p className="mt-2 text-gray-300">
@@ -130,9 +130,11 @@ export default function LoginPage() {
 
               <p className="text-center text-sm text-gray-400">
                 Create an account?{" "}
-                <span className="text-[#23b5b5] cursor-pointer hover:underline">
-                  SignUp
-                </span>
+                <Link to="/signup">
+                  <span className="text-[#23b5b5] cursor-pointer hover:underline">
+                    SignUp
+                  </span>
+                </Link>
               </p>
             </div>
           </div>
@@ -140,9 +142,9 @@ export default function LoginPage() {
 
         <div className="hidden md:flex items-center justify-center">
           <img
-            src="/content_creator.png"
+            src="/images/login.png"
             alt="Login Illustration"
-            className="w-full h-[300px] object-cover"
+            className="w-full h-full object-cover"
           />
         </div>
       </div>
