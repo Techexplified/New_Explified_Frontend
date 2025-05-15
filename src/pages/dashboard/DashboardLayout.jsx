@@ -9,23 +9,17 @@ import Header from "../../reusable_components/Header";
 const DashboardLayout = () => {
   return (
     <>
-    <Header index = {0}/>
-    
-    <div className="min-h-screen bg-black text-white flex flex-col">
-      {/* <DashboardNavbar /> */}
-      
-      <div className="grid grid-cols-[auto_1fr] pt-20 h-screen">
-        <Sidebar />
+      <Header index={0} />
 
-        <main className="flex-1 flex flex-col justify-between p-8 h-full">
-          <Outlet />
-        </main>
+      <div className="min-h-screen bg-black text-white flex flex-col">
+        <div className="grid grid-cols-[auto_1fr] pt-20 h-screen">
+          <Sidebar />
 
+          <main className="flex-1 flex flex-col justify-between p-8 h-full">
+            <Outlet />
+          </main>
+        </div>
       </div>
-
-
-    </div>
-
     </>
   );
 };

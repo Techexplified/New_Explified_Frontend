@@ -42,6 +42,7 @@ import Dashboard from "./pages/dashboard/Dashboard";
 import Discover from "./pages/dashboard/Discover";
 import Trending from "./pages/dashboard/Trending";
 import Grow from "./pages/grow_page/Grow";
+import YoutubeSummarizer from "./pages/explified_tools/youtube_summarizer/YoutubeSummarizer";
 
 function App() {
   return (
@@ -98,7 +99,6 @@ function App() {
           {/* grow dashboard */}
           <Route path="/grow" element={<Grow />}></Route>
 
-
           <Route path="/" element={<DashboardLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="/dashboard/discover" element={<Discover />} />
@@ -106,6 +106,7 @@ function App() {
           </Route>
 
           {/* Tools Page */}
+          <Route path="/youtube-summarizer" element={<YoutubeSummarizer />} />
           <Route path="/clipper" element={<Clipper />} />
           <Route path="/subtitling" element={<Subtitling />} />
           <Route path="/video-generator" element={<VideoFromLink />} />
