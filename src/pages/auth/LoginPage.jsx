@@ -33,19 +33,31 @@ export default function LoginPage() {
   }
 
   const handleSubmit = async () => {
-    try {
-      const res = await axiosInstance.post("/api/users/login", formData, {
-        withCredentials: true,
-      });
-      console.log("Success Login:", res.data.user);
+    // try {
+    //   const res = await axiosInstance.post("/api/users/login", formData, {
+    //     withCredentials: true,
+    //   });
+    //   console.log("Success Login:", res.data.user);
 
-      localStorage.setItem("explified", JSON.stringify(res.data.user));
-      setFormData(initialState);
-      dispatch(loginUser(res.data.user));
-      navigate("/");
-    } catch (error) {
-      console.error("Error during login:", error);
-    }
+    //   localStorage.setItem("explified", JSON.stringify(res.data.user));
+    //   setFormData(initialState);
+    //   dispatch(loginUser(res.data.user));
+    //   navigate("/");
+    // } catch (error) {
+    //   console.error("Error during login:", error);
+    // }
+
+    console.log("clicked");
+
+    window.postMessage(
+      {
+        source: "explified-auth",
+        type: "store_token",
+        token: "jwt_token_from_explified",
+      },
+      "*"
+    );
+    console.log("Token postMessage sent");
   };
 
   return (
@@ -113,12 +125,13 @@ export default function LoginPage() {
                   try {
                     const decoded = jwtDecode(resp.credential);
                     // console.log("Login Success: currentUser:", decoded);
+
                     localStorage.setItem(
                       "explified",
                       JSON.stringify({ isLoggedIn: "true" })
                     );
                     dispatch(loginUser(decoded));
-                    navigate("/");
+                    navigate("/youtube-summarizer");
                   } catch (error) {
                     console.error("Error decoding JWT:", error);
                   }
@@ -151,3 +164,26 @@ export default function LoginPage() {
     </div>
   );
 }
+
+// if (
+//   typeof chrome !== "undefined" &&
+//   chrome.runtime &&
+//   chrome.runtime.sendMessage
+// ) {
+//   chrome.runtime.sendMessage(
+//     "fipoiejdeaheomgnibfhpkhjkemfjcdk", // your extension ID
+//     {
+//       type: "store-login",
+//       token: decoded,
+//     },
+//     (response) => {
+//       if (chrome.runtime.lastError) {
+//         console.error("Runtime error:", chrome.runtime.lastError.message);
+//       } else {
+//         console.log("Message sent to extension:", response);
+//       }
+//     }
+//   );
+// } else {
+//   console.warn("Chrome extension API not available");
+// }
