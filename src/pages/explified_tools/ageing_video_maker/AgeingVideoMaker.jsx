@@ -9,7 +9,7 @@ const AgeingVideoMaker = () => {
 
   return (
     <div className="w-full h-screen flex flex-col items-center justify-center gap-5">
-      <div className="w-full h-10 absolute top-0 p-4 ">
+      {/* <div className="w-full h-10 absolute top-0 p-4 ">
         <Tooltip content="Back">
           <button
             className="rounded-full p-[10px] border-2 border-white hover:bg-gray-200/20 cursor-pointer"
@@ -18,7 +18,7 @@ const AgeingVideoMaker = () => {
             <MdArrowBack />
           </button>
         </Tooltip>
-      </div>
+      </div> */}
       <div className="text-8xl font-englebert font-bold mb-12">
         Change your Age
       </div>

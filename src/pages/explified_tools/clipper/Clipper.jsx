@@ -23,8 +23,8 @@ const Clipper = () => {
   const options = ["Sad", "Shock", "Wow", "Happy"];
 
   return (
-    <div className="w-full h-screen flex flex-col justify-center items-center">
-      <div className="w-full h-10 absolute top-0 p-4 ">
+    <div className="w-full h-full flex flex-col justify-center items-center">
+      {/* <div className="w-full h-10 absolute top-0 p-4 ">
         <Tooltip content="Back">
           <button
             className="rounded-full p-[10px] border-2 border-white hover:bg-gray-200/20 cursor-pointer"
@@ -33,7 +33,7 @@ const Clipper = () => {
             <MdArrowBack />
           </button>
         </Tooltip>
-      </div>
+      </div> */}
       <div className="w-[45%] flex flex-col justify-center items-center gap-4">
         {/* Video Link & Upload Section */}
         <div className="w-full flex flex-row items-end gap-4">

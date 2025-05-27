@@ -43,6 +43,11 @@ export default function LoginPage() {
       setFormData(initialState);
       dispatch(loginUser(res.data.user));
       navigate("/");
+
+
+
+
+
     } catch (error) {
       console.error("Error during login:", error);
     }
@@ -112,11 +117,19 @@ export default function LoginPage() {
                 onSuccess={(resp) => {
                   try {
                     const decoded = jwtDecode(resp.credential);
-                    // console.log("Login Success: currentUser:", decoded);
+                    console.log("Login Success: currentUser:", decoded);
                     localStorage.setItem(
                       "explified",
                       JSON.stringify({ isLoggedIn: "true" })
                     );
+                    console.log("clicked");
+
+                    window.postMessage({
+                      source: "explified-auth",
+                      type: "store_token",
+                      token: "jwt_token_from_explified"
+                    }, "*");
+                    console.log("Token postMessage sent");
                     dispatch(loginUser(decoded));
                     navigate("/");
                   } catch (error) {

@@ -34,7 +34,7 @@ const cards = [
 const Discover = () => {
   return (
     <>
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center mt-8">
         <h2 className="text-2xl font-semibold">Discover</h2>
         <button className="bg-[#23b5b5] text-white px-4 py-2 rounded-md">
           AI Assistance

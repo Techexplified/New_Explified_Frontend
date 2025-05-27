@@ -28,7 +28,7 @@ function TextToImage() {
   return (
     <div className="p-10 space-y-10">
       {/* Tooltip */}
-      <div className="h-10 absolute top-4">
+      {/* <div className="h-10 absolute top-4">
         <Tooltip content="Back">
           <button
             className="rounded-full p-[10px] border-2 border-white hover:bg-gray-200/20 cursor-pointer"
@@ -37,7 +37,7 @@ function TextToImage() {
             <MdArrowBack />
           </button>
         </Tooltip>
-      </div>
+      </div> */}
 
       {/* form div */}
       <div className="max-w-3xl mx-auto flex flex-col justify-center gap-8">
