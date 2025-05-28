@@ -103,6 +103,21 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="/dashboard/discover" element={<Discover />} />
             <Route path="/dashboard/trending" element={<Trending />} />
+
+            {/* Tools Page */}
+            <Route path="/clipper" element={<Clipper />} />
+            <Route path="/subtitling" element={<Subtitling />} />
+            <Route path="/video-generator" element={<VideoFromLink />} />
+            <Route path="/gif-generator" element={<GIFGenerator />} />
+            <Route path="/scribble" element={<Scribbling />} />
+            <Route path="/remove-bg" element={<RemoveBackground />} />
+            <Route path="/image-cartoonizer" element={<ImageCartoonizer />} />
+            <Route path="/image-to-video" element={<ImageToVideoConvertor />} />
+            <Route path="/text-to-video" element={<TextToVideo />} />
+            <Route path="/text-to-image" element={<TextToImage />} />
+            <Route path="/ai-image-styler" element={<AIImageStyler />} />
+            <Route path="/slideshow" element={<AISlideshow />} />
+            <Route path="/ageing_ai" element={<AgeingVideoMaker />} />
           </Route>
 
           {/* Tools Page */}

@@ -58,16 +58,16 @@ const RemoveBackground = () => {
 
   return (
     <div className="w-full flex flex-col justify-center items-center gap-5 mt-10">
-      <div className="w-full h-10 absolute top-0 p-4 ">
-        <Tooltip content="Back">
+      {/* <div className="w-full h-10 absolute top-0 p-4 "> */}
+        {/* <Tooltip content="Back">
           <button
             className="rounded-full p-[10px] border-2 border-white hover:bg-gray-200/20 cursor-pointer"
             onClick={() => navigate(-1)}
           >
             <MdArrowBack />
           </button>
-        </Tooltip>
-      </div>
+        </Tooltip> */}
+      {/* </div> */}
       <form className="w-[60%] flex gap-4 justify-between">
         <input
           type="file"
@@ -83,7 +83,7 @@ const RemoveBackground = () => {
       </form>
 
       {previewImage && (
-        <div className="h-[50%] w-[50%] mx-auto">
+        <div className="h-full w-[50%] mx-auto">
           <img
             src={previewImage}
             alt="image"
@@ -102,7 +102,7 @@ const RemoveBackground = () => {
 
       {imageBg && (
         <>
-          <div className="h-[50%] w-[50%] mx-auto">
+          <div className="h-full w-[50%] mx-auto">
             <img
               src={`data:image/png;base64,${imageBg}`}
               alt="image"

@@ -10,7 +10,7 @@ const TextToVideo = () => {
 
   return (
     <div className="w-full h-screen flex flex-row justify-center items-center">
-      <div className="w-full h-10 absolute top-0 p-4 ">
+      {/* <div className="w-full h-10 absolute top-0 p-4 ">
         <Tooltip content="Back">
           <button
             className="rounded-full p-[10px] border-2 border-white hover:bg-gray-200/20 cursor-pointer"
@@ -19,7 +19,7 @@ const TextToVideo = () => {
             <MdArrowBack />
           </button>
         </Tooltip>
-      </div>
+      </div> */}
       <div className="w-1/2 flex flex-col gap-8">
         <h1 className="text-7xl text-center font-englebert font-bold">
           Generate Video From Text

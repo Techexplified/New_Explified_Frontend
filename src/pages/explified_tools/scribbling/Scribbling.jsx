@@ -135,9 +135,9 @@ const Scribbling = () => {
   // };
 
   return (
-    <div className="flex flex-col items-center justify-center w-screen h-screen overflow-hidden">
+    <div className="flex flex-col items-center justify-center w-full h-full">
       <div className="w-full flex flex-row justify-between items-center px-10 py-4">
-        <div className="w-[50%] flex flex-row gap-2 justify-evenly items-center">
+        <div className="w-full flex flex-row gap-2 justify-evenly items-center">
           <button
             onClick={() => {
               setSelectedShape(null);
@@ -212,7 +212,7 @@ const Scribbling = () => {
           ))}
         </div>
       </div>
-      <div className="relative w-screen h-screen">
+      <div className="relative w-full h-full">
         <canvas
           ref={canvasRef}
           style={{

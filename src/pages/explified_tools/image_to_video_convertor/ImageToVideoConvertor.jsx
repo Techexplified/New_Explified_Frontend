@@ -21,9 +21,8 @@ const ImageToVideoConvertor = () => {
   };
 
   return (
-    <div className="p-10 space-y-10">
-      {/* Tooltip */}
-      <div className="h-10 absolute top-4">
+    <div className="w-full h-screen flex flex-row items-center justify-center">
+      {/* <div className="w-full h-10 absolute top-0 p-4 ">
         <Tooltip content="Back">
           <button
             className="rounded-full p-[10px] border-2 border-white hover:bg-gray-200/20 cursor-pointer"
@@ -32,12 +31,10 @@ const ImageToVideoConvertor = () => {
             <MdArrowBack />
           </button>
         </Tooltip>
-      </div>
-
-      {/* form div */}
-      <div className="max-w-3xl mx-auto flex flex-col justify-center gap-8">
-        <h1 className="text-4xl text-center font-bold">
-          Convert Image To Video AI
+      </div> */}
+      <div className="w-1/2 flex flex-col gap-8">
+        <h1 className="text-8xl text-center font-englebert font-bold">
+          Image to Video AI
         </h1>
 
         <form className="flex gap-2">

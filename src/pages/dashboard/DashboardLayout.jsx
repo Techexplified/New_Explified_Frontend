@@ -11,14 +11,16 @@ const DashboardLayout = () => {
     <>
       <Header index={0} />
 
-      <div className="min-h-screen bg-black text-white flex flex-col">
-        <div className="grid grid-cols-[auto_1fr] pt-20 h-screen">
-          <Sidebar />
+      <div className="h-screen bg-black text-white flex flex-row">
+        {/* <DashboardNavbar /> */}
 
-          <main className="flex-1 flex flex-col justify-between p-8 h-full">
-            <Outlet />
-          </main>
+        <div className="grid grid-cols-[auto_1fr] pt-20 h-full overflow-y-auto !scrollbar-thin">
+          <Sidebar />
         </div>
+
+        <main className="flex-1 flex flex-col justify-between p-8 h-full overflow-y-auto !scrollbar-thin">
+          <Outlet />
+        </main>
       </div>
     </>
   );

@@ -120,7 +120,7 @@ function ImageCartoonizer() {
 
   return (
     <div className="w-full flex flex-col justify-center items-center gap-6 mt-10">
-      <div className="w-full h-10 absolute top-0 p-4 ">
+      {/* <div className="w-full h-10 absolute top-0 p-4 ">
         <Tooltip content="Back">
           <button
             className="rounded-full p-[10px] border-2 border-white hover:bg-gray-200/20 cursor-pointer"
@@ -129,7 +129,7 @@ function ImageCartoonizer() {
             <MdArrowBack />
           </button>
         </Tooltip>
-      </div>
+      </div> */}
       <div className="w-[50%] flex flex-col justify-center items-center gap-16 mb-10">
         <h1 className="text-7xl text-center font-pacifico">
           Image Cartoonizer

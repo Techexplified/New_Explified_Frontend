@@ -32,8 +32,8 @@ const Subtitling = () => {
   };
 
   return (
-    <div className="w-full h-screen flex flex-col items-center justify-center gap-5">
-      <div className="w-full h-10 absolute top-0 p-4 ">
+    <div className="w-full h-full flex flex-col items-center justify-center gap-5">
+      {/* <div className="w-full h-10 absolute top-0 p-4 ">
         <Tooltip content="Back">
           <button
             className="rounded-full p-[10px] border-2 border-white hover:bg-gray-200/20 cursor-pointer"
@@ -52,7 +52,7 @@ const Subtitling = () => {
             <LogOutIcon />
           </button>
         </Tooltip>
-      </div>
+      </div> */}
       <div className="w-[45%] flex flex-row">
         <Input
           name="videoLink"
