@@ -122,7 +122,7 @@ function App() {
 
           {/* Tools Page */}
           <Route path="/youtube-summarizer" element={<YoutubeSummarizer />} />
-          <Route path="/clipper" element={<Clipper />} />
+          {/* <Route path="/clipper" element={<Clipper />} />
           <Route path="/subtitling" element={<Subtitling />} />
           <Route path="/video-generator" element={<VideoFromLink />} />
           <Route path="/gif-generator" element={<GIFGenerator />} />
@@ -134,7 +134,7 @@ function App() {
           <Route path="/text-to-image" element={<TextToImage />} />
           <Route path="/ai-image-styler" element={<AIImageStyler />} />
           <Route path="/slideshow" element={<AISlideshow />} />
-          <Route path="/ageing_ai" element={<AgeingVideoMaker />} />
+          <Route path="/ageing_ai" element={<AgeingVideoMaker />} /> */}
 
           {/* Landing Page */}
           {/* <Route path="/clipper-landing" element={<ClipperLandingPage />} /> */}

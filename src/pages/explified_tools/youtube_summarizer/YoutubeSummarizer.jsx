@@ -29,7 +29,7 @@ const YoutubeSummarizer = () => {
 
   const [videoUrl, setVideoUrl] = useState("");
   const [videoId, setVideoId] = useState("");
-  const [loading, setLoading] = useState(RiTruckLine);
+  const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState("");
   const [searchParams] = useSearchParams();
   const videoIdYt = searchParams.get("videoId");
