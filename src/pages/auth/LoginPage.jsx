@@ -20,7 +20,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (user) {
-      navigate("/");
+      navigate("/youtube-summarizer");
     }
   }, [user, navigate]);
 
@@ -38,7 +38,6 @@ export default function LoginPage() {
     //     withCredentials: true,
     //   });
     //   console.log("Success Login:", res.data.user);
-
     //   localStorage.setItem("explified", JSON.stringify(res.data.user));
     //   setFormData(initialState);
     //   dispatch(loginUser(res.data.user));
@@ -46,18 +45,16 @@ export default function LoginPage() {
     // } catch (error) {
     //   console.error("Error during login:", error);
     // }
-
-    console.log("clicked");
-
-    window.postMessage(
-      {
-        source: "explified-auth",
-        type: "store_token",
-        token: "jwt_token_from_explified",
-      },
-      "*"
-    );
-    console.log("Token postMessage sent");
+    // console.log("clicked");
+    // window.postMessage(
+    //   {
+    //     source: "explified-auth",
+    //     type: "store_token",
+    //     token: "jwt_token_from_explified",
+    //   },
+    //   "*"
+    // );
+    // console.log("Token postMessage sent");
   };
 
   return (
@@ -125,6 +122,18 @@ export default function LoginPage() {
                   try {
                     const decoded = jwtDecode(resp.credential);
                     // console.log("Login Success: currentUser:", decoded);
+
+                    console.log("clicked");
+
+                    window.postMessage(
+                      {
+                        source: "explified-auth",
+                        type: "store_token",
+                        token: decoded?.email,
+                      },
+                      "*"
+                    );
+                    console.log("Token postMessage sent");
 
                     localStorage.setItem(
                       "explified",

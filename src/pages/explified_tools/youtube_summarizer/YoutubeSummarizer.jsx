@@ -1,12 +1,14 @@
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate, useSearchParams } from "react-router-dom";
 import Header from "../../../reusable_components/Header";
 import Sidebar from "../../dashboard/Sidebar";
 import { BsGrid } from "react-icons/bs";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaYoutube } from "react-icons/fa6";
 import { X } from "lucide-react";
 import axiosInstance from "../../../network/axiosInstance";
 import { ExplifiedLogo } from "../../../assets";
+import { useSelector } from "react-redux";
+import { RiTruckLine } from "react-icons/ri";
 
 const tools = [
   { id: 1, name: "Youtube", icon: <FaYoutube /> },
@@ -26,10 +28,25 @@ const YoutubeSummarizer = () => {
   ]);
 
   const [videoUrl, setVideoUrl] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [summary, setSummary] = useState(
-    "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quod quidem debitis rem, voluptate eos aperiam veritatis possimus error ullam sunt eum tempora at in aliquam ab inventore sit laudantium ipsumLorem ipsum dolor sit amet consectetur adipisicing elit. Quod quidem debitis rem, voluptate eos aperiam veritatis possimus error ullam sunt eum tempora at in aliquam ab inventore sit laudantium ipsumLorem ipsum dolor sit amet consectetur adipisicing elit. Quod quidem debitis rem, voluptate eos aperiam veritatis possimus error ullam sunt eum tempora at in aliquam ab inventore sit laudantium ipsumLorem ipsum dolor sit amet consectetur adipisicing elit. Quod quidem debitis rem, voluptate eos aperiam veritatis possimus error ullam sunt eum tempora at in aliquam ab inventore sit laudantium ipsumLorem ipsum dolor sit amet consectetur adipisicing elit. Quod quidem debitis rem, voluptate eos aperiam veritatis possimus error ullam sunt eum tempora at in aliquam ab inventore sit laudantium ipsumLorem ipsum dolor sit amet consectetur adipisicing elit. Quod quidem debitis rem, voluptate eos aperiam veritatis possimus error ullam sunt eum tempora at in aliquam ab inventore sit laudantium ipsumLorem ipsum dolor sit amet consectetur adipisicing elit. Quod quidem debitis rem, voluptate eos aperiam veritatis possimus error ullam sunt eum tempora at in aliquam ab inventore sit laudantium ipsumLorem ipsum dolor sit amet consectetur adipisicing elit. Quod quidem debitis rem, voluptate eos aperiam veritatis possimus error ullam sunt eum tempora at in aliquam ab inventore sit laudantium ipsumLorem ipsum dolor sit amet consectetur adipisicing elit. Quod quidem debitis rem, voluptate eos aperiam veritatis possimus error ullam sunt eum tempora at in aliquam ab inventore sit laudantium ipsumLorem ipsum dolor sit amet consectetur adipisicing elit. Quod quidem debitis rem, voluptate eos aperiam veritatis possimus error ullam sunt eum tempora at in aliquam ab inventore sit laudantium ipsumLorem ipsum dolor sit amet consectetur adipisicing elit. Quod quidem debitis rem, voluptate eos aperiam veritatis possimus error ullam sunt eum tempora at in aliquam ab inventore sit laudantium ipsumLorem ipsum dolor sit amet consectetur adipisicing elit. Quod quidem debitis rem, voluptate eos aperiam veritatis possimus error ullam sunt eum tempora at in aliquam ab inventore sit laudantium ipsumelit. Quod quidem debitis rem, voluptate eos aperiam veritatis possimus error ullam sunt eum tempora at in aliquam ab inventore sit laudantium ipsumLorem ipsum dolor sit amet consectetur adipisicing elit. Quod quidem debitis rem, voluptate eos aperiam veritatis possimus error ullam sunt eum tempora at in aliquam ab inventore sit laudantium ipsumLorem ipsum dolor sit amet consectetur adipisicing elit. Quod quidem debitis rem, voluptate eos aperiam veritatis possimus error ullam sunt eum tempora at in aliquam ab inventore sit laudantium ipsumelit. Quod quidem debitis rem, voluptate eos aperiam veritatis possimus error ullam sunt eum tempora at in aliquam ab inventore sit laudantium ipsumLorem ipsum dolor sit amet consectetur adipisicing elit. Quod quidem debitis rem, voluptate eos aperiam veritatis possimus error ullam sunt eum tempora at in aliquam ab inventore sit laudantium ipsumLorem ipsum dolor sit amet consectetur adipisicing elit. Quod quidem debitis rem, voluptate eos aperiam veritatis possimus error ullam sunt eum tempora at in aliquam ab inventore sit laudantium ipsumQuod quidem debitis rem, voluptate eos aperiam veritatis possimus error ullam sunt eum tempora at in aliquam ab inventore sit laudantium ipsumLorem ipsum dolor sit amet consectetur adipisicing elit. Quod quidem debitis rem, voluptate eos aperiam veritatis possimus error ullam sunt eum tempora at in aliquam ab inventore sit laudantium ipsum"
-  );
+  const [videoId, setVideoId] = useState("");
+  const [loading, setLoading] = useState(RiTruckLine);
+  const [summary, setSummary] = useState("");
+  const [searchParams] = useSearchParams();
+  const videoIdYt = searchParams.get("videoId");
+  const navigate = useNavigate();
+
+  const user = useSelector((state) => state.user);
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
+
+  useEffect(() => {
+    if (!videoIdYt) return;
+    getTranscript(videoIdYt);
+  }, [videoIdYt]);
 
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
@@ -44,15 +61,23 @@ const YoutubeSummarizer = () => {
     setSelected(selected.filter((t) => t.id !== id));
   };
 
-  const getTranscript = async () => {
-    if (!videoUrl) return;
+  function handleUrl(e) {
+    const Url = e.target.value;
+    const match = Url.match(/v=([^&]+)/);
+    const id = match[1];
+    setVideoUrl(e.target.value);
+    setVideoId(id);
+  }
+
+  const getTranscript = async (videoId) => {
+    if (!videoId) return;
 
     setLoading(true);
     setSummary("");
 
     try {
       const response = await axiosInstance.post("api/ytSummarize/summary", {
-        videoUrl,
+        videoId,
       });
       console.log(response);
       let content = response.data?.content;
@@ -60,6 +85,7 @@ const YoutubeSummarizer = () => {
 
       setSummary(content || "No summary found.");
       setVideoUrl("");
+      setVideoId("");
     } catch (err) {
       console.log(err);
     } finally {
@@ -128,9 +154,15 @@ const YoutubeSummarizer = () => {
             </h1>
 
             {/* Scrollable summary section */}
+
             <div className="max-w-4xl mx-auto w-full flex-1 overflow-y-auto p-4 pb-20 rounded-md ">
               {summary}
             </div>
+            {loading && (
+              <h1 className="max-w-4xl mx-auto w-full text-center flex-1 overflow-y-auto p-4 pb-20 rounded-md ">
+                Generating summary...
+              </h1>
+            )}
 
             {/* Fixed input at bottom */}
             <div className="fixed bottom-0 left-20 md:left-44 right-0 bg-black z-10">
@@ -138,16 +170,18 @@ const YoutubeSummarizer = () => {
                 <input
                   type="text"
                   value={videoUrl}
-                  onChange={(e) => setVideoUrl(e.target.value)}
+                  onChange={handleUrl}
                   placeholder="Enter YouTube URL"
                   className="flex-1 p-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#23b5b5]"
                 />
                 <button
-                  onClick={getTranscript}
+                  onClick={() => getTranscript(videoId)}
                   disabled={loading}
-                  className="px-6 py-3 bg-[#23b5b5] rounded-lg font-semibold flex items-center gap-2 transition"
+                  className={`px-6 py-3 bg-[#23b5b5] rounded-lg font-semibold flex items-center gap-2 transition ${
+                    loading ? "opacity-35" : null
+                  }`}
                 >
-                  {loading ? "Summarizing" : "Summarize"}
+                  Summarize
                 </button>
               </div>
             </div>
