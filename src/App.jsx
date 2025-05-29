@@ -43,6 +43,8 @@ import Discover from "./pages/dashboard/Discover";
 import Trending from "./pages/dashboard/Trending";
 import Grow from "./pages/grow_page/Grow";
 import YoutubeSummarizer from "./pages/explified_tools/youtube_summarizer/YoutubeSummarizer";
+import NewDashBoardLayout from "./pages/extensions/NewDashBoardLayout";
+import NewDashboard from "./pages/extensions/NewDashboard";
 
 function App() {
   return (
@@ -99,42 +101,33 @@ function App() {
           {/* grow dashboard */}
           <Route path="/grow" element={<Grow />}></Route>
 
-          <Route path="/" element={<DashboardLayout />}>
+          <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="/dashboard/discover" element={<Discover />} />
             <Route path="/dashboard/trending" element={<Trending />} />
 
             {/* Tools Page */}
-            <Route path="/clipper" element={<Clipper />} />
-            <Route path="/subtitling" element={<Subtitling />} />
-            <Route path="/video-generator" element={<VideoFromLink />} />
-            <Route path="/gif-generator" element={<GIFGenerator />} />
-            <Route path="/scribble" element={<Scribbling />} />
-            <Route path="/remove-bg" element={<RemoveBackground />} />
-            <Route path="/image-cartoonizer" element={<ImageCartoonizer />} />
-            <Route path="/image-to-video" element={<ImageToVideoConvertor />} />
-            <Route path="/text-to-video" element={<TextToVideo />} />
-            <Route path="/text-to-image" element={<TextToImage />} />
-            <Route path="/ai-image-styler" element={<AIImageStyler />} />
-            <Route path="/slideshow" element={<AISlideshow />} />
-            <Route path="/ageing_ai" element={<AgeingVideoMaker />} />
+            <Route path="clipper" element={<Clipper />} />
+            <Route path="subtitling" element={<Subtitling />} />
+            <Route path="video-generator" element={<VideoFromLink />} />
+            <Route path="gif-generator" element={<GIFGenerator />} />
+            <Route path="scribble" element={<Scribbling />} />
+            <Route path="remove-bg" element={<RemoveBackground />} />
+            <Route path="image-cartoonizer" element={<ImageCartoonizer />} />
+            <Route path="image-to-video" element={<ImageToVideoConvertor />} />
+            <Route path="text-to-video" element={<TextToVideo />} />
+            <Route path="text-to-image" element={<TextToImage />} />
+            <Route path="ai-image-styler" element={<AIImageStyler />} />
+            <Route path="slideshow" element={<AISlideshow />} />
+            <Route path="ageing_ai" element={<AgeingVideoMaker />} />
+          </Route>
+
+          <Route path="/" element={<NewDashBoardLayout />}>
+            <Route index element={<NewDashboard />} />
+            <Route path="/youtube-summarizer" element={<YoutubeSummarizer />} />
           </Route>
 
           {/* Tools Page */}
-          <Route path="/youtube-summarizer" element={<YoutubeSummarizer />} />
-          {/* <Route path="/clipper" element={<Clipper />} />
-          <Route path="/subtitling" element={<Subtitling />} />
-          <Route path="/video-generator" element={<VideoFromLink />} />
-          <Route path="/gif-generator" element={<GIFGenerator />} />
-          <Route path="/scribble" element={<Scribbling />} />
-          <Route path="/remove-bg" element={<RemoveBackground />} />
-          <Route path="/image-cartoonizer" element={<ImageCartoonizer />} />
-          <Route path="/image-to-video" element={<ImageToVideoConvertor />} />
-          <Route path="/text-to-video" element={<TextToVideo />} />
-          <Route path="/text-to-image" element={<TextToImage />} />
-          <Route path="/ai-image-styler" element={<AIImageStyler />} />
-          <Route path="/slideshow" element={<AISlideshow />} />
-          <Route path="/ageing_ai" element={<AgeingVideoMaker />} /> */}
 
           {/* Landing Page */}
           {/* <Route path="/clipper-landing" element={<ClipperLandingPage />} /> */}

@@ -15,59 +15,59 @@ import {
 } from "react-icons/pi";
 
 const tools = [
-  { name: "Clipper", path: "/clipper", icon: <FaPaperclip size={25} /> },
+  { name: "Clipper", path: "clipper", icon: <FaPaperclip size={25} /> },
   {
     name: "Subtitling",
-    path: "/subtitling",
+    path: "subtitling",
     icon: <MdOutlineSubtitles size={30} />,
   },
   {
     name: "Scribble",
-    path: "/scribble",
+    path: "scribble",
     icon: <PiScribbleLoopBold size={30} />,
   },
   {
     name: "Background Remover",
-    path: "/remove-bg",
+    path: "remove-bg",
     icon: <PiSelectionBackgroundBold size={30} />,
   },
   {
     name: "Image Cartoonizer",
-    path: "/image-cartoonizer",
+    path: "image-cartoonizer",
     icon: <FaPaperclip />,
   },
-  { name: "Image To Video", path: "/image-to-video", icon: <FaPaperclip /> },
+  { name: "Image To Video", path: "image-to-video", icon: <FaPaperclip /> },
   {
     name: "Text To Image",
-    path: "/text-to-image",
+    path: "text-to-image",
     icon: <IoMdImages size={30} />,
   },
   {
     name: "Text To Video",
-    path: "/text-to-video",
+    path: "text-to-video",
     icon: <MdOutlineVideocam size={30} />,
   },
   {
     name: "AI Image Styler",
-    path: "/ai-image-styler",
+    path: "ai-image-styler",
     icon: <MdFaceRetouchingNatural size={30} />,
   },
   {
     name: "Gif generator",
-    path: "/gif-generator",
+    path: "gif-generator",
     icon: <RiFileGifLine size={30} />,
   },
   {
     name: "Video Generator",
-    path: "/video-generator",
+    path: "video-generator",
     icon: <MdOutlineVideocam size={30} />,
   },
   {
     name: "Slideshow Generator",
-    path: "/slideshow",
+    path: "slideshow",
     icon: <PiSlideshow size={30} />,
   },
-  { name: "Ageing Ai", path: "/ageing_ai", icon: <MdElderlyWoman size={30} /> },
+  { name: "Ageing Ai", path: "ageing_ai", icon: <MdElderlyWoman size={30} /> },
 ];
 
 function ExplifiedTools() {

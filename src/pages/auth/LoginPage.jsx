@@ -20,7 +20,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (user) {
-      navigate("/youtube-summarizer");
+      navigate("/");
     }
   }, [user, navigate]);
 
@@ -123,8 +123,6 @@ export default function LoginPage() {
                     const decoded = jwtDecode(resp.credential);
                     // console.log("Login Success: currentUser:", decoded);
 
-                    console.log("clicked");
-
                     window.postMessage(
                       {
                         source: "explified-auth",
@@ -133,7 +131,6 @@ export default function LoginPage() {
                       },
                       "*"
                     );
-                    console.log("Token postMessage sent");
 
                     localStorage.setItem(
                       "explified",
