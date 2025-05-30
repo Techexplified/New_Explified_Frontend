@@ -67,13 +67,9 @@ function NewDashBoardLayout() {
     navigate("/login");
   };
 
-  // const removeTool = (id) => {
-  //   setSelected(selected.filter((t) => t.id !== id));
-  // };
-
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
-      <div className="grid grid-cols-[auto_1fr] h-screen">
+      <div className="grid grid-cols-[auto_1fr] h-screen ">
         {/* sidebar section */}
         <div className="w-20 md:w-44 h-screen fixed z-20 bg-black p-2 px-4 border-r border-gray-700 space-y-4">
           <Link to="/">
@@ -82,21 +78,7 @@ function NewDashBoardLayout() {
               <h1 className="text-xl font-semibold text-white">Explified</h1>
             </div>
           </Link>
-          {/* {selected &&
-            selected.map((tool) => (
-              <div
-                key={tool.id}
-                className="bg-[#23b5b5] rounded-md px-3 py-2 flex justify-between items-center"
-              >
-                <span className="flex items-center gap-2">
-                  <span>{tool.icon}</span>
-                  <span>{tool.name}</span>
-                </span>
-                <button onClick={() => removeTool(tool.id)}>
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            ))} */}
+
           {/* Explore Tools Label */}
           {selected && (
             <div className="bg-[#23b5b5] capitalize text-center rounded-md px-3 py-2 flex justify-between items-center">
@@ -138,8 +120,20 @@ function NewDashBoardLayout() {
         </div>
         <div className="w-20 md:w-40"></div>
         {/* main section */}
-        <main className="flex-1 p-8 pt-12 ">
+        <main className="flex-1 p-8 pt-12 relative">
           <Outlet />
+          {user?.given_name && (
+            <div className="absolute top-4 right-4 ">
+              <div className="h-8 w-8">
+                <img
+                  src="/defaultUser.png"
+                  alt="user"
+                  className="w-full h-full object-cover rounded-full"
+                />
+              </div>
+              <div className="capitalize text-sm">{user?.given_name}</div>
+            </div>
+          )}
         </main>
       </div>
     </div>

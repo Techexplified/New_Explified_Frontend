@@ -121,7 +121,7 @@ export default function LoginPage() {
                 onSuccess={(resp) => {
                   try {
                     const decoded = jwtDecode(resp.credential);
-                    // console.log("Login Success: currentUser:", decoded);
+                    console.log("Login Success: currentUser:", decoded);
 
                     window.postMessage(
                       {
@@ -134,7 +134,10 @@ export default function LoginPage() {
 
                     localStorage.setItem(
                       "explified",
-                      JSON.stringify({ isLoggedIn: "true" })
+                      JSON.stringify({
+                        isLoggedIn: "true",
+                        given_name: decoded?.given_name,
+                      })
                     );
                     dispatch(loginUser(decoded));
                     navigate("/youtube-summarizer");
