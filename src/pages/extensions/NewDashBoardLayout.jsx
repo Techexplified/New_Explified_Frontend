@@ -1,11 +1,12 @@
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { BsGrid } from "react-icons/bs";
 import { useEffect, useState } from "react";
 import { FaYoutube } from "react-icons/fa6";
-import { X } from "lucide-react";
+import { LucideLogOut, X } from "lucide-react";
 
 import { ExplifiedLogo } from "../../assets";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { removeUser } from "../../utils/auth_slice/UserSlice";
 
 const tools = [
   {
@@ -14,7 +15,7 @@ const tools = [
     icon: <FaYoutube />,
     link: "/youtube-summarizer",
   },
-  // { id: 2, name: "Tool2", icon: <FaYoutube /> },
+  // { id: 2, name: "Tool2", icon: <FaYoutube />, link: "/youtube-summarizer" },
   // { id: 3, name: "Tool3", icon: <FaYoutube /> },
   // { id: 4, name: "Tool4", icon: <FaYoutube /> },
   // { id: 5, name: "Tool5", icon: <FaYoutube /> },
@@ -26,8 +27,10 @@ const tools = [
 
 function NewDashBoardLayout() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [selected, setSelected] = useState([]);
+  const [selected, setSelected] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
 
   const user = useSelector((state) => state.user);
 
@@ -37,19 +40,36 @@ function NewDashBoardLayout() {
     }
   }, [user, navigate]);
 
+  useEffect(() => {
+    const str = location?.pathname;
+    const result = str.replace(/^\//, "");
+    setSelected(result);
+  }, [location]);
+
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
   const handleToolClick = (tool) => {
-    if (!selected.some((t) => t.id === tool.id)) {
-      setSelected((prev) => [...prev, tool]);
-    }
+    setSelected(tool.name);
     setDropdownOpen(false);
     navigate(tool?.link);
   };
 
-  const removeTool = (id) => {
-    setSelected(selected.filter((t) => t.id !== id));
+  const logOut = () => {
+    window.postMessage(
+      {
+        source: "explified-auth",
+        type: "logout",
+      },
+      "*"
+    );
+    dispatch(removeUser());
+    localStorage.removeItem("explified");
+    navigate("/login");
   };
+
+  // const removeTool = (id) => {
+  //   setSelected(selected.filter((t) => t.id !== id));
+  // };
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
@@ -62,7 +82,7 @@ function NewDashBoardLayout() {
               <h1 className="text-xl font-semibold text-white">Explified</h1>
             </div>
           </Link>
-          {selected &&
+          {/* {selected &&
             selected.map((tool) => (
               <div
                 key={tool.id}
@@ -76,8 +96,14 @@ function NewDashBoardLayout() {
                   <X className="w-4 h-4" />
                 </button>
               </div>
-            ))}{" "}
+            ))} */}
           {/* Explore Tools Label */}
+          {selected && (
+            <div className="bg-[#23b5b5] capitalize text-center rounded-md px-3 py-2 flex justify-between items-center">
+              {selected.split("-").join(" ")}
+            </div>
+          )}
+
           <div
             onClick={toggleDropdown}
             className="flex items-center pt-4 gap-2"
@@ -96,11 +122,19 @@ function NewDashBoardLayout() {
                   className="w-16 h-16 bg-gray-800  hover:bg-gray-700 rounded-xl flex flex-col items-center justify-center text-white"
                 >
                   <div className="text-2xl">{tool.icon}</div>
-                  <div className="text-[10px] truncate">{tool.name}</div>
+                  <div className="text-[10px] text-center leading-tight px-1">
+                    {tool.name}
+                  </div>
                 </button>
               ))}
             </div>
           )}
+          <div
+            onClick={logOut}
+            className="absolute left-10 bottom-6 text-center flex justify-center items-center gap-2"
+          >
+            <LucideLogOut /> Logout
+          </div>
         </div>
         <div className="w-20 md:w-40"></div>
         {/* main section */}
