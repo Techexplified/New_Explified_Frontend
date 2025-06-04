@@ -43,3 +43,10 @@
 .custom-slider .ant-slider-handle::after {
   @apply hidden;
 }
+
+.active {
+  background-color: aquamarine;
+  color: black;
+  padding: 3px 1px;
+  border-radius: 10%;
+}

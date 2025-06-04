@@ -59,6 +59,17 @@ const YoutubeSummarizer = () => {
 
   return (
     <div className="flex flex-col relative">
+      <div className="bg-white absolute  right-8 rounded-full px-4 py-2 text-black flex gap-2 items-center">
+        <div className="h-4 w-4">
+          <img
+            src="/chrome.png"
+            alt="user"
+            className="w-full h-full object-cover rounded-full"
+          />
+        </div>
+        Install Extension
+      </div>
+
       <h1 className="text-4xl font-semibold text-center mb-6">
         Summarize YouTube Videos
       </h1>

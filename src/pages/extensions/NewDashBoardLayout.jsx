@@ -1,4 +1,4 @@
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import { BsGrid } from "react-icons/bs";
 import { useEffect, useState } from "react";
 import { FaYoutube } from "react-icons/fa6";
@@ -7,15 +7,26 @@ import { LucideLogOut, X } from "lucide-react";
 import { ExplifiedLogo } from "../../assets";
 import { useDispatch, useSelector } from "react-redux";
 import { removeUser } from "../../utils/auth_slice/UserSlice";
+import { addTool } from "../../utils/tool_slice/ToolSlice";
+import { FaAccessibleIcon, FaAirbnb } from "react-icons/fa";
 
 const tools = [
+  { type: "divider", name: "Independent" },
+
   {
     id: 1,
     name: "Youtube Summarizer",
     icon: <FaYoutube />,
     link: "/youtube-summarizer",
   },
-  // { id: 2, name: "Tool2", icon: <FaYoutube />, link: "/youtube-summarizer" },
+  { type: "divider", name: "Create" },
+  {
+    id: 2,
+    name: "Tool2",
+    icon: <FaAirbnb />,
+    link: "/youtube-summarizer",
+  },
+  { type: "divider", name: "Publish" },
   // { id: 3, name: "Tool3", icon: <FaYoutube /> },
   // { id: 4, name: "Tool4", icon: <FaYoutube /> },
   // { id: 5, name: "Tool5", icon: <FaYoutube /> },
@@ -27,12 +38,14 @@ const tools = [
 
 function NewDashBoardLayout() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [selected, setSelected] = useState("");
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
   const dispatch = useDispatch();
 
   const user = useSelector((state) => state.user);
+  const activeTools = useSelector((state) => state.tool);
+  const currentTool = tools.find((tool) => tool.name === activeTools);
+  console.log(user, activeTools);
 
   useEffect(() => {
     if (!user) {
@@ -40,16 +53,10 @@ function NewDashBoardLayout() {
     }
   }, [user, navigate]);
 
-  useEffect(() => {
-    const str = location?.pathname;
-    const result = str.replace(/^\//, "");
-    setSelected(result);
-  }, [location]);
-
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
-  const handleToolClick = (tool) => {
-    setSelected(tool.name);
+  const handleToolClick1 = (tool) => {
+    dispatch(addTool(tool.name));
     setDropdownOpen(false);
     navigate(tool?.link);
   };
@@ -68,72 +75,104 @@ function NewDashBoardLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
+    <div className="min-h-screen bg-black text-white flex flex-col relative">
+      <nav className="fixed top-0 w-full bg-black border-b border-gray-500 py-2 px-4 z-[60] flex justify-between">
+        <Link to="/">
+          <div className="flex items-center gap-3">
+            <img className="h-8" alt="Logo" src={ExplifiedLogo} />
+            <h1 className="text-xl font-semibold text-white">Explified</h1>
+          </div>
+        </Link>
+        {user?.given_name && (
+          <div className="flex gap-2 items-center">
+            <div className="capitalize text-sm">Hi, {user?.given_name}</div>
+            <div
+              onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+              className="h-8 w-8"
+            >
+              <img
+                src="/defaultUser.png"
+                alt="user"
+                className="w-full h-full object-cover rounded-full"
+              />
+            </div>
+          </div>
+        )}
+
+        {userDropdownOpen && (
+          <div className="absolute right-4 top-12 w-36 z-[12] bg-gray-800 shadow-lg rounded-lg ">
+            <button
+              onClick={logOut}
+              className="px-4 py-2 w-full flex items-center gap-2 hover:bg-gray-400"
+            >
+              <span>
+                <LucideLogOut />
+              </span>
+              <span>Log out</span>
+            </button>
+          </div>
+        )}
+      </nav>
       <div className="grid grid-cols-[auto_1fr] h-screen ">
         {/* sidebar section */}
-        <div className="w-20 md:w-44 h-screen fixed z-20 bg-black p-2 px-4 border-r border-gray-700 space-y-4">
-          <Link to="/">
-            <div className="flex items-center gap-3">
-              <img className="h-8" alt="Logo" src={ExplifiedLogo} />
-              <h1 className="text-xl font-semibold text-white">Explified</h1>
-            </div>
-          </Link>
-
-          {/* Explore Tools Label */}
-          {selected && (
-            <div className="bg-[#23b5b5] capitalize text-center rounded-md px-3 py-2 flex justify-between items-center">
-              {selected.split("-").join(" ")}
+        <aside className="w-20 h-screen fixed z-20 bg-black p-2 px-4 pt-16 border-r border-gray-700 space-y-4">
+          {currentTool && (
+            <div className="bg-[#23b5b5] rounded-md p-2 ">
+              {currentTool.icon}
             </div>
           )}
 
-          <div
-            onClick={toggleDropdown}
-            className="flex items-center pt-4 gap-2"
-          >
-            <div className="bg-gray-900 p-2 rounded-md">
+          <div onClick={toggleDropdown} className="pt-8">
+            <button className="bg-gray-900 p-2 rounded-md">
               <BsGrid />
-            </div>
-            <span>Explore</span>
+            </button>
+          </div>
+
+          <div className="flex flex-col gap-4 text-sm pt-4">
+            <Link to="/">
+              <span className="hover:bg-[#23b5b5] px-2 py-1 rounded-md">
+                Create
+              </span>
+            </Link>
+            <Link to="/publish">
+              <span className="hover:bg-[#23b5b5] px-2 py-1 rounded-md">
+                Publish
+              </span>
+            </Link>
+            <Link to="/grow">
+              <span className="hover:bg-[#23b5b5] px-2 py-1 rounded-md">
+                Grow
+              </span>
+            </Link>
           </div>
           {dropdownOpen && (
-            <div className="absolute left-44 w-[300px] bg-gray-900 border border-gray-700 rounded-lg p-4 grid grid-cols-3 gap-4 z-10">
-              {tools.map((tool) => (
-                <button
-                  key={tool.id}
-                  onClick={() => handleToolClick(tool)}
-                  className="w-16 h-16 bg-gray-800  hover:bg-gray-700 rounded-xl flex flex-col items-center justify-center text-white"
-                >
-                  <div className="text-2xl">{tool.icon}</div>
-                  <div className="text-[10px] text-center leading-tight px-1">
+            <div className="absolute left-16 w-[200px] bg-gray-900 border border-gray-700 rounded-lg p-2 flex flex-col gap-2 z-10">
+              {tools.map((tool, index) =>
+                tool.type === "divider" ? (
+                  <div
+                    key={index}
+                    className="bg-gray-400 text-black font-semibold text-sm px-4 py-2"
+                  >
                     {tool.name}
                   </div>
-                </button>
-              ))}
+                ) : (
+                  <button
+                    key={tool.id}
+                    onClick={() => handleToolClick1(tool)}
+                    className="flex items-center gap-2 text-white px-3 py-2 hover:bg-gray-700 rounded-md"
+                  >
+                    <span className="text-lg">{tool.icon}</span>
+                    <span className="text-sm">{tool.name}</span>
+                  </button>
+                )
+              )}
             </div>
           )}
-          <div
-            onClick={logOut}
-            className="absolute left-10 bottom-6 text-center flex justify-center items-center gap-2"
-          >
-            <LucideLogOut /> Logout
-          </div>
-        </div>
-        <div className="w-20 md:w-40"></div>
+        </aside>
+        <div className="w-20"></div>
         {/* main section */}
-        <main className="flex-1 p-8 pt-12 relative">
+        <main className="flex-1 p-8 pt-16">
           <Outlet />
-          {user?.given_name && (
-            <div className="absolute top-4 right-4 ">
-              <div className="h-8 w-8">
-                <img
-                  src="/defaultUser.png"
-                  alt="user"
-                  className="w-full h-full object-cover rounded-full"
-                />
-              </div>
-              <div className="capitalize text-sm">{user?.given_name}</div>
-            </div>
-          )}
         </main>
       </div>
     </div>
