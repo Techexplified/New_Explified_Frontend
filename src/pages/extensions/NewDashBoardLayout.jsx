@@ -20,12 +20,7 @@ const tools = [
     link: "/youtube-summarizer",
   },
   { type: "divider", name: "Create" },
-  {
-    id: 2,
-    name: "Tool2",
-    icon: <FaAirbnb />,
-    link: "/youtube-summarizer",
-  },
+
   { type: "divider", name: "Publish" },
   // { id: 3, name: "Tool3", icon: <FaYoutube /> },
   // { id: 4, name: "Tool4", icon: <FaYoutube /> },
@@ -115,38 +110,34 @@ function NewDashBoardLayout() {
       </nav>
       <div className="grid grid-cols-[auto_1fr] h-screen ">
         {/* sidebar section */}
-        <aside className="w-20 h-screen fixed z-20 bg-black p-2 px-4 pt-16 border-r border-gray-700 space-y-4">
+        <aside className="w-20 h-screen fixed z-20 bg-black p-2  pt-16 border-r border-gray-700 space-y-4">
           {currentTool && (
-            <div className="bg-[#23b5b5] rounded-md p-2 ">
+            <div className="bg-[#23b5b5] rounded-md p-2 flex justify-center">
               {currentTool.icon}
             </div>
           )}
 
-          <div onClick={toggleDropdown} className="pt-8">
+          <div onClick={toggleDropdown} className="pt-8 text-center">
             <button className="bg-gray-900 p-2 rounded-md">
               <BsGrid />
             </button>
           </div>
 
           <div className="flex flex-col gap-4 text-sm pt-4">
-            <Link to="/">
-              <span className="hover:bg-[#23b5b5] px-2 py-1 rounded-md">
-                Create
-              </span>
-            </Link>
-            <Link to="/publish">
-              <span className="hover:bg-[#23b5b5] px-2 py-1 rounded-md">
-                Publish
-              </span>
-            </Link>
-            <Link to="/grow">
-              <span className="hover:bg-[#23b5b5] px-2 py-1 rounded-md">
-                Grow
-              </span>
-            </Link>
+            <span className="hover:bg-[#23b5b5] px-2 py-1 rounded-md">
+              Create
+            </span>
+
+            <span className="hover:bg-[#23b5b5] p-2 py-1 rounded-md">
+              Publish
+            </span>
+
+            <span className="hover:bg-[#23b5b5] px-2 py-1 rounded-md">
+              Grow
+            </span>
           </div>
           {dropdownOpen && (
-            <div className="absolute left-16 w-[200px] bg-gray-900 border border-gray-700 rounded-lg p-2 flex flex-col gap-2 z-10">
+            <div className="absolute left-20 top-20 w-[200px] bg-gray-900 border border-gray-700 rounded-lg p-2 flex flex-col gap-2 z-10">
               {tools.map((tool, index) =>
                 tool.type === "divider" ? (
                   <div
