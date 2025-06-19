@@ -1,7 +1,10 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import axiosInstance from "../../../network/axiosInstance";
+// import axiosInstance from "../../../network/axiosInstance";
 import { useSelector } from "react-redux";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import axios from "axios";
+const API_URL = "https://api.supadata.ai/v1/youtube/transcript";
 
 const YoutubeSummarizer = () => {
   const [videoUrl, setVideoUrl] = useState("");
@@ -10,6 +13,7 @@ const YoutubeSummarizer = () => {
   const [summary, setSummary] = useState("");
   const [searchParams] = useSearchParams();
   const videoIdYt = searchParams.get("videoId");
+  // const videoTranscript = searchParams.get("videoTranscript");
   const navigate = useNavigate();
 
   const user = useSelector((state) => state.user);
@@ -22,7 +26,7 @@ const YoutubeSummarizer = () => {
 
   useEffect(() => {
     if (!videoIdYt) return;
-    getTranscript(videoIdYt);
+    getSummary(videoIdYt);
   }, [videoIdYt]);
 
   function handleUrl(e) {
@@ -33,21 +37,58 @@ const YoutubeSummarizer = () => {
     setVideoId(id);
   }
 
-  const getTranscript = async (videoId) => {
-    if (!videoId) return;
+  // const getTranscript = async (videoId) => {
+  //   if (!videoId) return;
+
+  //   setLoading(true);
+  //   setSummary("");
+
+  //   try {
+  //     const response = await axiosInstance.post("api/ytSummarize/summary", {
+  //       videoId,
+  //     });
+  //     console.log(response);
+  //     let content = response.data?.content;
+  //     content = content.replaceAll("&amp;#39;", "'");
+
+  //     setSummary(content || "No summary found.");
+  //     setVideoUrl("");
+  //     setVideoId("");
+  //   } catch (err) {
+  //     console.log(err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+  const getSummary = async (videoIdYt) => {
+    if (!videoIdYt) return;
 
     setLoading(true);
     setSummary("");
 
     try {
-      const response = await axiosInstance.post("api/ytSummarize/summary", {
-        videoId,
+      const response = await axios.get(API_URL, {
+        params: {
+          url: `https://www.youtube.com/watch?v=${videoIdYt}`,
+          text: true,
+        },
+        headers: {
+          "x-api-key": "sd_f843de77b9f84f06dae3d3e729c28def",
+        },
       });
-      console.log(response);
       let content = response.data?.content;
-      content = content.replaceAll("&amp;#39;", "'");
+      console.log(response);
 
-      setSummary(content || "No summary found.");
+      const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+      const prompt = `Generate a summary of this text - ${content}`;
+      const result = await model.generateContent(prompt);
+      const summary = result.response.text();
+      // console.log(response);
+      // let content = response.data?.content;
+      // content = content.replaceAll("&amp;#39;", "'");
+
+      setSummary(summary || "No summary found.");
       setVideoUrl("");
       setVideoId("");
     } catch (err) {
@@ -96,7 +137,7 @@ const YoutubeSummarizer = () => {
             className="flex-1 p-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#23b5b5]"
           />
           <button
-            onClick={() => getTranscript(videoId)}
+            onClick={() => getSummary(videoId)}
             disabled={loading}
             className={`px-6 py-3 bg-[#23b5b5] rounded-lg font-semibold flex items-center gap-2 transition ${
               loading ? "opacity-35" : null

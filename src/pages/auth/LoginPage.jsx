@@ -4,7 +4,7 @@ import { jwtDecode } from "jwt-decode";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../../utils/auth_slice/UserSlice";
 import { useDispatch, useSelector } from "react-redux";
-import axiosInstance from "../../network/axiosInstance";
+// import axiosInstance from "../../network/axiosInstance";
 import Logo from "../../reusable_components/Logo";
 
 const initialState = {
@@ -127,6 +127,14 @@ export default function LoginPage() {
                       {
                         source: "explified-auth",
                         type: "store_token",
+                        token: decoded?.email,
+                      },
+                      "*"
+                    );
+                    window.postMessage(
+                      {
+                        source: "explified-auth-awesome-screenshot",
+                        type: "store_token_awesome_screenshot",
                         token: decoded?.email,
                       },
                       "*"
