@@ -73,7 +73,7 @@ const YoutubeSummarizer = () => {
           text: true,
         },
         headers: {
-          "x-api-key": "sd_f843de77b9f84f06dae3d3e729c28def",
+          "x-api-key": `${import.meta.env.VITE_SUPADATA_API}`,
         },
       });
       let content = response.data?.content;
