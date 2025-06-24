@@ -1,6 +1,7 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../../network/axiosInstance";
+// import axios from "axios";
 import { useSelector } from "react-redux";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 // import axios from "axios";
@@ -13,16 +14,49 @@ const YoutubeSummarizer = () => {
   const [summary, setSummary] = useState([]);
   const [searchParams] = useSearchParams();
   const videoIdYt = searchParams.get("videoId");
+
+  // const [historyVideos, setHistoryVideos] = useState([]);
+
   // const videoTranscript = searchParams.get("videoTranscript");
   const navigate = useNavigate();
 
   const user = useSelector((state) => state.user);
+  // console.log("user", user);
+  // const accessToken = user.accessToken;
 
   useEffect(() => {
     if (!user) {
       navigate("/login");
     }
   }, [user, navigate]);
+
+  // useEffect(() => {
+  //   async function fetchHistory() {
+  //     try {
+  //       const res = await axios.get(
+  //         "https://www.googleapis.com/youtube/v3/playlistItems",
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${accessToken}`,
+  //           },
+  //           params: {
+  //             part: "snippet",
+  //             maxResults: 10,
+  //             playlistId: "WL",
+  //           },
+  //         }
+  //       );
+  //       console.log(res);
+
+  //       const watchHistory = res.data.items;
+  //       console.log(watchHistory);
+  //       setHistoryVideos(watchHistory);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   }
+  //   fetchHistory();
+  // }, [accessToken]);
 
   useEffect(() => {
     if (!videoIdYt) return;
