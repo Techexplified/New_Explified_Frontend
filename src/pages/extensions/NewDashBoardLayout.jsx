@@ -19,6 +19,12 @@ const tools = [
     icon: <FaYoutube />,
     link: "/youtube-summarizer",
   },
+  {
+    id:2,
+    name: "Pdf Tools",
+    icon: <FaYoutube />,
+    link: "/pdf-tools",
+  },
   { type: "divider", name: "Create" },
 
   { type: "divider", name: "Publish" },

@@ -47,6 +47,15 @@ import YoutubeSummarizer from "./pages/explified_tools/youtube_summarizer/Youtub
 import NewDashBoardLayout from "./pages/extensions/NewDashBoardLayout";
 import NewDashboard from "./pages/extensions/NewDashboard";
 
+import PDFHome from "./pages/explified_tools/pdf_tools/PDFHome";
+import Compress from "./pages/explified_tools/pdf_tools/Compress";
+import Merge from "./pages/explified_tools/pdf_tools/Merge";
+import Edit from "./pages/explified_tools/pdf_tools/Edit";
+import Sign from "./pages/explified_tools/pdf_tools/Sign";
+import PdfToAny from "./pages/explified_tools/pdf_tools/PdfToAny";
+import PdfToWord from "./pages/explified_tools/pdf_tools/PdfToWord";
+
+
 function App() {
   return (
     <div>
@@ -126,6 +135,13 @@ function App() {
           <Route path="/" element={<NewDashBoardLayout />}>
             <Route index element={<NewDashboard />} />
             <Route path="/youtube-summarizer" element={<YoutubeSummarizer />} />
+            <Route path="/pdf-tools" element={<PDFHome />} />
+            <Route path="/pdf-tools/compress" element={<Compress />} />
+            <Route path="/pdf-tools/pdftoany" element={<PdfToAny />} />
+            <Route path="/pdf-tools/edit" element={<Edit />} />
+            <Route path="/pdf-tools/pdftoword" element={<PdfToWord />} />
+            <Route path="/pdf-tools/merge" element={<Merge />} />
+            <Route path="/pdf-tools/sign" element={<Sign />} />
           </Route>
 
           {/* Tools Page */}
