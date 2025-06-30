@@ -45,6 +45,7 @@ import Grow from "./pages/grow_page/Grow";
 import YoutubeSummarizer from "./pages/explified_tools/youtube_summarizer/YoutubeSummarizer";
 import NewDashBoardLayout from "./pages/extensions/NewDashBoardLayout";
 import NewDashboard from "./pages/extensions/NewDashboard";
+import DeepSearch from "./pages/explified_tools/youtube_summarizer/DeepSearch";
 
 function App() {
   return (
@@ -125,6 +126,10 @@ function App() {
           <Route path="/" element={<NewDashBoardLayout />}>
             <Route index element={<NewDashboard />} />
             <Route path="/youtube-summarizer" element={<YoutubeSummarizer />} />
+            <Route
+              path="/youtube-summarizer/deep-search"
+              element={<DeepSearch />}
+            />
           </Route>
 
           {/* Tools Page */}

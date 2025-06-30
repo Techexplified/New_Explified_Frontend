@@ -14,7 +14,6 @@ const API_URL = "https://api.supadata.ai/v1/youtube/transcript";
 const YoutubeSummarizer = () => {
   const [videoUrl, setVideoUrl] = useState("");
   const [videoId, setVideoId] = useState("");
-  console.log(videoId);
 
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState([]);
