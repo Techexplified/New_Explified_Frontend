@@ -54,7 +54,13 @@ import Edit from "./pages/explified_tools/pdf_tools/Edit";
 import Sign from "./pages/explified_tools/pdf_tools/Sign";
 import PdfToAny from "./pages/explified_tools/pdf_tools/PdfToAny";
 import PdfToWord from "./pages/explified_tools/pdf_tools/PdfToWord";
-
+import DashBoardLayout from "./components1/DashBoardLayout";
+import HomePage from "./components1/HomePage";
+import SocialsPage from "./components1/SocialsPage";
+import DetailedCard from "./components1/DetailedCard";
+import Posts from "./components1/Posts";
+import RecentPosts from "./components1/RecentPosts";
+import Favourites from "./components1/Favourites";
 
 function App() {
   return (
@@ -132,7 +138,7 @@ function App() {
             <Route path="ageing_ai" element={<AgeingVideoMaker />} />
           </Route>
 
-          <Route path="/" element={<NewDashBoardLayout />}>
+          {/* <Route path="/" element={<NewDashBoardLayout />}>
             <Route index element={<NewDashboard />} />
             <Route path="/youtube-summarizer" element={<YoutubeSummarizer />} />
             <Route path="/pdf-tools" element={<PDFHome />} />
@@ -142,6 +148,18 @@ function App() {
             <Route path="/pdf-tools/pdftoword" element={<PdfToWord />} />
             <Route path="/pdf-tools/merge" element={<Merge />} />
             <Route path="/pdf-tools/sign" element={<Sign />} />
+          </Route> */}
+
+          <Route path="/" element={<DashBoardLayout />}>
+            <Route index element={<HomePage />}></Route>
+            <Route path="/socials" element={<SocialsPage />}></Route>
+            <Route path="/favorites" element={<Favourites />}></Route>
+            <Route path="/socials/:id" element={<DetailedCard />}></Route>
+            <Route path="/socials/instagram/posts" element={<Posts />} />
+            <Route
+              path="/socials/instagram/posts/recents"
+              element={<RecentPosts />}
+            />
           </Route>
 
           {/* Tools Page */}
