@@ -58,9 +58,11 @@ import DashBoardLayout from "./components1/DashBoardLayout";
 import HomePage from "./components1/HomePage";
 import SocialsPage from "./components1/SocialsPage";
 import DetailedCard from "./components1/DetailedCard";
-import Posts from "./components1/Posts";
+import LastPosts from "./components1/Lastposts";
 import RecentPosts from "./components1/RecentPosts";
 import Favourites from "./components1/Favourites";
+import ScheduleDraftPosts from "./components1/ScheduleDraftPosts";
+import NewPost from "./components1/NewPost";
 
 function App() {
   return (
@@ -152,13 +154,26 @@ function App() {
 
           <Route path="/" element={<DashBoardLayout />}>
             <Route index element={<HomePage />}></Route>
+            <Route path="/youtube-summarizer" element={<YoutubeSummarizer />} />
             <Route path="/socials" element={<SocialsPage />}></Route>
             <Route path="/favorites" element={<Favourites />}></Route>
             <Route path="/socials/:id" element={<DetailedCard />}></Route>
-            <Route path="/socials/instagram/posts" element={<Posts />} />
+
             <Route
               path="/socials/instagram/posts/recents"
               element={<RecentPosts />}
+            />
+            <Route
+              path="/socials/instagram/lastPosts"
+              element={<LastPosts />}
+            />
+            <Route
+              path="/socials/instagram/:id"
+              element={<ScheduleDraftPosts />}
+            />
+            <Route
+              path="/socials/newPost"
+              element={<NewPost />}
             />
           </Route>
 

@@ -7,6 +7,7 @@ import {
   MessageCircle,
   Share,
   Eye,
+  Plus,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -112,13 +113,20 @@ export default function InstagramPostsPage() {
           <ChevronDown className="w-4 h-4 rotate-[-90deg] text-[#23b5b5]" />
           <span className="text-white font-medium">Posts</span>
         </div>
+        
+        <h1 className="text-3xl md:text-4xl font-light bg-gradient-to-r from-white to-[#23b5b5] bg-clip-text text-transparent">
+          Posts
+        </h1>
 
-        <div className="flex flex-wrap justify-between items-center mb-8 gap-4">
-          <h1 className="text-3xl md:text-4xl font-light bg-gradient-to-r from-white to-[#23b5b5] bg-clip-text text-transparent">
-            Posts
-          </h1>
-
-          <div className="relative">
+        <div className="relative">
+          <div className="flex justify-between my-4">
+            <button
+              className="flex items-center gap-2 border border-[#23b5b5] rounded-full px-4 md:px-6 py-2 text-sm hover:bg-[#23b5b5]/10"
+              onClick={() => navigate("/socials/newPost")}
+            >
+              New post
+              <Plus className={`w-4 h-4 ${dropdownOpen ? "rotate-180" : ""}`} />
+            </button>
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
               className="flex items-center gap-2 border border-[#23b5b5] rounded-full px-4 md:px-6 py-2 text-sm hover:bg-[#23b5b5]/10"

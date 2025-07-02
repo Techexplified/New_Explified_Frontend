@@ -165,14 +165,14 @@ export default function DetailedCard() {
             <div className="absolute left-0 mt-2 w-48 bg-black border border-gray-600 rounded-lg shadow-lg z-20">
               <button
                 className="w-full text-white text-left px-4 py-2 hover:bg-[#23b5b5] hover:text-black transition-colors"
-                onClick={() => navigate("/socials/instagram/posts")}
+                onClick={() => navigate("/socials/instagram/schedule")}
               >
                 Schedule Post
               </button>
-              <button className="w-full text-white text-left px-4 py-2 hover:bg-[#23b5b5] hover:text-black transition-colors">
+              <button onClick={() => navigate("/socials/instagram/lastPosts")} className="w-full text-white text-left px-4 py-2 hover:bg-[#23b5b5] hover:text-black transition-colors">
                 Last Post
               </button>
-              <button className="w-full text-white text-left px-4 py-2 hover:bg-[#23b5b5] hover:text-black transition-colors">
+              <button onClick={() => navigate("/socials/instagram/draft")} className="w-full text-white text-left px-4 py-2 hover:bg-[#23b5b5] hover:text-black transition-colors">
                 Draft Post
               </button>
             </div>
