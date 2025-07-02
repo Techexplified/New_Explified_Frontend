@@ -161,6 +161,7 @@ function App() {
               path="/socials/instagram/posts/recents"
               element={<RecentPosts />}
             />
+            <Route path="/youtube-summarizer" element={<YoutubeSummarizer />} />
             <Route
               path="/youtube-summarizer/deep-search"
               element={<DeepSearch />}

@@ -48,7 +48,10 @@ function DashBoardLayout() {
           sidebarOpen ? "block" : "hidden"
         } w-full md:w-48 bg-black border-r border-gray-800 p-4`}
       >
-        <div className="w-full flex justify-center mb-6" onClick={() => navigate("/")}>
+        <div
+          className="w-full flex justify-center mb-6"
+          onClick={() => navigate("/")}
+        >
           <img
             className="w-10 h-10 hidden md:block"
             src="/Explified_logo.png"
@@ -80,7 +83,12 @@ function DashBoardLayout() {
         {/* Header */}
         <header className="flex justify-between items-center px-6 py-4 border-b border-gray-800">
           <nav className="flex space-x-12">
-            <button className="text-lg font-semibold" onClick={() => navigate("/")}>Home</button>
+            <button
+              className="text-lg font-semibold"
+              onClick={() => navigate("/")}
+            >
+              Home
+            </button>
             <button className="text-lg font-semibold">History</button>
           </nav>
           <div className="relative">
