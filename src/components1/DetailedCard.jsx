@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   LineChart,
   Line,
@@ -7,7 +7,13 @@ import {
   YAxis,
   CartesianGrid,
 } from "recharts";
-import { Instagram, Linkedin, Youtube, ArrowLeft } from "lucide-react";
+import {
+  Instagram,
+  Linkedin,
+  Youtube,
+  ArrowLeft,
+  ChevronDown,
+} from "lucide-react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 const iconMap = {
@@ -66,17 +72,15 @@ const CircularProgress = ({ percentage, label, value, color = "#23b5b5" }) => {
         </div>
       </div>
       <div className="text-center">
-        <div className="text-xs sm:text-sm text-gray-400">{label}</div>
-        <div className="text-sm sm:text-base font-semibold text-white">
-          {value}
-        </div>
+        <div className="text-sm sm:text-base text-gray-400">{label}</div>
+        <div className="text-sm sm:text-base text-gray-400">{value}</div>
       </div>
     </div>
   );
 };
 
 const MiniChart = ({ data, title, percentage, color = "#23b5b5" }) => (
-  <div className="bg-black p-4 sm:p-6 rounded-lg">
+  <div className=" bg-black p-4 sm:p-6 rounded-lg ">
     <div className="flex justify-between items-center mb-3">
       <span className="text-sm sm:text-base text-gray-400">{title}</span>
       <span className="text-sm sm:text-base text-green-400">
@@ -103,6 +107,7 @@ export default function DetailedCard() {
   const navigate = useNavigate();
   const { platform } = useParams();
   const location = useLocation();
+  const [week, setWeek] = useState("last");
   const {
     platform: platformName,
     data,
@@ -169,10 +174,16 @@ export default function DetailedCard() {
               >
                 Schedule Post
               </button>
-              <button onClick={() => navigate("/socials/instagram/lastPosts")} className="w-full text-white text-left px-4 py-2 hover:bg-[#23b5b5] hover:text-black transition-colors">
+              <button
+                onClick={() => navigate("/socials/instagram/lastPosts")}
+                className="w-full text-white text-left px-4 py-2 hover:bg-[#23b5b5] hover:text-black transition-colors"
+              >
                 Last Post
               </button>
-              <button onClick={() => navigate("/socials/instagram/draft")} className="w-full text-white text-left px-4 py-2 hover:bg-[#23b5b5] hover:text-black transition-colors">
+              <button
+                onClick={() => navigate("/socials/instagram/draft")}
+                className="w-full text-white text-left px-4 py-2 hover:bg-[#23b5b5] hover:text-black transition-colors"
+              >
                 Draft Post
               </button>
             </div>
@@ -181,7 +192,7 @@ export default function DetailedCard() {
       </div>
 
       {/* Main Content */}
-      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto ">
+      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto mt-[-50px]">
         {/* Top Stats */}
         <div className="grid grid-cols-1 gap-6 lg:gap-8 mb-2 rounded">
           <div className="bg-black p-6 sm:p-8 rounded-lg">
@@ -226,7 +237,7 @@ export default function DetailedCard() {
         </div>
 
         {/* Main Chart */}
-        <div className="bg-black p-6 sm:p-8 rounded-lg mb-8">
+        <div className="bg-black p-6 sm:p-8 rounded-lg mb-2 mt-[-30px]">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 sm:gap-0">
             <h3 className="text-xl sm:text-2xl lg:text-3xl font-semibold">
               Interactions
@@ -251,9 +262,28 @@ export default function DetailedCard() {
           </div>
         </div>
 
+        <div className="flex space-x-2 mb-4 ">
+          <button
+            className={`px-4 py-2 rounded text-sm border border-gray-600 ${
+              week === "last" ? "bg-[#23b5b5] text-black" : "text-gray-400"
+            }`}
+            onClick={() => setWeek("last")}
+          >
+            Last Week
+          </button>
+          <button
+            className={`px-4 py-2 rounded text-sm border border-gray-600 ${
+              week === "this" ? "bg-[#23b5b5] text-black" : "text-gray-400"
+            }`}
+            onClick={() => setWeek("this")}
+          >
+            This Week
+          </button>
+        </div>
+
         {/* Circular Progress Metrics */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 mb-8 ">
-          <div className="bg-black p-6 sm:p-8 rounded-lg text-center border border-gray-600">
+          <div className="bg-black p-6 sm:p-8 rounded-lg border border-gray-600">
             <div className="text-base sm:text-lg text-gray-400 mb-4">
               Comments
             </div>
@@ -262,12 +292,31 @@ export default function DetailedCard() {
               label="Followers - 43"
               value="Non-followers - 98"
             />
-            <div className="text-sm sm:text-base text-gray-500 mt-3">
+            <div className="mb-4 text-xs sm:text-sm text-gray-400 text-center">
               First time viewers - 20
+            </div>
+
+            <div className=" mt-2 border-t border-gray-600 rounded-lg">
+              <MiniChart
+                data={miniChartData}
+                title="Key Difference From Last Week"
+                percentage="5.2"
+                color="#23b5b5"
+              />
+              <div className="p-4 text-gray-400 sm:p-6 text-sm sm:text-base mt-[-2rem] flex flex-col items-start">
+                <div>
+                  <span className="text-green-400">Positives</span> : 5.2%
+                  increase
+                </div>
+                <div>
+                  <span className="text-red-400">Negatives</span> : 5.2%
+                  decrease
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="bg-black p-6 sm:p-8 rounded-lg text-center border border-gray-600">
+          <div className="bg-black p-6 sm:p-8 rounded-lg border border-gray-600">
             <div className="text-base sm:text-lg text-gray-400 mb-4">
               Shares
             </div>
@@ -276,68 +325,92 @@ export default function DetailedCard() {
               label="Followers - 43"
               value="Non-followers - 98"
             />
-            <div className="text-sm sm:text-base text-gray-500 mt-3">
+            <div className="mb-4 text-xs sm:text-sm text-gray-400 text-center">
               First time viewers - 20
+            </div>
+            <div className=" mt-2 border-t border-gray-600 rounded-lg">
+              <MiniChart
+                data={miniChartData}
+                title="Key Difference From Last Week"
+                percentage="5.2"
+                color="#23b5b5"
+              />
+              <div className="p-4 text-gray-400 sm:p-6 text-sm sm:text-base mt-[-2rem] flex flex-col items-start">
+                <div>
+                  <span className="text-green-400">Positives</span> : 5.2%
+                  increase
+                </div>
+                <div>
+                  <span className="text-red-400">Negatives</span> : 5.2%
+                  decrease
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="bg-black p-6 sm:p-8 rounded-lg text-center border border-gray-600">
+          <div className="bg-black p-6 sm:p-8 rounded-lg border border-gray-600">
             <div className="text-base sm:text-lg text-gray-400 mb-4">Saves</div>
             <CircularProgress
               percentage={85}
               label="Followers - 43"
               value="Non-followers - 98"
             />
-            <div className="text-sm sm:text-base text-gray-500 mt-3">
+            <div className="mb-4 text-xs sm:text-sm text-gray-400 text-center">
               First time viewers - 20
+            </div>
+            <div className=" mt-2 border-t border-gray-600 rounded-lg">
+              <MiniChart
+                data={miniChartData}
+                title="Key Difference From Last Week"
+                percentage="5.2"
+                color="#23b5b5"
+              />
+              <div className="p-4 text-gray-400 sm:p-6 text-sm sm:text-base mt-[-2rem] flex flex-col items-start">
+                <div>
+                  <span className="text-green-400">Positives</span> : 5.2%
+                  increase
+                </div>
+                <div>
+                  <span className="text-red-400">Negatives</span> : 5.2%
+                  decrease
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="bg-black p-6 sm:p-8 rounded-lg text-center border border-gray-600">
+          <div className="bg-black p-6 sm:p-8 rounded-lg  border border-gray-600">
             <div className="text-base sm:text-lg text-gray-400 mb-4">Likes</div>
             <CircularProgress
               percentage={90}
               label="Followers - 43"
               value="Non-followers - 98"
             />
-            <div className="text-sm sm:text-base text-gray-500 mt-3">
+            <div className="mb-4 text-xs sm:text-sm text-gray-400 text-center">
               First time viewers - 20
+            </div>
+            <div className=" mt-2 border-t border-gray-600 rounded-lg">
+              <MiniChart
+                data={miniChartData}
+                title="Key Difference From Last Week"
+                percentage="5.2"
+                color="#23b5b5"
+              />
+              <div className="p-4 text-gray-400 sm:p-6 text-sm sm:text-base mt-[-2rem] flex flex-col items-start">
+                <div>
+                  <span className="text-green-400">Positives</span> : 5.2%
+                  increase
+                </div>
+                <div>
+                  <span className="text-red-400">Negatives</span> : 5.2%
+                  decrease
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Bottom Mini Charts */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 mb-8 border border-gray-600">
-          <MiniChart
-            data={miniChartData}
-            title="Key Difference From Last Week"
-            percentage="5.2"
-            color="#23b5b5"
-          />
-          <MiniChart
-            data={miniChartData}
-            title="Key Difference From Last Week"
-            percentage="3.8"
-            color="#10b981"
-          />
-          <MiniChart
-            data={miniChartData}
-            title="Key Difference From Last Week"
-            percentage="7.1"
-            color="#f59e0b"
-          />
-          <MiniChart
-            data={miniChartData}
-            title="Key Difference From Last Week"
-            percentage="2.9"
-            color="#ef4444"
-          />
-        </div>
-
-        {/* Action Buttons */}
-
         {/* Ask Questions Section */}
-        <div className="bg-black p-3 border border-gray-600 rounded-4xl">
+        <div className="w-3/4 mx-auto bg-black p-2 border border-gray-600 rounded-full">
           <div className="flex items-center justify-between gap-4 ">
             <input
               type="text"

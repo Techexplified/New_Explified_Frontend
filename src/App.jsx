@@ -63,6 +63,11 @@ import RecentPosts from "./components1/RecentPosts";
 import Favourites from "./components1/Favourites";
 import ScheduleDraftPosts from "./components1/ScheduleDraftPosts";
 import NewPost from "./components1/NewPost";
+import History from "./components1/History";
+import WorkflowDashboard from "./components1/Workflows";
+import CreateNewPage from "./components1/CreateNewPage";
+import PresentationLandingPage from "./components2/LandingPage";
+import CreatePresentation from "./components2/CreatePresentation";
 
 function App() {
   return (
@@ -156,7 +161,10 @@ function App() {
             <Route index element={<HomePage />}></Route>
             <Route path="/youtube-summarizer" element={<YoutubeSummarizer />} />
             <Route path="/socials" element={<SocialsPage />}></Route>
+            <Route path="/history" element={<History />}> </Route >
             <Route path="/favorites" element={<Favourites />}></Route>
+            <Route path="/workflows" element={<WorkflowDashboard />} />
+            <Route path="/workflows/new" element={<CreateNewPage />}></Route>
             <Route path="/socials/:id" element={<DetailedCard />}></Route>
 
             <Route
@@ -175,7 +183,12 @@ function App() {
               path="/socials/newPost"
               element={<NewPost />}
             />
+            <Route path="/presentation" element={<PresentationLandingPage />}>
+              
+            </Route>
+            <Route path="/presentation/create" element={<CreatePresentation />} />
           </Route>
+          
 
           {/* Tools Page */}
 

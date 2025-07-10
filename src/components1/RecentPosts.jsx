@@ -59,7 +59,7 @@ const CircularProgress = ({ percentage, label, value, color = "#23b5b5" }) => {
       </div>
       <div className="text-center">
         <div className="text-xs sm:text-sm text-gray-400">{label}</div>
-        <div className="text-sm sm:text-base font-semibold text-white">
+        <div className="text-xs sm:text-sm text-gray-400">
           {value}
         </div>
       </div>
@@ -91,9 +91,8 @@ const MiniChart = ({ data, title, percentage, color = "#23b5b5" }) => (
   </div>
 );
 const InstagramAnalytics = () => {
-  
   const [analyzeComments, setAnalyzeComments] = useState(false);
-
+  const [week, setWeek] = useState("last");
   const metrics = [
     {
       title: "Likes",
@@ -137,15 +136,7 @@ const InstagramAnalytics = () => {
   return (
     <div className="bg-black text-white min-h-screen p-6">
       {/* Header Navigation */}
-      <div className="flex items-center space-x-2 text-sm text-gray-400 mb-6">
-        <span>Socials</span>
-        <span>&gt;</span>
-        <span>Instagram</span>
-        <span>&gt;</span>
-        <span>Posts</span>
-        <span>&gt;</span>
-        <span className="text-white">Recent</span>
-      </div>
+      
 
       <div className="flex flex-col gap-8">
         {/* Left Column - Post Preview */}
@@ -278,11 +269,30 @@ const InstagramAnalytics = () => {
           </div>
         </div>
 
+        <div className="flex space-x-2 mb-4 ">
+          <button
+            className={`px-4 py-2 rounded text-sm border border-gray-600 ${
+              week === "last" ? "bg-[#23b5b5] text-black" : "text-gray-400"
+            }`}
+            onClick={() => setWeek("last")}
+          >
+            Last Week
+          </button>
+          <button
+            className={`px-4 py-2 rounded text-sm border border-gray-600 ${
+              week === "this" ? "bg-[#23b5b5] text-black" : "text-gray-400"
+            }`}
+            onClick={() => setWeek("this")}
+          >
+            This Week
+          </button>
+        </div>
+
         {/* Right Column - Analytics */}
         <div className="space-y-6">
           {/* Metrics Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 mb-8 ">
-            <div className="bg-black p-6 sm:p-8 rounded-lg text-center border border-gray-600">
+            <div className="bg-black p-6 sm:p-8 rounded-lg border border-gray-600">
               <div className="text-base sm:text-lg text-gray-400 mb-4">
                 Comments
               </div>
@@ -291,12 +301,31 @@ const InstagramAnalytics = () => {
                 label="Followers - 43"
                 value="Non-followers - 98"
               />
-              <div className="text-sm sm:text-base text-gray-500 mt-3">
+              <div className="text-xs sm:text-sm text-gray-400 text-center">
                 First time viewers - 20
+              </div>
+
+              <div className=" mt-2 border-t border-gray-600 rounded-lg">
+                <MiniChart
+                  data={miniChartData}
+                  title="Key Difference From Last Week"
+                  percentage="5.2"
+                  color="#23b5b5"
+                />
+                <div className="p-4 text-gray-400 sm:p-6 text-sm sm:text-base mt-[-2rem] flex flex-col items-start">
+                  <div>
+                    <span className="text-green-400">Positives</span> : 5.2%
+                    increase
+                  </div>
+                  <div>
+                    <span className="text-red-400">Negatives</span> : 5.2%
+                    decrease
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="bg-black p-6 sm:p-8 rounded-lg text-center border border-gray-600">
+            <div className="bg-black p-6 sm:p-8 rounded-lg border border-gray-600">
               <div className="text-base sm:text-lg text-gray-400 mb-4">
                 Shares
               </div>
@@ -305,12 +334,30 @@ const InstagramAnalytics = () => {
                 label="Followers - 43"
                 value="Non-followers - 98"
               />
-              <div className="text-sm sm:text-base text-gray-500 mt-3">
+              <div className="text-xs sm:text-sm text-gray-400 text-center">
                 First time viewers - 20
+              </div>
+              <div className=" mt-2 border-t border-gray-600 rounded-lg">
+                <MiniChart
+                  data={miniChartData}
+                  title="Key Difference From Last Week"
+                  percentage="5.2"
+                  color="#23b5b5"
+                />
+                <div className="p-4 text-gray-400 sm:p-6 text-sm sm:text-base mt-[-2rem] flex flex-col items-start">
+                  <div>
+                    <span className="text-green-400">Positives</span> : 5.2%
+                    increase
+                  </div>
+                  <div>
+                    <span className="text-red-400">Negatives</span> : 5.2%
+                    decrease
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="bg-black p-6 sm:p-8 rounded-lg text-center border border-gray-600">
+            <div className="bg-black p-6 sm:p-8 rounded-lg border border-gray-600">
               <div className="text-base sm:text-lg text-gray-400 mb-4">
                 Saves
               </div>
@@ -319,12 +366,30 @@ const InstagramAnalytics = () => {
                 label="Followers - 43"
                 value="Non-followers - 98"
               />
-              <div className="text-sm sm:text-base text-gray-500 mt-3">
+              <div className="text-xs sm:text-sm text-gray-400 text-center">
                 First time viewers - 20
+              </div>
+              <div className=" mt-2 border-t border-gray-600 rounded-lg">
+                <MiniChart
+                  data={miniChartData}
+                  title="Key Difference From Last Week"
+                  percentage="5.2"
+                  color="#23b5b5"
+                />
+                <div className="p-4 text-gray-400 sm:p-6 text-sm sm:text-base mt-[-2rem] flex flex-col items-start">
+                  <div>
+                    <span className="text-green-400">Positives</span> : 5.2%
+                    increase
+                  </div>
+                  <div>
+                    <span className="text-red-400">Negatives</span> : 5.2%
+                    decrease
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="bg-black p-6 sm:p-8 rounded-lg text-center border border-gray-600">
+            <div className="bg-black p-6 sm:p-8 rounded-lg  border border-gray-600">
               <div className="text-base sm:text-lg text-gray-400 mb-4">
                 Likes
               </div>
@@ -333,75 +398,32 @@ const InstagramAnalytics = () => {
                 label="Followers - 43"
                 value="Non-followers - 98"
               />
-              <div className="text-sm sm:text-base text-gray-500 mt-3">
+              <div className="text-xs sm:text-sm text-gray-400 text-center">
                 First time viewers - 20
               </div>
-            </div>
-          </div>
-
-          <div className="flex space-x-2">
-            <button className="px-4 py-2 bg-gray-800 rounded text-sm border border-gray-600">
-              Last Week
-            </button>
-            <button className="px-4 py-2 bg-transparent rounded text-sm border border-gray-600 text-gray-400">
-              This Week
-            </button>
-          </div>
-
-          {/* Bottom Mini Charts */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 mb-8 ">
-            <div className="border border-gray-600 rounded-lg">
-              <MiniChart
-                data={miniChartData}
-                title="Key Difference From Last Week"
-                percentage="5.2"
-                color="#23b5b5"
-              />
-              <div className="p-4 text-gray-400 sm:p-6 text-sm sm:text-base mt-[-2rem]">
-                <div>Positives :</div>
-                <div>Negatives :</div>
-              </div>
-            </div>
-            <div className="border border-gray-600 rounded-lg">
-              <MiniChart
-                data={miniChartData}
-                title="Key Difference From Last Week"
-                percentage="3.8"
-                color="#10b981"
-              />
-              <div className="p-4 text-gray-400 sm:p-6 text-sm sm:text-base mt-[-2rem]">
-                <div>Positives :</div>
-                <div>Negatives :</div>
-              </div>
-            </div>
-            <div className="border border-gray-600 rounded-lg">
-              <MiniChart
-                data={miniChartData}
-                title="Key Difference From Last Week"
-                percentage="7.1"
-                color="#f59e0b"
-              />
-              <div className="p-4 text-gray-400 sm:p-6 text-sm sm:text-base mt-[-2rem]">
-                <div>Positives :</div>
-                <div>Negatives :</div>
-              </div>
-            </div>
-            <div className="border border-gray-600 rounded-lg">
-              <MiniChart
-                data={miniChartData}
-                title="Key Difference From Last Week"
-                percentage="2.9"
-                color="#ef4444"
-              />
-              <div className="p-4 text-gray-400 sm:p-6 text-sm sm:text-base mt-[-2rem]">
-                <div>Positives :</div>
-                <div>Negatives :</div>
+              <div className=" mt-2 border-t border-gray-600 rounded-lg">
+                <MiniChart
+                  data={miniChartData}
+                  title="Key Difference From Last Week"
+                  percentage="5.2"
+                  color="#23b5b5"
+                />
+                <div className="p-4 text-gray-400 sm:p-6 text-sm sm:text-base mt-[-2rem] flex flex-col items-start">
+                  <div>
+                    <span className="text-green-400">Positives</span> : 5.2%
+                    increase
+                  </div>
+                  <div>
+                    <span className="text-red-400">Negatives</span> : 5.2%
+                    decrease
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Ask Questions Input */}
-          <div className="bg-black p-3 border border-gray-600 rounded-4xl">
+          <div className="w-3/4 rounded-full mx-auto bg-black p-3 border border-gray-600 rounded-4xl">
             <div className="flex items-center justify-between gap-4 ">
               <input
                 type="text"

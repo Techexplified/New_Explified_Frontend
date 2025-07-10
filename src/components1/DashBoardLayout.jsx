@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState , useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { ChevronDown, User, LogOut, Menu, X } from "lucide-react";
 import HelpButton from "./HelpButton";
+import Breadcrumbs from "./Breadcrumbs";
 
 const quickToolsDropdown = [
   { name: "Youtube Summarizer", route: "/summarizer" },
@@ -11,14 +12,29 @@ const quickToolsDropdown = [
   { name: "BG Remover", route: "/bg-remover" },
 ];
 
+function GlobalStyle() {
+  useEffect(() => {
+    const style = document.createElement("style");
+    style.innerHTML = `
+      html, body, #root { height: 100%; }
+      body { margin: 0; }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style); // cleanup on hot‑reload
+  }, []);
+  return null; // nothing visible
+}
+
 export default function DashBoardLayout() {
   const navigate = useNavigate();
   const [profileDropdown, setProfileDropdown] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toolsDropdown, setToolsDropdown] = useState(false);
-
+  const [showWorkDropdown, setShowWorkDropdown] = useState(false);
   return (
-    <div className="flex h-screen bg-black text-white overflow-hidden">
+    <>
+      <GlobalStyle />
+      <div className="flex h-screen bg-black text-white overflow-hidden">
       {/* Sidebar */}
       <aside
         className={`fixed z-30 md:static w-64 bg-black border-r border-b border-gray-800 flex-shrink-0 flex flex-col transition-transform duration-300 ${
@@ -26,7 +42,7 @@ export default function DashBoardLayout() {
         }`}
       >
         {/* Logo */}
-        <div className="flex justify-center p-4 ">
+        <div className="flex justify-center p-4 " onClick={() => navigate("/")}>
           <img src="/Explified_logo.png" alt="Logo" className="w-10 h-10" />
         </div>
 
@@ -67,6 +83,45 @@ export default function DashBoardLayout() {
           >
             Socials
           </button>
+          <div className="flex border border-gray-600 rounded">
+            <button
+              onClick={() => {
+                navigate("/workflows");
+                setSidebarOpen(false);
+              }}
+              className="w-full text-left p-2 rounded  flex items-center justify-between"
+            >
+              Workflows
+            </button>
+            <div
+              className="p-2"
+              onClick={() => setShowWorkDropdown(!showWorkDropdown)}
+            >
+              <ChevronDown size={16} />
+            </div>
+          </div>
+          {showWorkDropdown && (
+            <div className="z-50 mt-2 p-2 space-y-1 border border-gray-600 rounded">
+              <button
+                onClick={() => {
+                  navigate("/workflows");
+                  setSidebarOpen(false);
+                }}
+                className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black"
+              >
+                Workflows 1
+              </button>
+              <button
+                onClick={() => {
+                  navigate("/templates");
+                  setSidebarOpen(false);
+                }}
+                className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black"
+              >
+                Workflows 2
+              </button>
+            </div>
+          )}
         </nav>
 
         {/* Favorites + Credits Section */}
@@ -117,12 +172,13 @@ export default function DashBoardLayout() {
       {/* Main Content Area */}
       <div className="flex flex-col flex-1 overflow-hidden">
         {/* Header */}
-        <header className="flex justify-between items-center p-4 border-b border-gray-800 bg-black">
+        <header className="flex justify-between items-center p-4 border-b border-gray-800 bg-black z-10">
           <div className="flex items-center gap-4 ml-4 space-x-4">
             <img
               src="/Explified_logo.png"
               alt="Logo"
               className="ml-4 w-10 h-10 md:hidden"
+              onClick={() => navigate("/")}
             />
 
             {/* Logo visible always */}
@@ -133,7 +189,10 @@ export default function DashBoardLayout() {
             >
               Home
             </button>
-            <button className="text-lg font-semibold hidden md:block">
+            <button
+              onClick={() => navigate("/history")}
+              className="text-lg font-semibold hidden md:block"
+            >
               History
             </button>
           </div>
@@ -178,12 +237,15 @@ export default function DashBoardLayout() {
         </header>
 
         {/* Scrollable Main Content */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 bg-black">
+        <main className="flex-1 -m-5 overflow-y-auto p-4 sm:p-6 md:p-8 bg-black">
+          <Breadcrumbs />
           <Outlet />
         </main>
 
         <HelpButton />
       </div>
     </div>
+    </>
+    
   );
 }
