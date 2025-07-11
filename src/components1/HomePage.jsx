@@ -40,26 +40,30 @@ export default function HomePage() {
     {
       title: "Research & Summarization Tools",
       tools: [
-        { name: "Youtube Summarizer", icon: Play , route:"/youtube-summarizer" },
-        { name: "AI Subtitler", icon: FileText, route:"/" },
-        { name: "Perplexity Extension", icon: Puzzle , route:"/" },
+        {
+          name: "Youtube Summarizer",
+          icon: Play,
+          route: "/youtube-summarizer",
+        },
+        { name: "AI Subtitler", icon: FileText, route: "/ai-subtitler" },
+        { name: "Perplexity Extension", icon: Puzzle, route: "/" },
       ],
     },
     {
       title: "Productivity & Content Tools",
       tools: [
-        { name: "Linkedin Extension", icon: Linkedin , route:"/" },
-        { name: "Awesome Screenshot", icon: ScreenShare , route:"/" },
-        { name: "Slideshow Maker", icon: Presentation,route:"/" },
-        { name: "Video Generator", icon: Video ,route:"/"},
+        { name: "Linkedin Extension", icon: Linkedin, route: "/" },
+        { name: "Awesome Screenshot", icon: ScreenShare, route: "/" },
+        { name: "Slideshow Maker", icon: Presentation, route: "/" },
+        { name: "Video Generator", icon: Video, route: "/" },
       ],
     },
     {
       title: "Design & Visual Tools",
       tools: [
-        { name: "BG Remover", icon: Palette,route:"/"},
-        { name: "Link To Video", icon: Link ,route:"/"},
-        { name: "Keyword Extractor", icon: Type,route:"/" },
+        { name: "BG Remover", icon: Palette, route: "/" },
+        { name: "Link To Video", icon: Link, route: "/" },
+        { name: "Keyword Extractor", icon: Type, route: "/" },
       ],
     },
   ];
@@ -122,7 +126,7 @@ export default function HomePage() {
                   const IconComponent = tool.icon;
                   return (
                     <button
-                    onClick={() => navigate(tool.route)}
+                      onClick={() => navigate(tool.route)}
                       key={toolIndex}
                       className="bg-gray-900 hover:bg-gray-800 border border-gray-700 rounded-lg p-4 
              transition-all duration-200 hover:scale-105 group relative overflow-hidden w-50"

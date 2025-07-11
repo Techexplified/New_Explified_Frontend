@@ -64,6 +64,8 @@ import RecentPosts from "./components1/RecentPosts";
 import Favourites from "./components1/Favourites";
 import ScheduleDraftPosts from "./components1/ScheduleDraftPosts";
 import NewPost from "./components1/NewPost";
+import AISubtitler from "./pages/explified_tools/subtitling/AISubtitler";
+import SubtitleToolUI from "./pages/explified_tools/subtitling/SubtitleToolUI";
 
 function App() {
   return (
@@ -155,7 +157,6 @@ function App() {
 
           <Route path="/" element={<DashBoardLayout />}>
             <Route index element={<HomePage />}></Route>
-            <Route path="/youtube-summarizer" element={<YoutubeSummarizer />} />
             <Route path="/socials" element={<SocialsPage />}></Route>
             <Route path="/favorites" element={<Favourites />}></Route>
             <Route path="/socials/:id" element={<DetailedCard />}></Route>
@@ -174,12 +175,14 @@ function App() {
             />
             <Route path="/socials/newPost" element={<NewPost />} />
             <Route path="/youtube-summarizer" element={<YoutubeSummarizer />} />
+            <Route path="/ai-subtitler" element={<AISubtitler />} />
+
             <Route
               path="/youtube-summarizer/deep-search"
               element={<DeepSearch />}
             />
           </Route>
-
+          <Route path="/ai-subtitler-ui" element={<SubtitleToolUI />} />
           {/* Tools Page */}
 
           {/* Landing Page */}
