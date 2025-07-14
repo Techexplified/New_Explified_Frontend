@@ -6,6 +6,7 @@ import { FaSpinner } from "react-icons/fa";
 export default function SubtitleToolUI() {
   const [isLoading, setIsLoading] = useState(false);
   const [vttURL, setVttURL] = useState();
+  const [subtitleText, setSubtitleText] = useState("");
   const uploadedFile = useSelector((state) => state.video);
 
   function shiftSrtTimestamps(srtString, offsetMs) {
@@ -45,9 +46,6 @@ export default function SubtitleToolUI() {
     return String(num).padStart(3, "0");
   }
 
-  // Example usage:
-  // shifts by -300ms
-
   const handleSubmit = async () => {
     if (!uploadedFile) {
       console.error("No file uploaded");
@@ -61,6 +59,7 @@ export default function SubtitleToolUI() {
       const response = await axiosInstance.post("api/aiSubtitler", formData);
 
       const srtString = response?.data?.content;
+      setSubtitleText(srtString);
       const shiftedSrt = shiftSrtTimestamps(srtString, -300);
 
       const vttString = "WEBVTT\n\n" + shiftedSrt.replace(/,/g, ".");
@@ -93,35 +92,37 @@ export default function SubtitleToolUI() {
           {/* Feature Cards */}
           <button
             onClick={handleSubmit}
-            className="border border-gray-600 hover:bg-[#23b5b5] rounded-lg p-6 w-full text-center"
+            className="border border-gray-600 text-lg font-normal leading-tight hover:bg-[#23b5b5] rounded-lg p-6 w-full text-center"
           >
-            <h3 className="text-lg font-normal leading-tight">
-              AI
-              <br />
-              Subtitle
-              <br />
-              Generations
-            </h3>
+            AI
+            <br />
+            Subtitle
+            <br />
+            Generations
           </button>
 
-          <button className="border border-gray-600 hover:bg-[#23b5b5] rounded-lg p-6 w-full text-center">
-            <h3 className="text-lg font-normal leading-tight">
-              Personalised
-              <br />
-              Subtitle
-              <br />
-              Editing
-            </h3>
+          {isLoading ? (
+            <div className="flex items-center justify-center">
+              <FaSpinner className="animate-spin" />
+            </div>
+          ) : null}
+
+          {subtitleText && <div className="text-gray-400">{subtitleText}</div>}
+
+          <button className="border border-gray-600 text-lg font-normal leading-tight hover:bg-[#23b5b5] rounded-lg p-6 w-full text-center">
+            Personalised
+            <br />
+            Subtitle
+            <br />
+            Editing
           </button>
 
-          <button className="border border-gray-600 hover:bg-[#23b5b5] rounded-lg p-6 w-full text-center">
-            <h3 className="text-lg font-normal leading-tight">
-              Language
-              <br />
-              Based
-              <br />
-              Subtitles
-            </h3>
+          <button className="border border-gray-600 text-lg font-normal leading-tight hover:bg-[#23b5b5] rounded-lg p-6 w-full text-center">
+            Language
+            <br />
+            Based
+            <br />
+            Subtitles
           </button>
 
           {/* Get Subtitles Button */}
@@ -134,13 +135,13 @@ export default function SubtitleToolUI() {
           </button>
         </div>
 
-        {isLoading && (
+        {/* {isLoading && (
           <div className="flex-1 flex items-center justify-center ">
             <FaSpinner className="animate-spin" />
           </div>
-        )}
+        )} */}
 
-        {uploadedFile && vttURL ? (
+        {uploadedFile ? (
           <div className="flex-1 flex flex-col">
             {/* Preview Section */}
 

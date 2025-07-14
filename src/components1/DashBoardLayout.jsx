@@ -7,6 +7,7 @@ import HelpButton from "./HelpButton";
 import Breadcrumbs from "./Breadcrumbs";
 
 const quickToolsDropdown = [
+  { name: "AI Tools", route: "/aitools" },
   { name: "Youtube Summarizer", route: "/summarizer" },
   { name: "AI Subtitler", route: "/subtitler" },
   { name: "Linkedin Extension", route: "/linkedin" },
@@ -188,14 +189,6 @@ export default function DashBoardLayout() {
             >
               Socials
             </button>
-            <button
-              onClick={() => {
-                navigate("/aitools");
-              }}
-              className="w-full text-left p-2 rounded hover:bg-gray-800 border border-gray-600"
-            >
-              AI Tools
-            </button>
 
             {/* Workflows Dropdown */}
             <div className="flex border border-gray-600 rounded">
@@ -244,7 +237,7 @@ export default function DashBoardLayout() {
                 onClick={() => setShowChatsDropdown(!showChatsDropdown)}
                 className="w-full flex justify-between items-center p-2 rounded hover:bg-gray-800 border border-gray-600"
               >
-                <span>Chats</span>
+                <span>Chats Tool</span>
                 <div className="flex items-center gap-1">
                   <Plus
                     size={16}
@@ -273,7 +266,8 @@ export default function DashBoardLayout() {
                 </div>
               )}
             </div>
-
+          </nav>
+          <div className="p-4">
             <button
               onClick={() => {
                 navigate("/favorites");
@@ -283,7 +277,7 @@ export default function DashBoardLayout() {
             >
               Favorites
             </button>
-          </nav>
+          </div>
 
           {/* Credits */}
           <div className="p-4 border-t border-gray-800">
