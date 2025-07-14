@@ -188,6 +188,14 @@ export default function DashBoardLayout() {
             >
               Socials
             </button>
+            <button
+              onClick={() => {
+                navigate("/aitools");
+              }}
+              className="w-full text-left p-2 rounded hover:bg-gray-800 border border-gray-600"
+            >
+              AI Tools
+            </button>
 
             {/* Workflows Dropdown */}
             <div className="flex border border-gray-600 rounded">
