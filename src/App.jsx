@@ -68,7 +68,7 @@ import WorkflowDashboard from "./components1/Workflows";
 import CreateNewPage from "./components1/CreateNewPage";
 import PresentationLandingPage from "./components2/LandingPage";
 import CreatePresentation from "./components2/CreatePresentation";
-
+import Integrations from "./components1/Integrations"
 function App() {
   return (
     <div>
@@ -84,7 +84,7 @@ function App() {
           <Route path="/affliate-policy" element={<AffiliatePartnerPolicy />} />
           <Route path="/solutions" element={<ExplifiedServices />} />
           <Route path="/work" element={<ExplifiedWork />} />
-
+           <Route path="/integrations" element={<Integrations />} />
           <Route path="/blaze" element={<BlazeToolLandingPage />} />
           <Route path="/bridge" element={<BridgeToolLandingPage />} />
           <Route path="/motion" element={<MotionToolLandingPage />} />
