@@ -66,6 +66,7 @@ import ScheduleDraftPosts from "./components1/ScheduleDraftPosts";
 import NewPost from "./components1/NewPost";
 import AISubtitler from "./pages/explified_tools/subtitling/AISubtitler";
 import SubtitleToolUI from "./pages/explified_tools/subtitling/SubtitleToolUI";
+import AITools from "./components1/AITools";
 
 function App() {
   return (
@@ -160,6 +161,7 @@ function App() {
             <Route path="/socials" element={<SocialsPage />}></Route>
             <Route path="/favorites" element={<Favourites />}></Route>
             <Route path="/socials/:id" element={<DetailedCard />}></Route>
+            <Route path="/aitools" element={<AITools />}></Route>
 
             <Route
               path="/socials/instagram/posts/recents"

@@ -1,3 +1,4 @@
+// import { configureStore } from "@reduxjs/toolkit";
 import { configureStore } from "@reduxjs/toolkit";
 import userReducer from "./auth_slice/UserSlice";
 import toolReducer from "./tool_slice/ToolSlice";
@@ -8,5 +9,12 @@ export const store = configureStore({
     tool: toolReducer,
     video: videoReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ["video/addVideo"],
+        ignoredPaths: ["video"],
+      },
+    }),
   devTools: true, // Disable Redux DevTools
 });

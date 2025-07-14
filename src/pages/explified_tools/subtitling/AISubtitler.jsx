@@ -1,54 +1,59 @@
-import React, { useState, useRef } from "react";
+import React, { useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "../../../network/axiosInstance";
+// import axiosInstance from "../../../network/axiosInstance";
 import { FaSpinner } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import { addVideo } from "../../../utils/subtitler_slice/SubtitlerSlice";
 
 export default function AISubtitler() {
-  const [uploadedFile, setUploadedFile] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [vttURL, setVttURL] = useState();
+  // const [uploadedFile, setUploadedFile] = useState(null);
+  // const [isLoading, setIsLoading] = useState(false);
+  // const [vttURL, setVttURL] = useState();
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const uploadedFile = useSelector((state) => state.video);
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
-      setUploadedFile(file);
+      // setUploadedFile(file);
+      dispatch(addVideo(file));
       console.log("File uploaded:", file.name, file.type, file.size);
     }
-    // navigate("/ai-subtitler-ui");
+    navigate("/ai-subtitler-ui");
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setIsLoading(true);
-    try {
-      const formData = new FormData(event.currentTarget);
+  // const handleSubmit = async (event) => {
+  //   event.preventDefault();
+  //   setIsLoading(true);
+  //   try {
+  //     const formData = new FormData(event.currentTarget);
 
-      const response = await axiosInstance.post("api/aiSubtitler", formData);
+  //     const response = await axiosInstance.post("api/aiSubtitler", formData);
 
-      const srtString = response?.data?.content;
-      const vttString = "WEBVTT\n\n" + srtString.replace(/,/g, ".");
+  //     const srtString = response?.data?.content;
+  //     const vttString = "WEBVTT\n\n" + srtString.replace(/,/g, ".");
 
-      const blob = new Blob([vttString], { type: "text/vtt" });
-      const vttURL = URL.createObjectURL(blob);
+  //     const blob = new Blob([vttString], { type: "text/vtt" });
+  //     const vttURL = URL.createObjectURL(blob);
 
-      setVttURL(vttURL);
-      // const blob = new Blob([response.data.subs], { type: "text/plain" });
-      // const link = document.createElement("a");
-      // link.href = URL.createObjectURL(blob);
-      // link.download = "subtitle.srt";
-      // document.body.appendChild(link);
-      // link.click();
-      // link.remove();
+  //     setVttURL(vttURL);
+  //     // const blob = new Blob([response.data.subs], { type: "text/plain" });
+  //     // const link = document.createElement("a");
+  //     // link.href = URL.createObjectURL(blob);
+  //     // link.download = "subtitle.srt";
+  //     // document.body.appendChild(link);
+  //     // link.click();
+  //     // link.remove();
 
-      // navigate("/ai-subtitler-ui");
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  //     // navigate("/ai-subtitler-ui");
+  //   } catch (error) {
+  //     console.error(error);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   const handleUploadClick = () => {
     fileInputRef.current?.click();
@@ -179,7 +184,7 @@ export default function AISubtitler() {
         </div>
 
         {/* Upload and Paste buttons */}
-        <form onSubmit={handleSubmit} className="flex gap-4 justify-between">
+        <form className="flex gap-4 justify-between">
           {/* Hidden file input */}
           <input
             type="file"
@@ -206,9 +211,9 @@ export default function AISubtitler() {
             </div>
           </div>
 
-          <button type="submit">
+          {/* <button type="submit">
             {isLoading ? <FaSpinner className="animate-spin" /> : "Submit"}
-          </button>
+          </button> */}
 
           <button className="flex-1 bg-transparent border-2 border-[#23b5b5] text-[#23b5b5] rounded-full py-2 px-4 hover:bg-[#23b5b5] hover:text-black transition-colors">
             <div className="text-center">
@@ -217,7 +222,7 @@ export default function AISubtitler() {
           </button>
         </form>
 
-        {uploadedFile && vttURL ? (
+        {/* {uploadedFile && vttURL ? (
           <video controls width="640">
             <source src={URL.createObjectURL(uploadedFile)} type="video/mp4" />
             {vttURL && (
@@ -231,7 +236,7 @@ export default function AISubtitler() {
             )}
             Your browser does not support the video tag.
           </video>
-        ) : null}
+        ) : null} */}
       </div>
     </div>
 
