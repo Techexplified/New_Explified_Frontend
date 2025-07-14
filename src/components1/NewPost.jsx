@@ -33,16 +33,7 @@ export default function NewPostPage() {
   return (
     <div className="min-h-screen bg-black text-white px-4 py-6 lg:px-12 mt-[-30px]">
       {/* Header Navigation */}
-      <div className="mb-4 flex items-center gap-2 text-gray-400">
-        <span>Socials</span>
-        <span>›</span>
-        <span>Instagram</span>
-        <span>›</span>
-        <span>Posts</span>
-        <span>›</span>
-        <span className="text-white">New</span>
-      </div>
-
+      
       {(showUploadScreen || showEditScreen || showPreviewScreen) && (
         <div className="flex items-center justify-between gap-4">
           <button 

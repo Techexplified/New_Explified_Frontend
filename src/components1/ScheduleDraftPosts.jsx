@@ -12,12 +12,13 @@ import { useNavigate, useParams } from "react-router-dom";
 
 export default function InstagramPostsPage() {
   const { id } = useParams();
-  
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  
+  const [showPosts, setShowPosts] = useState(false);
+
   const navigate = useNavigate();
-  
+
   const posts = [
     {
       id: 1,
@@ -65,7 +66,6 @@ export default function InstagramPostsPage() {
     },
   ];
 
-
   const handleSubmit = (e) => {
     e.preventDefault();
     if (inputValue.trim()) {
@@ -77,29 +77,48 @@ export default function InstagramPostsPage() {
   return (
     <div className="min-h-screen bg-black text-white px-4 sm:px-6 md:px-10 lg:px-20 xl:px-32">
       <div className="relative z-10">
-        <div className="flex flex-wrap items-center text-sm text-gray-300 py-6 gap-1">
-          <span className="hover:text-[#23b5b5] cursor-pointer">Socials</span>
-          <ChevronDown className="w-4 h-4 rotate-[-90deg] text-[#23b5b5]" />
-          <span className="hover:text-[#23b5b5] cursor-pointer">Instagram</span>
-          <ChevronDown className="w-4 h-4 rotate-[-90deg] text-[#23b5b5]" />
-          <span className="text-white font-medium">Posts</span>
-        </div>
+        
         <h1 className="text-3xl md:text-4xl font-light bg-gradient-to-r from-white to-[#23b5b5] bg-clip-text text-transparent">
           Posts
         </h1>
 
         <div className="relative">
           <div className="flex justify-between my-4">
-            <button className="flex items-center gap-2 border border-[#23b5b5] rounded-full px-4 md:px-6 py-2 text-sm hover:bg-[#23b5b5]/10" onClick={() => navigate("/socials/newPost")}>
+            <button
+              className="flex items-center gap-2 border border-[#23b5b5] rounded-full px-4 md:px-6 py-2 text-sm hover:bg-[#23b5b5]/10"
+              onClick={() => navigate("/socials/newPost")}
+            >
               New post
               <Plus className={`w-4 h-4 ${dropdownOpen ? "rotate-180" : ""}`} />
             </button>
-            <button className="flex items-center gap-2 border border-[#23b5b5] rounded-full px-4 md:px-6 py-2 text-sm hover:bg-[#23b5b5]/10">
-              {id.includes("draft") ? "Draft" : "Schedule"}
-              <ChevronDown
-                className={`w-4 h-4 ${dropdownOpen ? "rotate-180" : ""}`}
-              />
-            </button>
+            <div className="relative">
+              <div
+                onClick={() => setShowPosts(!showPosts)}
+                className="bg-black px-6 py-2 rounded-full text-base sm:text-lg border border-gray-600 hover:bg-gray-700 flex items-center gap-2 cursor-pointer"
+              >
+                {id}
+                <ChevronDown className="w-4 h-4 " />
+              </div>
+
+              {/* Dropdown */}
+              {showPosts && (
+                <div className="absolute right-0 mt-2 w-48 bg-black border border-gray-600 rounded-lg shadow-lg z-20">
+                  <button
+                    className="w-full text-white text-left px-4 py-2 hover:bg-[#23b5b5] hover:text-black transition-colors"
+                    onClick={() => navigate("/socials/instagram/schedule")}
+                  >
+                    Schedule Post
+                  </button>
+
+                  <button
+                    onClick={() => navigate("/socials/instagram/draft")}
+                    className="w-full text-white text-left px-4 py-2 hover:bg-[#23b5b5] hover:text-black transition-colors"
+                  >
+                    Draft Post
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -177,7 +196,7 @@ export default function InstagramPostsPage() {
           ))}
         </div>
 
-        <div className="w-full sm:w-[80%] mt-8 mb-6 mx-auto">
+        <div className="w-full sm:w-3/4 mt-8 mb-6 mx-auto">
           <div className="relative">
             <input
               type="text"

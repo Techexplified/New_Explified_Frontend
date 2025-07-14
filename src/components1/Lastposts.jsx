@@ -106,13 +106,6 @@ export default function InstagramPostsPage() {
   return (
     <div className="min-h-screen bg-black text-white px-4 sm:px-6 md:px-10 lg:px-20 xl:px-32">
       <div className="relative z-10">
-        <div className="flex flex-wrap items-center text-sm text-gray-300 py-6 gap-1">
-          <span className="hover:text-[#23b5b5] cursor-pointer">Socials</span>
-          <ChevronDown className="w-4 h-4 rotate-[-90deg] text-[#23b5b5]" />
-          <span className="hover:text-[#23b5b5] cursor-pointer">Instagram</span>
-          <ChevronDown className="w-4 h-4 rotate-[-90deg] text-[#23b5b5]" />
-          <span className="text-white font-medium">Posts</span>
-        </div>
         
         <h1 className="text-3xl md:text-4xl font-light bg-gradient-to-r from-white to-[#23b5b5] bg-clip-text text-transparent">
           Posts
@@ -206,10 +199,11 @@ export default function InstagramPostsPage() {
                 </div>
 
                 {/* Stats */}
-                <div className="sm:col-span-2 flex flex-col gap-4 items-center">
+                {/* Stats */}
+                <div className="sm:col-span-2 grid grid-cols-2 gap-4 items-center">
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-1 text-gray-400">
-                      <Eye className="w-4 h-4" /> Views
+                       Views
                     </div>
                     <div className="text-white font-medium">
                       {post.views.toLocaleString()}
@@ -217,7 +211,7 @@ export default function InstagramPostsPage() {
                   </div>
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-1 text-gray-400">
-                      <Share className="w-4 h-4" /> Share
+                       Share
                     </div>
                     <div className="text-white font-medium">{post.shares}</div>
                   </div>
@@ -226,13 +220,7 @@ export default function InstagramPostsPage() {
                     className="text-center group"
                   >
                     <div className="flex items-center justify-center gap-1 text-gray-400 group-hover:text-red-400">
-                      <Heart
-                        className={`w-4 h-4 ${
-                          likedPosts.has(post.id)
-                            ? "fill-red-500 text-red-500"
-                            : ""
-                        }`}
-                      />{" "}
+                      
                       Likes
                     </div>
                     <div
@@ -245,7 +233,7 @@ export default function InstagramPostsPage() {
                   </button>
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-1 text-gray-400">
-                      <MessageCircle className="w-4 h-4" /> Comments
+                       Comments
                     </div>
                     <div className="text-white font-medium">
                       {post.comments}

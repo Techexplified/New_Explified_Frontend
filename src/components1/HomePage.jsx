@@ -19,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 export default function HomePage() {
   const [toolsDropdown, setToolsDropdown] = useState(false);
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("window");
 
   const quickToolsDropdown = [
     {
@@ -109,11 +110,38 @@ export default function HomePage() {
         )}
       </div>
 
-      <div className="max-w-6xl mt-[-5px] mx-auto text-white">
+      <div className="max-w-6xl mt-[-5px] mx-auto text-white relative">
         <h1 className="text-4xl font-bold text-center mb-12">
           Your Toolkit for <span className="text-[#23b5b5]">Smarter</span>{" "}
           Workflows
         </h1>
+
+        <div className="flex absolute right-[-90px]  items-center gap-6 mb-12">
+            <button
+              onClick={() => setActiveTab('window')}
+              className={`text-xl lg:text-2xl ${activeTab === 'window' ? 'text-white' : 'text-gray-500'}`}
+            >
+              Window View
+            </button>
+            <div
+              onClick={() => setActiveTab(activeTab === 'window' ? 'mcp' : 'window')}
+              className={`w-14 h-8 bg-gray-600 rounded-full flex items-center transition-colors duration-300 cursor-pointer ${
+                activeTab === 'mcp' ? 'bg-cyan-400' : 'bg-gray-600'
+              }`}
+            >
+              <div
+                className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
+                  activeTab === 'mcp' ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </div>
+            <button
+              onClick={() => setActiveTab('mcp')}
+              className={`text-xl lg:text-2xl ${activeTab === 'mcp' ? 'text-white' : 'text-gray-500'}`}
+            >
+              Mcp view
+            </button>
+          </div>
 
         <div className="space-y-12 text-white">
           {toolCategories.map((category, categoryIndex) => (
