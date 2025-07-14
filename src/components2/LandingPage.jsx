@@ -7,8 +7,7 @@ import {
   RotateCcw,
   ArrowRight,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import PptxGenJS from "pptxgenjs";
 
 // Reusable bordered box for the three‑step row
@@ -28,7 +27,6 @@ export default function LandingPage() {
   const [generatedContent, setGeneratedContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const navigate = useNavigate();
 
   const handleInputChange = (e) => setTopic(e.target.value);
 
@@ -132,43 +130,42 @@ export default function LandingPage() {
   };
 
   function buildPPT({ title, slides }) {
-  const pptx = new PptxGenJS();
+    const pptx = new PptxGenJS();
 
-  for (let i = 0; i < slides.length; i++) {
-    const s = pptx.addSlide();
+    for (let i = 0; i < slides.length; i++) {
+      const s = pptx.addSlide();
 
-    /* ---------- Title ---------- */
-    s.addText(slides[i].title, {
-      x: 0.5,
-      y: 0.5,
-      fontSize: 24,
-      bold: true,
-    });
+      /* ---------- Title ---------- */
+      s.addText(slides[i].title, {
+        x: 0.5,
+        y: 0.5,
+        fontSize: 24,
+        bold: true,
+      });
 
-    /* ---------- Bullet points ---------- */
-    let bullets = slides[i].bulletPoints;
+      /* ---------- Bullet points ---------- */
+      let bullets = slides[i].bulletPoints;
 
-    // make sure we have an array
-    if (typeof bullets === "string") bullets = [bullets];
+      // make sure we have an array
+      if (typeof bullets === "string") bullets = [bullets];
 
-    // convert to correct object format for PptxGenJS
-    const bulletObjects = bullets.map(b => ({
-      text: b,
-      options: { bullet: true }
-    }));
+      // convert to correct object format for PptxGenJS
+      const bulletObjects = bullets.map((b) => ({
+        text: b,
+        options: { bullet: true },
+      }));
 
-    // now add them
-    s.addText(bulletObjects, {
-      x: 0.7,
-      y: 1.2,
-      fontSize: 16,
-      color: "363636",
-    });
+      // now add them
+      s.addText(bulletObjects, {
+        x: 0.7,
+        y: 1.2,
+        fontSize: 16,
+        color: "363636",
+      });
+    }
+
+    pptx.writeFile(`${title}.pptx`);
   }
-
-  pptx.writeFile(`${title}.pptx`);
-}
-
 
   // allow pressing Enter inside the input
   const handleKeyDown = (e) => {

@@ -19,7 +19,7 @@ import { useNavigate } from "react-router-dom";
 export default function HomePage() {
   const [toolsDropdown, setToolsDropdown] = useState(false);
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("window");
+  // const [activeTab, setActiveTab] = useState("window");
 
   const quickToolsDropdown = [
     {
@@ -116,32 +116,38 @@ export default function HomePage() {
           Workflows
         </h1>
 
-        <div className="flex absolute right-[-90px]  items-center gap-6 mb-12">
-            <button
-              onClick={() => setActiveTab('window')}
-              className={`text-xl lg:text-2xl ${activeTab === 'window' ? 'text-white' : 'text-gray-500'}`}
-            >
-              Window View
-            </button>
+        {/* <div className="flex absolute right-[-90px]  items-center gap-6 mb-12">
+          <button
+            onClick={() => setActiveTab("window")}
+            className={`text-xl lg:text-2xl ${
+              activeTab === "window" ? "text-white" : "text-gray-500"
+            }`}
+          >
+            Window View
+          </button>
+          <div
+            onClick={() =>
+              setActiveTab(activeTab === "window" ? "mcp" : "window")
+            }
+            className={`w-14 h-8 bg-gray-600 rounded-full flex items-center transition-colors duration-300 cursor-pointer ${
+              activeTab === "mcp" ? "bg-cyan-400" : "bg-gray-600"
+            }`}
+          >
             <div
-              onClick={() => setActiveTab(activeTab === 'window' ? 'mcp' : 'window')}
-              className={`w-14 h-8 bg-gray-600 rounded-full flex items-center transition-colors duration-300 cursor-pointer ${
-                activeTab === 'mcp' ? 'bg-cyan-400' : 'bg-gray-600'
+              className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
+                activeTab === "mcp" ? "translate-x-6" : "translate-x-1"
               }`}
-            >
-              <div
-                className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-                  activeTab === 'mcp' ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </div>
-            <button
-              onClick={() => setActiveTab('mcp')}
-              className={`text-xl lg:text-2xl ${activeTab === 'mcp' ? 'text-white' : 'text-gray-500'}`}
-            >
-              Mcp view
-            </button>
+            />
           </div>
+          <button
+            onClick={() => setActiveTab("mcp")}
+            className={`text-xl lg:text-2xl ${
+              activeTab === "mcp" ? "text-white" : "text-gray-500"
+            }`}
+          >
+            Mcp view
+          </button>
+        </div> */}
 
         <div className="space-y-12 text-white">
           {toolCategories.map((category, categoryIndex) => (
