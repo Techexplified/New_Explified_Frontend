@@ -237,7 +237,7 @@ export default function DashBoardLayout() {
                 onClick={() => setShowChatsDropdown(!showChatsDropdown)}
                 className="w-full flex justify-between items-center p-2 rounded hover:bg-gray-800 border border-gray-600"
               >
-                <span>Chats Tool</span>
+                <span>Chat Tool</span>
                 <div className="flex items-center gap-1">
                   <Plus
                     size={16}
