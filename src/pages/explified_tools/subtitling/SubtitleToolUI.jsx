@@ -1,50 +1,16 @@
 import { useSelector } from "react-redux";
 import axiosInstance from "../../../network/axiosInstance";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FaSpinner } from "react-icons/fa";
 
 export default function SubtitleToolUI() {
   const [isLoading, setIsLoading] = useState(false);
-  const [vttURL, setVttURL] = useState();
   const [subtitleText, setSubtitleText] = useState("");
+  const [parsedWords, setParsedWords] = useState([]);
+  const [activeWordIds, setActiveWordIds] = useState([]);
+
   const uploadedFile = useSelector((state) => state.video);
-
-  function shiftSrtTimestamps(srtString, offsetMs) {
-    return srtString.replace(
-      /(\d{2}:\d{2}:\d{2}),(\d{3}) --> (\d{2}:\d{2}:\d{2}),(\d{3})/g,
-      (_, h1, ms1, h2, ms2) => {
-        const start = timeToMs(h1, ms1) + offsetMs;
-        const end = timeToMs(h2, ms2) + offsetMs;
-        return `${msToTime(start)} --> ${msToTime(end)}`;
-      }
-    );
-  }
-
-  function timeToMs(time, ms) {
-    const [h, m, s] = time.split(":").map(Number);
-    return (h * 3600 + m * 60 + s) * 1000 + Number(ms);
-  }
-
-  function msToTime(ms) {
-    ms = Math.max(ms, 0); // avoid negative time
-    const hours = Math.floor(ms / 3600000);
-    ms %= 3600000;
-    const minutes = Math.floor(ms / 60000);
-    ms %= 60000;
-    const seconds = Math.floor(ms / 1000);
-    const milliseconds = ms % 1000;
-    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)},${pad3(
-      milliseconds
-    )}`;
-  }
-
-  function pad(num) {
-    return String(num).padStart(2, "0");
-  }
-
-  function pad3(num) {
-    return String(num).padStart(3, "0");
-  }
+  const videoRef = useRef(null);
 
   const handleSubmit = async () => {
     if (!uploadedFile) {
@@ -58,22 +24,113 @@ export default function SubtitleToolUI() {
 
       const response = await axiosInstance.post("api/aiSubtitler", formData);
 
-      const srtString = response?.data?.content;
-      setSubtitleText(srtString);
-      const shiftedSrt = shiftSrtTimestamps(srtString, -300);
-
-      const vttString = "WEBVTT\n\n" + shiftedSrt.replace(/,/g, ".");
-
-      const blob = new Blob([vttString], { type: "text/vtt" });
-      const vttURL = URL.createObjectURL(blob);
-
-      setVttURL(vttURL);
+      const backendString = response?.data?.content;
+      setSubtitleText(backendString);
     } catch (error) {
       console.error(error);
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Parse the backend string into [{ start, end, word }]
+  // useEffect(() => {
+  //   if (subtitleText) {
+  //     const lines = subtitleText.split("\n").filter(Boolean);
+  //     const wordsWithTime = [];
+
+  //     for (let i = 0; i < lines.length; i++) {
+  //       const line = lines[i];
+  //       const [timePart, ...words] = line.trim().split(" ");
+  //       const startTime = timeToSeconds(timePart);
+
+  //       // Estimate endTime: next word's start or +0.5s if last
+  //       let endTime;
+  //       if (i < lines.length - 1) {
+  //         const nextTimePart = lines[i + 1].split(" ")[0];
+  //         endTime = timeToSeconds(nextTimePart);
+  //       } else {
+  //         endTime = startTime + 0.5;
+  //       }
+
+  //       words.forEach((word, index) => {
+  //         wordsWithTime.push({
+  //           id: `${i}-${index}`,
+  //           word,
+  //           start: startTime,
+  //           end: endTime,
+  //         });
+  //       });
+  //     }
+
+  //     setParsedWords(wordsWithTime);
+  //   }
+  // }, [subtitleText]);
+
+  useEffect(() => {
+    if (subtitleText) {
+      const lines = subtitleText.split("\n").filter(Boolean);
+      const wordsWithTime = [];
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const [timePart, ...words] = line.trim().split(" ");
+        const startTime = timeToSeconds(timePart);
+
+        let nextTime;
+        if (i < lines.length - 1) {
+          const nextTimePart = lines[i + 1].split(" ")[0];
+          nextTime = timeToSeconds(nextTimePart);
+        } else {
+          nextTime = startTime + 0.5; // fallback for last word
+        }
+
+        const lineDuration = Math.max(nextTime - startTime, 0.1);
+        const wordDuration = lineDuration / words.length;
+
+        words.forEach((word, index) => {
+          const wordStart = startTime + index * wordDuration;
+          const wordEnd = wordStart + wordDuration;
+
+          wordsWithTime.push({
+            id: `${i}-${index}`,
+            word,
+            start: wordStart,
+            end: wordEnd,
+          });
+        });
+      }
+
+      setParsedWords(wordsWithTime);
+    }
+  }, [subtitleText]);
+
+  function timeToSeconds(timeStr) {
+    const [h, m, s] = timeStr.split(":").map(Number);
+    return h * 3600 + m * 60 + s;
+  }
+
+  // Listen for video time updates
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handleTimeUpdate = () => {
+      const currentTime = video.currentTime;
+
+      const active = parsedWords
+        .filter((w) => currentTime >= w.start && currentTime <= w.end)
+        .map((w) => w.id);
+
+      setActiveWordIds(active);
+    };
+
+    video.addEventListener("timeupdate", handleTimeUpdate);
+    return () => {
+      video.removeEventListener("timeupdate", handleTimeUpdate);
+    };
+  }, [parsedWords]);
+
   return (
     <div className="bg-black text-white h-screen p-6">
       {/* Header */}
@@ -87,9 +144,8 @@ export default function SubtitleToolUI() {
       </div>
 
       <div className="flex gap-6">
-        {/* Left Sidebar */}
-        <div className="w-80 space-y-4">
-          {/* Feature Cards */}
+        {/* Sidebar */}
+        <div className="w-80 space-y-4 overflow-y-auto max-h-[80vh]">
           <button
             onClick={handleSubmit}
             className="border border-gray-600 text-lg font-normal leading-tight hover:bg-[#23b5b5] rounded-lg p-6 w-full text-center"
@@ -101,13 +157,27 @@ export default function SubtitleToolUI() {
             Generations
           </button>
 
-          {isLoading ? (
+          {isLoading && (
             <div className="flex items-center justify-center">
               <FaSpinner className="animate-spin" />
             </div>
-          ) : null}
+          )}
 
-          {subtitleText && <div className="text-gray-400">{subtitleText}</div>}
+          {/* Word-by-word rendering */}
+          <div className="space-y-2">
+            {parsedWords.map((w) => (
+              <span
+                key={w.id}
+                className={`inline-block mr-1 px-1 rounded transition-all ${
+                  activeWordIds.includes(w.id)
+                    ? "bg-yellow-300 text-black"
+                    : "text-gray-400"
+                }`}
+              >
+                {w.word}
+              </span>
+            ))}
+          </div>
 
           <button className="border border-gray-600 text-lg font-normal leading-tight hover:bg-[#23b5b5] rounded-lg p-6 w-full text-center">
             Personalised
@@ -125,7 +195,6 @@ export default function SubtitleToolUI() {
             Subtitles
           </button>
 
-          {/* Get Subtitles Button */}
           <button className="w-full bg-teal-600 hover:bg-teal-700 text-white py-4 px-6 rounded-lg text-lg font-normal flex items-center justify-center gap-2 transition-colors">
             Get Subtitle's
             <div className="flex items-center gap-1">
@@ -135,59 +204,18 @@ export default function SubtitleToolUI() {
           </button>
         </div>
 
-        {/* {isLoading && (
-          <div className="flex-1 flex items-center justify-center ">
-            <FaSpinner className="animate-spin" />
-          </div>
-        )} */}
-
-        {uploadedFile ? (
+        {/* Video preview */}
+        {uploadedFile && (
           <div className="flex-1 flex flex-col">
-            {/* Preview Section */}
-
-            <video controls width="720" className="mx-auto">
+            <video ref={videoRef} controls width="720" className="mx-auto">
               <source
                 src={URL.createObjectURL(uploadedFile)}
                 type="video/mp4"
               />
-              {vttURL && (
-                <track
-                  label="English"
-                  kind="subtitles"
-                  srcLang="en"
-                  src={vttURL}
-                  default
-                />
-              )}
               Your browser does not support the video tag.
             </video>
-
-            {/* <span className="text-black text-lg font-medium">PREVIEW</span> */}
-
-            {/* Timeline Section */}
-            <div className="flex-1">
-              {/* Timeline ruler */}
-              <div className="border-t border-gray-600 mb-2 relative">
-                <div className="flex">
-                  {Array.from({ length: 6 }, (_, i) => (
-                    <div key={i} className="flex-1 relative">
-                      <div className="absolute top-0 left-0 w-px h-4 bg-gray-600"></div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Subtitle blocks */}
-              <div className="grid grid-cols-6 gap-1 mt-4">
-                {Array.from({ length: 6 }, (_, i) => (
-                  <div key={i} className="bg-gray-400 h-16 rounded"></div>
-                ))}
-              </div>
-            </div>
           </div>
-        ) : null}
-
-        {/* Right Content Area */}
+        )}
       </div>
     </div>
   );
