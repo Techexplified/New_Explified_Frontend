@@ -153,6 +153,15 @@ export default function DashBoardLayout() {
           </div>
 
           <nav className="flex-1 overflow-y-auto p-4 space-y-3">
+            <button
+              onClick={() => {
+                navigate("/");
+                setSidebarOpen(false);
+              }}
+              className="w-full text-left p-2 rounded hover:bg-gray-800 border border-gray-600"
+            >
+              Dashboard
+            </button>
             {/* Tools Dropdown */}
             <div>
               <button
@@ -320,9 +329,9 @@ export default function DashBoardLayout() {
               />
               <button
                 className="text-lg font-semibold hidden md:block"
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/trone")}
               >
-                Home
+                Trone
               </button>
               <button
                 onClick={() => navigate("/history")}

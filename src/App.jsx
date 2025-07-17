@@ -73,6 +73,7 @@ import CreateNewPage from "./components1/CreateNewPage";
 import PresentationLandingPage from "./components2/LandingPage";
 import CreatePresentation from "./components2/CreatePresentation";
 import Integrations from "./components1/Integrations";
+import Trone from "./components1/Trone";
 function App() {
   return (
     <div>
@@ -164,14 +165,13 @@ function App() {
           <Route path="/" element={<DashBoardLayout />}>
             <Route index element={<HomePage />}></Route>
             <Route path="/socials" element={<SocialsPage />}></Route>
-            <Route path="/history" element={<History />}>
-              {" "}
-            </Route>
+            <Route path="/history" element={<History />}></Route>
             <Route path="/favorites" element={<Favourites />}></Route>
             <Route path="/workflows" element={<WorkflowDashboard />} />
             <Route path="/workflows/new" element={<CreateNewPage />}></Route>
             <Route path="/socials/:id" element={<DetailedCard />}></Route>
             <Route path="/aitools" element={<AITools />}></Route>
+            <Route path="/trone" element={<Trone />} />
 
             <Route
               path="/socials/instagram/posts/recents"
