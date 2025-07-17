@@ -6,11 +6,15 @@ import { FaSpinner } from "react-icons/fa";
 export default function SubtitleToolUI() {
   const [isLoading, setIsLoading] = useState(false);
   const [subtitleText, setSubtitleText] = useState("");
+  const [downloadPath, setDownloadPath] = useState("");
+  const [changeLanguage, setChangeLanguage] = useState("");
   const [parsedWords, setParsedWords] = useState([]);
   const [activeWordIds, setActiveWordIds] = useState([]);
 
   const uploadedFile = useSelector((state) => state.video);
   const videoRef = useRef(null);
+  // const downloadUrl =
+  // "http://localhost:8000/uploads/VID_20250710194533-subtitled.mp4";
 
   const handleSubmit = async () => {
     if (!uploadedFile) {
@@ -24,7 +28,34 @@ export default function SubtitleToolUI() {
 
       const response = await axiosInstance.post("api/aiSubtitler", formData);
 
+      const filePath = response?.data?.videoFile;
+      const fileName = filePath.split("\\").pop();
+      const finalPath = `${import.meta.env.VITE_APP_URL}uploads/${fileName}`;
+      console.log(fileName);
+
       const backendString = response?.data?.content;
+      setDownloadPath(finalPath);
+      setSubtitleText(backendString);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLanguageChange = async (e) => {
+    const ln = e.target.value;
+    setChangeLanguage(ln);
+    setIsLoading(true);
+    try {
+      const formData = { language: ln, text: subtitleText };
+      const response = await axiosInstance.post(
+        "api/aiSubtitler/language",
+        formData
+      );
+
+      const backendString = response?.data?.content;
+
       setSubtitleText(backendString);
     } catch (error) {
       console.error(error);
@@ -110,7 +141,6 @@ export default function SubtitleToolUI() {
     return h * 3600 + m * 60 + s;
   }
 
-  // Listen for video time updates
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -161,6 +191,19 @@ export default function SubtitleToolUI() {
             <div className="flex items-center justify-center">
               <FaSpinner className="animate-spin" />
             </div>
+          )}
+
+          {subtitleText && (
+            <select
+              name="language"
+              className="border border-[#23b5b5] bg-black py-1 px-2 rounded-md"
+              value={changeLanguage}
+              onChange={handleLanguageChange}
+            >
+              <option value="">Select</option>
+              <option value="hindi">Hindi</option>
+              <option value="english">English</option>
+            </select>
           )}
 
           {/* Word-by-word rendering */}
@@ -214,9 +257,25 @@ export default function SubtitleToolUI() {
               />
               Your browser does not support the video tag.
             </video>
+
+            {downloadPath && (
+              <div className="text-right">
+                <a href={downloadPath} download>
+                  <button className="bg-[#23b5b5] py-3 px-6 rounded-lg">
+                    Download
+                  </button>
+                </a>
+              </div>
+            )}
           </div>
         )}
       </div>
+
+      {/* <a href={downloadUrl} download>
+        <button className="bg-blue-500 text-white px-4 py-2 rounded">
+          Download Subtitled Video
+        </button>
+      </a> */}
     </div>
   );
 }
