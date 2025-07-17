@@ -171,7 +171,7 @@ function App() {
             <Route path="/workflows/new" element={<CreateNewPage />}></Route>
             <Route path="/socials/:id" element={<DetailedCard />}></Route>
             <Route path="/aitools" element={<AITools />}></Route>
-            <Route path="/trone" element={<Trone />} />
+            <Route path="/tron" element={<Trone />} />
 
             <Route
               path="/socials/instagram/posts/recents"

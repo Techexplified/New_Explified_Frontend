@@ -329,9 +329,9 @@ export default function DashBoardLayout() {
               />
               <button
                 className="text-lg font-semibold hidden md:block"
-                onClick={() => navigate("/trone")}
+                onClick={() => navigate("/tron")}
               >
-                Trone
+                Tron
               </button>
               <button
                 onClick={() => navigate("/history")}
