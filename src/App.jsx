@@ -13,7 +13,7 @@ import PrivacyPolicy from "./pages/about_pages/PrivacyPolicy";
 import AffiliatePartnerPolicy from "./pages/about_pages/AffiliatePartnerPolicy";
 import ContactUs from "./pages/about_pages/ContactUs";
 import ExplifiedWork from "./pages/work_&_services/ExplifiedWork";
-
+import Influmark from "./components1/Influmark";
 import ExplifiedServices from "./pages/work_&_services/ExplifiedServices";
 import ContentMarketingServicePage from "./pages/work_&_services/services_landing_page/ContentMarketingServicePage";
 import YoutubeManagementServicePage from "./pages/work_&_services/services_landing_page/YoutubeManagementServicePage";
@@ -69,13 +69,20 @@ import CreateNewPage from "./components1/CreateNewPage";
 import PresentationLandingPage from "./components2/LandingPage";
 import CreatePresentation from "./components2/CreatePresentation";
 import Integrations from "./components1/Integrations"
+import InfluencerProfile from "./components1/Influencerprofile";
+import Meme from "./components1/Meme";
+import Result from "./components1/Result";
 function App() {
   return (
     <div>
       <Router>
         <Routes>
           <Route path="/web" element={<MainPage />} />
+          <Route path="/result" element={<Result />} />
+           <Route path="influmark/:name" element={<InfluencerProfile />} />
+           <Route path="/Meme" element={<Meme />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/influmark" element={<Influmark/>} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
