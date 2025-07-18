@@ -17,6 +17,7 @@ import Breadcrumbs from "./Breadcrumbs";
 import { useSelector } from "react-redux";
 
 const quickToolsDropdown = [
+  { name: "AI Tools", route: "/aitools" },
   { name: "Youtube Summarizer", route: "/summarizer" },
   { name: "AI Subtitler", route: "/subtitler" },
   { name: "Linkedin Extension", route: "/linkedin" },
@@ -60,7 +61,7 @@ export default function DashBoardLayout() {
   useEffect(() => {
     if (!currentUsername || currentUsername === "Guest") return;
 
-    fetch(`http://localhost:3000/api/user-details?username=${currentUsername}`)
+    fetch(`http://localhost:8000/api/user-details?username=${currentUsername}`)
       .then((res) => res.json())
       .then((data) => {
         if (data?.email) {
@@ -77,8 +78,8 @@ export default function DashBoardLayout() {
     const fetchChatUsers = async () => {
       try {
         const [userRes, adminRes] = await Promise.all([
-          fetch("http://localhost:3000/api/users/all"),
-          fetch("http://localhost:3000/api/AdminUsers/all"),
+          fetch("http://localhost:8000/api/users/all"),
+          fetch("http://localhost:8000/api/AdminUsers/all"),
         ]);
         const userData = await userRes.json();
         const adminData = await adminRes.json();
@@ -189,6 +190,15 @@ export default function DashBoardLayout() {
 
           {sidebarOpen && (
             <nav className="flex-1 overflow-y-auto p-4 space-y-3">
+              <button
+                onClick={() => {
+                  navigate("/");
+                  setSidebarOpen(false);
+                }}
+                className="w-full text-left p-2 rounded hover:bg-gray-800 border border-gray-600"
+              >
+                Dashboard
+              </button>
               <div>
                 <button
                   onClick={() => setToolsDropdown(!toolsDropdown)}
@@ -361,9 +371,9 @@ export default function DashBoardLayout() {
               />
               <button
                 className="text-lg font-semibold hidden md:block"
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/tron")}
               >
-                Home
+                Tron
               </button>
               <button
                 onClick={() => navigate("/history")}

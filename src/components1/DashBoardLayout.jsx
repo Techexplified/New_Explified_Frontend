@@ -52,30 +52,26 @@ export default function DashBoardLayout() {
   const [showAddUserPopup, setShowAddUserPopup] = useState(false);
   const [newUsername, setNewUsername] = useState("");
   const socket = useRef(null);
-const user = useSelector((state) => state.user);
+  const user = useSelector((state) => state.user);
 
-const currentUsername = user?.given_name || "Guest";
+  const currentUsername = user?.given_name || "Guest";
 
-const [currentEmail, setCurrentEmail] = useState("guest@example.com");
+  const [currentEmail, setCurrentEmail] = useState("guest@example.com");
 
-useEffect(() => {
-  if (!currentUsername || currentUsername === "Guest") return;
+  useEffect(() => {
+    if (!currentUsername || currentUsername === "Guest") return;
 
-  fetch(`http://localhost:3000/api/user-details?username=${currentUsername}`)
-    .then((res) => res.json())
-    .then((data) => {
-      if (data?.email) {
-        setCurrentEmail(data.email);
-      }
-    })
-    .catch((err) => {
-      console.error("Failed to fetch email for user:", err);
-    });
-}, [currentUsername]);
-
-
-
-
+    fetch(`http://localhost:3000/api/user-details?username=${currentUsername}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.email) {
+          setCurrentEmail(data.email);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch email for user:", err);
+      });
+  }, [currentUsername]);
 
   useEffect(() => {
     let isMounted = true;
@@ -90,10 +86,12 @@ useEffect(() => {
 
         if (isMounted) {
           const filteredUsers = (userData.users || []).filter(
-            (u) => typeof u === "string" && u.trim() !== "" && u !== currentUsername
+            (u) =>
+              typeof u === "string" && u.trim() !== "" && u !== currentUsername
           );
           const filteredAdmins = (adminData.users || []).filter(
-            (u) => typeof u === "string" && u.trim() !== "" && u !== currentUsername
+            (u) =>
+              typeof u === "string" && u.trim() !== "" && u !== currentUsername
           );
 
           setChatUsers(filteredUsers);
@@ -197,77 +195,52 @@ useEffect(() => {
         )}
 
         {/* Sidebar */}
-        <aside
-          className={`fixed z-30 md:static w-64 bg-black border-r border-b border-gray-800 flex-shrink-0 flex flex-col transition-transform duration-300 ${
-            sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-          }`}
-        >
-          <div
-            className="flex justify-center p-4"
-            onClick={() => navigate("/")}
+        {sidebarOpen && (
+          <aside
+            className={`fixed z-30 md:static w-64 bg-black border-r border-b border-gray-800 flex-shrink-0 flex flex-col transition-transform duration-300 ${
+              sidebarOpen
+                ? "translate-x-0"
+                : "-translate-x-full md:translate-x-0"
+            }`}
           >
-            {" "}
-            <img
-              src="/Explified_logo.png"
-              alt="Logo"
-              className="w-10 h-10"
-            />{" "}
-          </div>
-        <aside
-          className={`relative z-30 bg-black border-r border-b border-gray-800 flex-shrink-0 flex flex-col transition-all duration-300 ${
-            sidebarOpen ? "w-64" : "w-16"
-          }`}
-        >
-          <div className="flex items-center justify-between p-4">
-            <img
-              src="/Explified_logo.png"
-              alt="Logo"
-              className="w-10 h-10 cursor-pointer"
+            <div
+              className="flex justify-center p-4"
               onClick={() => navigate("/")}
-            />
-            <button onClick={() => setSidebarOpen(!sidebarOpen)}>
-              {sidebarOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
-            </button>
-          </div>
-
-          <nav className="flex-1 overflow-y-auto p-4 space-y-3">
-            <button
-              onClick={() => {
-                navigate("/");
-                setSidebarOpen(false);
-              }}
-              className="w-full text-left p-2 rounded hover:bg-gray-800 border border-gray-600"
             >
-              Dashboard
-            </button>
-            {/* Tools Dropdown */}
-            <div>
-              <button
-                onClick={() => setToolsDropdown(!toolsDropdown)}
-                className="w-full flex justify-between items-center p-2 rounded hover:bg-gray-800 border border-gray-600"
-              >
-                <span>Tools</span>
-                <ChevronDown size={16} />
-              </button>
-              {toolsDropdown && (
-                <div className="mt-2 p-2 space-y-1 border border-gray-600 rounded">
-                  {quickToolsDropdown.map((tool, index) => (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        navigate(tool.route);
-                        setSidebarOpen(false);
-                      }}
-                      className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black"
-                    >
-                      {tool.name}
-                    </button>
-                  ))}
-                </div>
-              )}
+              {" "}
+              <img
+                src="/Explified_logo.png"
+                alt="Logo"
+                className="w-10 h-10"
+              />{" "}
             </div>
-          {sidebarOpen && (
+            <div className="flex items-center justify-between p-4">
+              <img
+                src="/Explified_logo.png"
+                alt="Logo"
+                className="w-10 h-10 cursor-pointer"
+                onClick={() => navigate("/")}
+              />
+              <button onClick={() => setSidebarOpen(!sidebarOpen)}>
+                {sidebarOpen ? (
+                  <ChevronLeft size={20} />
+                ) : (
+                  <ChevronRight size={20} />
+                )}
+              </button>
+            </div>
+
             <nav className="flex-1 overflow-y-auto p-4 space-y-3">
+              <button
+                onClick={() => {
+                  navigate("/");
+                  setSidebarOpen(false);
+                }}
+                className="w-full text-left p-2 rounded hover:bg-gray-800 border border-gray-600"
+              >
+                Dashboard
+              </button>
+              {/* Tools Dropdown */}
               <div>
                 <button
                   onClick={() => setToolsDropdown(!toolsDropdown)}
@@ -314,7 +287,10 @@ useEffect(() => {
                 >
                   Workflows
                 </button>
-                <div className="p-2" onClick={() => setShowWorkDropdown(!showWorkDropdown)}>
+                <div
+                  className="p-2"
+                  onClick={() => setShowWorkDropdown(!showWorkDropdown)}
+                >
                   <ChevronDown size={16} />
                 </div>
               </div>
@@ -394,27 +370,36 @@ useEffect(() => {
                 Favorites
               </button>
 
-          {/* Credits */}
-          <div className="p-4 border-t border-gray-800">
-            <div className="w-full p-4 rounded-md shadow border border-gray-600">
-              <div className="text-sm text-gray-100 flex items-center justify-between mb-2">
-                <span>Credits remaining</span>
-                <span className="flex items-center gap-1 text-gray-400 font-medium">
-                  <svg className="w-4 h-4 text-gray-100" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 0C4.5 0 0 4.5 0 10s4.5 10 10 10 10-4.5 10-10S15.5 0 10 0zM8 15l-5-5 1.4-1.4L8 12.2l7.6-7.6L17 6l-9 9z" />
-                  </svg>
-                  400 / 400
-                </span>
+              {/* Credits */}
+              <div className="p-4 border-t border-gray-800">
+                <div className="w-full p-4 rounded-md shadow border border-gray-600">
+                  <div className="text-sm text-gray-100 flex items-center justify-between mb-2">
+                    <span>Credits remaining</span>
+                    <span className="flex items-center gap-1 text-gray-400 font-medium">
+                      <svg
+                        className="w-4 h-4 text-gray-100"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M10 0C4.5 0 0 4.5 0 10s4.5 10 10 10 10-4.5 10-10S15.5 0 10 0zM8 15l-5-5 1.4-1.4L8 12.2l7.6-7.6L17 6l-9 9z" />
+                      </svg>
+                      400 / 400
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-1.5 mb-4">
+                    <div
+                      className="bg-teal-400 h-1.5 rounded-full"
+                      style={{ width: "100%" }}
+                    ></div>
+                  </div>
+                  <button className="w-full bg-[#23b5b5] text-black py-2 rounded-md hover:bg-black hover:text-white border border-gray-600 transition-all">
+                    Upgrade
+                  </button>
+                </div>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-1.5 mb-4">
-                <div className="bg-teal-400 h-1.5 rounded-full" style={{ width: "100%" }}></div>
-              </div>
-              <button className="w-full bg-[#23b5b5] text-black py-2 rounded-md hover:bg-black hover:text-white border border-gray-600 transition-all">Upgrade</button>
-            </div>
-          </div>
             </nav>
-          )}
-        </aside>
+          </aside>
+        )}
 
         {/* Main Content */}
         <div className="flex flex-col flex-1 overflow-hidden">
@@ -439,18 +424,17 @@ useEffect(() => {
                 History
               </button>
               <button
-  onClick={() => navigate("/integrations")}
-  className="text-lg font-semibold hidden md:block"
->
-  Integrations
-</button>
-<button
-  onClick={() => navigate("/influmark")}
-  className="text-lg font-semibold hidden md:block"
->
-  Influmark
-</button>
-
+                onClick={() => navigate("/integrations")}
+                className="text-lg font-semibold hidden md:block"
+              >
+                Integrations
+              </button>
+              <button
+                onClick={() => navigate("/influmark")}
+                className="text-lg font-semibold hidden md:block"
+              >
+                Influmark
+              </button>
             </div>
             <div className="relative flex items-center gap-4">
               <button
@@ -470,9 +454,8 @@ useEffect(() => {
                 <div className="absolute right-0 top-12 mt-2 bg-black border border-white rounded-xl w-64 z-50">
                   <div className="flex flex-col items-center py-4">
                     <User size={24} className="mb-2" />
-                   <p className="font-medium">{currentUsername}</p>
-<p className="text-sm text-gray-300">{currentEmail}</p>
-
+                    <p className="font-medium">{currentUsername}</p>
+                    <p className="text-sm text-gray-300">{currentEmail}</p>
                   </div>
                   <div className="border-t border-white my-2" />
                   <button className="w-full py-2 flex justify-center items-center space-x-2">
@@ -523,7 +506,11 @@ useEffect(() => {
                       ...prev,
                       [activeChat]: [
                         ...(prev[activeChat] || []),
-                        { from: currentUsername, message: msg, time: Date.now() },
+                        {
+                          from: currentUsername,
+                          message: msg,
+                          time: Date.now(),
+                        },
                       ],
                     }));
                     e.target.reset();

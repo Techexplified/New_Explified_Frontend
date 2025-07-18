@@ -55,7 +55,7 @@ import Edit from "./pages/explified_tools/pdf_tools/Edit";
 import Sign from "./pages/explified_tools/pdf_tools/Sign";
 import PdfToAny from "./pages/explified_tools/pdf_tools/PdfToAny";
 import PdfToWord from "./pages/explified_tools/pdf_tools/PdfToWord";
-import DashBoardLayout from "./components1/DashBoardLayout";
+import DashBoardLayout from "./components1/DashBoardLayout2";
 import HomePage from "./components1/HomePage";
 import SocialsPage from "./components1/SocialsPage";
 import DetailedCard from "./components1/DetailedCard";
@@ -85,7 +85,6 @@ function App() {
           <Route path="/web" element={<MainPage />} />
           <Route path="/result" element={<Result />} />
           <Route path="influmark/:name" element={<InfluencerProfile />} />
-          <Route path="/Meme" element={<Meme />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/influmark" element={<Influmark />} />
           <Route path="/signup" element={<SignupPage />} />
@@ -179,6 +178,7 @@ function App() {
             <Route path="/socials/:id" element={<DetailedCard />}></Route>
             <Route path="/aitools" element={<AITools />}></Route>
             <Route path="/tron" element={<Trone />} />
+            <Route path="/Meme" element={<Meme />} />
 
             <Route
               path="/socials/instagram/posts/recents"

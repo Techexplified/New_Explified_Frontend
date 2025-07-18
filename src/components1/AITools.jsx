@@ -53,7 +53,7 @@ const toolCategories = [
     tools: [
       {
         name: "Video Meme Generator AI",
-        route: "/video-meme-generator-ai",
+        route: "/Meme",
         icon: Laugh,
       },
       {
