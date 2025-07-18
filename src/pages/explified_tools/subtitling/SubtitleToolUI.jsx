@@ -5,16 +5,20 @@ import { FaSpinner } from "react-icons/fa";
 
 export default function SubtitleToolUI() {
   const [isLoading, setIsLoading] = useState(false);
-  const [subtitleText, setSubtitleText] = useState("");
+  const [subtitleText, setSubtitleText] = useState(
+    "year, due to planning a lot of changes"
+  );
   const [downloadPath, setDownloadPath] = useState("");
   const [changeLanguage, setChangeLanguage] = useState("");
   const [parsedWords, setParsedWords] = useState([]);
   const [activeWordIds, setActiveWordIds] = useState([]);
+  const [synonyms, setSynonyms] = useState([]);
+  const [selectedWord, setSelectedWord] = useState(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
+  const containerRef = useRef(null);
 
   const uploadedFile = useSelector((state) => state.video);
   const videoRef = useRef(null);
-  // const downloadUrl =
-  // "http://localhost:8000/uploads/VID_20250710194533-subtitled.mp4";
 
   const handleSubmit = async () => {
     if (!uploadedFile) {
@@ -161,6 +165,69 @@ export default function SubtitleToolUI() {
     };
   }, [parsedWords]);
 
+  // useEffect(() => {
+  //   const handleMouseUp = () => {
+  //     const selection = window.getSelection();
+  //     const selectedText = selection.toString().trim();
+
+  //     if (selectedText && parsedWords.find((w) => w.word === selectedText)) {
+  //       const range = selection.getRangeAt(0);
+  //       const rect = range.getBoundingClientRect();
+  //       const containerRect = containerRef.current.getBoundingClientRect();
+
+  //       setTooltipPosition({
+  //         top: rect.top - containerRect.top - 30,
+  //         left: rect.left - containerRect.left,
+  //       });
+
+  //       const matchedWord = parsedWords.find((w) => w.word === selectedText);
+  //       setSelectedWord(matchedWord);
+  //     } else {
+  //       setSelectedWord(null);
+  //     }
+  //   };
+
+  //   document.addEventListener("mouseup", handleMouseUp);
+  //   return () => {
+  //     document.removeEventListener("mouseup", handleMouseUp);
+  //   };
+  // }, [parsedWords]);
+  const handleWordClick = (e, word) => {
+    const rect = e.target.getBoundingClientRect();
+    const containerRect = containerRef.current.getBoundingClientRect();
+
+    setSelectedWord(word);
+    setTooltipPosition({
+      top: rect.top - containerRect.top - 30,
+      left: rect.left - containerRect.left,
+    });
+  };
+  const handleTooltipClick = async () => {
+    console.log("a");
+
+    setIsLoading(true);
+    try {
+      const formData = { word: selectedWord.word };
+      const response = await axiosInstance.post(
+        "api/aiSubtitler/synonyms",
+        formData
+      );
+
+      const synonyms = response?.data?.content;
+      const synonymsArr = synonyms.split(",");
+      setSynonyms(synonymsArr);
+      console.log(response?.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+      setSelectedWord(null);
+      window.getSelection().removeAllRanges();
+    }
+  };
+
+  console.log(synonyms);
+
   return (
     <div className="bg-black text-white h-screen p-6">
       {/* Header */}
@@ -207,7 +274,7 @@ export default function SubtitleToolUI() {
           )}
 
           {/* Word-by-word rendering */}
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             {parsedWords.map((w) => (
               <span
                 key={w.id}
@@ -220,6 +287,58 @@ export default function SubtitleToolUI() {
                 {w.word}
               </span>
             ))}
+          </div> */}
+
+          <div className="relative" ref={containerRef}>
+            <div className="space-y-2">
+              {parsedWords.map((w) => (
+                <span
+                  key={w.id}
+                  className={`inline-block mr-1 px-1 rounded transition-all cursor-pointer ${
+                    activeWordIds.includes(w.id)
+                      ? "bg-yellow-300 text-black"
+                      : "text-gray-400"
+                  }`}
+                  onClick={(e) => handleWordClick(e, w)}
+                >
+                  {w.word}
+                </span>
+              ))}
+            </div>
+
+            {selectedWord && (
+              <div
+                className="absolute z-50 bg-white text-black px-2 py-1 rounded shadow-md border border-gray-300 text-sm cursor-pointer"
+                style={{
+                  top: tooltipPosition.top,
+                  left: tooltipPosition.left,
+                }}
+                onClick={handleTooltipClick}
+              >
+                Generate Synonyms
+              </div>
+            )}
+
+            {synonyms.length > 0 && (
+              <div
+                className="absolute z-50 bg-gray-800 text-white px-4 py-2 rounded-xl shadow-lg border border-gray-600 text-sm"
+                style={{
+                  top: tooltipPosition.top,
+                  left: tooltipPosition.left,
+                }}
+              >
+                <ul className="space-y-1">
+                  {synonyms.map((syn, idx) => (
+                    <li
+                      key={idx}
+                      className="border-b border-gray-600 py-1 last:border-0"
+                    >
+                      {syn.trim()}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
 
           <button className="border border-gray-600 text-lg font-normal leading-tight hover:bg-[#23b5b5] rounded-lg p-6 w-full text-center">
