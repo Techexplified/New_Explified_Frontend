@@ -1,10 +1,20 @@
 // DashBoardLayout.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { ChevronDown, User, LogOut, Menu, X, Plus } from "lucide-react";
+import {
+  ChevronDown,
+  User,
+  LogOut,
+  Menu,
+  X,
+  Plus,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import io from "socket.io-client";
 import HelpButton from "./HelpButton";
 import Breadcrumbs from "./Breadcrumbs";
+import { useSelector } from "react-redux";
 
 const quickToolsDropdown = [
   { name: "AI Tools", route: "/aitools" },
@@ -31,28 +41,78 @@ function GlobalStyle() {
 export default function DashBoardLayout() {
   const navigate = useNavigate();
   const [profileDropdown, setProfileDropdown] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [toolsDropdown, setToolsDropdown] = useState(false);
   const [showWorkDropdown, setShowWorkDropdown] = useState(false);
   const [showChatsDropdown, setShowChatsDropdown] = useState(false);
   const [activeChat, setActiveChat] = useState(null);
   const [messages, setMessages] = useState({});
-  const [chatUsers, setChatUsers] = useState([
-    "Mradul",
-    "Aryan",
-    "Srijan",
-    "Emon",
-    "Saritha",
-    "Ankit",
-    "Annie",
-  ]);
+  const [chatUsers, setChatUsers] = useState([]);
+  const [adminUsers, setAdminUsers] = useState([]);
   const [showAddUserPopup, setShowAddUserPopup] = useState(false);
   const [newUsername, setNewUsername] = useState("");
   const socket = useRef(null);
+const user = useSelector((state) => state.user);
+
+const currentUsername = user?.given_name || "Guest";
+
+const [currentEmail, setCurrentEmail] = useState("guest@example.com");
+
+useEffect(() => {
+  if (!currentUsername || currentUsername === "Guest") return;
+
+  fetch(`http://localhost:3000/api/user-details?username=${currentUsername}`)
+    .then((res) => res.json())
+    .then((data) => {
+      if (data?.email) {
+        setCurrentEmail(data.email);
+      }
+    })
+    .catch((err) => {
+      console.error("Failed to fetch email for user:", err);
+    });
+}, [currentUsername]);
+
+
+
+
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchChatUsers = async () => {
+      try {
+        const [userRes, adminRes] = await Promise.all([
+          fetch("http://localhost:3000/api/users/all"),
+          fetch("http://localhost:3000/api/AdminUsers/all"),
+        ]);
+        const userData = await userRes.json();
+        const adminData = await adminRes.json();
+
+        if (isMounted) {
+          const filteredUsers = (userData.users || []).filter(
+            (u) => typeof u === "string" && u.trim() !== "" && u !== currentUsername
+          );
+          const filteredAdmins = (adminData.users || []).filter(
+            (u) => typeof u === "string" && u.trim() !== "" && u !== currentUsername
+          );
+
+          setChatUsers(filteredUsers);
+          setAdminUsers(filteredAdmins);
+        }
+      } catch (error) {
+        console.error("Failed to fetch users:", error);
+      }
+    };
+
+    fetchChatUsers();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     socket.current = io("http://localhost:3001");
-    socket.current.emit("join", "Srijan");
+    socket.current.emit("join", currentUsername);
 
     socket.current.on("receive-message", ({ from, message }) => {
       setMessages((prev) => ({
@@ -61,13 +121,15 @@ export default function DashBoardLayout() {
       }));
     });
 
-    return () => socket.current.disconnect();
+    return () => socket.current?.disconnect();
   }, []);
+
+  const isAdmin = adminUsers.includes(currentUsername);
 
   const handleAddUser = () => {
     const trimmed = newUsername.trim();
     if (trimmed && !chatUsers.includes(trimmed)) {
-      setChatUsers([...chatUsers, trimmed]);
+      setChatUsers((prev) => [...prev, trimmed]);
     }
     setNewUsername("");
     setShowAddUserPopup(false);
@@ -106,7 +168,7 @@ export default function DashBoardLayout() {
       )}
       <div className="flex h-screen bg-black text-white overflow-hidden">
         {/* Add User Popup */}
-        {showAddUserPopup && (
+        {showAddUserPopup && isAdmin && (
           <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded text-black w-80">
               <h2 className="text-lg font-semibold mb-2">Add New User</h2>
@@ -151,6 +213,22 @@ export default function DashBoardLayout() {
               className="w-10 h-10"
             />{" "}
           </div>
+        <aside
+          className={`relative z-30 bg-black border-r border-b border-gray-800 flex-shrink-0 flex flex-col transition-all duration-300 ${
+            sidebarOpen ? "w-64" : "w-16"
+          }`}
+        >
+          <div className="flex items-center justify-between p-4">
+            <img
+              src="/Explified_logo.png"
+              alt="Logo"
+              className="w-10 h-10 cursor-pointer"
+              onClick={() => navigate("/")}
+            />
+            <button onClick={() => setSidebarOpen(!sidebarOpen)}>
+              {sidebarOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+            </button>
+          </div>
 
           <nav className="flex-1 overflow-y-auto p-4 space-y-3">
             <button
@@ -188,105 +266,133 @@ export default function DashBoardLayout() {
                 </div>
               )}
             </div>
+          {sidebarOpen && (
+            <nav className="flex-1 overflow-y-auto p-4 space-y-3">
+              <div>
+                <button
+                  onClick={() => setToolsDropdown(!toolsDropdown)}
+                  className="w-full flex justify-between items-center p-2 rounded hover:bg-gray-800 border border-gray-600"
+                >
+                  <span>Tools</span>
+                  <ChevronDown size={16} />
+                </button>
+                {toolsDropdown && (
+                  <div className="mt-2 p-2 space-y-1 border border-gray-600 rounded">
+                    {quickToolsDropdown.map((tool, index) => (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          navigate(tool.route);
+                          setSidebarOpen(false);
+                        }}
+                        className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black"
+                      >
+                        {tool.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
 
-            <button
-              onClick={() => {
-                navigate("/socials");
-                setSidebarOpen(false);
-              }}
-              className="w-full text-left p-2 rounded hover:bg-gray-800 border border-gray-600"
-            >
-              Socials
-            </button>
-
-            {/* Workflows Dropdown */}
-            <div className="flex border border-gray-600 rounded">
               <button
                 onClick={() => {
-                  navigate("/workflows");
+                  navigate("/socials");
                   setSidebarOpen(false);
                 }}
-                className="w-full text-left p-2 rounded flex items-center justify-between"
+                className="w-full text-left p-2 rounded hover:bg-gray-800 border border-gray-600"
               >
-                Workflows
+                Socials
               </button>
-              <div
-                className="p-2"
-                onClick={() => setShowWorkDropdown(!showWorkDropdown)}
-              >
-                <ChevronDown size={16} />
-              </div>
-            </div>
-            {showWorkDropdown && (
-              <div className="z-50 mt-2 p-2 space-y-1 border border-gray-600 rounded">
+
+              <div className="flex border border-gray-600 rounded">
                 <button
                   onClick={() => {
                     navigate("/workflows");
                     setSidebarOpen(false);
                   }}
-                  className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black"
+                  className="w-full text-left p-2 rounded flex items-center justify-between"
                 >
-                  Workflows 1
+                  Workflows
                 </button>
-                <button
-                  onClick={() => {
-                    navigate("/templates");
-                    setSidebarOpen(false);
-                  }}
-                  className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black"
-                >
-                  Workflows 2
-                </button>
-              </div>
-            )}
-
-            {/* Chats Dropdown with Add User Icon */}
-            <div>
-              <button
-                onClick={() => setShowChatsDropdown(!showChatsDropdown)}
-                className="w-full flex justify-between items-center p-2 rounded hover:bg-gray-800 border border-gray-600"
-              >
-                <span>Chat Tool</span>
-                <div className="flex items-center gap-1">
-                  <Plus
-                    size={16}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowAddUserPopup(true);
-                    }}
-                    className="hover:text-[#23b5b5]"
-                  />
+                <div className="p-2" onClick={() => setShowWorkDropdown(!showWorkDropdown)}>
                   <ChevronDown size={16} />
                 </div>
-              </button>
-              {showChatsDropdown && (
+              </div>
+              {showWorkDropdown && (
                 <div className="mt-2 p-2 space-y-1 border border-gray-600 rounded">
-                  {chatUsers
-                    .filter((name) => name !== "Srijan")
-                    .map((name, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setActiveChat(name)}
-                        className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black"
-                      >
-                        {name}
-                      </button>
-                    ))}
+                  <button
+                    onClick={() => {
+                      navigate("/workflows");
+                      setSidebarOpen(false);
+                    }}
+                    className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black"
+                  >
+                    Workflows 1
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigate("/templates");
+                      setSidebarOpen(false);
+                    }}
+                    className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black"
+                  >
+                    Workflows 2
+                  </button>
                 </div>
               )}
-            </div>
-          </nav>
-          <div className="p-4">
-            <button
-              onClick={() => {
-                navigate("/favorites");
-                setSidebarOpen(false);
-              }}
-              className="w-full text-left p-2 rounded hover:bg-gray-800 border border-gray-600"
-            >
-              Favorites
-            </button>
-          </div>
+
+              {/* Chats */}
+              <div className="flex items-center gap-1">
+                <button
+                  disabled={!isAdmin}
+                  onClick={() => isAdmin && setShowAddUserPopup(true)}
+                  className={`p-1 rounded hover:text-[#23b5b5] border border-gray-600 ${
+                    isAdmin ? "cursor-pointer" : "opacity-30 cursor-not-allowed"
+                  }`}
+                  title={isAdmin ? "Add new user" : "Only admins can add users"}
+                >
+                  <Plus size={16} />
+                </button>
+                <button
+                  onClick={() => setShowChatsDropdown(!showChatsDropdown)}
+                  className="flex-1 flex justify-between items-center p-2 rounded hover:bg-gray-800 border border-gray-600 w-full"
+                >
+                  <span>Chats</span>
+                  <ChevronDown size={16} />
+                </button>
+              </div>
+              {showChatsDropdown && (
+                <div className="mt-2 p-2 space-y-1 border border-gray-600 rounded">
+                  {adminUsers.map((name, i) => (
+                    <button
+                      key={`admin-${i}`}
+                      onClick={() => setActiveChat(name)}
+                      className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black font-bold"
+                    >
+                      👑 {name}
+                    </button>
+                  ))}
+                  {chatUsers.map((name, i) => (
+                    <button
+                      key={`user-${i}`}
+                      onClick={() => setActiveChat(name)}
+                      className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black"
+                    >
+                      {name}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <button
+                onClick={() => {
+                  navigate("/favorites");
+                  setSidebarOpen(false);
+                }}
+                className="w-full text-left p-2 rounded hover:bg-gray-800 border border-gray-600"
+              >
+                Favorites
+              </button>
 
           {/* Credits */}
           <div className="p-4 border-t border-gray-800">
@@ -294,30 +400,23 @@ export default function DashBoardLayout() {
               <div className="text-sm text-gray-100 flex items-center justify-between mb-2">
                 <span>Credits remaining</span>
                 <span className="flex items-center gap-1 text-gray-400 font-medium">
-                  <svg
-                    className="w-4 h-4 text-gray-100"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
+                  <svg className="w-4 h-4 text-gray-100" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M10 0C4.5 0 0 4.5 0 10s4.5 10 10 10 10-4.5 10-10S15.5 0 10 0zM8 15l-5-5 1.4-1.4L8 12.2l7.6-7.6L17 6l-9 9z" />
                   </svg>
                   400 / 400
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-1.5 mb-4">
-                <div
-                  className="bg-teal-400 h-1.5 rounded-full"
-                  style={{ width: "100%" }}
-                ></div>
+                <div className="bg-teal-400 h-1.5 rounded-full" style={{ width: "100%" }}></div>
               </div>
-              <button className="w-full bg-[#23b5b5] text-black py-2 rounded-md hover:bg-black hover:text-white border border-gray-600 transition-all">
-                Upgrade
-              </button>
+              <button className="w-full bg-[#23b5b5] text-black py-2 rounded-md hover:bg-black hover:text-white border border-gray-600 transition-all">Upgrade</button>
             </div>
           </div>
+            </nav>
+          )}
         </aside>
 
-        {/* Main Content Area */}
+        {/* Main Content */}
         <div className="flex flex-col flex-1 overflow-hidden">
           <header className="flex justify-between items-center p-4 border-b border-gray-800 bg-black z-10">
             <div className="flex items-center gap-4 ml-4 space-x-4">
@@ -329,9 +428,9 @@ export default function DashBoardLayout() {
               />
               <button
                 className="text-lg font-semibold hidden md:block"
-                onClick={() => navigate("/tron")}
+                onClick={() => navigate("/")}
               >
-                Tron
+                Home
               </button>
               <button
                 onClick={() => navigate("/history")}
@@ -340,11 +439,18 @@ export default function DashBoardLayout() {
                 History
               </button>
               <button
-                onClick={() => navigate("/integrations")}
-                className="text-lg font-semibold hidden md:block"
-              >
-                Integrations
-              </button>
+  onClick={() => navigate("/integrations")}
+  className="text-lg font-semibold hidden md:block"
+>
+  Integrations
+</button>
+<button
+  onClick={() => navigate("/influmark")}
+  className="text-lg font-semibold hidden md:block"
+>
+  Influmark
+</button>
+
             </div>
             <div className="relative flex items-center gap-4">
               <button
@@ -364,10 +470,9 @@ export default function DashBoardLayout() {
                 <div className="absolute right-0 top-12 mt-2 bg-black border border-white rounded-xl w-64 z-50">
                   <div className="flex flex-col items-center py-4">
                     <User size={24} className="mb-2" />
-                    <p className="font-medium">Srijan Ranjan</p>
-                    <p className="text-sm text-gray-300">
-                      srijanranjan@gmail.com
-                    </p>
+                   <p className="font-medium">{currentUsername}</p>
+<p className="text-sm text-gray-300">{currentEmail}</p>
+
                   </div>
                   <div className="border-t border-white my-2" />
                   <button className="w-full py-2 flex justify-center items-center space-x-2">
@@ -384,7 +489,6 @@ export default function DashBoardLayout() {
             </div>
           </header>
 
-          {/* Full Chat View if active */}
           {activeChat ? (
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 bg-black">
               <div className="text-xl font-bold mb-4">
@@ -395,7 +499,7 @@ export default function DashBoardLayout() {
                   <div
                     key={i}
                     className={`my-1 ${
-                      msg.from === "Srijan" ? "text-right" : "text-left"
+                      msg.from === currentUsername ? "text-right" : "text-left"
                     }`}
                   >
                     <span className="inline-block bg-[#23b5b5] text-black px-3 py-1 rounded">
@@ -408,18 +512,18 @@ export default function DashBoardLayout() {
                 className="mt-4 flex gap-2"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  const msg = e.target.elements[`input-message`].value.trim();
+                  const msg = e.target.elements["input-message"].value.trim();
                   if (msg) {
                     socket.current.emit("send-message", {
                       to: activeChat,
-                      from: "Srijan",
+                      from: currentUsername,
                       message: msg,
                     });
                     setMessages((prev) => ({
                       ...prev,
                       [activeChat]: [
                         ...(prev[activeChat] || []),
-                        { from: "Srijan", message: msg, time: Date.now() },
+                        { from: currentUsername, message: msg, time: Date.now() },
                       ],
                     }));
                     e.target.reset();
@@ -437,7 +541,7 @@ export default function DashBoardLayout() {
               </form>
             </div>
           ) : (
-            <main className="flex-1 -m-5 overflow-y-auto p-4 sm:p-6 md:p-8 bg-black">
+            <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 bg-black">
               <Breadcrumbs />
               <Outlet />
             </main>
