@@ -69,6 +69,25 @@ import CreateNewPage from "./components1/CreateNewPage";
 import PresentationLandingPage from "./components2/LandingPage";
 import CreatePresentation from "./components2/CreatePresentation";
 
+import ImageFilter from "./component3/ImageFilter";
+import AiImageStyler from "./component3/AiImageStyler.";
+import BackgroundChanger from "./component3/BackgroundChanger";
+import ImageMerger from "./component3/ImageMerger";
+import ImageExpander from "./component3/ImageExpander";
+import ImageEditor from "./component3/ImageEditor";
+
+
+import BGLayout from "./pages/explified_tools/bgRemoverBlur/BGLayout";
+
+import Integrations from "./components1/Integrations";
+import InfluencerProfile from "./components1/InfluencerProfile";
+import Meme from "./components1/Meme";
+import Result from "./components1/Result";
+import Zapier from "./components1/Zapier";
+import ZapResult from "./components1/ZapResult";
+import ZapEnhanced from "./components1/ZapEnhanced";
+import Influmark from "./components1/Influmark";
+
 function App() {
   return (
     <div>
@@ -161,34 +180,51 @@ function App() {
             <Route index element={<HomePage />}></Route>
             <Route path="/youtube-summarizer" element={<YoutubeSummarizer />} />
             <Route path="/socials" element={<SocialsPage />}></Route>
-            <Route path="/history" element={<History />}> </Route >
+            <Route path="/history" element={<History />}>
+              {" "}
+            </Route>
             <Route path="/favorites" element={<Favourites />}></Route>
             <Route path="/workflows" element={<WorkflowDashboard />} />
             <Route path="/workflows/new" element={<CreateNewPage />}></Route>
             <Route path="/socials/:id" element={<DetailedCard />}></Route>
 
             <Route
-              path="/socials/instagram/posts/recents"
+              path="/socials/:id/posts/recents"
               element={<RecentPosts />}
             />
+            <Route path="/socials/:id/lastPosts" element={<LastPosts />} />
+            <Route path="/socials/:id/:id1" element={<ScheduleDraftPosts />} />
+            <Route path="/socials/newPost" element={<NewPost />} />
             <Route
-              path="/socials/instagram/lastPosts"
-              element={<LastPosts />}
-            />
+              path="/presentation"
+              element={<PresentationLandingPage />}
+            ></Route>
+            {/* <Route
+              path="/presentation/create"
+              element={<CreatePresentation />} 
+            /> */}
+
+            <Route path="/image-styler" element={<ImageFilter />} />
+            <Route path="/image-styler/filter" element={<AiImageStyler />} />
             <Route
-              path="/socials/instagram/:id"
-              element={<ScheduleDraftPosts />}
+              path="/image-styler/backChanger"
+              element={<BackgroundChanger />}
             />
-            <Route
-              path="/socials/newPost"
-              element={<NewPost />}
-            />
-            <Route path="/presentation" element={<PresentationLandingPage />}>
-              
-            </Route>
-            <Route path="/presentation/create" element={<CreatePresentation />} />
+            <Route path="/image-styler/merger" element={<ImageMerger />} />
+            <Route path="/image-styler/expander" element={<ImageExpander />} />
+            <Route path="/image-styler/editor" element={<ImageEditor />} />
+
+            <Route path="/bg-remover" element={<BGLayout />} />
+
+            <Route path="/result" element={<Result />} />
+            <Route path="/zapier" element={<Zapier />} />
+            <Route path="/result2" element={<ZapResult />} />
+            <Route path="/influmark/:name" element={<InfluencerProfile />} />
+            <Route path="/Meme" element={<Meme />} />
+            <Route path="/influmark" element={<Influmark />} />
+            <Route path="/integrations" element={<Integrations />} />
+            <Route path="/enhanced" element={<ZapEnhanced />} />
           </Route>
-          
 
           {/* Tools Page */}
 

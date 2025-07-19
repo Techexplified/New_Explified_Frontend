@@ -11,7 +11,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 
 export default function InstagramPostsPage() {
-  const { id } = useParams();
+  const { id1 } = useParams();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
@@ -96,7 +96,7 @@ export default function InstagramPostsPage() {
                 onClick={() => setShowPosts(!showPosts)}
                 className="bg-black px-6 py-2 rounded-full text-base sm:text-lg border border-gray-600 hover:bg-gray-700 flex items-center gap-2 cursor-pointer"
               >
-                {id}
+                {id1}
                 <ChevronDown className="w-4 h-4 " />
               </div>
 
