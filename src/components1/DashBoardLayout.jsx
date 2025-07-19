@@ -11,11 +11,14 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { useDispatch } from "react-redux";
 import io from "socket.io-client";
 import HelpButton from "./HelpButton";
 import Breadcrumbs from "./Breadcrumbs";
 import { useSelector } from "react-redux";
-
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase"; //
+import { clearUser } from "../utils/auth_slice/UserSlice";
 const quickToolsDropdown = [
   { name: "Youtube Summarizer", route: "/summarizer" },
   { name: "AI Subtitler", route: "/subtitler" },
@@ -39,6 +42,8 @@ function GlobalStyle() {
 
 export default function DashBoardLayout() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const [profileDropdown, setProfileDropdown] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [toolsDropdown, setToolsDropdown] = useState(false);
@@ -394,10 +399,34 @@ useEffect(() => {
 
                   </div>
                   <div className="border-t border-white my-2" />
-                  <button className="w-full py-2 flex justify-center items-center space-x-2">
-                    <LogOut size={16} />
-                    <span>Log Out</span>
-                  </button>
+{user ? (
+  <button
+    className="w-full py-2 flex justify-center items-center space-x-2"
+    onClick={() => {
+      signOut(auth)
+        .then(() => {
+          dispatch(clearUser());
+          navigate("/login"); // navigate to login page after logout
+        })
+        .catch((error) => {
+          console.error("Logout failed:", error);
+        });
+    }}
+  >
+    <LogOut size={16} />
+    <span>Log Out</span>
+  </button>
+) : (
+  <button
+    className="w-full py-2 flex justify-center items-center space-x-2"
+    onClick={() => navigate("/login")}
+  >
+    <User size={16} />
+    <span>Log In</span>
+  </button>
+)}
+
+
                   <div className="border-t border-white my-2" />
                   <div className="grid grid-cols-2 divide-x divide-white">
                     <button className="py-2 text-sm">Contact us</button>
