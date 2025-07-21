@@ -1,4 +1,3 @@
-// DashBoardLayout.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import {
@@ -11,15 +10,10 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import io from "socket.io-client";
 import HelpButton from "./HelpButton";
 import Breadcrumbs from "./Breadcrumbs";
-import { useSelector } from "react-redux";
-import { signOut } from "firebase/auth";
-import { auth } from "../firebase"; //
-import { clearUser } from "../utils/auth_slice/UserSlice";
-
 
 const quickToolsDropdown = [
   { name: "Youtube Summarizer", route: "/summarizer" },
@@ -58,30 +52,26 @@ export default function DashBoardLayout() {
   const [showAddUserPopup, setShowAddUserPopup] = useState(false);
   const [newUsername, setNewUsername] = useState("");
   const socket = useRef(null);
-const user = useSelector((state) => state.user);
+  const user = useSelector((state) => state.user);
 
-const currentUsername = user?.given_name || "Guest";
+  const currentUsername = user?.given_name || "Guest";
 
-const [currentEmail, setCurrentEmail] = useState("guest@example.com");
+  const [currentEmail, setCurrentEmail] = useState("guest@example.com");
 
-useEffect(() => {
-  if (!currentUsername || currentUsername === "Guest") return;
+  useEffect(() => {
+    if (!currentUsername || currentUsername === "Guest") return;
 
-  fetch(`http://localhost:3000/api/user-details?username=${currentUsername}`)
-    .then((res) => res.json())
-    .then((data) => {
-      if (data?.email) {
-        setCurrentEmail(data.email);
-      }
-    })
-    .catch((err) => {
-      console.error("Failed to fetch email for user:", err);
-    });
-}, [currentUsername]);
-
-
-
-
+    fetch(`http://localhost:3000/api/user-details?username=${currentUsername}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.email) {
+          setCurrentEmail(data.email);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch email for user:", err);
+      });
+  }, [currentUsername]);
 
   useEffect(() => {
     let isMounted = true;
@@ -96,10 +86,12 @@ useEffect(() => {
 
         if (isMounted) {
           const filteredUsers = (userData.users || []).filter(
-            (u) => typeof u === "string" && u.trim() !== "" && u !== currentUsername
+            (u) =>
+              typeof u === "string" && u.trim() !== "" && u !== currentUsername
           );
           const filteredAdmins = (adminData.users || []).filter(
-            (u) => typeof u === "string" && u.trim() !== "" && u !== currentUsername
+            (u) =>
+              typeof u === "string" && u.trim() !== "" && u !== currentUsername
           );
 
           setChatUsers(filteredUsers);
@@ -188,7 +180,11 @@ useEffect(() => {
               onClick={() => navigate("/")}
             />
             <button onClick={() => setSidebarOpen(!sidebarOpen)}>
-              {sidebarOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+              {sidebarOpen ? (
+                <ChevronLeft size={20} />
+              ) : (
+                <ChevronRight size={20} />
+              )}
             </button>
           </div>
 
@@ -240,7 +236,10 @@ useEffect(() => {
                 >
                   Workflows
                 </button>
-                <div className="p-2" onClick={() => setShowWorkDropdown(!showWorkDropdown)}>
+                <div
+                  className="p-2"
+                  onClick={() => setShowWorkDropdown(!showWorkDropdown)}
+                >
                   <ChevronDown size={16} />
                 </div>
               </div>
@@ -320,24 +319,33 @@ useEffect(() => {
                 Favorites
               </button>
 
-          {/* Credits */}
-          <div className="p-4 border-t border-gray-800">
-            <div className="w-full p-4 rounded-md shadow border border-gray-600">
-              <div className="text-sm text-gray-100 flex items-center justify-between mb-2">
-                <span>Credits remaining</span>
-                <span className="flex items-center gap-1 text-gray-400 font-medium">
-                  <svg className="w-4 h-4 text-gray-100" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 0C4.5 0 0 4.5 0 10s4.5 10 10 10 10-4.5 10-10S15.5 0 10 0zM8 15l-5-5 1.4-1.4L8 12.2l7.6-7.6L17 6l-9 9z" />
-                  </svg>
-                  400 / 400
-                </span>
+              {/* Credits */}
+              <div className="p-4 border-t border-gray-800">
+                <div className="w-full p-4 rounded-md shadow border border-gray-600">
+                  <div className="text-sm text-gray-100 flex items-center justify-between mb-2">
+                    <span>Credits remaining</span>
+                    <span className="flex items-center gap-1 text-gray-400 font-medium">
+                      <svg
+                        className="w-4 h-4 text-gray-100"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M10 0C4.5 0 0 4.5 0 10s4.5 10 10 10 10-4.5 10-10S15.5 0 10 0zM8 15l-5-5 1.4-1.4L8 12.2l7.6-7.6L17 6l-9 9z" />
+                      </svg>
+                      400 / 400
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-1.5 mb-4">
+                    <div
+                      className="bg-teal-400 h-1.5 rounded-full"
+                      style={{ width: "100%" }}
+                    ></div>
+                  </div>
+                  <button className="w-full bg-[#23b5b5] text-black py-2 rounded-md hover:bg-black hover:text-white border border-gray-600 transition-all">
+                    Upgrade
+                  </button>
+                </div>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-1.5 mb-4">
-                <div className="bg-teal-400 h-1.5 rounded-full" style={{ width: "100%" }}></div>
-              </div>
-              <button className="w-full bg-[#23b5b5] text-black py-2 rounded-md hover:bg-black hover:text-white border border-gray-600 transition-all">Upgrade</button>
-            </div>
-          </div>
             </nav>
           )}
         </aside>
@@ -365,18 +373,17 @@ useEffect(() => {
                 History
               </button>
               <button
-  onClick={() => navigate("/integrations")}
-  className="text-lg font-semibold hidden md:block"
->
-  Integrations
-</button>
-<button
-  onClick={() => navigate("/influmark")}
-  className="text-lg font-semibold hidden md:block"
->
-  Influmark
-</button>
-
+                onClick={() => navigate("/integrations")}
+                className="text-lg font-semibold hidden md:block"
+              >
+                Integrations
+              </button>
+              <button
+                onClick={() => navigate("/influmark")}
+                className="text-lg font-semibold hidden md:block"
+              >
+                Influmark
+              </button>
             </div>
             <div className="relative flex items-center gap-4">
               <button
@@ -396,38 +403,36 @@ useEffect(() => {
                 <div className="absolute right-0 top-12 mt-2 bg-black border border-white rounded-xl w-64 z-50">
                   <div className="flex flex-col items-center py-4">
                     <User size={24} className="mb-2" />
-                   <p className="font-medium">{currentUsername}</p>
-<p className="text-sm text-gray-300">{currentEmail}</p>
-
+                    <p className="font-medium">{currentUsername}</p>
+                    <p className="text-sm text-gray-300">{currentEmail}</p>
                   </div>
                   <div className="border-t border-white my-2" />
-{user ? (
-  <button
-    className="w-full py-2 flex justify-center items-center space-x-2"
-    onClick={() => {
-      signOut(auth)
-        .then(() => {
-          dispatch(clearUser());
-          navigate("/login"); // navigate to login page after logout
-        })
-        .catch((error) => {
-          console.error("Logout failed:", error);
-        });
-    }}
-  >
-    <LogOut size={16} />
-    <span>Log Out</span>
-  </button>
-) : (
-  <button
-    className="w-full py-2 flex justify-center items-center space-x-2"
-    onClick={() => navigate("/login")}
-  >
-    <User size={16} />
-    <span>Log In</span>
-  </button>
-)}
-
+                  {user ? (
+                    <button
+                      className="w-full py-2 flex justify-center items-center space-x-2"
+                      onClick={() => {
+                        signOut(auth)
+                          .then(() => {
+                            dispatch(clearUser());
+                            navigate("/login"); // navigate to login page after logout
+                          })
+                          .catch((error) => {
+                            console.error("Logout failed:", error);
+                          });
+                      }}
+                    >
+                      <LogOut size={16} />
+                      <span>Log Out</span>
+                    </button>
+                  ) : (
+                    <button
+                      className="w-full py-2 flex justify-center items-center space-x-2"
+                      onClick={() => navigate("/login")}
+                    >
+                      <User size={16} />
+                      <span>Log In</span>
+                    </button>
+                  )}
 
                   <div className="border-t border-white my-2" />
                   <div className="grid grid-cols-2 divide-x divide-white">
@@ -441,7 +446,9 @@ useEffect(() => {
 
           {activeChat ? (
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 bg-black">
-              <div className="text-xl font-bold mb-4">Chat with {activeChat}</div>
+              <div className="text-xl font-bold mb-4">
+                Chat with {activeChat}
+              </div>
               <div className="h-[calc(100vh-200px)] overflow-y-auto space-y-2">
                 {(messages[activeChat] || []).map((msg, i) => (
                   <div
@@ -471,7 +478,11 @@ useEffect(() => {
                       ...prev,
                       [activeChat]: [
                         ...(prev[activeChat] || []),
-                        { from: currentUsername, message: msg, time: Date.now() },
+                        {
+                          from: currentUsername,
+                          message: msg,
+                          time: Date.now(),
+                        },
                       ],
                     }));
                     e.target.reset();

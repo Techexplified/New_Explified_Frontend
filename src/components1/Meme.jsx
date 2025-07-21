@@ -101,17 +101,35 @@ const Meme = () => {
   };
 
   return (
-    <div className="bg-black text-white min-h-screen flex flex-col items-center justify-center p-6">
-      <div className="bg-zinc-900 rounded-md p-6 w-full max-w-2xl">
+    <div className="bg-black text-white min-h-screen p-6">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="text-cyan-400 text-xl">⏵</div>
+        <div className="text-white text-xl font-bold">Explified</div>
+      </div>
+
+      {/* Explore & Link */}
+      <div className="flex items-center gap-3 mb-6">
+        <span className="text-white font-semibold">▴ Explore</span>
+        <button className="bg-teal-700 text-white text-xs px-3 py-1 rounded-full">
+          AI VIDEO GENERATOR ✕
+        </button>
+      </div>
+
+      <h1 className="text-center text-3xl font-bold mb-8">AI Meme Generator</h1>
+
+      {/* Input Area */}
+      <div className="bg-zinc-900 rounded-md p-4 max-w-3xl mx-auto">
+        <label className="text-sm text-gray-400 mb-2 block">Describe your meme!</label>
         <textarea
-          rows={4}
-          className="w-full bg-zinc-800 text-cyan-200 p-3 rounded-md mb-4"
-          placeholder="What's your meme idea or image description?"
+          rows={3}
+          className="w-full bg-zinc-800 text-cyan-200 p-3 rounded-md"
+          placeholder="What's on your mind? Type it out or attach a link — we'll meme it!"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-
-        <div className="flex gap-3 flex-wrap mb-4">
+        {/* Action Buttons */}
+        <div className="flex gap-4 mt-4 flex-wrap">
           <button
             onClick={() => fileInputRef.current.click()}
             className="bg-teal-700 text-white px-3 py-1 rounded-md text-sm"
@@ -140,7 +158,7 @@ const Meme = () => {
             🎤 Voice Input
           </button>
 
-          <div className="flex items-center gap-2 text-sm text-white">
+          <div className="flex items-center gap-2 text-sm">
             <label>Duration:</label>
             <select
               value={duration}
@@ -153,12 +171,15 @@ const Meme = () => {
             </select>
           </div>
         </div>
+      </div>
 
+      {/* Submit Button */}
+      <div className="text-center mt-6">
         <button
-          className="w-full bg-teal-600 py-2 text-white rounded-md"
+          className="bg-teal-600 px-6 py-2 text-white rounded-md"
           onClick={handleMemeGenerate}
         >
-          Generate Meme
+          Meme
         </button>
       </div>
     </div>
@@ -166,3 +187,4 @@ const Meme = () => {
 };
 
 export default Meme;
+

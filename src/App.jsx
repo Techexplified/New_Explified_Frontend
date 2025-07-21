@@ -94,7 +94,11 @@ function App() {
       <Router>
         <Routes>
           <Route path="/web" element={<MainPage />} />
+          <Route path="/result" element={<Result />} />
+           <Route path="influmark/:name" element={<InfluencerProfile />} />
+           <Route path="/Meme" element={<Meme />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/influmark" element={<Influmark/>} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
@@ -103,7 +107,7 @@ function App() {
           <Route path="/affliate-policy" element={<AffiliatePartnerPolicy />} />
           <Route path="/solutions" element={<ExplifiedServices />} />
           <Route path="/work" element={<ExplifiedWork />} />
-
+           <Route path="/integrations" element={<Integrations />} />
           <Route path="/blaze" element={<BlazeToolLandingPage />} />
           <Route path="/bridge" element={<BridgeToolLandingPage />} />
           <Route path="/motion" element={<MotionToolLandingPage />} />
