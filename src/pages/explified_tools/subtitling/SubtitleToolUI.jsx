@@ -5,10 +5,8 @@ import { FaSpinner } from "react-icons/fa";
 
 export default function SubtitleToolUI() {
   const [isLoading, setIsLoading] = useState(false);
-  const [subtitleText, setSubtitleText] = useState(
-    "year, due to planning a lot of changes"
-  );
-  const [downloadPath, setDownloadPath] = useState("");
+  const [subtitleText, setSubtitleText] = useState("");
+  // const [downloadPath, setDownloadPath] = useState("");
   const [changeLanguage, setChangeLanguage] = useState("");
   const [parsedWords, setParsedWords] = useState([]);
   const [activeWordIds, setActiveWordIds] = useState([]);
@@ -32,13 +30,14 @@ export default function SubtitleToolUI() {
 
       const response = await axiosInstance.post("api/aiSubtitler", formData);
 
-      const filePath = response?.data?.videoFile;
-      const fileName = filePath.split("\\").pop();
-      const finalPath = `${import.meta.env.VITE_APP_URL}uploads/${fileName}`;
-      console.log(fileName);
+      // const filePath = response?.data?.videoFile;
+      // const fileName = filePath.split("\\").pop();
+      // const finalPath = `${import.meta.env.VITE_APP_URL}uploads/${fileName}`;
 
       const backendString = response?.data?.content;
-      setDownloadPath(finalPath);
+      console.log(response?.data?.content);
+
+      // setDownloadPath(finalPath);
       setSubtitleText(backendString);
     } catch (error) {
       console.error(error);
@@ -107,43 +106,66 @@ export default function SubtitleToolUI() {
       const lines = subtitleText.split("\n").filter(Boolean);
       const wordsWithTime = [];
 
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-        const [timePart, ...words] = line.trim().split(" ");
-        const startTime = timeToSeconds(timePart);
+      let idCounter = 0;
 
-        let nextTime;
-        if (i < lines.length - 1) {
-          const nextTimePart = lines[i + 1].split(" ")[0];
-          nextTime = timeToSeconds(nextTimePart);
-        } else {
-          nextTime = startTime + 0.5; // fallback for last word
+      for (let i = 0; i < lines.length - 1; i++) {
+        const timeLine = lines[i];
+        const wordLine = lines[i + 1];
+
+        // Match the time range line (e.g., "00:00,001 --> 00:00,008")
+        if (timeLine.includes("-->")) {
+          const [startStr, endStr] = timeLine.split("-->").map((s) => s.trim());
+          console.log(startStr, endStr);
+
+          const start = timeToSeconds(startStr);
+          const end = timeToSeconds(endStr);
+
+          // Push the next line as the word with the above time
+          if (wordLine && !wordLine.includes("-->")) {
+            wordsWithTime.push({
+              id: `${idCounter}-0`,
+              word: wordLine.trim(),
+              start,
+              end,
+            });
+            idCounter++;
+          }
         }
-
-        const lineDuration = Math.max(nextTime - startTime, 0.1);
-        const wordDuration = lineDuration / words.length;
-
-        words.forEach((word, index) => {
-          const wordStart = startTime + index * wordDuration;
-          const wordEnd = wordStart + wordDuration;
-
-          wordsWithTime.push({
-            id: `${i}-${index}`,
-            word,
-            start: wordStart,
-            end: wordEnd,
-          });
-        });
       }
 
       setParsedWords(wordsWithTime);
     }
   }, [subtitleText]);
 
-  function timeToSeconds(timeStr) {
-    const [h, m, s] = timeStr.split(":").map(Number);
-    return h * 3600 + m * 60 + s;
-  }
+  console.log(parsedWords);
+
+  const timeToSeconds = (timeStr) => {
+    if (!timeStr || typeof timeStr !== "string") return NaN;
+
+    const [hms, ms] = timeStr.trim().split(",");
+    if (!hms || !ms) return NaN;
+
+    const parts = hms.split(":").map(Number);
+
+    // Handle formats like mm:ss, ss, or hh:mm:ss
+    let h = 0,
+      m = 0,
+      s = 0;
+
+    if (parts.length === 3) {
+      [h, m, s] = parts;
+    } else if (parts.length === 2) {
+      [m, s] = parts;
+    } else if (parts.length === 1) {
+      [s] = parts;
+    }
+
+    const milliseconds = parseInt(ms, 10);
+
+    if ([h, m, s, milliseconds].some(isNaN)) return NaN;
+
+    return h * 3600 + m * 60 + s + milliseconds / 1000;
+  };
 
   useEffect(() => {
     const video = videoRef.current;
@@ -203,8 +225,6 @@ export default function SubtitleToolUI() {
     });
   };
   const handleTooltipClick = async () => {
-    console.log("a");
-
     setIsLoading(true);
     try {
       const formData = { word: selectedWord.word };
@@ -214,19 +234,27 @@ export default function SubtitleToolUI() {
       );
 
       const synonyms = response?.data?.content;
-      const synonymsArr = synonyms.split(",");
+      const synonymsArr = synonyms.split(/[,*\s]+/);
       setSynonyms(synonymsArr);
-      console.log(response?.data);
     } catch (error) {
       console.error(error);
     } finally {
       setIsLoading(false);
-      setSelectedWord(null);
-      window.getSelection().removeAllRanges();
     }
   };
 
-  console.log(synonyms);
+  const handleSynonymClick = (newWord) => {
+    if (!selectedWord) return;
+
+    const updatedWords = parsedWords.map((w) =>
+      w.id === selectedWord.id ? { ...w, word: newWord.trim() } : w
+    );
+
+    setParsedWords(updatedWords);
+    setSelectedWord(null);
+    setSynonyms([]);
+    window.getSelection().removeAllRanges();
+  };
 
   return (
     <div className="bg-black text-white h-screen p-6">
@@ -308,35 +336,35 @@ export default function SubtitleToolUI() {
 
             {selectedWord && (
               <div
-                className="absolute z-50 bg-white text-black px-2 py-1 rounded shadow-md border border-gray-300 text-sm cursor-pointer"
+                className="absolute z-50 bg-gray-800 text-white px-2 py-1 rounded shadow-md border border-gray-300 text-sm cursor-pointer"
                 style={{
                   top: tooltipPosition.top,
                   left: tooltipPosition.left,
                 }}
                 onClick={handleTooltipClick}
               >
-                Generate Synonyms
-              </div>
-            )}
-
-            {synonyms.length > 0 && (
-              <div
-                className="absolute z-50 bg-gray-800 text-white px-4 py-2 rounded-xl shadow-lg border border-gray-600 text-sm"
-                style={{
-                  top: tooltipPosition.top,
-                  left: tooltipPosition.left,
-                }}
-              >
-                <ul className="space-y-1">
-                  {synonyms.map((syn, idx) => (
-                    <li
-                      key={idx}
-                      className="border-b border-gray-600 py-1 last:border-0"
-                    >
-                      {syn.trim()}
-                    </li>
-                  ))}
-                </ul>
+                <div>Generate Synonyms</div>
+                {synonyms.length > 0 && (
+                  <div
+                    className="absolute z-50 bg-gray-800 text-white px-4 py-2 rounded-xl shadow-lg border border-gray-600 text-sm"
+                    style={{
+                      top: tooltipPosition.top,
+                      left: tooltipPosition.left,
+                    }}
+                  >
+                    <ul className="space-y-1">
+                      {synonyms.map((syn, idx) => (
+                        <li
+                          key={idx}
+                          onClick={() => handleSynonymClick(syn)}
+                          className="border-b border-gray-600 py-1 last:border-0"
+                        >
+                          {syn.trim()}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -377,7 +405,7 @@ export default function SubtitleToolUI() {
               Your browser does not support the video tag.
             </video>
 
-            {downloadPath && (
+            {/* {downloadPath && (
               <div className="text-right">
                 <a href={downloadPath} download>
                   <button className="bg-[#23b5b5] py-3 px-6 rounded-lg">
@@ -385,7 +413,7 @@ export default function SubtitleToolUI() {
                   </button>
                 </a>
               </div>
-            )}
+            )} */}
           </div>
         )}
       </div>

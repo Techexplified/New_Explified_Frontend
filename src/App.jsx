@@ -55,7 +55,7 @@ import Edit from "./pages/explified_tools/pdf_tools/Edit";
 import Sign from "./pages/explified_tools/pdf_tools/Sign";
 import PdfToAny from "./pages/explified_tools/pdf_tools/PdfToAny";
 import PdfToWord from "./pages/explified_tools/pdf_tools/PdfToWord";
-import DashBoardLayout from "./components1/DashBoardLayout2";
+import DashBoardLayout from "./components1/DashBoardLayout";
 import HomePage from "./components1/HomePage";
 import SocialsPage from "./components1/SocialsPage";
 import DetailedCard from "./components1/DetailedCard";

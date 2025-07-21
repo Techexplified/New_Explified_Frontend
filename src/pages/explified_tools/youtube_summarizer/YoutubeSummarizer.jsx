@@ -138,9 +138,9 @@ const YoutubeSummarizer = () => {
     setLoading(true);
     setTranscript([]);
     try {
-      // const response = await axiosInstance.post("api/ytSummarize/transcript", {
-      //   videoId,
-      // });
+      const response = await axiosInstance.post("api/ytSummarize/transcript", {
+        videoId,
+      });
       const response2 = await axios.get(
         `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${
           import.meta.env.VITE_YT_THUMBNAIL_API_KEY
@@ -172,8 +172,8 @@ const YoutubeSummarizer = () => {
       setImageData(
         response3?.data?.items[0]?.snippet?.thumbnails?.default?.url
       );
-      // let content = response.data?.content;
-      // setTranscript(content);
+      let content = response.data?.content;
+      setTranscript(content);
       setVideoUrl("");
       setVideoId("");
       setHistoryOpen(false);
@@ -349,7 +349,7 @@ const YoutubeSummarizer = () => {
       )}
 
       {/* Fixed input at bottom */}
-      <div className="fixed bottom-0 left-20  right-0 bg-black z-10">
+      <div className="fixed bottom-0 left-64  right-0 bg-black z-10">
         <div className="max-w-4xl mx-auto w-full p-4 flex gap-4 items-center">
           <input
             type="text"
