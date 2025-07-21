@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const GEMINI_API_KEY = 'AIzaSyCjxEkSZKRdCohde0z5FKaZAO624gF3wms';
+const GEMINI_API_KEY = 'AIzaSyA3iqoMW6g81LMjWdyS24WHM32M0ie7AEs';
 
 const Meme = () => {
   const [query, setQuery] = useState('');

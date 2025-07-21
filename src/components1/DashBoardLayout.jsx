@@ -14,13 +14,16 @@ import { useDispatch, useSelector } from "react-redux";
 import io from "socket.io-client";
 import HelpButton from "./HelpButton";
 import Breadcrumbs from "./Breadcrumbs";
-
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase"; //
+import { clearUser } from "../utils/auth_slice/UserSlice";
 const quickToolsDropdown = [
   { name: "Youtube Summarizer", route: "/summarizer" },
   { name: "AI Subtitler", route: "/subtitler" },
   { name: "Linkedin Extension", route: "/linkedin" },
   { name: "Video Generator", route: "/Meme" },
   { name: "BG Remover", route: "/bg-remover" },
+  { name: "Influmark", route: "/influmark" },
 ];
 
 function GlobalStyle() {
@@ -172,155 +175,169 @@ export default function DashBoardLayout() {
             sidebarOpen ? "w-64" : "w-16"
           }`}
         >
-          <div className="flex items-center justify-between p-4">
-            <img
-              src="/Explified_logo.png"
-              alt="Logo"
-              className="w-10 h-10 cursor-pointer"
-              onClick={() => navigate("/")}
-            />
-            <button onClick={() => setSidebarOpen(!sidebarOpen)}>
-              {sidebarOpen ? (
-                <ChevronLeft size={20} />
-              ) : (
-                <ChevronRight size={20} />
-              )}
-            </button>
-          </div>
-
-          {sidebarOpen && (
-            <nav className="flex-1 overflow-y-auto p-4 space-y-3">
-              <div>
-                <button
-                  onClick={() => setToolsDropdown(!toolsDropdown)}
-                  className="w-full flex justify-between items-center p-2 rounded hover:bg-gray-800 border border-gray-600"
-                >
-                  <span>Tools</span>
-                  <ChevronDown size={16} />
+          <div className="flex flex-col justify-between h-full">
+            {/* Top Section */}
+            <div>
+              <div className="flex items-center justify-between p-4">
+                <img
+                  src="/Explified_logo.png"
+                  alt="Logo"
+                  className="w-10 h-10 cursor-pointer"
+                  onClick={() => navigate("/")}
+                />
+                <button onClick={() => setSidebarOpen(!sidebarOpen)}>
+                  {sidebarOpen ? (
+                    <ChevronLeft size={20} />
+                  ) : (
+                    <ChevronRight size={20} />
+                  )}
                 </button>
-                {toolsDropdown && (
-                  <div className="mt-2 p-2 space-y-1 border border-gray-600 rounded">
-                    {quickToolsDropdown.map((tool, index) => (
+              </div>
+
+              {sidebarOpen && (
+                <nav className="flex-1 overflow-y-auto p-4 space-y-3">
+                  {/* Tools */}
+                  <div>
+                    <button
+                      onClick={() => setToolsDropdown(!toolsDropdown)}
+                      className="w-full flex justify-between items-center p-2 rounded hover:bg-gray-800 border border-gray-600"
+                    >
+                      <span>Tools</span>
+                      <ChevronDown size={16} />
+                    </button>
+                    {toolsDropdown && (
+                      <div className="mt-2 p-2 space-y-1 border border-gray-600 rounded">
+                        {quickToolsDropdown.map((tool, index) => (
+                          <button
+                            key={index}
+                            onClick={() => {
+                              navigate(tool.route);
+                              setSidebarOpen(false);
+                            }}
+                            className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black"
+                          >
+                            {tool.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Socials */}
+                  <button
+                    onClick={() => {
+                      navigate("/socials");
+                      setSidebarOpen(false);
+                    }}
+                    className="w-full text-left p-2 rounded hover:bg-gray-800 border border-gray-600"
+                  >
+                    Socials
+                  </button>
+
+                  {/* Workflows */}
+                  <div className="flex border border-gray-600 rounded">
+                    <button
+                      onClick={() => {
+                        navigate("/workflows");
+                        setSidebarOpen(false);
+                      }}
+                      className="w-full text-left p-2 rounded flex items-center justify-between"
+                    >
+                      Workflows
+                    </button>
+                    <div
+                      className="p-2"
+                      onClick={() => setShowWorkDropdown(!showWorkDropdown)}
+                    >
+                      <ChevronDown size={16} />
+                    </div>
+                  </div>
+                  {showWorkDropdown && (
+                    <div className="mt-2 p-2 space-y-1 border border-gray-600 rounded">
                       <button
-                        key={index}
                         onClick={() => {
-                          navigate(tool.route);
+                          navigate("/workflows");
                           setSidebarOpen(false);
                         }}
                         className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black"
                       >
-                        {tool.name}
+                        Workflows 1
                       </button>
-                    ))}
+                      <button
+                        onClick={() => {
+                          navigate("/templates");
+                          setSidebarOpen(false);
+                        }}
+                        className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black"
+                      >
+                        Workflows 2
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Chats */}
+                  <div className="flex items-center gap-1">
+                    <button
+                      disabled={!isAdmin}
+                      onClick={() => isAdmin && setShowAddUserPopup(true)}
+                      className={`p-1 rounded hover:text-[#23b5b5] border border-gray-600 ${
+                        isAdmin
+                          ? "cursor-pointer"
+                          : "opacity-30 cursor-not-allowed"
+                      }`}
+                      title={
+                        isAdmin ? "Add new user" : "Only admins can add users"
+                      }
+                    >
+                      <Plus size={16} />
+                    </button>
+                    <button
+                      onClick={() => setShowChatsDropdown(!showChatsDropdown)}
+                      className="flex-1 flex justify-between items-center p-2 rounded hover:bg-gray-800 border border-gray-600 w-full"
+                    >
+                      <span>Chats</span>
+                      <ChevronDown size={16} />
+                    </button>
                   </div>
-                )}
-              </div>
+                  {showChatsDropdown && (
+                    <div className="mt-2 p-2 space-y-1 border border-gray-600 rounded">
+                      {adminUsers.map((name, i) => (
+                        <button
+                          key={`admin-${i}`}
+                          onClick={() => setActiveChat(name)}
+                          className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black font-bold"
+                        >
+                          👑 {name}
+                        </button>
+                      ))}
+                      {chatUsers.map((name, i) => (
+                        <button
+                          key={`user-${i}`}
+                          onClick={() => setActiveChat(name)}
+                          className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black"
+                        >
+                          {name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </nav>
+              )}
+            </div>
 
-              <button
-                onClick={() => {
-                  navigate("/socials");
-                  setSidebarOpen(false);
-                }}
-                className="w-full text-left p-2 rounded hover:bg-gray-800 border border-gray-600"
-              >
-                Socials
-              </button>
-
-              <div className="flex border border-gray-600 rounded">
+            {/* Bottom Section: Favorites and Credits */}
+            {sidebarOpen && (
+              <div className="p-4 space-y-4 border-t border-gray-800">
                 <button
                   onClick={() => {
-                    navigate("/workflows");
+                    navigate("/favorites");
                     setSidebarOpen(false);
                   }}
-                  className="w-full text-left p-2 rounded flex items-center justify-between"
+                  className="w-full text-left p-2 rounded hover:bg-gray-800 border border-gray-600"
                 >
-                  Workflows
+                  Favorites
                 </button>
-                <div
-                  className="p-2"
-                  onClick={() => setShowWorkDropdown(!showWorkDropdown)}
-                >
-                  <ChevronDown size={16} />
-                </div>
-              </div>
-              {showWorkDropdown && (
-                <div className="mt-2 p-2 space-y-1 border border-gray-600 rounded">
-                  <button
-                    onClick={() => {
-                      navigate("/workflows");
-                      setSidebarOpen(false);
-                    }}
-                    className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black"
-                  >
-                    Workflows 1
-                  </button>
-                  <button
-                    onClick={() => {
-                      navigate("/templates");
-                      setSidebarOpen(false);
-                    }}
-                    className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black"
-                  >
-                    Workflows 2
-                  </button>
-                </div>
-              )}
 
-              {/* Chats */}
-              <div className="flex items-center gap-1">
-                <button
-                  disabled={!isAdmin}
-                  onClick={() => isAdmin && setShowAddUserPopup(true)}
-                  className={`p-1 rounded hover:text-[#23b5b5] border border-gray-600 ${
-                    isAdmin ? "cursor-pointer" : "opacity-30 cursor-not-allowed"
-                  }`}
-                  title={isAdmin ? "Add new user" : "Only admins can add users"}
-                >
-                  <Plus size={16} />
-                </button>
-                <button
-                  onClick={() => setShowChatsDropdown(!showChatsDropdown)}
-                  className="flex-1 flex justify-between items-center p-2 rounded hover:bg-gray-800 border border-gray-600 w-full"
-                >
-                  <span>Chats</span>
-                  <ChevronDown size={16} />
-                </button>
-              </div>
-              {showChatsDropdown && (
-                <div className="mt-2 p-2 space-y-1 border border-gray-600 rounded">
-                  {adminUsers.map((name, i) => (
-                    <button
-                      key={`admin-${i}`}
-                      onClick={() => setActiveChat(name)}
-                      className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black font-bold"
-                    >
-                      👑 {name}
-                    </button>
-                  ))}
-                  {chatUsers.map((name, i) => (
-                    <button
-                      key={`user-${i}`}
-                      onClick={() => setActiveChat(name)}
-                      className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black"
-                    >
-                      {name}
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              <button
-                onClick={() => {
-                  navigate("/favorites");
-                  setSidebarOpen(false);
-                }}
-                className="w-full text-left p-2 rounded hover:bg-gray-800 border border-gray-600"
-              >
-                Favorites
-              </button>
-
-              {/* Credits */}
-              <div className="p-4 border-t border-gray-800">
                 <div className="w-full p-4 rounded-md shadow border border-gray-600">
                   <div className="text-sm text-gray-100 flex items-center justify-between mb-2">
                     <span>Credits remaining</span>
@@ -346,8 +363,8 @@ export default function DashBoardLayout() {
                   </button>
                 </div>
               </div>
-            </nav>
-          )}
+            )}
+          </div>
         </aside>
 
         {/* Main Content */}
@@ -377,12 +394,6 @@ export default function DashBoardLayout() {
                 className="text-lg font-semibold hidden md:block"
               >
                 Integrations
-              </button>
-              <button
-                onClick={() => navigate("/influmark")}
-                className="text-lg font-semibold hidden md:block"
-              >
-                Influmark
               </button>
             </div>
             <div className="relative flex items-center gap-4">
