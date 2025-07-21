@@ -123,6 +123,7 @@ const YoutubeSummarizer = () => {
       );
       let content = response.data?.content;
       setSummary(content);
+      setActiveTab("summary");
       setVideoUrl("");
       setVideoId("");
       setHistoryOpen(false);
@@ -174,6 +175,7 @@ const YoutubeSummarizer = () => {
       );
       let content = response.data?.content;
       setTranscript(content);
+      setActiveTab("transcript");
       setVideoUrl("");
       setVideoId("");
       setHistoryOpen(false);
