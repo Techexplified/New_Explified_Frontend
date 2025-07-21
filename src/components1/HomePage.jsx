@@ -13,6 +13,7 @@ import {
   Link,
   Type,
   Instagram,
+  Images,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -55,16 +56,17 @@ export default function HomePage() {
       tools: [
         { name: "Linkedin Extension", icon: Linkedin, route: "/" },
         { name: "Awesome Screenshot", icon: ScreenShare, route: "/" },
-        { name: "Slideshow Maker", icon: Presentation, route: "/" },
+        { name: "Slideshow Maker", icon: Presentation, route: "/presentation" },
         { name: "Video Generator", icon: Video, route: "/" },
       ],
     },
     {
       title: "Design & Visual Tools",
       tools: [
-        { name: "BG Remover", icon: Palette, route: "/" },
+        { name: "BG Remover", icon: Palette, route: "/bg-remover" },
         { name: "Link To Video", icon: Link, route: "/" },
         { name: "Keyword Extractor", icon: Type, route: "/" },
+        { name: "Image Styler", icon: Images, route: "/image-styler" },
       ],
     },
   ];

@@ -1,4 +1,3 @@
-// DashBoardLayout.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import {
@@ -11,18 +10,21 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
 import io from "socket.io-client";
 import HelpButton from "./HelpButton";
 import Breadcrumbs from "./Breadcrumbs";
-import { useSelector } from "react-redux";
-
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase"; //
+import { clearUser } from "../utils/auth_slice/UserSlice";
 const quickToolsDropdown = [
   { name: "AI Tools", route: "/aitools" },
   { name: "Youtube Summarizer", route: "/summarizer" },
   { name: "AI Subtitler", route: "/subtitler" },
   { name: "Linkedin Extension", route: "/linkedin" },
-  { name: "Video Generator", route: "/video-generator" },
+  { name: "Video Generator", route: "/Meme" },
   { name: "BG Remover", route: "/bg-remover" },
+  { name: "Influmark", route: "/influmark" },
 ];
 
 function GlobalStyle() {
@@ -40,6 +42,8 @@ function GlobalStyle() {
 
 export default function DashBoardLayout() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const [profileDropdown, setProfileDropdown] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [toolsDropdown, setToolsDropdown] = useState(false);
@@ -195,183 +199,183 @@ export default function DashBoardLayout() {
         )}
 
         {/* Sidebar */}
-        {sidebarOpen && (
-          <aside
-            className={`fixed z-30 md:static w-64 bg-black border-r border-b border-gray-800 flex-shrink-0 flex flex-col transition-transform duration-300 ${
-              sidebarOpen
-                ? "translate-x-0"
-                : "-translate-x-full md:translate-x-0"
-            }`}
-          >
-            <div
-              className="flex justify-center p-4"
-              onClick={() => navigate("/")}
-            >
-              {" "}
-              <img
-                src="/Explified_logo.png"
-                alt="Logo"
-                className="w-10 h-10"
-              />{" "}
-            </div>
-            <div className="flex items-center justify-between p-4">
-              <img
-                src="/Explified_logo.png"
-                alt="Logo"
-                className="w-10 h-10 cursor-pointer"
-                onClick={() => navigate("/")}
-              />
-              <button onClick={() => setSidebarOpen(!sidebarOpen)}>
-                {sidebarOpen ? (
-                  <ChevronLeft size={20} />
-                ) : (
-                  <ChevronRight size={20} />
-                )}
-              </button>
-            </div>
-
-            <nav className="flex-1 overflow-y-auto p-4 space-y-3">
-              <button
-                onClick={() => {
-                  navigate("/");
-                  setSidebarOpen(false);
-                }}
-                className="w-full text-left p-2 rounded hover:bg-gray-800 border border-gray-600"
-              >
-                Dashboard
-              </button>
-              {/* Tools Dropdown */}
-              <div>
-                <button
-                  onClick={() => setToolsDropdown(!toolsDropdown)}
-                  className="w-full flex justify-between items-center p-2 rounded hover:bg-gray-800 border border-gray-600"
-                >
-                  <span>Tools</span>
-                  <ChevronDown size={16} />
+        <aside
+          className={`relative z-30 bg-black border-r border-b border-gray-800 flex-shrink-0 flex flex-col transition-all duration-300 ${
+            sidebarOpen ? "w-64" : "w-16"
+          }`}
+        >
+          <div className="flex flex-col justify-between h-full">
+            {/* Top Section */}
+            <div>
+              <div className="flex items-center justify-between p-4">
+                <img
+                  src="/Explified_logo.png"
+                  alt="Logo"
+                  className="w-10 h-10 cursor-pointer"
+                  onClick={() => navigate("/")}
+                />
+                <button onClick={() => setSidebarOpen(!sidebarOpen)}>
+                  {sidebarOpen ? (
+                    <ChevronLeft size={20} />
+                  ) : (
+                    <ChevronRight size={20} />
+                  )}
                 </button>
-                {toolsDropdown && (
-                  <div className="mt-2 p-2 space-y-1 border border-gray-600 rounded">
-                    {quickToolsDropdown.map((tool, index) => (
+              </div>
+
+              {sidebarOpen && (
+                <nav className="flex-1 overflow-y-auto p-4 space-y-3">
+                  <button
+                    onClick={() => {
+                      navigate("/");
+                      setSidebarOpen(false);
+                    }}
+                    className="w-full text-left p-2 rounded hover:bg-gray-800 border border-gray-600"
+                  >
+                    Dashboard
+                  </button>
+                  {/* Tools */}
+                  <div>
+                    <button
+                      onClick={() => setToolsDropdown(!toolsDropdown)}
+                      className="w-full flex justify-between items-center p-2 rounded hover:bg-gray-800 border border-gray-600"
+                    >
+                      <span>Tools</span>
+                      <ChevronDown size={16} />
+                    </button>
+                    {toolsDropdown && (
+                      <div className="mt-2 p-2 space-y-1 border border-gray-600 rounded">
+                        {quickToolsDropdown.map((tool, index) => (
+                          <button
+                            key={index}
+                            onClick={() => {
+                              navigate(tool.route);
+                              setSidebarOpen(false);
+                            }}
+                            className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black"
+                          >
+                            {tool.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Socials */}
+                  <button
+                    onClick={() => {
+                      navigate("/socials");
+                      setSidebarOpen(false);
+                    }}
+                    className="w-full text-left p-2 rounded hover:bg-gray-800 border border-gray-600"
+                  >
+                    Socials
+                  </button>
+
+                  {/* Workflows */}
+                  <div className="flex border border-gray-600 rounded">
+                    <button
+                      onClick={() => {
+                        navigate("/workflows");
+                        setSidebarOpen(false);
+                      }}
+                      className="w-full text-left p-2 rounded flex items-center justify-between"
+                    >
+                      Workflows
+                    </button>
+                    <div
+                      className="p-2"
+                      onClick={() => setShowWorkDropdown(!showWorkDropdown)}
+                    >
+                      <ChevronDown size={16} />
+                    </div>
+                  </div>
+                  {showWorkDropdown && (
+                    <div className="mt-2 p-2 space-y-1 border border-gray-600 rounded">
                       <button
-                        key={index}
                         onClick={() => {
-                          navigate(tool.route);
+                          navigate("/workflows");
                           setSidebarOpen(false);
                         }}
                         className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black"
                       >
-                        {tool.name}
+                        Workflows 1
                       </button>
-                    ))}
+                      <button
+                        onClick={() => {
+                          navigate("/templates");
+                          setSidebarOpen(false);
+                        }}
+                        className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black"
+                      >
+                        Workflows 2
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Chats */}
+                  <div className="flex items-center gap-1">
+                    <button
+                      disabled={!isAdmin}
+                      onClick={() => isAdmin && setShowAddUserPopup(true)}
+                      className={`p-1 rounded hover:text-[#23b5b5] border border-gray-600 ${
+                        isAdmin
+                          ? "cursor-pointer"
+                          : "opacity-30 cursor-not-allowed"
+                      }`}
+                      title={
+                        isAdmin ? "Add new user" : "Only admins can add users"
+                      }
+                    >
+                      <Plus size={16} />
+                    </button>
+                    <button
+                      onClick={() => setShowChatsDropdown(!showChatsDropdown)}
+                      className="flex-1 flex justify-between items-center p-2 rounded hover:bg-gray-800 border border-gray-600 w-full"
+                    >
+                      <span>Chats</span>
+                      <ChevronDown size={16} />
+                    </button>
                   </div>
-                )}
-              </div>
+                  {showChatsDropdown && (
+                    <div className="mt-2 p-2 space-y-1 border border-gray-600 rounded">
+                      {adminUsers.map((name, i) => (
+                        <button
+                          key={`admin-${i}`}
+                          onClick={() => setActiveChat(name)}
+                          className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black font-bold"
+                        >
+                          👑 {name}
+                        </button>
+                      ))}
+                      {chatUsers.map((name, i) => (
+                        <button
+                          key={`user-${i}`}
+                          onClick={() => setActiveChat(name)}
+                          className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black"
+                        >
+                          {name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </nav>
+              )}
+            </div>
 
-              <button
-                onClick={() => {
-                  navigate("/socials");
-                  setSidebarOpen(false);
-                }}
-                className="w-full text-left p-2 rounded hover:bg-gray-800 border border-gray-600"
-              >
-                Socials
-              </button>
-
-              <div className="flex border border-gray-600 rounded">
+            {/* Bottom Section: Favorites and Credits */}
+            {sidebarOpen && (
+              <div className="p-4 space-y-4 border-t border-gray-800">
                 <button
                   onClick={() => {
-                    navigate("/workflows");
+                    navigate("/favorites");
                     setSidebarOpen(false);
                   }}
-                  className="w-full text-left p-2 rounded flex items-center justify-between"
+                  className="w-full text-left p-2 rounded hover:bg-gray-800 border border-gray-600"
                 >
-                  Workflows
+                  Favorites
                 </button>
-                <div
-                  className="p-2"
-                  onClick={() => setShowWorkDropdown(!showWorkDropdown)}
-                >
-                  <ChevronDown size={16} />
-                </div>
-              </div>
-              {showWorkDropdown && (
-                <div className="mt-2 p-2 space-y-1 border border-gray-600 rounded">
-                  <button
-                    onClick={() => {
-                      navigate("/workflows");
-                      setSidebarOpen(false);
-                    }}
-                    className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black"
-                  >
-                    Workflows 1
-                  </button>
-                  <button
-                    onClick={() => {
-                      navigate("/templates");
-                      setSidebarOpen(false);
-                    }}
-                    className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black"
-                  >
-                    Workflows 2
-                  </button>
-                </div>
-              )}
 
-              {/* Chats */}
-              <div className="flex items-center gap-1">
-                <button
-                  disabled={!isAdmin}
-                  onClick={() => isAdmin && setShowAddUserPopup(true)}
-                  className={`p-1 rounded hover:text-[#23b5b5] border border-gray-600 ${
-                    isAdmin ? "cursor-pointer" : "opacity-30 cursor-not-allowed"
-                  }`}
-                  title={isAdmin ? "Add new user" : "Only admins can add users"}
-                >
-                  <Plus size={16} />
-                </button>
-                <button
-                  onClick={() => setShowChatsDropdown(!showChatsDropdown)}
-                  className="flex-1 flex justify-between items-center p-2 rounded hover:bg-gray-800 border border-gray-600 w-full"
-                >
-                  <span>Chats</span>
-                  <ChevronDown size={16} />
-                </button>
-              </div>
-              {showChatsDropdown && (
-                <div className="mt-2 p-2 space-y-1 border border-gray-600 rounded">
-                  {adminUsers.map((name, i) => (
-                    <button
-                      key={`admin-${i}`}
-                      onClick={() => setActiveChat(name)}
-                      className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black font-bold"
-                    >
-                      👑 {name}
-                    </button>
-                  ))}
-                  {chatUsers.map((name, i) => (
-                    <button
-                      key={`user-${i}`}
-                      onClick={() => setActiveChat(name)}
-                      className="block w-full text-left px-2 py-1 rounded hover:bg-[#23b5b5] hover:text-black"
-                    >
-                      {name}
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              <button
-                onClick={() => {
-                  navigate("/favorites");
-                  setSidebarOpen(false);
-                }}
-                className="w-full text-left p-2 rounded hover:bg-gray-800 border border-gray-600"
-              >
-                Favorites
-              </button>
-
-              {/* Credits */}
-              <div className="p-4 border-t border-gray-800">
                 <div className="w-full p-4 rounded-md shadow border border-gray-600">
                   <div className="text-sm text-gray-100 flex items-center justify-between mb-2">
                     <span>Credits remaining</span>
@@ -397,9 +401,9 @@ export default function DashBoardLayout() {
                   </button>
                 </div>
               </div>
-            </nav>
-          </aside>
-        )}
+            )}
+          </div>
+        </aside>
 
         {/* Main Content */}
         <div className="flex flex-col flex-1 overflow-hidden">
@@ -429,12 +433,6 @@ export default function DashBoardLayout() {
               >
                 Integrations
               </button>
-              <button
-                onClick={() => navigate("/influmark")}
-                className="text-lg font-semibold hidden md:block"
-              >
-                Influmark
-              </button>
             </div>
             <div className="relative flex items-center gap-4">
               <button
@@ -458,10 +456,33 @@ export default function DashBoardLayout() {
                     <p className="text-sm text-gray-300">{currentEmail}</p>
                   </div>
                   <div className="border-t border-white my-2" />
-                  <button className="w-full py-2 flex justify-center items-center space-x-2">
-                    <LogOut size={16} />
-                    <span>Log Out</span>
-                  </button>
+                  {user ? (
+                    <button
+                      className="w-full py-2 flex justify-center items-center space-x-2"
+                      onClick={() => {
+                        signOut(auth)
+                          .then(() => {
+                            dispatch(clearUser());
+                            navigate("/login"); // navigate to login page after logout
+                          })
+                          .catch((error) => {
+                            console.error("Logout failed:", error);
+                          });
+                      }}
+                    >
+                      <LogOut size={16} />
+                      <span>Log Out</span>
+                    </button>
+                  ) : (
+                    <button
+                      className="w-full py-2 flex justify-center items-center space-x-2"
+                      onClick={() => navigate("/login")}
+                    >
+                      <User size={16} />
+                      <span>Log In</span>
+                    </button>
+                  )}
+
                   <div className="border-t border-white my-2" />
                   <div className="grid grid-cols-2 divide-x divide-white">
                     <button className="py-2 text-sm">Contact us</button>

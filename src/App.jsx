@@ -13,7 +13,7 @@ import PrivacyPolicy from "./pages/about_pages/PrivacyPolicy";
 import AffiliatePartnerPolicy from "./pages/about_pages/AffiliatePartnerPolicy";
 import ContactUs from "./pages/about_pages/ContactUs";
 import ExplifiedWork from "./pages/work_&_services/ExplifiedWork";
-import Influmark from "./components1/Influmark";
+
 import ExplifiedServices from "./pages/work_&_services/ExplifiedServices";
 import ContentMarketingServicePage from "./pages/work_&_services/services_landing_page/ContentMarketingServicePage";
 import YoutubeManagementServicePage from "./pages/work_&_services/services_landing_page/YoutubeManagementServicePage";
@@ -55,7 +55,7 @@ import Edit from "./pages/explified_tools/pdf_tools/Edit";
 import Sign from "./pages/explified_tools/pdf_tools/Sign";
 import PdfToAny from "./pages/explified_tools/pdf_tools/PdfToAny";
 import PdfToWord from "./pages/explified_tools/pdf_tools/PdfToWord";
-import DashBoardLayout from "./components1/DashBoardLayout2";
+import DashBoardLayout from "./components1/DashBoardLayout";
 import HomePage from "./components1/HomePage";
 import SocialsPage from "./components1/SocialsPage";
 import DetailedCard from "./components1/DetailedCard";
@@ -74,8 +74,25 @@ import PresentationLandingPage from "./components2/LandingPage";
 import CreatePresentation from "./components2/CreatePresentation";
 import Integrations from "./components1/Integrations";
 import InfluencerProfile from "./components1/Influencerprofile";
+
+import ImageFilter from "./component3/ImageFilter";
+import AiImageStyler from "./component3/AiImageStyler.";
+import BackgroundChanger from "./component3/BackgroundChanger";
+import ImageMerger from "./component3/ImageMerger";
+import ImageExpander from "./component3/ImageExpander";
+import ImageEditor from "./component3/ImageEditor";
+
+import BGLayout from "./pages/explified_tools/bgRemoverBlur/BGLayout";
+
+// import Integrations from "./components1/Integrations";
+// import InfluencerProfile from "./components1/InfluencerProfile";
 import Meme from "./components1/Meme";
 import Result from "./components1/Result";
+import Zapier from "./components1/Zapier";
+import ZapResult from "./components1/ZapResult";
+import ZapEnhanced from "./components1/ZapEnhanced";
+import Influmark from "./components1/Influmark";
+
 import Trone from "./components1/Trone";
 function App() {
   return (
@@ -86,7 +103,8 @@ function App() {
           <Route path="/result" element={<Result />} />
           <Route path="influmark/:name" element={<InfluencerProfile />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/influmark" element={<Influmark />} />
+
+          {/* <Route path="/influmark" element={<Influmark />} /> */}
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
@@ -95,7 +113,8 @@ function App() {
           <Route path="/affliate-policy" element={<AffiliatePartnerPolicy />} />
           <Route path="/solutions" element={<ExplifiedServices />} />
           <Route path="/work" element={<ExplifiedWork />} />
-          <Route path="/integrations" element={<Integrations />} />
+
+          {/* <Route path="/integrations" element={<Integrations />} /> */}
           <Route path="/blaze" element={<BlazeToolLandingPage />} />
           <Route path="/bridge" element={<BridgeToolLandingPage />} />
           <Route path="/motion" element={<MotionToolLandingPage />} />
@@ -171,6 +190,9 @@ function App() {
           <Route path="/" element={<DashBoardLayout />}>
             <Route index element={<HomePage />}></Route>
             <Route path="/socials" element={<SocialsPage />}></Route>
+            <Route path="/history" element={<History />}>
+              {" "}
+            </Route>
             <Route path="/history" element={<History />}></Route>
             <Route path="/favorites" element={<Favourites />}></Route>
             <Route path="/workflows" element={<WorkflowDashboard />} />
@@ -181,17 +203,41 @@ function App() {
             <Route path="/Meme" element={<Meme />} />
 
             <Route
-              path="/socials/instagram/posts/recents"
+              path="/socials/:id/posts/recents"
               element={<RecentPosts />}
             />
+            <Route path="/socials/:id/lastPosts" element={<LastPosts />} />
+            <Route path="/socials/:id/:id1" element={<ScheduleDraftPosts />} />
+            <Route path="/socials/newPost" element={<NewPost />} />
             <Route
-              path="/socials/instagram/lastPosts"
-              element={<LastPosts />}
-            />
+              path="/presentation"
+              element={<PresentationLandingPage />}
+            ></Route>
+            {/* <Route
+              path="/presentation/create"
+              element={<CreatePresentation />} 
+            /> */}
+
+            <Route path="/image-styler" element={<ImageFilter />} />
+            <Route path="/image-styler/filter" element={<AiImageStyler />} />
             <Route
-              path="/socials/instagram/:id"
-              element={<ScheduleDraftPosts />}
+              path="/image-styler/backChanger"
+              element={<BackgroundChanger />}
             />
+            <Route path="/image-styler/merger" element={<ImageMerger />} />
+            <Route path="/image-styler/expander" element={<ImageExpander />} />
+            <Route path="/image-styler/editor" element={<ImageEditor />} />
+
+            <Route path="/bg-remover" element={<BGLayout />} />
+
+            <Route path="/result" element={<Result />} />
+            <Route path="/zapier" element={<Zapier />} />
+            <Route path="/result2" element={<ZapResult />} />
+            <Route path="/influmark/:name" element={<InfluencerProfile />} />
+            <Route path="/Meme" element={<Meme />} />
+            <Route path="/influmark" element={<Influmark />} />
+            <Route path="/integrations" element={<Integrations />} />
+            <Route path="/enhanced" element={<ZapEnhanced />} />
             <Route path="/socials/newPost" element={<NewPost />} />
             <Route path="/youtube-summarizer" element={<YoutubeSummarizer />} />
             <Route path="/ai-subtitler" element={<AISubtitler />} />
@@ -211,6 +257,7 @@ function App() {
           </Route>
 
           <Route path="/ai-subtitler-ui" element={<SubtitleToolUI />} />
+
           {/* Tools Page */}
 
           {/* Landing Page */}

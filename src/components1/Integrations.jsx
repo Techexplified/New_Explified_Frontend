@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import { User, ChevronDown, LogOut } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import {
   FaSlack, FaGoogle, FaMicrosoft, FaWhatsapp, FaDiscord, FaTelegram, FaInstagram,
   FaRobot, FaGem, FaSearch, FaBrain, FaFeatherAlt, FaComments, FaFacebook,
@@ -45,15 +43,11 @@ const categorizedTools = {
 };
 
 export default function IntegrationsPage() {
-  const navigate = useNavigate();
-  const [profileDropdown, setProfileDropdown] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All");
-
   const categories = Object.keys(categorizedTools);
 
   const renderTools = (category) => {
     const toolsToRender = category === "All" ? categories.flatMap(cat => categorizedTools[cat]) : categorizedTools[category] || [];
-
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
         {toolsToRender.map((tool, index) => (
@@ -74,82 +68,28 @@ export default function IntegrationsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <header className="w-full bg-black text-white px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-800 gap-2">
-        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-          <img
-            src="/Explified_logo.png"
-            alt="Logo"
-            className="ml-4 w-10 h-10"
-            onClick={() => navigate("/")}
-          />
-          <div className="flex gap-3 flex-wrap">
-            <button onClick={() => navigate("/")} className="px-4 py-1 rounded hover:bg-gray-700">Home</button>
-            <button onClick={() => navigate("/history")} className="px-4 py-1 rounded hover:bg-gray-700">History</button>
-            <button onClick={() => navigate("/integrations")} className="px-4 py-1 rounded bg-gray-800 border border-white">Integrations</button>
-          </div>
-        </div>
-        <div className="relative">
+    <div className="min-h-screen bg-black text-white p-6">
+      <div className="flex flex-col items-center mb-8">
+        <h1 className="text-3xl font-bold text-[#23b5b5] mb-4">Integrations</h1>
+        <div className="flex flex-wrap justify-center gap-4">
           <button
-            onClick={() => setProfileDropdown(!profileDropdown)}
-            className="flex items-center space-x-2 p-2 rounded hover:text-[#23b5b5] transition-colors"
+            onClick={() => setSelectedCategory("All")}
+            className={`px-4 py-2 rounded border ${selectedCategory === "All" ? "bg-[#23b5b5] text-black" : "border-[#23b5b5] text-white hover:bg-[#23b5b5] hover:text-black"}`}
           >
-            <User size={20} />
-            <ChevronDown size={16} />
+            All
           </button>
-          {profileDropdown && (
-            <div className="absolute right-0 top-12 mt-2 bg-black border border-white rounded-xl w-64 z-50">
-              <div className="flex flex-col items-center py-4">
-                <User size={24} className="mb-2" />
-                <p className="font-medium">Srijan Ranjan</p>
-                <p className="text-sm text-gray-300">srijanranjan@gmail.com</p>
-              </div>
-              <div className="border-t border-white my-2" />
-              <button className="w-full py-2 flex justify-center items-center space-x-2">
-                <LogOut size={16} />
-                <span>Log Out</span>
-              </button>
-              <div className="border-t border-white my-2" />
-              <div className="grid grid-cols-2 divide-x divide-white">
-                <button className="py-2 text-sm">Contact us</button>
-                <button className="py-2 text-sm">Feedback</button>
-              </div>
-            </div>
-          )}
+          {categories.map((cat, idx) => (
+            <button
+              key={idx}
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-4 py-2 rounded border ${selectedCategory === cat ? "bg-[#23b5b5] text-black" : "border-[#23b5b5] text-white hover:bg-[#23b5b5] hover:text-black"}`}
+            >
+              {cat}
+            </button>
+          ))}
         </div>
-      </header>
-
-      <div className="flex flex-col lg:flex-row">
-        <aside className="w-full lg:w-64 p-6 border-b lg:border-b-0 lg:border-r border-gray-800 bg-black space-y-8">
-          <div>
-            <h2 className="text-lg font-semibold mb-2 text-[#23b5b5]">Categories</h2>
-            <ul className="space-y-2">
-              <li
-                onClick={() => setSelectedCategory("All")}
-                className={`cursor-pointer hover:text-[#23b5b5] ${selectedCategory === "All" ? "text-[#23b5b5]" : ""}`}
-              >
-                All
-              </li>
-              {categories.map((item, idx) => (
-                <li
-                  key={idx}
-                  onClick={() => setSelectedCategory(item)}
-                  className={`cursor-pointer hover:text-[#23b5b5] ${selectedCategory === item ? "text-[#23b5b5]" : ""}`}
-                >
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </aside>
-
-        <main className="flex-1 p-6 sm:p-8 md:p-10">
-          <h1 className="text-2xl font-bold text-[#23b5b5] mb-6 text-center sm:text-left">
-            {selectedCategory === "All" ? "All Categories" : selectedCategory}
-          </h1>
-          {renderTools(selectedCategory)}
-        </main>
       </div>
+      {renderTools(selectedCategory)}
     </div>
   );
 }
