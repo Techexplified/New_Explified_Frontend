@@ -19,7 +19,8 @@ import ContentMarketingServicePage from "./pages/work_&_services/services_landin
 import YoutubeManagementServicePage from "./pages/work_&_services/services_landing_page/YoutubeManagementServicePage";
 import MarketResearchAnalysisPage from "./pages/work_&_services/services_landing_page/MarketResearchAnalysisPage";
 import SEOServicePage from "./pages/work_&_services/services_landing_page/SEOServicePage";
-
+import UpdatedDashboard from "./components/UpdatedDashboard";
+import DashboardRoutes from "./components/DashboardRoutes";
 
 function App() {
   return (
@@ -60,6 +61,9 @@ function App() {
             <Route path="/seo-and-smo-service" element={<SEOServicePage />} />
 
             <Route path="/" element={<ExplifiedTools />} />
+
+            {/* Updated Dashboard */}
+            <Route path="/dash/*" element={<DashboardRoutes />} />
 
             {/* Tools Page */}
             {/* <Route path="/clipper" element={<Clipper />} />

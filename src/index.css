@@ -23,7 +23,6 @@
   font-style: normal;
 }
 
-
 .custom-slider .ant-slider-track {
   @apply !h-[60px] border-2 rounded-lg;
 }
@@ -34,4 +33,17 @@
 
 .custom-slider .ant-slider-handle::after {
   @apply hidden;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
