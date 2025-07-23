@@ -94,6 +94,7 @@ import ZapEnhanced from "./components1/ZapEnhanced";
 import Influmark from "./components1/Influmark";
 
 import Trone from "./components1/Trone";
+import ComingSoon from "./reusable_components/ComingSoon";
 function App() {
   return (
     <div>
@@ -259,7 +260,7 @@ function App() {
           <Route path="/ai-subtitler-ui" element={<SubtitleToolUI />} />
 
           {/* Tools Page */}
-
+          {/* <Route path="/*" element={<ComingSoon />} /> */}
           {/* Landing Page */}
           {/* <Route path="/clipper-landing" element={<ClipperLandingPage />} /> */}
         </Routes>

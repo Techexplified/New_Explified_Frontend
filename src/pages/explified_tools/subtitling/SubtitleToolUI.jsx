@@ -17,6 +17,7 @@ export default function SubtitleToolUI() {
 
   const uploadedFile = useSelector((state) => state.video);
   const videoRef = useRef(null);
+  const tooltipRef = useRef(null);
 
   const handleSubmit = async () => {
     if (!uploadedFile) {
@@ -137,8 +138,6 @@ export default function SubtitleToolUI() {
     }
   }, [subtitleText]);
 
-  console.log(parsedWords);
-
   const timeToSeconds = (timeStr) => {
     if (!timeStr || typeof timeStr !== "string") return NaN;
 
@@ -187,44 +186,54 @@ export default function SubtitleToolUI() {
     };
   }, [parsedWords]);
 
-  // useEffect(() => {
-  //   const handleMouseUp = () => {
-  //     const selection = window.getSelection();
-  //     const selectedText = selection.toString().trim();
+  useEffect(() => {
+    const handleSelection = (e) => {
+      const selection = window.getSelection();
+      const selectedText = selection.toString().trim();
 
-  //     if (selectedText && parsedWords.find((w) => w.word === selectedText)) {
-  //       const range = selection.getRangeAt(0);
-  //       const rect = range.getBoundingClientRect();
-  //       const containerRect = containerRef.current.getBoundingClientRect();
+      const clickedInsideTooltip = tooltipRef.current?.contains(e.target);
 
-  //       setTooltipPosition({
-  //         top: rect.top - containerRect.top - 30,
-  //         left: rect.left - containerRect.left,
-  //       });
+      if (!selectedText && !clickedInsideTooltip) {
+        setSelectedWord(null);
+        return;
+      }
 
-  //       const matchedWord = parsedWords.find((w) => w.word === selectedText);
-  //       setSelectedWord(matchedWord);
-  //     } else {
-  //       setSelectedWord(null);
-  //     }
-  //   };
+      const match = parsedWords.find(
+        (w) => w.word.toLowerCase() === selectedText.toLowerCase()
+      );
 
-  //   document.addEventListener("mouseup", handleMouseUp);
-  //   return () => {
-  //     document.removeEventListener("mouseup", handleMouseUp);
-  //   };
-  // }, [parsedWords]);
-  const handleWordClick = (e, word) => {
-    const rect = e.target.getBoundingClientRect();
-    const containerRect = containerRef.current.getBoundingClientRect();
+      if (match) {
+        const range = selection.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        const containerRect = containerRef.current.getBoundingClientRect();
 
-    setSelectedWord(word);
-    setTooltipPosition({
-      top: rect.top - containerRect.top - 30,
-      left: rect.left - containerRect.left,
-    });
-  };
+        setSelectedWord(match);
+        setTooltipPosition({
+          top: rect.top - containerRect.top - 30,
+          left: rect.left - containerRect.left,
+        });
+      }
+    };
+
+    document.addEventListener("mouseup", handleSelection);
+    return () => document.removeEventListener("mouseup", handleSelection);
+  }, [parsedWords]);
+
+  console.log(selectedWord);
+
+  // const handleWordClick = (e, word) => {
+  //   const rect = e.target.getBoundingClientRect();
+  //   const containerRect = containerRef.current.getBoundingClientRect();
+
+  //   setSelectedWord(word);
+  //   setTooltipPosition({
+  //     top: rect.top - containerRect.top - 30,
+  //     left: rect.left - containerRect.left,
+  //   });
+  // };
   const handleTooltipClick = async () => {
+    console.log("a");
+
     setIsLoading(true);
     try {
       const formData = { word: selectedWord.word };
@@ -271,127 +280,138 @@ export default function SubtitleToolUI() {
       <div className="flex gap-6">
         {/* Sidebar */}
         <div className="w-80 space-y-4 overflow-y-auto max-h-[80vh]">
-          <button
-            onClick={handleSubmit}
-            className="border border-gray-600 text-lg font-normal leading-tight hover:bg-[#23b5b5] rounded-lg p-6 w-full text-center"
-          >
-            AI
-            <br />
-            Subtitle
-            <br />
-            Generations
-          </button>
-
-          {isLoading && (
-            <div className="flex items-center justify-center">
-              <FaSpinner className="animate-spin" />
-            </div>
-          )}
-
-          {subtitleText && (
-            <select
-              name="language"
-              className="border border-[#23b5b5] bg-black py-1 px-2 rounded-md"
-              value={changeLanguage}
-              onChange={handleLanguageChange}
-            >
-              <option value="">Select</option>
-              <option value="hindi">Hindi</option>
-              <option value="english">English</option>
-            </select>
-          )}
-
-          {/* Word-by-word rendering */}
-          {/* <div className="space-y-2">
-            {parsedWords.map((w) => (
-              <span
-                key={w.id}
-                className={`inline-block mr-1 px-1 rounded transition-all ${
-                  activeWordIds.includes(w.id)
-                    ? "bg-yellow-300 text-black"
-                    : "text-gray-400"
-                }`}
+          {!isLoading && !subtitleText && parsedWords.length === 0 && (
+            <>
+              <button
+                onClick={handleSubmit}
+                className="border border-gray-600 text-lg font-normal leading-tight hover:bg-[#23b5b5] rounded-lg p-6 w-full text-center"
               >
-                {w.word}
-              </span>
-            ))}
-          </div> */}
+                AI
+                <br />
+                Subtitle
+                <br />
+                Generations
+              </button>
 
-          <div className="relative" ref={containerRef}>
-            <div className="space-y-2">
-              {parsedWords.map((w) => (
-                <span
-                  key={w.id}
-                  className={`inline-block mr-1 px-1 rounded transition-all cursor-pointer ${
-                    activeWordIds.includes(w.id)
-                      ? "bg-yellow-300 text-black"
-                      : "text-gray-400"
-                  }`}
-                  onClick={(e) => handleWordClick(e, w)}
+              <button
+                onClick={handleSubmit}
+                className="border border-gray-600 text-lg font-normal leading-tight hover:bg-[#23b5b5] rounded-lg p-6 w-full text-center"
+              >
+                Personalised
+                <br />
+                Subtitle
+                <br />
+                Editing
+              </button>
+
+              <button
+                onClick={handleSubmit}
+                className="border border-gray-600 text-lg font-normal leading-tight hover:bg-[#23b5b5] rounded-lg p-6 w-full text-center"
+              >
+                Language
+                <br />
+                Based
+                <br />
+                Subtitles
+              </button>
+
+              <button className="w-full bg-teal-600 hover:bg-teal-700 text-white py-4 px-6 rounded-lg text-lg font-normal flex items-center justify-center gap-2 transition-colors">
+                Get Subtitle's
+                <div className="flex items-center gap-1">
+                  <span>5</span>
+                  <div className="w-5 h-5 bg-yellow-500 rounded-full"></div>
+                </div>
+              </button>
+            </>
+          )}
+
+          {(isLoading || subtitleText || parsedWords.length > 0) && (
+            <>
+              {isLoading && (
+                <div className="flex items-center justify-center">
+                  <FaSpinner className="animate-spin" />
+                </div>
+              )}
+
+              <h1 className="text-3xl text-center font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#1b5d5d] to-[#23b5b5] border border-[#23b5b5] p-2 rounded-full shadow-md ">
+                Subtitle
+              </h1>
+
+              {subtitleText && (
+                <select
+                  name="language"
+                  className="border border-[#23b5b5] bg-black py-1 px-2 rounded-md"
+                  value={changeLanguage}
+                  onChange={handleLanguageChange}
                 >
-                  {w.word}
-                </span>
-              ))}
-            </div>
+                  <option value="">Language</option>
+                  <option value="hindi">Hindi</option>
+                  <option value="english">English</option>
+                </select>
+              )}
 
-            {selectedWord && (
-              <div
-                className="absolute z-50 bg-gray-800 text-white px-2 py-1 rounded shadow-md border border-gray-300 text-sm cursor-pointer"
-                style={{
-                  top: tooltipPosition.top,
-                  left: tooltipPosition.left,
-                }}
-                onClick={handleTooltipClick}
-              >
-                <div>Generate Synonyms</div>
-                {synonyms.length > 0 && (
-                  <div
-                    className="absolute z-50 bg-gray-800 text-white px-4 py-2 rounded-xl shadow-lg border border-gray-600 text-sm"
-                    style={{
-                      top: tooltipPosition.top,
-                      left: tooltipPosition.left,
-                    }}
-                  >
-                    <ul className="space-y-1">
-                      {synonyms.map((syn, idx) => (
-                        <li
-                          key={idx}
-                          onClick={() => handleSynonymClick(syn)}
-                          className="border-b border-gray-600 py-1 last:border-0"
-                        >
-                          {syn.trim()}
-                        </li>
-                      ))}
-                    </ul>
+              {parsedWords.length > 0 && (
+                <div
+                  className="relative select-text text-white [&_*::selection]:bg-[#23b5b5] [&_*::selection]:text-black"
+                  ref={containerRef}
+                >
+                  <div className="space-y-2">
+                    {parsedWords.map((w) => (
+                      <span
+                        key={w.id}
+                        className={`inline-block mr-1 px-1 rounded transition-all select-text ${
+                          activeWordIds.includes(w.id)
+                            ? "bg-yellow-300 text-black"
+                            : "text-gray-400"
+                        }`}
+                      >
+                        {w.word}
+                      </span>
+                    ))}
                   </div>
-                )}
-              </div>
-            )}
-          </div>
 
-          <button className="border border-gray-600 text-lg font-normal leading-tight hover:bg-[#23b5b5] rounded-lg p-6 w-full text-center">
-            Personalised
-            <br />
-            Subtitle
-            <br />
-            Editing
-          </button>
-
-          <button className="border border-gray-600 text-lg font-normal leading-tight hover:bg-[#23b5b5] rounded-lg p-6 w-full text-center">
-            Language
-            <br />
-            Based
-            <br />
-            Subtitles
-          </button>
-
-          <button className="w-full bg-teal-600 hover:bg-teal-700 text-white py-4 px-6 rounded-lg text-lg font-normal flex items-center justify-center gap-2 transition-colors">
-            Get Subtitle's
-            <div className="flex items-center gap-1">
-              <span>5</span>
-              <div className="w-5 h-5 bg-yellow-500 rounded-full"></div>
-            </div>
-          </button>
+                  {selectedWord && (
+                    <div
+                      ref={tooltipRef}
+                      className="absolute z-50 bg-gray-800 text-[#23b5b5] px-2 py-1 rounded shadow-md border border-[#23b5b5] text-sm cursor-pointer"
+                      style={{
+                        top: tooltipPosition.top,
+                        left: tooltipPosition.left,
+                      }}
+                    >
+                      <div
+                        className="cursor-pointer"
+                        onClick={handleTooltipClick}
+                      >
+                        Generate Synonyms
+                      </div>
+                      {synonyms.length > 0 && (
+                        <div
+                          className="absolute z-50 bg-gray-800 text-[#23b5b5] px-4 py-2 rounded-xl shadow-lg border border-[#23b5b5] text-sm"
+                          style={{
+                            top: tooltipPosition.top,
+                            left: tooltipPosition.left,
+                          }}
+                        >
+                          <ul className="space-y-1">
+                            {synonyms.map((syn, idx) => (
+                              <li
+                                key={idx}
+                                onClick={() => handleSynonymClick(syn)}
+                                className="border-b border-gray-600 py-1 last:border-0"
+                              >
+                                {syn.trim()}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
+          )}
         </div>
 
         {/* Video preview */}
@@ -417,12 +437,6 @@ export default function SubtitleToolUI() {
           </div>
         )}
       </div>
-
-      {/* <a href={downloadUrl} download>
-        <button className="bg-blue-500 text-white px-4 py-2 rounded">
-          Download Subtitled Video
-        </button>
-      </a> */}
     </div>
   );
 }

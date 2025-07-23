@@ -19,8 +19,8 @@ import { auth } from "../firebase"; //
 import { clearUser } from "../utils/auth_slice/UserSlice";
 const quickToolsDropdown = [
   { name: "AI Tools", route: "/aitools" },
-  { name: "Youtube Summarizer", route: "/summarizer" },
-  { name: "AI Subtitler", route: "/subtitler" },
+  { name: "Youtube Summarizer", route: "/youtube-summarizer" },
+  { name: "AI Subtitler", route: "/ai-subtitler" },
   { name: "Linkedin Extension", route: "/linkedin" },
   { name: "Video Generator", route: "/Meme" },
   { name: "BG Remover", route: "/bg-remover" },
