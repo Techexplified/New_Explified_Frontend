@@ -23,6 +23,14 @@ const UpdatedDashboard = ({ children }) => {
   const [showNavbar, setShowNavbar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
+  const userCredits = {
+    remaining: 245,
+    total: 500,
+    plan: "Pro Plan",
+  };
+
+  const creditsPercentage = (userCredits.remaining / userCredits.total) * 100;
+
   useEffect(() => {
     if (sidebarOpen) {
       // Delay content appearance until sidebar opens
@@ -192,6 +200,45 @@ const UpdatedDashboard = ({ children }) => {
             </div>
             {/* Footer */}
             <div className="mt-auto pt-4 border-t border-gray-700/50">
+              {/* Credits Section */}
+              <div className={`${sidebarOpen ? "block" : "hidden"}`}>
+                <div className="bg-gray-700/30 rounded-lg p-3 border border-gray-600/30">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-2">
+                      {/* <CreditCard className="w-4 h-4 text-cyan-400" /> */}
+                      <span className="text-white text-sm font-medium">
+                        {userCredits.plan}
+                      </span>
+                    </div>
+                    <span className="text-cyan-400 text-sm font-semibold">
+                      {userCredits.remaining}
+                    </span>
+                  </div>
+                  <div className="mb-2">
+                    <div className="flex justify-between text-xs text-gray-400 mb-1">
+                      <span>Credits left</span>
+                      <span>
+                        {userCredits.remaining}/{userCredits.total}
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-600/50 rounded-full h-2">
+                      <div
+                        className={`h-2 rounded-full transition-all duration-300 ${
+                          creditsPercentage > 50
+                            ? "bg-gradient-to-r from-green-500 to-cyan-500"
+                            : creditsPercentage > 20
+                            ? "bg-gradient-to-r from-yellow-500 to-orange-500"
+                            : "bg-gradient-to-r from-red-500 to-pink-500"
+                        }`}
+                        style={{ width: `${creditsPercentage}%` }}
+                      />
+                    </div>
+                  </div>
+                  <button className="w-full text-xs text-cyan-400 hover:text-cyan-300 transition-colors duration-200">
+                    Upgrade Plan
+                  </button>
+                </div>
+              </div>
               <div
                 className={`${
                   sidebarOpen && showContent ? "block" : "hidden"
