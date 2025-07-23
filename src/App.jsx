@@ -19,6 +19,9 @@ import ContentMarketingServicePage from "./pages/work_&_services/services_landin
 import YoutubeManagementServicePage from "./pages/work_&_services/services_landing_page/YoutubeManagementServicePage";
 import MarketResearchAnalysisPage from "./pages/work_&_services/services_landing_page/MarketResearchAnalysisPage";
 import SEOServicePage from "./pages/work_&_services/services_landing_page/SEOServicePage";
+import UpdatedDashboard from "./components/UpdatedDashboard";
+import DashboardRoutes from "./components/DashboardRoutes";
+
 import AgeingVideoMaker from "./pages/explified_tools/ageing_video_maker/AgeingVideoMaker";
 import Subtitling from "./pages/explified_tools/subtitling/Subtitling";
 import ImageCartoonizer from "./pages/explified_tools/image_cartoonizer/ImageCartoonizer";
@@ -154,11 +157,13 @@ function App() {
 
           {/* grow dashboard */}
           <Route path="/grow" element={<Grow />}></Route>
-
+          <Route path="/dash/*" element={<DashboardRoutes />} />
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="/dashboard/discover" element={<Discover />} />
             <Route path="/dashboard/trending" element={<Trending />} />
+
+            {/* Updated Dashboard */}
 
             {/* Tools Page */}
             <Route path="clipper" element={<Clipper />} />
