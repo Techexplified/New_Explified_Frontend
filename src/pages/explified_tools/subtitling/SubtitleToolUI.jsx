@@ -327,16 +327,14 @@ export default function SubtitleToolUI() {
 
           {(isLoading || subtitleText || parsedWords.length > 0) && (
             <>
+              <h1 className="text-3xl text-center font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#1b5d5d] to-[#23b5b5] border border-[#23b5b5] p-2 rounded-full shadow-md ">
+                Subtitle
+              </h1>
               {isLoading && (
                 <div className="flex items-center justify-center">
                   <FaSpinner className="animate-spin" />
                 </div>
               )}
-
-              <h1 className="text-3xl text-center font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#1b5d5d] to-[#23b5b5] border border-[#23b5b5] p-2 rounded-full shadow-md ">
-                Subtitle
-              </h1>
-
               {subtitleText && (
                 <select
                   name="language"

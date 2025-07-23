@@ -260,12 +260,13 @@ function App() {
               path="/presentation/create"
               element={<CreatePresentation />}
             />
+            <Route path="/*" element={<ComingSoon />} />
           </Route>
 
           <Route path="/ai-subtitler-ui" element={<SubtitleToolUI />} />
 
           {/* Tools Page */}
-          {/* <Route path="/*" element={<ComingSoon />} /> */}
+
           {/* Landing Page */}
           {/* <Route path="/clipper-landing" element={<ClipperLandingPage />} /> */}
         </Routes>
