@@ -2,10 +2,12 @@ import { useSelector } from "react-redux";
 import axiosInstance from "../../../network/axiosInstance";
 import { useState, useEffect, useRef } from "react";
 import { FaSpinner } from "react-icons/fa";
-
+import { Loader2, Play, Globe, Edit, Bot, User, Settings } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 export default function SubtitleToolUI() {
   const [isLoading, setIsLoading] = useState(false);
   const [subtitleText, setSubtitleText] = useState("");
+  const [subtitleUrl, setSubtitleUrl] = useState("");
   // const [downloadPath, setDownloadPath] = useState("");
   const [changeLanguage, setChangeLanguage] = useState("");
   const [parsedWords, setParsedWords] = useState([]);
@@ -38,7 +40,16 @@ export default function SubtitleToolUI() {
       const backendString = response?.data?.content;
       console.log(response?.data?.content);
 
+      // Convert SRT to WebVTT
+      const webVTT = convertSRTtoWebVTT(backendString);
+      console.log(webVTT);
+
+      // Create a Blob URL
+      const subtitleBlob = new Blob([webVTT], { type: "text/vtt" });
+      const subtitleUrl = URL.createObjectURL(subtitleBlob);
+
       // setDownloadPath(finalPath);
+      setSubtitleUrl(subtitleUrl);
       setSubtitleText(backendString);
     } catch (error) {
       console.error(error);
@@ -67,6 +78,33 @@ export default function SubtitleToolUI() {
       setIsLoading(false);
     }
   };
+  // const convertSRTtoWebVTT = (srtString) => {
+  //   const vttBody = srtString
+  //     .replace(/\d+\n/g, "") // remove line numbers
+  //     .replace(/,/g, ".") // replace comma with dot in timecodes
+  //     .replace(/\n{2,}/g, "\n\n") // ensure double newlines between cues
+  //     .trim();
+
+  //   return "WEBVTT\n\n" + vttBody;
+  // };
+  // const convertSRTtoWebVTT = (srtString) => {
+  //   const lines = srtString
+  //     .replace(/\r\n/g, "\n")
+  //     .replace(/\n{3,}/g, "\n\n") // normalize spacing
+  //     .split("\n")
+  //     .filter((line) => line.trim() !== "");
+
+  //   let vtt = "WEBVTT\n\n";
+  //   for (let i = 0; i < lines.length; i++) {
+  //     if (lines[i].includes("-->")) {
+  //       const timeLine = lines[i].replace(",", "."); // e.g. 00:00,017 -> 00:00.017
+  //       const textLine = lines[i + 1] || "";
+  //       vtt += `${timeLine}\n${textLine}\n\n`;
+  //       i++; // skip text line in next loop
+  //     }
+  //   }
+  //   return vtt;
+  // };
 
   // Parse the backend string into [{ start, end, word }]
   // useEffect(() => {
@@ -101,6 +139,38 @@ export default function SubtitleToolUI() {
   //     setParsedWords(wordsWithTime);
   //   }
   // }, [subtitleText]);
+  function convertSRTtoWebVTT(rawSubtitle) {
+    // Step 1: Clean and split the string
+    const lines = rawSubtitle.trim().split("\n");
+
+    let srtFormatted = "";
+    let index = 1;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+
+      // Match timing line
+      const timeRegex = /^\d{2}:\d{2},\d{3} --> \d{2}:\d{2},\d{3}$/;
+
+      if (timeRegex.test(line)) {
+        // Add sequence number
+        srtFormatted += `${index++}\n`;
+        // Add time
+        srtFormatted += line + "\n";
+        // Add next line as subtitle text (skip blank or invalid ones)
+        const nextLine = lines[i + 1]?.trim();
+        if (nextLine && !timeRegex.test(nextLine)) {
+          srtFormatted += nextLine + "\n\n";
+          i++; // Skip the next line (already processed)
+        }
+      }
+    }
+
+    // Step 2: Convert SRT → WebVTT
+    const vttText = "WEBVTT\n\n" + srtFormatted.replace(/,/g, "."); // VTT uses '.' instead of ',' for time
+
+    return vttText;
+  }
 
   useEffect(() => {
     if (subtitleText) {
@@ -219,8 +289,6 @@ export default function SubtitleToolUI() {
     return () => document.removeEventListener("mouseup", handleSelection);
   }, [parsedWords]);
 
-  console.log(selectedWord);
-
   // const handleWordClick = (e, word) => {
   //   const rect = e.target.getBoundingClientRect();
   //   const containerRect = containerRef.current.getBoundingClientRect();
@@ -264,174 +332,328 @@ export default function SubtitleToolUI() {
     setSynonyms([]);
     window.getSelection().removeAllRanges();
   };
+  console.log(subtitleUrl);
 
   return (
-    <div className="bg-black text-white h-screen p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex-1"></div>
-        <h1 className="text-2xl font-normal">AI Subtitler Tool</h1>
-        <div className="flex items-center gap-2 flex-1 justify-end">
-          <span className="text-lg">5</span>
-          <div className="w-6 h-6 bg-yellow-500 rounded-full"></div>
+    <div className="bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white min-h-screen">
+      {/* Enhanced Header */}
+      <div className="bg-black/50 backdrop-blur-sm border-b border-gray-800/50">
+        <div className="flex items-center justify-between p-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-r from-teal-400 to-blue-500 rounded-xl flex items-center justify-center">
+              <Bot className="text-white w-5 h-5" />
+            </div>
+            <div className="flex-1"></div>
+          </div>
+
+          <div className="text-center">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-teal-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+              AI Subtitler Tool
+            </h1>
+            <p className="text-sm text-gray-400 mt-1">
+              Generate and customize subtitles with AI
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 bg-gray-800/50 px-4 py-2 rounded-full border border-gray-700/50">
+              <span className="text-lg font-semibold">5</span>
+              <div className="w-6 h-6 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full shadow-lg"></div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="flex gap-6">
-        {/* Sidebar */}
-        <div className="w-80 space-y-4 overflow-y-auto max-h-[80vh]">
+      <div className="flex gap-8 p-6">
+        {/* Enhanced Sidebar */}
+        <div className="w-96 space-y-6 overflow-y-auto max-h-[85vh]">
           {!isLoading && !subtitleText && parsedWords.length === 0 && (
-            <>
-              <button
-                onClick={handleSubmit}
-                className="border border-gray-600 text-lg font-normal leading-tight hover:bg-[#23b5b5] rounded-lg p-6 w-full text-center"
-              >
-                AI
-                <br />
-                Subtitle
-                <br />
-                Generations
-              </button>
+            <div className="space-y-6">
+              {/* Feature Buttons Section */}
+              <div className="space-y-1">
+                <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">
+                  Features
+                </h3>
 
-              <button
-                onClick={handleSubmit}
-                className="border border-gray-600 text-lg font-normal leading-tight hover:bg-[#23b5b5] rounded-lg p-6 w-full text-center"
-              >
-                Personalised
-                <br />
-                Subtitle
-                <br />
-                Editing
-              </button>
+                <button
+                  onClick={handleSubmit}
+                  className="group relative w-full bg-gradient-to-r from-gray-800 to-gray-700 hover:from-teal-600 hover:to-teal-500 border border-gray-600 hover:border-teal-400 rounded-xl p-6 text-left transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl hover:shadow-teal-500/20"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-teal-400 to-blue-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Bot className="text-white w-6 h-6" />
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-semibold mb-1">
+                        AI Subtitle Generation
+                      </h4>
+                      <p className="text-sm text-gray-400 group-hover:text-gray-200">
+                        Automatically generate subtitles using AI
+                      </p>
+                    </div>
+                  </div>
+                </button>
 
-              <button
-                onClick={handleSubmit}
-                className="border border-gray-600 text-lg font-normal leading-tight hover:bg-[#23b5b5] rounded-lg p-6 w-full text-center"
-              >
-                Language
-                <br />
-                Based
-                <br />
-                Subtitles
-              </button>
+                <button
+                  onClick={handleSubmit}
+                  className="group relative w-full bg-gradient-to-r from-gray-800 to-gray-700 hover:from-purple-600 hover:to-purple-500 border border-gray-600 hover:border-purple-400 rounded-xl p-6 text-left transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl hover:shadow-purple-500/20"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-purple-400 to-pink-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Edit className="text-white w-6 h-6" />
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-semibold mb-1">
+                        Personalized Editing
+                      </h4>
+                      <p className="text-sm text-gray-400 group-hover:text-gray-200">
+                        Customize and edit your subtitles
+                      </p>
+                    </div>
+                  </div>
+                </button>
 
-              <button className="w-full bg-teal-600 hover:bg-teal-700 text-white py-4 px-6 rounded-lg text-lg font-normal flex items-center justify-center gap-2 transition-colors">
-                Get Subtitle's
-                <div className="flex items-center gap-1">
-                  <span>5</span>
-                  <div className="w-5 h-5 bg-yellow-500 rounded-full"></div>
+                <button
+                  onClick={handleSubmit}
+                  className="group relative w-full bg-gradient-to-r from-gray-800 to-gray-700 hover:from-blue-600 hover:to-blue-500 border border-gray-600 hover:border-blue-400 rounded-xl p-6 text-left transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/20"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-cyan-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Globe className="text-white w-6 h-6" />
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-semibold mb-1">
+                        Language Based
+                      </h4>
+                      <p className="text-sm text-gray-400 group-hover:text-gray-200">
+                        Multi-language subtitle support
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              </div>
+
+              {/* Separator */}
+              <div className="flex items-center gap-4">
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent"></div>
+                <span className="text-xs text-gray-500 font-medium">
+                  ACTION
+                </span>
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent"></div>
+              </div>
+
+              {/* Action Button Section */}
+              <button className="w-full bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-500 hover:to-teal-400 text-white py-6 px-8 rounded-xl text-lg font-semibold flex items-center justify-between gap-4 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl hover:shadow-teal-500/30 group">
+                <span className="flex-1 text-left">Get Subtitles</span>
+                <div className="flex items-center gap-3 bg-white/10 px-4 py-2 rounded-lg">
+                  <span className="text-lg font-bold">5</span>
+                  <div className="w-6 h-6 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full shadow-lg group-hover:animate-pulse"></div>
                 </div>
               </button>
-            </>
+            </div>
           )}
 
           {(isLoading || subtitleText || parsedWords.length > 0) && (
-            <>
-              <h1 className="text-3xl text-center font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#1b5d5d] to-[#23b5b5] border border-[#23b5b5] p-2 rounded-full shadow-md ">
-                Subtitle
-              </h1>
+            <div className="space-y-6">
+              {/* Processing Header */}
+              <div className="text-center px-2">
+                <div className="flex items-center gap-3 bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30 px-6 py-3 rounded-full">
+                  <div className="w-8 h-8 bg-gradient-to-r from-teal-400 to-blue-500 rounded-full flex items-center justify-center">
+                    <Bot className="text-white w-4 h-4" />
+                  </div>
+                  <h2 className="text-xl font-bold bg-gradient-to-r from-teal-400 to-blue-400 bg-clip-text text-transparent">
+                    Subtitle
+                  </h2>
+                </div>
+              </div>
+
+              {/* Separator */}
+              <div className="flex items-center gap-4">
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-teal-500/50 to-transparent"></div>
+                <div className="w-2 h-2 bg-teal-400 rounded-full"></div>
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-teal-500/50 to-transparent"></div>
+              </div>
+
               {isLoading && (
-                <div className="flex items-center justify-center">
-                  <FaSpinner className="animate-spin" />
+                <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                  <div className="relative">
+                    <Loader2 className="animate-spin text-4xl text-teal-400 w-12 h-12" />
+                    <div className="absolute inset-0 animate-ping">
+                      <Loader2 className="text-4xl text-teal-400/30 w-12 h-12" />
+                    </div>
+                  </div>
+                  <p className="text-gray-400 text-sm">
+                    Processing your video...
+                  </p>
                 </div>
               )}
+
               {subtitleText && (
-                <select
-                  name="language"
-                  className="border border-[#23b5b5] bg-black py-1 px-2 rounded-md"
-                  value={changeLanguage}
-                  onChange={handleLanguageChange}
-                >
-                  <option value="">Language</option>
-                  <option value="hindi">Hindi</option>
-                  <option value="english">English</option>
-                </select>
+                <div className="space-y-3">
+                  <label className="text-sm font-medium text-gray-300">
+                    Language Selection
+                  </label>
+                  <select
+                    name="language"
+                    className="w-full bg-gray-800 border border-gray-600 focus:border-teal-400 focus:ring-2 focus:ring-teal-400/20 rounded-lg py-3 px-4 text-white transition-all duration-200"
+                    value={changeLanguage}
+                    onChange={handleLanguageChange}
+                  >
+                    <option value="">Select Language</option>
+                    <option value="hindi">Hindi</option>
+                    <option value="english">English</option>
+                  </select>
+                </div>
               )}
 
               {parsedWords.length > 0 && (
-                <div
-                  className="relative select-text text-white [&_*::selection]:bg-[#23b5b5] [&_*::selection]:text-black"
-                  ref={containerRef}
-                >
-                  <div className="space-y-2">
-                    {parsedWords.map((w) => (
-                      <span
-                        key={w.id}
-                        className={`inline-block mr-1 px-1 rounded transition-all select-text ${
-                          activeWordIds.includes(w.id)
-                            ? "bg-yellow-300 text-black"
-                            : "text-gray-400"
-                        }`}
-                      >
-                        {w.word}
-                      </span>
-                    ))}
+                <div className="space-y-4">
+                  {/* Separator */}
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent"></div>
+                    <span className="text-xs text-gray-500 font-medium">
+                      SUBTITLE TEXT
+                    </span>
+                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent"></div>
                   </div>
 
-                  {selectedWord && (
-                    <div
-                      ref={tooltipRef}
-                      className="absolute z-50 bg-gray-800 text-[#23b5b5] px-2 py-1 rounded shadow-md border border-[#23b5b5] text-sm cursor-pointer"
-                      style={{
-                        top: tooltipPosition.top,
-                        left: tooltipPosition.left,
-                      }}
-                    >
-                      <div
-                        className="cursor-pointer"
-                        onClick={handleTooltipClick}
-                      >
-                        Generate Synonyms
-                      </div>
-                      {synonyms.length > 0 && (
-                        <div
-                          className="absolute z-50 bg-gray-800 text-[#23b5b5] px-4 py-2 rounded-xl shadow-lg border border-[#23b5b5] text-sm"
-                          style={{
-                            top: tooltipPosition.top,
-                            left: tooltipPosition.left,
-                          }}
+                  <div
+                    className="relative select-text text-white bg-gray-800/30 border border-gray-700 rounded-xl p-6 [&_*::selection]:bg-teal-400 [&_*::selection]:text-black max-h-80 overflow-y-auto"
+                    ref={containerRef}
+                  >
+                    <div className="space-y-2 leading-relaxed">
+                      {parsedWords.map((w) => (
+                        <span
+                          key={w.id}
+                          className={`inline-block mr-1 px-2 py-1 rounded-md transition-all duration-200 select-text cursor-pointer ${
+                            activeWordIds.includes(w.id)
+                              ? "bg-gradient-to-r from-yellow-400 to-orange-400 text-black font-medium shadow-lg transform scale-105"
+                              : "text-gray-300 hover:text-white hover:bg-gray-700/50"
+                          }`}
                         >
-                          <ul className="space-y-1">
-                            {synonyms.map((syn, idx) => (
-                              <li
-                                key={idx}
-                                onClick={() => handleSynonymClick(syn)}
-                                className="border-b border-gray-600 py-1 last:border-0"
-                              >
-                                {syn.trim()}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
+                          {w.word}
+                        </span>
+                      ))}
                     </div>
-                  )}
+
+                    {selectedWord && (
+                      <div
+                        ref={tooltipRef}
+                        className="absolute z-50 bg-gray-900 border border-teal-400 rounded-lg shadow-2xl overflow-hidden"
+                        style={{
+                          top: tooltipPosition.top,
+                          left: tooltipPosition.left,
+                        }}
+                      >
+                        <div
+                          className="px-4 py-3 bg-gradient-to-r from-teal-600 to-blue-600 text-white cursor-pointer hover:from-teal-500 hover:to-blue-500 transition-all duration-200 text-sm font-medium"
+                          onClick={handleTooltipClick}
+                        >
+                          Generate Synonyms
+                        </div>
+                        {synonyms.length > 0 && (
+                          <div className="max-h-48 overflow-y-auto">
+                            <ul>
+                              {synonyms.map((syn, idx) => (
+                                <li
+                                  key={idx}
+                                  onClick={() => handleSynonymClick(syn)}
+                                  className="px-4 py-2 text-sm text-gray-300 hover:bg-teal-600/20 hover:text-teal-400 cursor-pointer border-b border-gray-800 last:border-0 transition-all duration-150"
+                                >
+                                  {syn.trim()}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
-            </>
+            </div>
           )}
         </div>
 
-        {/* Video preview */}
-        {uploadedFile && (
-          <div className="flex-1 flex flex-col">
-            <video ref={videoRef} controls width="720" className="mx-auto">
-              <source
-                src={URL.createObjectURL(uploadedFile)}
-                type="video/mp4"
-              />
-              Your browser does not support the video tag.
-            </video>
+        {/* Enhanced Video Preview */}
 
-            {/* {downloadPath && (
-              <div className="text-right">
-                <a href={downloadPath} download>
-                  <button className="bg-[#23b5b5] py-3 px-6 rounded-lg">
-                    Download
-                  </button>
-                </a>
+        {uploadedFile && (
+          <div className="flex-1 flex flex-col space-y-6">
+            <div className="bg-gray-800/30 border border-gray-700 rounded-2xl p-6 backdrop-blur-sm">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-300">
+                  Video Preview
+                </h3>
+                <div className="flex items-center gap-2 text-sm text-gray-400">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <span>Ready</span>
+                </div>
               </div>
-            )} */}
+
+              <div className="relative rounded-xl overflow-hidden shadow-2xl">
+                <video
+                  ref={videoRef}
+                  controls
+                  className="w-full h-auto max-w-4xl mx-auto bg-black rounded-xl"
+                  style={{ aspectRatio: "16/9" }}
+                >
+                  <source
+                    src={URL.createObjectURL(uploadedFile)}
+                    type="video/mp4"
+                  />
+                  {subtitleUrl && (
+                    <track
+                      key={subtitleUrl}
+                      src={subtitleUrl}
+                      kind="subtitles"
+                      srcLang="en"
+                      label="English"
+                      default
+                    />
+                  )}
+                  Your browser does not support the video tag.
+                </video>
+
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none rounded-xl"></div>
+              </div>
+
+              <div className="text-right mt-4">
+                <button className="mr-2  bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30 px-6 py-3 rounded-full">
+                  <span>A </span>
+                  {/* <span>
+                    <ChevronDown />
+                  </span> */}
+                </button>
+                <button className="mr-2  bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30 px-6 py-3 rounded-full">
+                  <span>T</span>
+                  {/* <span>
+                    <ChevronDown />
+                  </span> */}
+                </button>
+                <button className="bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30 px-6 py-3 rounded-full">
+                  Remove Filler
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Placeholder for when no video is uploaded */}
+        {!uploadedFile && (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center space-y-6 max-w-md">
+              <div className="w-24 h-24 bg-gradient-to-r from-gray-700 to-gray-600 rounded-2xl flex items-center justify-center mx-auto">
+                <Play className="w-8 h-8 text-gray-400" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-gray-300 mb-2">
+                  No Video Selected
+                </h3>
+                <p className="text-gray-500">
+                  Upload a video to start generating subtitles
+                </p>
+              </div>
+            </div>
           </div>
         )}
       </div>
