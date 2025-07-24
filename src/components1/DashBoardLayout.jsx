@@ -15,7 +15,7 @@ import io from "socket.io-client";
 import HelpButton from "./HelpButton";
 import Breadcrumbs from "./Breadcrumbs";
 import { signOut } from "firebase/auth";
-import { auth } from "../firebase"; //
+import { auth } from "../firebase";
 import { clearUser } from "../utils/auth_slice/UserSlice";
 const quickToolsDropdown = [
   { name: "AI Tools", route: "/aitools" },
