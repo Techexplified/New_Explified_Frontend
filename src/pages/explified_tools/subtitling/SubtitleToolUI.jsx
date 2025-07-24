@@ -4,6 +4,9 @@ import { useState, useEffect, useRef } from "react";
 import { FaSpinner } from "react-icons/fa";
 import { Loader2, Play, Globe, Edit, Bot, User, Settings } from "lucide-react";
 import { ChevronDown } from "lucide-react";
+
+const fillerWords = ["um,", "um", "umm", "hmm", "uh", "ah", "er"];
+
 export default function SubtitleToolUI() {
   const [isLoading, setIsLoading] = useState(false);
   const [subtitleText, setSubtitleText] = useState("");
@@ -14,6 +17,8 @@ export default function SubtitleToolUI() {
   const [activeWordIds, setActiveWordIds] = useState([]);
   const [synonyms, setSynonyms] = useState([]);
   const [selectedWord, setSelectedWord] = useState(null);
+  const [dropdownA, setDropdownA] = useState(false);
+  const [selectedFont, setSelectedFont] = useState("");
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
   const containerRef = useRef(null);
 
@@ -38,11 +43,9 @@ export default function SubtitleToolUI() {
       // const finalPath = `${import.meta.env.VITE_APP_URL}uploads/${fileName}`;
 
       const backendString = response?.data?.content;
-      console.log(response?.data?.content);
 
       // Convert SRT to WebVTT
       const webVTT = convertSRTtoWebVTT(backendString);
-      console.log(webVTT);
 
       // Create a Blob URL
       const subtitleBlob = new Blob([webVTT], { type: "text/vtt" });
@@ -78,67 +81,7 @@ export default function SubtitleToolUI() {
       setIsLoading(false);
     }
   };
-  // const convertSRTtoWebVTT = (srtString) => {
-  //   const vttBody = srtString
-  //     .replace(/\d+\n/g, "") // remove line numbers
-  //     .replace(/,/g, ".") // replace comma with dot in timecodes
-  //     .replace(/\n{2,}/g, "\n\n") // ensure double newlines between cues
-  //     .trim();
 
-  //   return "WEBVTT\n\n" + vttBody;
-  // };
-  // const convertSRTtoWebVTT = (srtString) => {
-  //   const lines = srtString
-  //     .replace(/\r\n/g, "\n")
-  //     .replace(/\n{3,}/g, "\n\n") // normalize spacing
-  //     .split("\n")
-  //     .filter((line) => line.trim() !== "");
-
-  //   let vtt = "WEBVTT\n\n";
-  //   for (let i = 0; i < lines.length; i++) {
-  //     if (lines[i].includes("-->")) {
-  //       const timeLine = lines[i].replace(",", "."); // e.g. 00:00,017 -> 00:00.017
-  //       const textLine = lines[i + 1] || "";
-  //       vtt += `${timeLine}\n${textLine}\n\n`;
-  //       i++; // skip text line in next loop
-  //     }
-  //   }
-  //   return vtt;
-  // };
-
-  // Parse the backend string into [{ start, end, word }]
-  // useEffect(() => {
-  //   if (subtitleText) {
-  //     const lines = subtitleText.split("\n").filter(Boolean);
-  //     const wordsWithTime = [];
-
-  //     for (let i = 0; i < lines.length; i++) {
-  //       const line = lines[i];
-  //       const [timePart, ...words] = line.trim().split(" ");
-  //       const startTime = timeToSeconds(timePart);
-
-  //       // Estimate endTime: next word's start or +0.5s if last
-  //       let endTime;
-  //       if (i < lines.length - 1) {
-  //         const nextTimePart = lines[i + 1].split(" ")[0];
-  //         endTime = timeToSeconds(nextTimePart);
-  //       } else {
-  //         endTime = startTime + 0.5;
-  //       }
-
-  //       words.forEach((word, index) => {
-  //         wordsWithTime.push({
-  //           id: `${i}-${index}`,
-  //           word,
-  //           start: startTime,
-  //           end: endTime,
-  //         });
-  //       });
-  //     }
-
-  //     setParsedWords(wordsWithTime);
-  //   }
-  // }, [subtitleText]);
   function convertSRTtoWebVTT(rawSubtitle) {
     // Step 1: Clean and split the string
     const lines = rawSubtitle.trim().split("\n");
@@ -332,7 +275,15 @@ export default function SubtitleToolUI() {
     setSynonyms([]);
     window.getSelection().removeAllRanges();
   };
-  console.log(subtitleUrl);
+  const handleRemoveFiller = () => {
+    setParsedWords((prevWords) =>
+      prevWords.filter(
+        (wordObj) => !fillerWords.includes(wordObj.word.toLowerCase())
+      )
+    );
+  };
+
+  console.log(parsedWords);
 
   return (
     <div className="bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white min-h-screen">
@@ -617,20 +568,76 @@ export default function SubtitleToolUI() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none rounded-xl"></div>
               </div>
 
-              <div className="text-right mt-4">
-                <button className="mr-2  bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30 px-6 py-3 rounded-full">
-                  <span>A </span>
-                  {/* <span>
-                    <ChevronDown />
-                  </span> */}
-                </button>
-                <button className="mr-2  bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30 px-6 py-3 rounded-full">
-                  <span>T</span>
-                  {/* <span>
-                    <ChevronDown />
-                  </span> */}
-                </button>
-                <button className="bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30 px-6 py-3 rounded-full">
+              <div className="flex items-center justify-end gap-4 mt-4">
+                {/* A Dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() => setDropdownA(!dropdownA)}
+                    className="bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30 text-white px-6 py-3 rounded-full flex items-center gap-2 font-medium transition-colors min-w-[80px] justify-center hover:from-teal-600/30 hover:to-blue-600/30"
+                  >
+                    <span className="text-lg font-bold">A</span>
+                    <ChevronDown className="w-4 h-4" />
+                  </button>
+
+                  {dropdownA && (
+                    <div className="absolute top-full mt-2 bg-gray-800 border border-gray-600 rounded-lg shadow-xl z-10 min-w-[120px] right-0">
+                      <div className="py-1">
+                        <button className="w-full text-left px-4 py-2 text-white hover:bg-gray-700 transition-colors">
+                          Option A1
+                        </button>
+                        <button className="w-full text-left px-4 py-2 text-white hover:bg-gray-700 transition-colors">
+                          Option A2
+                        </button>
+                        <button className="w-full text-left px-4 py-2 text-white hover:bg-gray-700 transition-colors">
+                          Option A3
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* T Dropdown */}
+                <div className="relative">
+                  <select
+                    value={selectedFont}
+                    onChange={(e) => setSelectedFont(e.target.value)}
+                    className="bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30 text-white px-6 py-3 rounded-full font-medium transition-colors appearance-none cursor-pointer hover:from-teal-600/30 hover:to-blue-600/30 focus:outline-none focus:ring-2 focus:ring-teal-400/50"
+                  >
+                    <option value="" className="bg-gray-800 text-white">
+                      Select
+                    </option>
+                    <option
+                      value="arial"
+                      className="bg-gray-800 text-white font-sans"
+                    >
+                      Arial
+                    </option>
+                    <option
+                      value="times"
+                      className="bg-gray-800 text-white font-serif"
+                    >
+                      Times New Roman
+                    </option>
+                    <option
+                      value="helvetica"
+                      className="bg-gray-800 text-white font-sans"
+                    >
+                      Helvetica
+                    </option>
+                    <option
+                      value="georgia"
+                      className="bg-gray-800 text-white font-serif"
+                    >
+                      Georgia
+                    </option>
+                  </select>
+                </div>
+
+                {/* Remove Filler Button */}
+                <button
+                  onClick={handleRemoveFiller}
+                  className="bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30 px-6 py-3 rounded-full hover:from-teal-600/30 hover:to-blue-600/30 transition-colors"
+                >
                   Remove Filler
                 </button>
               </div>
