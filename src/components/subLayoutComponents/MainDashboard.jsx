@@ -1,68 +1,68 @@
 import { useState, useRef, useEffect } from "react";
-import { Youtube } from "lucide-react";
+import {
+  Youtube,
+  FileText,
+  Puzzle,
+  Projector,
+  ImagePlay,
+  Images,
+} from "lucide-react";
 import WorkflowEngine from "./WorkflowEngine";
 import InstagramAnalytics from "./InstagramAnalytics";
+import { useNavigate } from "react-router-dom";
 
-const Dashboard = () => {
+const MainDashboard = () => {
   const [isOpen, setIsOpen] = useState(false);
   const gridRef = useRef(null);
   const [maxHeight, setMaxHeight] = useState("500px");
+  const navigate = useNavigate();
+
+  const handleToolClick = (route) => {
+    navigate(route);
+  };
+
   const tools = [
     {
       title: "Youtube Summarizer",
-      description:
-        "A YouTube Summarizer quickly turns long videos into short, easy-to-read summaries. ",
+      description: "A YouTube Summarizer quickly turns long videos into short.",
       icon: Youtube,
       color: "from-cyan-400 to-yellow-500",
+      route: "/youtube-summarizer",
     },
     {
-      title: "API Gateway",
-      description:
-        "Centralized API management with rate limiting, authentication, load balancing, and documentation.",
-      icon: Youtube,
+      title: "AI Subtitler",
+      description: "Centralized AI Subtitler for your videos",
+      icon: FileText,
       color: "from-cyan-500 to-purple-500",
+      route: "/ai-subtitler",
     },
     {
-      title: "Terminal Pro",
-      description:
-        "Enhanced terminal with custom themes, session management, and integrated development tools.",
-      icon: Youtube,
+      title: "Perplexity Extension",
+      description: "Enhanced AI Search Engine.",
+      icon: Puzzle,
+      route: "/perplexity",
       color: "from-cyan-600 to-gray-500",
     },
     {
-      title: "System Monitor",
-      description:
-        "Comprehensive system monitoring with resource tracking, process management, and health diagnostics.",
-      icon: Youtube,
-      color: "from-cyan-500 to-red-500",
-    },
-    {
-      title: "Document Studio",
-      description:
-        "Advanced document editor with collaborative editing, version control, and export capabilities.",
-      icon: Youtube,
-      color: "from-cyan-400 to-orange-500",
-    },
-    {
-      title: "Terminal Pro",
-      description:
-        "Enhanced terminal with custom themes, session management, and integrated development tools.",
-      icon: Youtube,
+      title: "Slideshow Maker",
+      description: "Create stunning slideshows.",
+      icon: Projector,
+      route: "/presentation",
       color: "from-cyan-600 to-gray-500",
     },
     {
-      title: "System Monitor",
-      description:
-        "Comprehensive system monitoring with resource tracking, process management, and health diagnostics.",
-      icon: Youtube,
-      color: "from-cyan-500 to-red-500",
+      title: "Bg Remover",
+      description: "Remove background from images.",
+      icon: ImagePlay,
+      route: "/bg-remover",
+      color: "from-cyan-600 to-gray-500",
     },
     {
-      title: "Document Studio",
-      description:
-        "Advanced document editor with collaborative editing, version control, and export capabilities.",
-      icon: Youtube,
-      color: "from-cyan-400 to-orange-500",
+      title: "Image Styler",
+      description: "Style your images.",
+      icon: Images,
+      route: "/image-styler",
+      color: "from-cyan-600 to-gray-500",
     },
   ];
 
@@ -111,6 +111,7 @@ const Dashboard = () => {
                     <div
                       key={index}
                       className="group relative bg-gray-800 rounded-xl px-4 pt-4 pb-2 border border-gray-700 hover:border-cyan-500/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/20 cursor-pointer h-32 min-h-0"
+                      onClick={() => handleToolClick(tool.route)}
                     >
                       {/* Gradient background on hover */}
                       <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -180,4 +181,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default MainDashboard;

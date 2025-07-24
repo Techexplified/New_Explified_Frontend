@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
 
 import {
   Home,
@@ -10,11 +11,21 @@ import {
   Workflow,
   CircleUserRound,
   MessageSquareQuote,
+  Star,
+  ChevronDown,
+  BrainCircuit,
+  Youtube,
+  Captions,
+  Linkedin,
+  Video,
+  ImagePlay,
+  SquarePercent,
 } from "lucide-react";
 
 import logo from "../assets/logos/explified_logo.png";
+import UserModal from "./UserModal";
 
-const UpdatedDashboard = ({ children }) => {
+const UpdatedDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeNav, setActiveNav] = useState("Home");
   const [selectedTool, setSelectedTool] = useState(null);
@@ -22,6 +33,10 @@ const UpdatedDashboard = ({ children }) => {
   // Navbar show/hide on scroll
   const [showNavbar, setShowNavbar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [expandedAccordions, setExpandedAccordions] = useState({});
+
+  const navigate = useNavigate();
 
   const userCredits = {
     remaining: 245,
@@ -58,56 +73,93 @@ const UpdatedDashboard = ({ children }) => {
 
   const navItems = [
     { name: "Home", icon: Home },
-
     { name: "History", icon: History },
-
-    { name: "Integration", icon: Zap },
+    { name: "Integrations", icon: Zap },
   ];
 
   const tools = [
     {
       name: "Dashboard",
-
       icon: LayoutDashboard,
-
       description: "Shows key metrics",
     },
-
-    {
-      name: "Tools",
-
-      icon: PencilRuler,
-
-      description: "Provides helpful utilities",
-    },
-
     {
       name: "Socials",
-
       icon: BoomBox,
-
       description: "Connects your social accounts",
     },
-
     {
       name: "Workflows",
-
       icon: Workflow,
-
       description: "Automates task sequences",
-    },
-
-    {
-      name: "Chats",
-
-      icon: MessageSquareQuote,
-
-      description: "Facilitates live conversations",
     },
   ];
 
+  const accordionSections = [
+    {
+      id: "Tools",
+      title: "Tools",
+      icon: PencilRuler,
+      items: [
+        {
+          name: "AI Tools",
+          icon: BrainCircuit,
+          route: "/aitools",
+        },
+        {
+          name: "Youtube Summarizer",
+          icon: Youtube,
+          route: "/youtube-summarizer",
+        },
+        {
+          name: "AI Subtitler",
+          icon: Captions,
+          route: "/ai-subtitler",
+        },
+        {
+          name: "Linkedin Extension",
+          icon: Linkedin,
+          route: "/linkedin",
+        },
+        {
+          name: "Meme Generator",
+          icon: Video,
+          route: "/meme",
+        },
+        {
+          name: "Bg Remover",
+          icon: ImagePlay,
+          route: "/bg-remover",
+        },
+        {
+          name: "Influmark",
+          icon: SquarePercent,
+          route: "/influmark",
+        },
+      ],
+    },
+    {
+      id: "Chat",
+      title: "Chat",
+      icon: MessageSquareQuote,
+      items: [],
+    },
+  ];
+
+  const toggleAccordion = (accordionId) => {
+    if (!sidebarOpen) return;
+    setExpandedAccordions((prev) => ({
+      ...prev,
+      [accordionId]: !prev[accordionId],
+    }));
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col overflow-hidden">
+      <UserModal
+        showUserModal={showUserModal}
+        setShowUserModal={setShowUserModal}
+      />
       {/* Top Navigation Bar */}
       <header
         className={`bg-gray-800/50 h-[70px] backdrop-blur-sm border-b border-gray-700/50 px-8 py-4 transition-transform duration-300 z-50 ${
@@ -128,7 +180,16 @@ const UpdatedDashboard = ({ children }) => {
               return (
                 <button
                   key={item.name}
-                  onClick={() => setActiveNav(item.name)}
+                  onClick={() => {
+                    setActiveNav(item.name);
+                    {
+                      if (
+                        item.name === "Home"
+                          ? navigate("/")
+                          : navigate(`/${item.name.toLowerCase()}`)
+                      );
+                    }
+                  }}
                   className={`flex items-center px-4 py-2 rounded-lg transition-all duration-200 ${
                     activeNav === item.name
                       ? "bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-400 border border-cyan-500/30"
@@ -141,8 +202,11 @@ const UpdatedDashboard = ({ children }) => {
               );
             })}
           </div>
-          {/* Removed menu button for sidebar toggle */}
-          <div className="hover:scale-105 transition-all duration-200 cursor-pointer text-cyan-500">
+          {/* user profile */}
+          <div
+            onClick={() => setShowUserModal(true)}
+            className="hover:scale-105 transition-all duration-200 cursor-pointer text-cyan-500"
+          >
             <CircleUserRound />
           </div>
         </div>
@@ -163,16 +227,21 @@ const UpdatedDashboard = ({ children }) => {
             {/* Tools */}
             <div className="flex-1">
               <div className="space-y-2">
-                {tools.map((tool) => {
+                {tools.map((tool, idx) => {
                   const Icon = tool.icon;
                   return (
                     <button
                       key={tool.name}
-                      onClick={() =>
+                      onClick={() => {
                         setSelectedTool(
                           selectedTool === tool.name ? null : tool.name
-                        )
-                      }
+                        );
+                        if (idx === 0) {
+                          navigate("/");
+                        } else {
+                          navigate(`/${tool.name.toLowerCase()}`);
+                        }
+                      }}
                       className={`w-full flex items-center ${
                         sidebarOpen
                           ? "justify-start px-4"
@@ -197,9 +266,107 @@ const UpdatedDashboard = ({ children }) => {
                   );
                 })}
               </div>
+              {/* Accordions */}
+              <div className="mb-5">
+                {accordionSections.map((section) => {
+                  const SectionIcon = section.icon;
+                  const isExpanded = expandedAccordions[section.id];
+
+                  return (
+                    <div key={section.id}>
+                      {/* Accordion Header */}
+                      <button
+                        onClick={() => toggleAccordion(section.id)}
+                        className={`w-full flex items-center ${
+                          sidebarOpen
+                            ? "justify-between px-4"
+                            : "justify-center px-2"
+                        } py-3 rounded-xl transition-all duration-200 text-gray-400 hover:text-cyan-400 hover:bg-gray-700/30`}
+                        title={!sidebarOpen ? section.title : undefined}
+                      >
+                        <div className="flex items-center">
+                          <SectionIcon className="w-5 h-5" />
+                          {sidebarOpen && (
+                            <span className="ml-3 font-medium text-sm">
+                              {section.title}
+                            </span>
+                          )}
+                        </div>
+                        {sidebarOpen && (
+                          <ChevronDown
+                            className={`w-4 h-4 transition-transform duration-200 ${
+                              isExpanded ? "rotate-180" : ""
+                            }`}
+                          />
+                        )}
+                      </button>
+
+                      {/* Accordion Content */}
+                      {sidebarOpen && (
+                        <div
+                          className={`overflow-hidden transition-all duration-200 ${
+                            isExpanded
+                              ? "max-h-96 opacity-100"
+                              : "max-h-0 opacity-0"
+                          }`}
+                        >
+                          <div className="ml-6 mt-2 space-y-1">
+                            {section.items.map((item) => {
+                              const ItemIcon = item.icon;
+                              return (
+                                <button
+                                  onClick={() => navigate(item.route)}
+                                  key={item.name}
+                                  className="w-full flex items-center justify-start px-3 py-2 rounded-lg transition-all duration-200 text-gray-400 hover:text-cyan-400 hover:bg-gray-700/30"
+                                >
+                                  <ItemIcon className="w-4 h-4" />
+                                  <div className="ml-3 text-left">
+                                    <div className="font-medium text-xs">
+                                      {item.name}
+                                    </div>
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
+
             {/* Footer */}
             <div className="mt-auto pt-4 border-t border-gray-700/50">
+              <div className="mb-3">
+                <button
+                  onClick={() => {
+                    setSelectedTool(
+                      selectedTool === "Favorites" ? null : "Favorites"
+                    );
+                    navigate("/favorites");
+                  }}
+                  className={`w-full flex items-center ${
+                    sidebarOpen ? "justify-start px-4" : "justify-center px-2"
+                  } py-3 rounded-xl transition-all duration-200 ${
+                    selectedTool === "Favorites"
+                      ? "bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-400 border border-cyan-500/30"
+                      : "text-gray-400 hover:text-cyan-400 hover:bg-gray-700/30 border-none"
+                  }`}
+                  title={!sidebarOpen ? "Favorites" : undefined}
+                >
+                  <Star className="w-5 h-5" />
+                  {sidebarOpen && showContent && (
+                    <div className="ml-3 text-left opacity-0 animate-fade-in">
+                      <div className="font-medium text-sm">Favorites</div>
+                      <div className="text-xs opacity-60">
+                        Your favorite tools
+                      </div>
+                    </div>
+                  )}
+                </button>
+              </div>
               {/* Credits Section */}
               <div className={`${sidebarOpen ? "block" : "hidden"}`}>
                 <div className="bg-gray-700/30 rounded-lg p-3 border border-gray-600/30">
@@ -242,7 +409,7 @@ const UpdatedDashboard = ({ children }) => {
               <div
                 className={`${
                   sidebarOpen && showContent ? "block" : "hidden"
-                } text-center opacity-0 animate-fade-in`}
+                } text-center opacity-0 animate-fade-in mt-2`}
               >
                 <div className="text-gray-400 text-xs">Explified.com</div>
               </div>
@@ -251,7 +418,7 @@ const UpdatedDashboard = ({ children }) => {
         </div>
         {/* Main Content Area */}
         <div className={`ml-20 w-full`} style={{ marginTop: "70px" }}>
-          {children}
+          <Outlet />
         </div>
       </div>
     </div>
