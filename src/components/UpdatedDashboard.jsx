@@ -20,6 +20,7 @@ import {
   Video,
   ImagePlay,
   SquarePercent,
+  BotMessageSquare,
 } from "lucide-react";
 
 import logo from "../assets/logos/explified_logo.png";
@@ -75,6 +76,7 @@ const UpdatedDashboard = () => {
     { name: "Home", icon: Home },
     { name: "History", icon: History },
     { name: "Integrations", icon: Zap },
+    { name: "Lurph", icon: BotMessageSquare },
   ];
 
   const tools = [

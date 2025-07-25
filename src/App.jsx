@@ -206,7 +206,7 @@ function App() {
             <Route path="/workflows/new" element={<CreateNewPage />}></Route>
             <Route path="/socials/:id" element={<DetailedCard />}></Route>
             <Route path="/aitools" element={<AITools />}></Route>
-            <Route path="/tron" element={<Trone />} />
+            <Route path="/lurph" element={<Trone />} />
             <Route path="/Meme" element={<Meme />} />
 
             <Route
