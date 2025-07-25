@@ -1,9 +1,13 @@
 import { useSelector } from "react-redux";
 import axiosInstance from "../../../network/axiosInstance";
 import { useState, useEffect, useRef } from "react";
-import { FaSpinner } from "react-icons/fa";
-import { Loader2, Play, Globe, Edit, Bot, User, Settings } from "lucide-react";
+import { Globe, Edit, Bot } from "lucide-react";
 import { ChevronDown } from "lucide-react";
+import NoVideo from "./components/NoVideo";
+import SubtitleLoader from "./components/SubtitleLoader";
+import Separator from "./components/Separator";
+import SubtitlerHeader from "./components/SubtitlerHeader";
+import ProcessingHeader from "./components/ProcessingHeader";
 
 const fillerWords = ["um,", "um", "umm", "hmm", "uh", "ah", "er"];
 
@@ -17,103 +21,16 @@ export default function SubtitleToolUI() {
   const [activeWordIds, setActiveWordIds] = useState([]);
   const [synonyms, setSynonyms] = useState([]);
   const [selectedWord, setSelectedWord] = useState(null);
-  const [dropdownA, setDropdownA] = useState(false);
-  const [selectedFont, setSelectedFont] = useState("");
+  // const [dropdownA, setDropdownA] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
-  const containerRef = useRef(null);
+  const [selectedFont, setSelectedFont] = useState("");
+  const [selectedFontSize, setSelectedFontSize] = useState("");
 
-  const uploadedFile = useSelector((state) => state.video);
+  const containerRef = useRef(null);
   const videoRef = useRef(null);
   const tooltipRef = useRef(null);
 
-  const handleSubmit = async () => {
-    if (!uploadedFile) {
-      console.error("No file uploaded");
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const formData = new FormData();
-      formData.append("video", uploadedFile);
-
-      const response = await axiosInstance.post("api/aiSubtitler", formData);
-
-      // const filePath = response?.data?.videoFile;
-      // const fileName = filePath.split("\\").pop();
-      // const finalPath = `${import.meta.env.VITE_APP_URL}uploads/${fileName}`;
-
-      const backendString = response?.data?.content;
-
-      // Convert SRT to WebVTT
-      const webVTT = convertSRTtoWebVTT(backendString);
-
-      // Create a Blob URL
-      const subtitleBlob = new Blob([webVTT], { type: "text/vtt" });
-      const subtitleUrl = URL.createObjectURL(subtitleBlob);
-
-      // setDownloadPath(finalPath);
-      setSubtitleUrl(subtitleUrl);
-      setSubtitleText(backendString);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleLanguageChange = async (e) => {
-    const ln = e.target.value;
-    setChangeLanguage(ln);
-    setIsLoading(true);
-    try {
-      const formData = { language: ln, text: subtitleText };
-      const response = await axiosInstance.post(
-        "api/aiSubtitler/language",
-        formData
-      );
-
-      const backendString = response?.data?.content;
-
-      setSubtitleText(backendString);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  function convertSRTtoWebVTT(rawSubtitle) {
-    // Step 1: Clean and split the string
-    const lines = rawSubtitle.trim().split("\n");
-
-    let srtFormatted = "";
-    let index = 1;
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim();
-
-      // Match timing line
-      const timeRegex = /^\d{2}:\d{2},\d{3} --> \d{2}:\d{2},\d{3}$/;
-
-      if (timeRegex.test(line)) {
-        // Add sequence number
-        srtFormatted += `${index++}\n`;
-        // Add time
-        srtFormatted += line + "\n";
-        // Add next line as subtitle text (skip blank or invalid ones)
-        const nextLine = lines[i + 1]?.trim();
-        if (nextLine && !timeRegex.test(nextLine)) {
-          srtFormatted += nextLine + "\n\n";
-          i++; // Skip the next line (already processed)
-        }
-      }
-    }
-
-    // Step 2: Convert SRT → WebVTT
-    const vttText = "WEBVTT\n\n" + srtFormatted.replace(/,/g, "."); // VTT uses '.' instead of ',' for time
-
-    return vttText;
-  }
+  const uploadedFile = useSelector((state) => state.video);
 
   useEffect(() => {
     if (subtitleText) {
@@ -129,7 +46,6 @@ export default function SubtitleToolUI() {
         // Match the time range line (e.g., "00:00,001 --> 00:00,008")
         if (timeLine.includes("-->")) {
           const [startStr, endStr] = timeLine.split("-->").map((s) => s.trim());
-          console.log(startStr, endStr);
 
           const start = timeToSeconds(startStr);
           const end = timeToSeconds(endStr);
@@ -150,34 +66,6 @@ export default function SubtitleToolUI() {
       setParsedWords(wordsWithTime);
     }
   }, [subtitleText]);
-
-  const timeToSeconds = (timeStr) => {
-    if (!timeStr || typeof timeStr !== "string") return NaN;
-
-    const [hms, ms] = timeStr.trim().split(",");
-    if (!hms || !ms) return NaN;
-
-    const parts = hms.split(":").map(Number);
-
-    // Handle formats like mm:ss, ss, or hh:mm:ss
-    let h = 0,
-      m = 0,
-      s = 0;
-
-    if (parts.length === 3) {
-      [h, m, s] = parts;
-    } else if (parts.length === 2) {
-      [m, s] = parts;
-    } else if (parts.length === 1) {
-      [s] = parts;
-    }
-
-    const milliseconds = parseInt(ms, 10);
-
-    if ([h, m, s, milliseconds].some(isNaN)) return NaN;
-
-    return h * 3600 + m * 60 + s + milliseconds / 1000;
-  };
 
   useEffect(() => {
     const video = videoRef.current;
@@ -232,16 +120,121 @@ export default function SubtitleToolUI() {
     return () => document.removeEventListener("mouseup", handleSelection);
   }, [parsedWords]);
 
-  // const handleWordClick = (e, word) => {
-  //   const rect = e.target.getBoundingClientRect();
-  //   const containerRect = containerRef.current.getBoundingClientRect();
+  useEffect(() => {
+    const cueStyleId = "subtitle-cue-style";
+    let styleTag = document.getElementById(cueStyleId);
 
-  //   setSelectedWord(word);
-  //   setTooltipPosition({
-  //     top: rect.top - containerRect.top - 30,
-  //     left: rect.left - containerRect.left,
-  //   });
-  // };
+    if (!styleTag) {
+      styleTag = document.createElement("style");
+      styleTag.id = cueStyleId;
+      document.head.appendChild(styleTag);
+    }
+
+    const fontFamilyMap = {
+      arial: "Arial, sans-serif",
+      times: "'Times New Roman', serif",
+      helvetica: "Helvetica, sans-serif",
+      georgia: "Georgia, serif",
+    };
+
+    const font = fontFamilyMap[selectedFont] || "inherit";
+    const fontSize = selectedFontSize || "18px";
+
+    styleTag.innerHTML = `
+    ::cue {
+      font-family: ${font};
+      font-size: ${fontSize};
+      color: white;
+    }
+  `;
+  }, [selectedFont, selectedFontSize]);
+
+  const handleSubmit = async () => {
+    if (!uploadedFile) {
+      console.error("No file uploaded");
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("video", uploadedFile);
+
+      const response = await axiosInstance.post("api/aiSubtitler", formData);
+
+      // const filePath = response?.data?.videoFile;
+      // const fileName = filePath.split("\\").pop();
+      // const finalPath = `${import.meta.env.VITE_APP_URL}uploads/${fileName}`;
+
+      const backendString = response?.data?.content;
+
+      // Convert SRT to WebVTT
+      const webVTT = convertSRTtoWebVTT(backendString);
+
+      // Create a Blob URL
+      const subtitleBlob = new Blob([webVTT], { type: "text/vtt" });
+      const subtitleUrl = URL.createObjectURL(subtitleBlob);
+
+      // setDownloadPath(finalPath);
+      setSubtitleUrl(subtitleUrl);
+      setSubtitleText(backendString);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const handleLanguageChange = async (e) => {
+    const ln = e.target.value;
+    setChangeLanguage(ln);
+    setIsLoading(true);
+    try {
+      const formData = { language: ln, text: subtitleText };
+      const response = await axiosInstance.post(
+        "api/aiSubtitler/language",
+        formData
+      );
+
+      const backendString = response?.data?.content;
+
+      setSubtitleText(backendString);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  function convertSRTtoWebVTT(rawSubtitle) {
+    // Step 1: Clean and split the string
+    const lines = rawSubtitle.trim().split("\n");
+
+    let srtFormatted = "";
+    let index = 1;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+
+      // Match timing line
+      const timeRegex = /^\d{2}:\d{2},\d{3} --> \d{2}:\d{2},\d{3}$/;
+
+      if (timeRegex.test(line)) {
+        // Add sequence number
+        srtFormatted += `${index++}\n`;
+        // Add time
+        srtFormatted += line + "\n";
+        // Add next line as subtitle text (skip blank or invalid ones)
+        const nextLine = lines[i + 1]?.trim();
+        if (nextLine && !timeRegex.test(nextLine)) {
+          srtFormatted += nextLine + "\n\n";
+          i++; // Skip the next line (already processed)
+        }
+      }
+    }
+
+    // Step 2: Convert SRT → WebVTT
+    const vttText = "WEBVTT\n\n" + srtFormatted.replace(/,/g, "."); // VTT uses '.' instead of ',' for time
+
+    return vttText;
+  }
   const handleTooltipClick = async () => {
     console.log("a");
 
@@ -262,7 +255,32 @@ export default function SubtitleToolUI() {
       setIsLoading(false);
     }
   };
+  const timeToSeconds = (timeStr) => {
+    if (!timeStr || typeof timeStr !== "string") return NaN;
 
+    const [hms, ms] = timeStr.trim().split(",");
+    if (!hms || !ms) return NaN;
+
+    const parts = hms.split(":").map(Number);
+
+    let h = 0,
+      m = 0,
+      s = 0;
+
+    if (parts.length === 3) {
+      [h, m, s] = parts;
+    } else if (parts.length === 2) {
+      [m, s] = parts;
+    } else if (parts.length === 1) {
+      [s] = parts;
+    }
+
+    const milliseconds = parseInt(ms, 10);
+
+    if ([h, m, s, milliseconds].some(isNaN)) return NaN;
+
+    return h * 3600 + m * 60 + s + milliseconds / 1000;
+  };
   const handleSynonymClick = (newWord) => {
     if (!selectedWord) return;
 
@@ -283,37 +301,9 @@ export default function SubtitleToolUI() {
     );
   };
 
-  console.log(parsedWords);
-
   return (
     <div className="bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white min-h-screen">
-      {/* Enhanced Header */}
-      <div className="bg-black/50 backdrop-blur-sm border-b border-gray-800/50">
-        <div className="flex items-center justify-between p-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-teal-400 to-blue-500 rounded-xl flex items-center justify-center">
-              <Bot className="text-white w-5 h-5" />
-            </div>
-            <div className="flex-1"></div>
-          </div>
-
-          <div className="text-center">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-teal-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-              AI Subtitler Tool
-            </h1>
-            <p className="text-sm text-gray-400 mt-1">
-              Generate and customize subtitles with AI
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-gray-800/50 px-4 py-2 rounded-full border border-gray-700/50">
-              <span className="text-lg font-semibold">5</span>
-              <div className="w-6 h-6 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full shadow-lg"></div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <SubtitlerHeader />
 
       <div className="flex gap-8 p-6">
         {/* Enhanced Sidebar */}
@@ -406,38 +396,11 @@ export default function SubtitleToolUI() {
 
           {(isLoading || subtitleText || parsedWords.length > 0) && (
             <div className="space-y-6">
-              {/* Processing Header */}
-              <div className="text-center px-2">
-                <div className="flex items-center gap-3 bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30 px-6 py-3 rounded-full">
-                  <div className="w-8 h-8 bg-gradient-to-r from-teal-400 to-blue-500 rounded-full flex items-center justify-center">
-                    <Bot className="text-white w-4 h-4" />
-                  </div>
-                  <h2 className="text-xl font-bold bg-gradient-to-r from-teal-400 to-blue-400 bg-clip-text text-transparent">
-                    Subtitle
-                  </h2>
-                </div>
-              </div>
+              <ProcessingHeader />
 
-              {/* Separator */}
-              <div className="flex items-center gap-4">
-                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-teal-500/50 to-transparent"></div>
-                <div className="w-2 h-2 bg-teal-400 rounded-full"></div>
-                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-teal-500/50 to-transparent"></div>
-              </div>
+              <Separator />
 
-              {isLoading && (
-                <div className="flex flex-col items-center justify-center py-12 space-y-4">
-                  <div className="relative">
-                    <Loader2 className="animate-spin text-4xl text-teal-400 w-12 h-12" />
-                    <div className="absolute inset-0 animate-ping">
-                      <Loader2 className="text-4xl text-teal-400/30 w-12 h-12" />
-                    </div>
-                  </div>
-                  <p className="text-gray-400 text-sm">
-                    Processing your video...
-                  </p>
-                </div>
-              )}
+              {isLoading && <SubtitleLoader />}
 
               {subtitleText && (
                 <div className="space-y-3">
@@ -571,29 +534,17 @@ export default function SubtitleToolUI() {
               <div className="flex items-center justify-end gap-4 mt-4">
                 {/* A Dropdown */}
                 <div className="relative">
-                  <button
-                    onClick={() => setDropdownA(!dropdownA)}
-                    className="bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30 text-white px-6 py-3 rounded-full flex items-center gap-2 font-medium transition-colors min-w-[80px] justify-center hover:from-teal-600/30 hover:to-blue-600/30"
+                  <select
+                    value={selectedFontSize}
+                    onChange={(e) => setSelectedFontSize(e.target.value)}
+                    className="bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30 text-white px-6 py-3 rounded-full font-medium transition-colors appearance-none cursor-pointer hover:from-teal-600/30 hover:to-blue-600/30 focus:outline-none focus:ring-2 focus:ring-teal-400/50 mt-4"
                   >
-                    <span className="text-lg font-bold">A</span>
-                    <ChevronDown className="w-4 h-4" />
-                  </button>
-
-                  {dropdownA && (
-                    <div className="absolute top-full mt-2 bg-gray-800 border border-gray-600 rounded-lg shadow-xl z-10 min-w-[120px] right-0">
-                      <div className="py-1">
-                        <button className="w-full text-left px-4 py-2 text-white hover:bg-gray-700 transition-colors">
-                          Option A1
-                        </button>
-                        <button className="w-full text-left px-4 py-2 text-white hover:bg-gray-700 transition-colors">
-                          Option A2
-                        </button>
-                        <button className="w-full text-left px-4 py-2 text-white hover:bg-gray-700 transition-colors">
-                          Option A3
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                    <option value="">Font Size</option>
+                    <option value="14px">14px</option>
+                    <option value="18px">18px </option>
+                    <option value="24px"> 24px</option>
+                    <option value="32px"> 32px </option>
+                  </select>
                 </div>
 
                 {/* T Dropdown */}
@@ -603,33 +554,11 @@ export default function SubtitleToolUI() {
                     onChange={(e) => setSelectedFont(e.target.value)}
                     className="bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30 text-white px-6 py-3 rounded-full font-medium transition-colors appearance-none cursor-pointer hover:from-teal-600/30 hover:to-blue-600/30 focus:outline-none focus:ring-2 focus:ring-teal-400/50"
                   >
-                    <option value="" className="bg-gray-800 text-white">
-                      Select
-                    </option>
-                    <option
-                      value="arial"
-                      className="bg-gray-800 text-white font-sans"
-                    >
-                      Arial
-                    </option>
-                    <option
-                      value="times"
-                      className="bg-gray-800 text-white font-serif"
-                    >
-                      Times New Roman
-                    </option>
-                    <option
-                      value="helvetica"
-                      className="bg-gray-800 text-white font-sans"
-                    >
-                      Helvetica
-                    </option>
-                    <option
-                      value="georgia"
-                      className="bg-gray-800 text-white font-serif"
-                    >
-                      Georgia
-                    </option>
+                    <option value="">Select</option>
+                    <option value="arial">Arial</option>
+                    <option value="times">Times New Roman</option>
+                    <option value="helvetica">Helvetica</option>
+                    <option value="georgia">Georgia</option>
                   </select>
                 </div>
 
@@ -645,24 +574,7 @@ export default function SubtitleToolUI() {
           </div>
         )}
 
-        {/* Placeholder for when no video is uploaded */}
-        {!uploadedFile && (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center space-y-6 max-w-md">
-              <div className="w-24 h-24 bg-gradient-to-r from-gray-700 to-gray-600 rounded-2xl flex items-center justify-center mx-auto">
-                <Play className="w-8 h-8 text-gray-400" />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-gray-300 mb-2">
-                  No Video Selected
-                </h3>
-                <p className="text-gray-500">
-                  Upload a video to start generating subtitles
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+        {!uploadedFile && <NoVideo />}
       </div>
     </div>
   );

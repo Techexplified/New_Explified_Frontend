@@ -3,20 +3,6 @@ import { BsSoundwave } from "react-icons/bs";
 
 function Trone() {
   return (
-    // <div className="flex flex-col relative">
-    //   <div className="fixed bottom-0 left-64  right-0 bg-black z-10">
-    //     <div className="max-w-4xl mx-auto w-full p-4 flex gap-4 items-center">
-    //       <input
-    //         type="text"
-    //         // value={videoUrl}
-    //         // onChange={handleUrl}
-    //         placeholder="Enter YouTube URL"
-    //         className="flex-1 p-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#23b5b5]"
-    //       />
-    //     </div>
-    //   </div>
-    // </div>
-
     <div className=" bg-black text-white flex flex-col items-center justify-center px-4">
       <h1 className="text-3xl md:text-4xl font-semibold mb-6 text-center">
         Ready when you are.
