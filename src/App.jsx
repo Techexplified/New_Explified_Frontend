@@ -98,6 +98,7 @@ import Influmark from "./components1/Influmark";
 import Trone from "./components1/Trone";
 import ComingSoon from "./reusable_components/ComingSoon";
 import MainDashboard from "./components/subLayoutComponents/MainDashboard";
+import TextToVideoGenerator from "./components/tools/TextToVideoGenerator";
 function App() {
   return (
     <div>
@@ -196,10 +197,8 @@ function App() {
           <Route path="/" element={<UpdatedDashboard />}>
             <Route index element={<MainDashboard />}></Route>
             <Route path="/socials" element={<SocialsPage />}></Route>
-            <Route path="/history" element={<History />}>
-              {" "}
-            </Route>
-
+            <Route path="/history" element={<History />}></Route>
+            <Route path="/text-to-video" element={<TextToVideoGenerator />} />
             <Route path="/history" element={<History />}></Route>
             <Route path="/favorites" element={<Favourites />}></Route>
             <Route path="/workflows" element={<WorkflowDashboard />} />

@@ -2,10 +2,10 @@ import { useState, useRef, useEffect } from "react";
 import {
   Youtube,
   FileText,
-  Puzzle,
   Projector,
   ImagePlay,
   Images,
+  FileVideo2,
 } from "lucide-react";
 import WorkflowEngine from "./WorkflowEngine";
 import InstagramAnalytics from "./InstagramAnalytics";
@@ -37,10 +37,10 @@ const MainDashboard = () => {
       route: "/ai-subtitler",
     },
     {
-      title: "Perplexity Extension",
-      description: "Enhanced AI Search Engine.",
-      icon: Puzzle,
-      route: "/perplexity",
+      title: "Text To Video Generator",
+      description: "Generate videos using prompts.",
+      icon: FileVideo2,
+      route: "/text-to-video",
       color: "from-cyan-600 to-gray-500",
     },
     {
