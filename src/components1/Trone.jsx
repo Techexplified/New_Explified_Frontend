@@ -3,7 +3,7 @@ import { BsSoundwave } from "react-icons/bs";
 
 function Trone() {
   return (
-    <div className=" bg-black text-white flex flex-col items-center justify-center px-4">
+    <div className=" bg-black h-full text-white flex flex-col items-center justify-center px-4">
       <h1 className="text-3xl md:text-4xl font-semibold mb-6 text-center">
         Ready when you are.
       </h1>
