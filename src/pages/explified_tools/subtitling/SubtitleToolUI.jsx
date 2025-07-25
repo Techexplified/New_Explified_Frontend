@@ -25,6 +25,8 @@ export default function SubtitleToolUI() {
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
   const [selectedFont, setSelectedFont] = useState("");
   const [selectedFontSize, setSelectedFontSize] = useState("");
+  const [selectedFontColor, setSelectedFontColor] = useState("");
+  const [isAutoTheme, setIsAutoTheme] = useState(false);
 
   const containerRef = useRef(null);
   const videoRef = useRef(null);
@@ -139,15 +141,18 @@ export default function SubtitleToolUI() {
 
     const font = fontFamilyMap[selectedFont] || "inherit";
     const fontSize = selectedFontSize || "18px";
+    const color = isAutoTheme ? "black" : selectedFontColor || "white";
+    const background = isAutoTheme ? "white" : "black";
 
     styleTag.innerHTML = `
     ::cue {
       font-family: ${font};
       font-size: ${fontSize};
-      color: white;
+      color: ${color};
+      background-color: ${background};
     }
   `;
-  }, [selectedFont, selectedFontSize]);
+  }, [selectedFont, selectedFontSize, selectedFontColor, isAutoTheme]);
 
   const handleSubmit = async () => {
     if (!uploadedFile) {
@@ -499,8 +504,12 @@ export default function SubtitleToolUI() {
                   Video Preview
                 </h3>
                 <div className="flex items-center gap-2 text-sm text-gray-400">
-                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                  <span>Ready</span>
+                  <button
+                    onClick={() => setIsAutoTheme((prev) => !prev)}
+                    className="bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30 px-6 py-3 rounded-full hover:from-teal-600/30 hover:to-blue-600/30 transition-colors"
+                  >
+                    Auto
+                  </button>
                 </div>
               </div>
 
@@ -532,14 +541,26 @@ export default function SubtitleToolUI() {
               </div>
 
               <div className="flex items-center justify-end gap-4 mt-4">
+                <select
+                  value={selectedFontColor}
+                  onChange={(e) => setSelectedFontColor(e.target.value)}
+                  className="bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30 text-white px-6 py-3 rounded-full font-medium transition-colors appearance-none cursor-pointer hover:from-teal-600/30 hover:to-blue-600/30 focus:outline-none focus:ring-2 focus:ring-teal-400/50"
+                >
+                  <option value="">Color</option>
+                  <option value="#ffffff">White</option>
+                  <option value="#00ffff">Cyan</option>
+                  <option value="#ff69b4">Pink</option>
+                  <option value="#ffcc00">Yellow</option>
+                </select>
+
                 {/* A Dropdown */}
                 <div className="relative">
                   <select
                     value={selectedFontSize}
                     onChange={(e) => setSelectedFontSize(e.target.value)}
-                    className="bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30 text-white px-6 py-3 rounded-full font-medium transition-colors appearance-none cursor-pointer hover:from-teal-600/30 hover:to-blue-600/30 focus:outline-none focus:ring-2 focus:ring-teal-400/50 mt-4"
+                    className="bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30 text-white px-6 py-3 rounded-full font-medium transition-colors appearance-none cursor-pointer hover:from-teal-600/30 hover:to-blue-600/30 focus:outline-none focus:ring-2 focus:ring-teal-400/50"
                   >
-                    <option value="">Font Size</option>
+                    <option value="">Size</option>
                     <option value="14px">14px</option>
                     <option value="18px">18px </option>
                     <option value="24px"> 24px</option>
@@ -554,7 +575,7 @@ export default function SubtitleToolUI() {
                     onChange={(e) => setSelectedFont(e.target.value)}
                     className="bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30 text-white px-6 py-3 rounded-full font-medium transition-colors appearance-none cursor-pointer hover:from-teal-600/30 hover:to-blue-600/30 focus:outline-none focus:ring-2 focus:ring-teal-400/50"
                   >
-                    <option value="">Select</option>
+                    <option value="">Font</option>
                     <option value="arial">Arial</option>
                     <option value="times">Times New Roman</option>
                     <option value="helvetica">Helvetica</option>
