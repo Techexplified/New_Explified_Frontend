@@ -207,6 +207,7 @@ function App() {
             <Route path="/aitools" element={<AITools />}></Route>
             <Route path="/lurph" element={<Trone />} />
             <Route path="/Meme" element={<Meme />} />
+            <Route path="/gif-generator" element={<GIFGenerator />} />
 
             <Route
               path="/socials/:id/posts/recents"
