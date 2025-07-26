@@ -95,6 +95,11 @@ import ZapResult from "./components1/ZapResult";
 import ZapEnhanced from "./components1/ZapEnhanced";
 import Influmark from "./components1/Influmark";
 
+import TextToVideo1 from "./components1/TextToVideo";
+import VideoDescription from "./components1/VideoDescription";
+import WhatsAppChatbot from "./components1/WhatsAppChatbot";
+import YouTubeUpload from "./components1/YoutubeUpload";
+
 import Trone from "./components1/Trone";
 import ComingSoon from "./reusable_components/ComingSoon";
 import MainDashboard from "./components/subLayoutComponents/MainDashboard";
@@ -238,13 +243,23 @@ function App() {
             <Route path="/bg-remover" element={<BGLayout />} />
 
             <Route path="/result" element={<Result />} />
-            <Route path="/zapier" element={<Zapier />} />
+            <Route path="/zeno" element={<Zapier />} />
             <Route path="/result2" element={<ZapResult />} />
             <Route path="/influmark/:name" element={<InfluencerProfile />} />
             <Route path="/Meme" element={<Meme />} />
             <Route path="/influmark" element={<Influmark />} />
             <Route path="/integrations" element={<Integrations />} />
             <Route path="/enhanced" element={<ZapEnhanced />} />
+
+            <Route path="/yt-automation" element={<TextToVideo1 />} />
+            <Route
+              path="/yt-automation/description"
+              element={<VideoDescription />}
+            />
+
+            <Route path="/ai/whatsapp" element={<WhatsAppChatbot />} />
+            <Route path="/ai/youtube-upload" element={<YouTubeUpload />} />
+
             <Route path="/socials/newPost" element={<NewPost />} />
             <Route path="/youtube-summarizer" element={<YoutubeSummarizer />} />
             <Route path="/ai-subtitler" element={<AISubtitler />} />
