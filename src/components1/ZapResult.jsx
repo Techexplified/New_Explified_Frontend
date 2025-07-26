@@ -1,16 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import {
+  Play,
+  Rewind,
+  FastForward,
+  Download,
+  Settings,
+  RotateCcw,
+  Pencil,
+  Captions,
+} from 'lucide-react';
 
-const GEMINI_API_KEY = 'AIzaSyA3iqoMW6g81LMjWdyS24WHM32M0ie7AEs';
+const GEMINI_API_KEY = 'AIzaSyCjxEkSZKRdCohde0z5FKaZAO624gF3wms';
 const PEXELS_API_KEY = 'RsRRug5EPDttr3Pb7rh56YkcYoyJcDQZgqYJ0eEGbZR4VzOwNuTVuGLu';
 
-const ZapResult = () => {
+const ZapResultStyled = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const query = new URLSearchParams(location.search).get('query');
   const [videoUrl, setVideoUrl] = useState(null);
   const [loading, setLoading] = useState(true);
-
   const [suggestion, setSuggestion] = useState('');
   const [responseData, setResponseData] = useState(null);
   const [finalFeedback, setFinalFeedback] = useState('');
@@ -34,33 +43,6 @@ const ZapResult = () => {
       .finally(() => setLoading(false));
   }, [query]);
 
-  const handleSuggestionSubmit = async () => {
-    if (!suggestion.trim()) return;
-
-    const payload = {
-      contents: [{
-        parts: [
-          {
-            text: `Given a video about "${query}", and the user suggests "${suggestion}", generate:\n\n1. A compelling description for this video\n2. Relevant hashtags (comma-separated)\n3. 3 related helpful links\n\nFormat output as:\n\n**Description:**\n...\n\n**Hashtags:**\n...\n\n**Related Links:**\n- Link 1\n- Link 2\n- Link 3`
-          }
-        ]
-      }]
-    };
-
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-pro:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      }
-    );
-
-    const data = await res.json();
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'No AI response';
-    setResponseData(text);
-  };
-
   const handleFinalSubmit = () => {
     setSubmitting(true);
     setTimeout(() => {
@@ -70,80 +52,87 @@ const ZapResult = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-start min-h-screen bg-gray-900 text-white p-6">
-      <h2 className="text-3xl font-bold mb-4">🎬 Your AI-Generated Video</h2>
+    <div className=" bg-black text-white flex flex-col items-center justify-center p-4">
+      {/* Title and Download Icon */}
+      <div className="w-full max-w-3xl flex justify-between items-center mb-4">
+        <h1 className="text-3xl font-semibold">Text to video generator</h1>
+        {videoUrl && (
+          <a href={videoUrl} download>
+            <Download className="w-5 h-5 cursor-pointer" />
+          </a>
+        )}
+      </div>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : videoUrl ? (
-        <>
-          <video controls className="w-full max-w-3xl rounded-lg mb-4">
+      {/* Video or Placeholder */}
+      <div className="w-full max-w-3xl aspect-video bg-gray-300 flex items-center justify-center rounded-lg overflow-hidden">
+        {loading ? (
+          <p className="text-black font-semibold">Loading...</p>
+        ) : videoUrl ? (
+          <video controls className="w-full h-full object-cover">
             <source src={videoUrl} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
+        ) : (
+          <p className="text-black font-bold text-lg">No video found for "{query}"</p>
+        )}
+      </div>
 
-          <a
-            href={videoUrl}
-            download
-            className="bg-indigo-500 px-4 py-2 rounded-lg font-semibold text-white mb-6"
+      {/* Control Bar */}
+      
+
+      {/* Suggestion Input */}
+      <div className="w-full max-w-3xl mt-10">
+        <label className="block text-sm mb-2 text-gray-300">Suggest any changes:</label>
+        <div className="flex items-center bg-transparent border border-teal-500 rounded-full px-4 py-2">
+          <input
+            type="text"
+            value={suggestion}
+            onChange={(e) => setSuggestion(e.target.value)}
+            placeholder="e.g., make it more funny / include dogs / add narration"
+            className="flex-1 bg-transparent text-white outline-none placeholder:text-gray-400"
+          />
+          <button
+            onClick={() => {
+              if (!videoUrl) return;
+              navigate('/enhanced', { state: { videoUrl, query } });
+            }}
+            className="ml-2"
           >
-            ⬇ Download Video
-          </a>
+            <Play className="w-5 h-5 text-white" />
+          </button>
+        </div>
+      </div>
 
-          {/* Suggest Changes Section */}
-          <div className="w-full max-w-3xl mb-6">
-            <label className="block text-sm mb-2 text-gray-300">Suggest any changes:</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={suggestion}
-                onChange={(e) => setSuggestion(e.target.value)}
-                className="flex-grow p-2 rounded-md bg-gray-800 text-white"
-                placeholder="e.g., make it more funny / include dogs / add narration"
-              />
-              <button
-                onClick={handleSuggestionSubmit}
-                className="bg-teal-600 px-4 py-2 rounded-md text-white font-semibold"
-              >
-                Send
-              </button>
-            </div>
+      {/* AI Response (if any) */}
+      {responseData && (
+        <div className="bg-zinc-800 p-4 rounded-lg w-full max-w-3xl mt-8 space-y-4">
+          {responseData.split('\n').map((line, idx) => (
+            <p key={idx} className="text-gray-100 whitespace-pre-line">{line}</p>
+          ))}
+
+          {/* Final Confirmation */}
+          <div className="mt-6">
+            <label className="block text-sm mb-2 text-gray-400">Are these changes OK?</label>
+            <input
+              type="text"
+              value={finalFeedback}
+              onChange={(e) => setFinalFeedback(e.target.value)}
+              placeholder="Yes / No / Needs more..."
+              className="w-full p-2 rounded-md bg-gray-700 text-white"
+            />
           </div>
 
-          {/* AI Response Output */}
-          {responseData && (
-            <div className="bg-zinc-800 p-4 rounded-lg w-full max-w-3xl space-y-4">
-              {responseData.split('\n').map((line, idx) => (
-                <p key={idx} className="text-gray-100 whitespace-pre-line">{line}</p>
-              ))}
-
-              {/* Final Confirmation Textbox */}
-              <div className="mt-6">
-                <label className="block text-sm mb-2 text-gray-400">Are these changes OK?</label>
-                <input
-                  type="text"
-                  value={finalFeedback}
-                  onChange={(e) => setFinalFeedback(e.target.value)}
-                  placeholder="Yes / No / Needs more..."
-                  className="w-full p-2 rounded-md bg-gray-700 text-white"
-                />
-              </div>
-
-              <button
-                onClick={handleFinalSubmit}
-                className="mt-3 bg-blue-600 px-4 py-2 rounded-md font-semibold"
-                disabled={submitting}
-              >
-                {submitting ? 'Submitting...' : 'Submit'}
-              </button>
-            </div>
-          )}
-        </>
-      ) : (
-        <p>No video found for "{query}"</p>
+          <button
+            onClick={handleFinalSubmit}
+            className="mt-3 bg-blue-600 px-4 py-2 rounded-md font-semibold"
+            disabled={submitting}
+          >
+            {submitting ? 'Submitting...' : 'Submit'}
+          </button>
+        </div>
       )}
     </div>
   );
 };
 
-export default ZapResult;
+export default ZapResultStyled;
