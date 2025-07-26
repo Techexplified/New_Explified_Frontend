@@ -1,10 +1,81 @@
-import { Film, Sparkles, Wand2, Clock, Loader2, Zap } from "lucide-react";
+import {
+  Film,
+  Sparkles,
+  Wand2,
+  Timer,
+  Zap,
+  Languages,
+  MicVocal,
+  ChevronRight,
+  Download,
+  Stars,
+  Play,
+  Clock,
+  Loader2,
+} from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 
 const TextToVideoGenerator = () => {
+  const [prompt, setPrompt] = useState("");
+  // const [duration, setDuration] = useState(5);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedVideo, setGeneratedVideo] = useState(null);
+  const [showResult, setShowResult] = useState(false);
+  const [duration, setDuration] = useState(5);
+  const [showDurationDropdown, setShowDurationDropdown] = useState(false);
+  const durationDropdownRef = useRef(null);
+
+  // Handle clicks outside dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        durationDropdownRef.current &&
+        !durationDropdownRef.current.contains(event.target)
+      ) {
+        setShowDurationDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const defaultPrompts = [
     "A serene lake at sunset with gentle ripples reflecting golden light",
     "Futuristic cityscape with neon lights and flying cars at night",
     "A magical forest with glowing fireflies dancing around ancient trees",
+  ];
+
+  const handleGenerate = async () => {
+    if (!prompt.trim()) return;
+
+    setIsGenerating(true);
+    setShowResult(false);
+
+    // Simulate video generation
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
+    setGeneratedVideo({
+      prompt,
+      duration,
+      url: `https://example.com/generated-video-${Date.now()}.mp4`,
+      thumbnail: `https://picsum.photos/800/450?random=${Date.now()}`,
+    });
+
+    setIsGenerating(false);
+    setShowResult(true);
+  };
+
+  const usePrompt = (selectedPrompt) => {
+    setPrompt(selectedPrompt);
+  };
+
+  const durationOptions = [
+    { value: 5, label: "5 seconds", icon: Clock },
+    { value: 8, label: "8 seconds", icon: Clock },
+    { value: 10, label: "10 seconds", icon: Clock },
   ];
 
   return (
@@ -47,29 +118,202 @@ const TextToVideoGenerator = () => {
                 </label>
                 <div className="relative">
                   <textarea
-                    // value={prompt}
-                    // onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Describe the video you want to create..."
-                    className="w-full h-32 bg-slate-900/80 border border-slate-600 rounded-2xl px-6 py-4 text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all duration-300 resize-none"
-                    // disabled={isGenerating}
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="Describe what the video should communicate. What's the story, mood, or message behind your image?"
+                    className="w-full h-32 bg-slate-900/80 border border-slate-600 rounded-2xl px-6 py-4 pr-32 text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all duration-300 resize-none"
+                    disabled={isGenerating}
                   />
-                  <div className="absolute bottom-4 right-4">
+                  <div className="absolute bottom-4 right-4 flex items-center gap-2">
+                    {/* Attachment Button */}
+                    <button
+                      className="p-1 text-gray-400 hover:text-cyan-400 transition-colors duration-200"
+                      title="Attach file"
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+                        />
+                      </svg>
+                    </button>
+
+                    {/* Voice Input Button */}
+                    <button
+                      className="p-1 text-gray-400 hover:text-cyan-400 transition-colors duration-200"
+                      title="Voice input"
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+                        />
+                      </svg>
+                    </button>
+
+                    <div className="w-px h-4 bg-gray-600 mx-1"></div>
+
                     <Wand2 className="w-5 h-5 text-cyan-400 opacity-60" />
+                  </div>
+                </div>
+                {/* Additional Controls */}
+                <div className="flex items-center justify-end mt-4 px-2">
+                  <div className="flex items-center gap-1">
+                    {/* Avatar Dropdown */}
+                    <div className="relative group">
+                      <button className="flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-cyan-400 transition-colors duration-200">
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                          />
+                        </svg>
+                        <svg
+                          className="w-3 h-3"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+
+                    {/*Language Dropdown */}
+                    <div className="relative group">
+                      <button className="flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-cyan-400 transition-colors duration-200">
+                        <Languages className="w-4 h-4" />
+                        <svg
+                          className="w-3 h-3"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+
+                    {/* Duration Dropdown Button */}
+                    <div className="relative group" ref={durationDropdownRef}>
+                      <button
+                        onClick={() =>
+                          setShowDurationDropdown(!showDurationDropdown)
+                        }
+                        className="flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-cyan-400 transition-colors duration-200"
+                      >
+                        <Timer className="w-4 h-4" />
+                        <span className="text-sm">{duration}s</span>
+                        <svg
+                          className={`w-3 h-3 transition-transform duration-200 ${
+                            showDurationDropdown ? "rotate-180" : ""
+                          }`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </button>
+
+                      {/* Duration Dropdown Menu */}
+                      {showDurationDropdown && (
+                        <div className="absolute top-full left-0 mt-2 w-32 bg-slate-800 border border-slate-600 rounded-lg shadow-lg z-50">
+                          {durationOptions.map((option) => (
+                            <button
+                              key={option.value}
+                              onClick={() => {
+                                setDuration(option.value);
+                                setShowDurationDropdown(false);
+                              }}
+                              className={`w-full px-3 py-2 text-left text-sm transition-colors duration-200 flex items-center gap-2 ${
+                                duration === option.value
+                                  ? "bg-cyan-400/20 text-cyan-400"
+                                  : "text-gray-300 hover:bg-slate-700 hover:text-cyan-400"
+                              }`}
+                            >
+                              <option.icon className="w-3 h-3" />
+                              {option.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Voice clone Button */}
+                    <button className="p-2 text-gray-400 hover:text-cyan-400 transition-colors duration-200">
+                      <MicVocal className="w-4 h-4" />
+                    </button>
+
+                    {/* Camera Button */}
+                    <button className="p-2 text-gray-400 hover:text-cyan-400 transition-colors duration-200">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
+                    </button>
                   </div>
                 </div>
               </div>
 
               {/* Generate Button */}
               <button
-                // onClick={handleGenerate}
-                // disabled={!prompt.trim() || isGenerating}
+                onClick={handleGenerate}
+                disabled={!prompt.trim() || isGenerating}
                 className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 disabled:from-gray-600 disabled:to-gray-700 text-white font-semibold py-4 px-8 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 transform hover:scale-105 disabled:hover:scale-100 disabled:cursor-not-allowed shadow-lg hover:shadow-cyan-500/25"
               >
-                <>
-                  <Zap className="w-5 h-5" />
-                  Generate Video
-                </>
-                {/* {isGenerating ? (
+                {isGenerating ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
                     Generating Video...
@@ -79,8 +323,71 @@ const TextToVideoGenerator = () => {
                     <Zap className="w-5 h-5" />
                     Generate Video
                   </>
-                )} */}
+                )}
               </button>
+            </div>
+          </div>
+
+          {/* Generated Video Result */}
+          {showResult && generatedVideo && (
+            <div className="bg-slate-800/50 backdrop-blur-lg rounded-3xl border border-cyan-500/20 p-8 mb-8 shadow-2xl animate-fade-in">
+              <h3 className="text-2xl font-bold text-cyan-400 mb-6 flex items-center gap-2">
+                <Stars className="w-6 h-6" />
+                Generated Video
+              </h3>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="relative group">
+                  <img
+                    src={generatedVideo.thumbnail}
+                    alt="Generated video thumbnail"
+                    className="w-full h-64 object-cover rounded-xl"
+                  />
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <Play className="w-16 h-16 text-cyan-400" />
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2">Prompt:</p>
+                    <p className="text-gray-200">{generatedVideo.prompt}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2">Duration:</p>
+                    <p className="text-cyan-400">
+                      {generatedVideo.duration} seconds
+                    </p>
+                  </div>
+                  <button className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 flex items-center gap-2 transform hover:scale-105">
+                    <Download className="w-4 h-4" />
+                    Download Video
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Default Prompts */}
+          <div className="bg-slate-800/50 backdrop-blur-lg rounded-3xl border border-cyan-500/20 p-8 shadow-2xl">
+            <h3 className="text-2xl font-bold text-cyan-400 mb-6 flex items-center gap-2">
+              <Sparkles className="w-6 h-6" />
+              Try These Prompts
+            </h3>
+            <div className="flex flex-col gap-2">
+              {defaultPrompts.map((defaultPrompt, index) => (
+                <button
+                  key={index}
+                  onClick={() => usePrompt(defaultPrompt)}
+                  // disabled={isGenerating}
+                  className="text-left p-4 bg-slate-900/50 rounded-xl border border-slate-600 hover:border-cyan-400/50 hover:bg-slate-900/80 transition-all duration-300 group disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="flex items-center justify-between">
+                    <p className="text-gray-300 group-hover:text-cyan-300 transition-colors">
+                      {defaultPrompt}
+                    </p>
+                    <ChevronRight className="w-5 h-5 text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </button>
+              ))}
             </div>
           </div>
         </div>
