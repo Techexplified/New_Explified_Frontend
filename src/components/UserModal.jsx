@@ -1,14 +1,33 @@
-import { X, LogIn, MessageSquare, Mail } from "lucide-react";
+import { X, LogIn, LogOut, MessageSquare, Mail } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-const userData = {
-  name: "John Doe",
-  email: "john.doe@example.com",
-  avatar: "JD",
-};
-
+import { useSelector } from "react-redux";
+import { auth } from "../firebase";
+import { signOut } from "firebase/auth";
+import { clearUser } from "../utils/auth_slice/UserSlice";
+import { useDispatch } from "react-redux";
 const UserModal = ({ showUserModal, setShowUserModal }) => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const user = useSelector((state) => state.user);
+  const isLoggedIn = !!user;
+
+  const userData = {
+    name: user?.given_name || "Guest",
+    email: user?.email || "guest@example.com",
+    avatar:
+      user?.given_name?.[0]?.toUpperCase() + user?.family_name?.[0]?.toUpperCase() || "JD",
+  };
+
+  const handleAuthClick = () => {
+    setShowUserModal(false);
+    if (isLoggedIn) {
+      localStorage.clear();
+      navigate("/");
+    } else {
+      navigate("/login");
+    }
+  };
+
   if (!showUserModal) return null;
 
   return (
@@ -38,15 +57,31 @@ const UserModal = ({ showUserModal, setShowUserModal }) => {
         {/* Action Buttons */}
         <div className="space-y-3">
           <button
-            onClick={() => {
-              setShowUserModal(false);
-              navigate("/login");
-              // Handle logout logic
-            }}
+            onClick={handleAuthClick}
             className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 text-cyan-400 rounded-xl hover:from-cyan-500/30 hover:to-blue-500/30 hover:border-cyan-500/50 transition-all duration-200"
           >
-            <LogIn className="w-5 h-5 mr-3" />
-            <span className="font-medium">Login</span>
+            {isLoggedIn ? (
+              <>
+                
+                      <LogOut size={16} />
+                      <span className="w-full py-2 flex justify-center items-center space-x-2"
+                      onClick={() => {
+                        signOut(auth)
+                          .then(() => {
+                            dispatch(clearUser());
+                          })
+                          .catch((error) => {
+                            console.error("Logout failed:", error);
+                          });
+                      }}>Log Out</span>
+    
+              </>
+            ) : (
+              <>
+                <LogIn className="w-5 h-5 mr-3" />
+                <span className="font-medium">Login</span>
+              </>
+            )}
           </button>
 
           <button

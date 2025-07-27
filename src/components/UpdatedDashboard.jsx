@@ -22,7 +22,7 @@ import {
   SquarePercent,
   BotMessageSquare,
 } from "lucide-react";
-
+import { Link } from "react-router-dom";
 import logo from "../assets/logos/explified_logo.png";
 import UserModal from "./UserModal";
 
@@ -95,6 +95,7 @@ const UpdatedDashboard = () => {
       icon: Workflow,
       description: "Automates task sequences",
     },
+    
   ];
 
   const accordionSections = [
@@ -138,13 +139,12 @@ const UpdatedDashboard = () => {
           icon: SquarePercent,
           route: "/influmark",
         },
-      ],
+        {
+      name: "Chats",
+      icon: SquarePercent,
+      description: "Lets you chat with others",
     },
-    {
-      id: "Chat",
-      title: "Chat",
-      icon: MessageSquareQuote,
-      items: [],
+      ],
     },
   ];
 
@@ -170,11 +170,12 @@ const UpdatedDashboard = () => {
       >
         <div className="flex items-center justify-between">
           <div className="logo flex items-center justify-center gap-1">
-            <img className="w-6" src={logo} alt="Explified" />
-            <h2 className="text-xl pb- font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-              Explified
-            </h2>
-          </div>
+  <img className="w-6" src={logo} alt="Explified" />
+  <h2 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+    <Link to="/" className="cursor-pointer">Explified</Link>
+  </h2>
+</div>
+
           {/* Navigation Items */}
           <div className="flex gap-3 space-x-1">
             {navItems.map((item) => {
