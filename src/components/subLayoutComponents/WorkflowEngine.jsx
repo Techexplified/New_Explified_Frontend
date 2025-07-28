@@ -12,8 +12,13 @@ import {
   Shield,
   BarChart3,
   Settings,
+  Ellipsis,
 } from "lucide-react";
 import { useState } from "react";
+import Existing from "./workflows/Existing";
+import Unfinished from "./workflows/Unfinished";
+import Recommended from "./workflows/Recommended";
+import MostPopular from "./workflows/MostPopular";
 
 const WorkflowEngine = () => {
   const prebuiltWorkflows = [
@@ -112,13 +117,13 @@ const WorkflowEngine = () => {
   const [accordionOpen, setAccordionOpen] = useState(false);
 
   return (
-    <div className="mt-10 w-full">
+    <div className="w-full">
       {/* Main Container */}
       <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4 md:p-6 lg:p-8 shadow-2xl flex flex-col md:flex-row gap-6">
         {/* Create Workflow Button Card */}
         <div className="mb-6 md:mb-0 w-full h-full md:w-1/3 flex-shrink-0 flex flex-col items-center justify-center">
           {/* Card content reduced in size */}
-          <div className="group mt-10  h-[325px] flex items-center justify-center relative bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl p-4 md:p-6 border-2 border-dashed border-cyan-500/50 hover:border-cyan-400 transition-all duration-300 hover:transform hover:scale-[1.02] cursor-pointer w-full">
+          <div className="group    flex items-center justify-center relative bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl p-4 md:p-6 border-2 border-dashed border-cyan-500/50 hover:border-cyan-400 transition-all duration-300 hover:transform hover:scale-[1.02] cursor-pointer w-full">
             <div className="text-center">
               <div className="inline-flex p-3 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 mb-3 group-hover:scale-110 transition-transform duration-300">
                 <Plus className="w-7 h-7 text-white" />
@@ -153,78 +158,18 @@ const WorkflowEngine = () => {
         </div>
 
         {/* Prebuilt Workflows Grid as Accordion */}
-        <div className="w-full md:w-2/3">
-          <h2 className="text-xl md:text-2xl font-semibold text-white mb-4 md:mb-6">
-            Pre-built Workflow Templates
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {(accordionOpen
-              ? prebuiltWorkflows
-              : prebuiltWorkflows.slice(0, 6)
-            ).map((workflow, index) => {
-              const IconComponent = workflow.icon;
-              return (
-                <div
-                  key={index}
-                  className="group relative bg-gray-800 rounded-xl p-3 md:p-4 border border-gray-700 hover:border-cyan-500/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/20 cursor-pointer flex-shrink-0 w-full h-32 md:h-36 flex flex-col justify-between"
-                >
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="relative z-10">
-                    <div className="inline-block px-2 py-1 bg-gray-700 rounded-md text-xs text-cyan-300 mb-1 md:mb-2">
-                      {workflow.category}
-                    </div>
-                    <div
-                      className={`inline-flex p-2 rounded-lg bg-gradient-to-r ${workflow.color} mb-2 group-hover:scale-110 transition-transform duration-300`}
-                    >
-                      <IconComponent className="w-5 h-5 text-white" />
-                    </div>
-                    <h3 className="text-sm md:text-base font-semibold text-white mb-1 group-hover:text-cyan-300 transition-colors duration-300">
-                      {workflow.title}
-                    </h3>
-                    <p className="text-gray-400 text-xs leading-snug mb-1 md:mb-2 group-hover:text-gray-300 transition-colors duration-300 truncate overflow-hidden whitespace-nowrap">
-                      {workflow.description}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center text-gray-500">
-                        <Settings className="w-4 h-4 mr-1" />
-                        <span className="text-xs">{workflow.steps} steps</span>
-                      </div>
-                      <div className="flex items-center text-cyan-400 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-0 group-hover:translate-x-1">
-                        <span className="text-xs font-medium">
-                          Use Template
-                        </span>
-                        <svg
-                          className="w-4 h-4 ml-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 5l7 7-7 7"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          {/* Accordion Toggle Button */}
-          <div className="flex justify-center mt-3 md:mt-4">
-            <button
-              className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg text-white font-semibold hover:from-cyan-400 hover:to-blue-400 transition-all duration-300 shadow-md text-sm md:text-base"
-              onClick={() => setAccordionOpen((open) => !open)}
-            >
-              {accordionOpen
-                ? "Show Less"
-                : `Show All (${prebuiltWorkflows.length})`}
-            </button>
-          </div>
-        </div>
+        {/* most popular workflows */}
+        <MostPopular />
+      </div>
+      {/* Recommended For You */}
+      <Recommended />
+      {/* unfinished and existing workflows */}
+      <div className="w-full bg-gray-900 rounded-2xl border border-gray-800 flex">
+        {/* unfinished workflows */}
+        <Unfinished />
+
+        {/* existing workflows */}
+        <Existing />
       </div>
     </div>
   );

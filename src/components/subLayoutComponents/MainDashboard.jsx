@@ -77,6 +77,7 @@ const MainDashboard = () => {
   return (
     <>
       <div className=" w-full h-full px-5 mb-10 flex flex-col items-center">
+        {/* heading */}
         <div className="heading  py-10 flex items-center justify-center">
           <h1 className="text-3xl text-gray-400 font-thin tracking-tighter">
             Simplify{" "}
@@ -90,7 +91,7 @@ const MainDashboard = () => {
             .
           </h1>
         </div>
-
+        {/* main dashboard */}
         <div className=" flex gap-4">
           <div className="bg-gray-900  rounded-2xl border border-gray-800 h-fit p-4 shadow-2xl">
             {/* Tools Grid with Accordion Transition */}
@@ -174,8 +175,14 @@ const MainDashboard = () => {
           </div>
           <InstagramAnalytics />
         </div>
+        {/* workflow Engine */}
+        <div>
+          <h1 className="text-4xl font-bold text-cyan-500 px-10 py-5 mt-5">
+            Workflow Engine
+          </h1>
 
-        <WorkflowEngine />
+          <WorkflowEngine />
+        </div>
       </div>
     </>
   );
