@@ -16,6 +16,9 @@ export default function AIMemeGenerator() {
   const [selectedSpeed, setSelectedSpeed] = useState("");
   const [captionOn, setCaptionOn] = useState(true);
 
+  const [showModal, setShowModal] = useState(false);
+  const [selectedTone, setSelectedTone] = useState("");
+
   const handleToggle = () => {
     setCaptionOn((prev) => !prev);
   };
@@ -33,9 +36,17 @@ export default function AIMemeGenerator() {
   const audioChunksRef = useRef([]);
 
   const handleMemeGenerate = () => {
-    console.log("Generating meme with:", inputText);
-    console.log("Uploaded files:", uploadedFiles);
-    console.log("Audio blob:", audioBlob);
+    setShowModal(true);
+  };
+
+  const handleToneClick = (tone) => {
+    setSelectedTone(tone);
+  };
+
+  const handleGoClick = () => {
+    console.log("Selected Tone:", selectedTone);
+    setShowModal(false);
+    // Optionally trigger meme generation here
   };
 
   const handleImageUpload = (event) => {
@@ -259,6 +270,37 @@ export default function AIMemeGenerator() {
                 >
                   Meme
                 </button>
+
+                {showModal && (
+                  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-gray-100 text-black px-6 py-6 rounded-lg shadow-xl w-[90%] max-w-md text-center">
+                      <h2 className="text-lg font-semibold mb-6">
+                        Select Tone of your meme!
+                      </h2>
+                      <div className="flex justify-center gap-6 mb-6 flex-wrap">
+                        {["Happy", "Sad", "Angry", "Sarcastic"].map((tone) => (
+                          <button
+                            key={tone}
+                            onClick={() => handleToneClick(tone)}
+                            className={`w-20 h-20 rounded-full flex items-center justify-center text-white text-sm font-semibold ${
+                              selectedTone === tone
+                                ? "bg-teal-600"
+                                : "bg-black hover:bg-gray-700"
+                            }`}
+                          >
+                            {tone}
+                          </button>
+                        ))}
+                      </div>
+                      <button
+                        onClick={handleGoClick}
+                        className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-md"
+                      >
+                        Go
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
