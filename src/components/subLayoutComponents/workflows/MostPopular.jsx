@@ -51,13 +51,13 @@ const MostPopular = () => {
       icon: Heart,
       label: "Add to Favorites",
       action: "favorite",
-      className: "text-pink-400 hover:text-pink-300",
+      className: "text-cyan-400 hover:text-cyan-300",
     },
     {
       icon: Copy,
       label: "Duplicate",
       action: "duplicate",
-      className: "text-blue-400 hover:text-blue-300",
+      className: "text-cyan-400 hover:text-cyan-300",
     },
     {
       icon: Edit3,
@@ -69,13 +69,13 @@ const MostPopular = () => {
       icon: Clock,
       label: "View History",
       action: "history",
-      className: "text-purple-400 hover:text-purple-300",
+      className: "text-cyan-400 hover:text-cyan-300",
     },
     {
       icon: Trash2,
       label: "Delete",
       action: "delete",
-      className: "text-red-400 hover:text-red-300",
+      className: "text-cyan-400 hover:text-cyan-300",
     },
   ];
 

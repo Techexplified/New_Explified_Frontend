@@ -104,6 +104,7 @@ import Trone from "./components1/Trone";
 import ComingSoon from "./reusable_components/ComingSoon";
 import MainDashboard from "./components/subLayoutComponents/MainDashboard";
 import TextToVideoGenerator from "./components/tools/TextToVideoGenerator";
+import RecommendedWorkflowsPage from "./components/subLayoutComponents/workflow pages/RecommendedWorklowsPage";
 
 function App() {
   return (
@@ -210,6 +211,10 @@ function App() {
             <Route path="/favorites" element={<Favourites />}></Route>
             <Route path="/workflows" element={<WorkflowDashboard />} />
             <Route path="/workflows/new" element={<CreateNewPage />}></Route>
+            <Route
+              path="/workflows/recommended"
+              element={<RecommendedWorkflowsPage />}
+            ></Route>
             <Route path="/socials/:id" element={<DetailedCard />}></Route>
             <Route path="/aitools" element={<AITools />}></Route>
             <Route path="/lurph" element={<Trone />} />
