@@ -105,6 +105,7 @@ import ComingSoon from "./reusable_components/ComingSoon";
 import MainDashboard from "./components/subLayoutComponents/MainDashboard";
 import TextToVideoGenerator from "./components/tools/TextToVideoGenerator";
 import RecommendedWorkflowsPage from "./components/subLayoutComponents/workflow pages/RecommendedWorklowsPage";
+import ExistingWorkflowsPage from "./components/subLayoutComponents/workflow pages/ExistingWorkflowPage";
 
 function App() {
   return (
@@ -214,6 +215,10 @@ function App() {
             <Route
               path="/workflows/recommended"
               element={<RecommendedWorkflowsPage />}
+            ></Route>
+            <Route
+              path="/workflows/existing"
+              element={<ExistingWorkflowsPage />}
             ></Route>
             <Route path="/socials/:id" element={<DetailedCard />}></Route>
             <Route path="/aitools" element={<AITools />}></Route>
