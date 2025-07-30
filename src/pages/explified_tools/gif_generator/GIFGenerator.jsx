@@ -229,7 +229,6 @@ export default function AIGIFGenerator() {
               className="w-full bg-gray-800 border border-gray-700 rounded-lg p-4 text-white placeholder-gray-400 resize-none h-24 pr-32"
             />
 
-            {/* Control Icons */}
             <div className="absolute right-3 bottom-3 flex items-center space-x-3">
               {/* Document Upload */}
               <button

@@ -104,6 +104,7 @@ import Trone from "./components1/Trone";
 import ComingSoon from "./reusable_components/ComingSoon";
 import MainDashboard from "./components/subLayoutComponents/MainDashboard";
 import TextToVideoGenerator from "./components/tools/TextToVideoGenerator";
+import VideoMemeGenerator from "./pages/explified_tools/video_meme_generator/VideoMemeGenerator";
 
 function App() {
   return (
@@ -215,6 +216,10 @@ function App() {
             <Route path="/lurph" element={<Trone />} />
             <Route path="/Meme" element={<Meme />} />
             <Route path="/ai-gif-generator" element={<GIFGenerator />} />
+            <Route
+              path="/video-meme-generator"
+              element={<VideoMemeGenerator />}
+            />
 
             <Route
               path="/socials/:id/posts/recents"
