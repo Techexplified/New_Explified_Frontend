@@ -107,6 +107,7 @@ import TextToVideoGenerator from "./components/tools/TextToVideoGenerator";
 import VideoMemeGenerator from "./pages/explified_tools/video_meme_generator/VideoMemeGenerator";
 import RecommendedWorkflowsPage from "./components/subLayoutComponents/workflow pages/RecommendedWorklowsPage";
 import ExistingWorkflowsPage from "./components/subLayoutComponents/workflow pages/ExistingWorkflowPage";
+import MainWorkflowPage from "./components/subLayoutComponents/workflow pages/MainWorkflowPage";
 
 function App() {
   return (
@@ -211,7 +212,7 @@ function App() {
 
             <Route path="/history" element={<History />}></Route>
             <Route path="/favorites" element={<Favourites />}></Route>
-            <Route path="/workflows" element={<WorkflowDashboard />} />
+            <Route path="/workflows" element={<MainWorkflowPage />} />
             <Route path="/workflows/new" element={<CreateNewPage />}></Route>
             <Route
               path="/workflows/recommended"

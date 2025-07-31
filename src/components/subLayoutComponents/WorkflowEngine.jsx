@@ -21,101 +21,6 @@ import Recommended from "./workflows/Recommended";
 import MostPopular from "./workflows/MostPopular";
 
 const WorkflowEngine = () => {
-  const prebuiltWorkflows = [
-    {
-      title: "CI/CD Pipeline",
-      description:
-        "Automated build, test, and deployment workflow with quality gates and rollback capabilities.",
-      icon: GitBranch,
-      color: "from-cyan-500 to-blue-500",
-      steps: 5,
-      category: "Development",
-    },
-    {
-      title: "Email Marketing Campaign",
-      description:
-        "Multi-step email automation with A/B testing, segmentation, and performance tracking.",
-      icon: Mail,
-      color: "from-cyan-400 to-purple-500",
-      steps: 7,
-      category: "Marketing",
-    },
-    {
-      title: "Data Processing Pipeline",
-      description:
-        "ETL workflow for data extraction, transformation, validation, and warehouse loading.",
-      icon: Database,
-      color: "from-cyan-600 to-indigo-500",
-      steps: 6,
-      category: "Data",
-    },
-    {
-      title: "Cloud Resource Provisioning",
-      description:
-        "Infrastructure as code workflow with auto-scaling, monitoring, and cost optimization.",
-      icon: Cloud,
-      color: "from-cyan-500 to-emerald-500",
-      steps: 4,
-      category: "Infrastructure",
-    },
-    {
-      title: "Document Approval Process",
-      description:
-        "Multi-stakeholder document review workflow with notifications and version control.",
-      icon: FileText,
-      color: "from-cyan-400 to-orange-500",
-      steps: 8,
-      category: "Business",
-    },
-    {
-      title: "API Integration Workflow",
-      description:
-        "Seamless third-party API integration with error handling and data synchronization.",
-      icon: Zap,
-      color: "from-cyan-500 to-yellow-500",
-      steps: 5,
-      category: "Integration",
-    },
-    {
-      title: "Employee Onboarding",
-      description:
-        "Complete new hire workflow including account setup, training, and compliance checks.",
-      icon: Users,
-      color: "from-cyan-600 to-pink-500",
-      steps: 12,
-      category: "HR",
-    },
-    {
-      title: "Event Management",
-      description:
-        "End-to-end event planning workflow with scheduling, invitations, and follow-up tasks.",
-      icon: Calendar,
-      color: "from-cyan-400 to-teal-500",
-      steps: 9,
-      category: "Operations",
-    },
-    {
-      title: "Security Incident Response",
-      description:
-        "Automated security workflow with threat detection, escalation, and remediation steps.",
-      icon: Shield,
-      color: "from-cyan-500 to-red-500",
-      steps: 6,
-      category: "Security",
-    },
-    {
-      title: "Business Analytics Report",
-      description:
-        "Automated report generation with data collection, analysis, and stakeholder distribution.",
-      icon: BarChart3,
-      color: "from-cyan-600 to-violet-500",
-      steps: 7,
-      category: "Analytics",
-    },
-  ];
-
-  const [accordionOpen, setAccordionOpen] = useState(false);
-
   return (
     <div className="w-full">
       {/* Main Container */}
@@ -123,7 +28,7 @@ const WorkflowEngine = () => {
         {/* Create Workflow Button Card */}
         <div className="mb-6 md:mb-0 w-full h-full md:w-1/3 flex-shrink-0 flex flex-col items-center justify-center">
           {/* Card content reduced in size */}
-          <div className="group    flex items-center justify-center relative bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl p-4 md:p-6 border-2 border-dashed border-cyan-500/50 hover:border-cyan-400 transition-all duration-300 hover:transform hover:scale-[1.02] cursor-pointer w-full">
+          <div className="group h-[370px] flex items-center justify-center relative bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl p-4 md:p-6 border-2 border-dashed border-cyan-500/50 hover:border-cyan-400 transition-all duration-300 hover:transform hover:scale-[1.02] cursor-pointer w-full">
             <div className="text-center">
               <div className="inline-flex p-3 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 mb-3 group-hover:scale-110 transition-transform duration-300">
                 <Plus className="w-7 h-7 text-white" />
@@ -157,7 +62,6 @@ const WorkflowEngine = () => {
           </div>
         </div>
 
-        {/* Prebuilt Workflows Grid as Accordion */}
         {/* most popular workflows */}
         <MostPopular />
       </div>
