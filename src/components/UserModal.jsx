@@ -1,8 +1,8 @@
 import { X, LogIn, LogOut, MessageSquare, Mail } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { auth } from "../firebase";
-import { signOut } from "firebase/auth";
+// import { auth } from "../firebase";
+// import { signOut } from "firebase/auth";
 import { clearUser } from "../utils/auth_slice/UserSlice";
 import { useDispatch } from "react-redux";
 const UserModal = ({ showUserModal, setShowUserModal }) => {
