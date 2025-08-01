@@ -15,7 +15,8 @@ const UserModal = ({ showUserModal, setShowUserModal }) => {
     name: user?.given_name || "Guest",
     email: user?.email || "guest@example.com",
     avatar:
-      user?.given_name?.[0]?.toUpperCase() + user?.family_name?.[0]?.toUpperCase() || "JD",
+      user?.given_name?.[0]?.toUpperCase() +
+        user?.family_name?.[0]?.toUpperCase() || "JD",
   };
 
   const handleAuthClick = () => {
@@ -62,6 +63,21 @@ const UserModal = ({ showUserModal, setShowUserModal }) => {
           >
             {isLoggedIn ? (
               <>
+                <LogOut size={16} />
+                <span
+                  className="w-full py-2 flex justify-center items-center space-x-2"
+                  onClick={() => {
+                    signOut(auth)
+                      .then(() => {
+                        dispatch(clearUser());
+                      })
+                      .catch((error) => {
+                        console.error("Logout failed:", error);
+                      });
+                  }}
+                >
+                  Log Out
+                </span>
                 
                       <LogOut size={16} />
                       <span

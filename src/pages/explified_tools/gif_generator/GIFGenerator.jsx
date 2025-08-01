@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { Mic, Camera, Upload, Type, Image, Video } from "lucide-react";
+import axiosInstance from "../../../network/axiosInstance";
 
 export default function AIGIFGenerator() {
   const [inputText, setInputText] = useState("");
@@ -9,6 +10,9 @@ export default function AIGIFGenerator() {
   const [uploadedImage, setUploadedImage] = useState(null);
   const [uploadedDocument, setUploadedDocument] = useState(null);
   const [audioBlob, setAudioBlob] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [uid, setUid] = useState("cmdos6rth00o51e0z2ptt3ddw");
+  const [url, setUrl] = useState("");
 
   const fileInputRef = useRef(null);
   const documentInputRef = useRef(null);
@@ -164,15 +168,44 @@ export default function AIGIFGenerator() {
     }
   };
 
-  const handleGenerate = () => {
-    console.log("Generating GIF with:", {
-      text: inputText,
-      image: uploadedImage,
-      document: uploadedDocument,
-      audio: audioBlob,
-      category: activeTab,
-    });
-    alert("GIF generation would start here!");
+  const handleGenerate = async () => {
+    // console.log("Generating GIF with:", {
+    //   text: inputText,
+    //   image: uploadedImage,
+    //   document: uploadedDocument,
+    //   audio: audioBlob,
+    //   category: activeTab,
+    // });
+
+    setIsLoading(true);
+    try {
+      const response = await axiosInstance.post("api/aiGifGenerator", {
+        prompt: inputText,
+      });
+
+      console.log(response);
+      setUid(response?.data?.content);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getGIF = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axiosInstance.post("api/aiGifGenerator/getgif", {
+        uid,
+      });
+
+      console.log(response);
+      setUrl(response?.data?.content);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -196,7 +229,6 @@ export default function AIGIFGenerator() {
               className="w-full bg-gray-800 border border-gray-700 rounded-lg p-4 text-white placeholder-gray-400 resize-none h-24 pr-32"
             />
 
-            {/* Control Icons */}
             <div className="absolute right-3 bottom-3 flex items-center space-x-3">
               {/* Document Upload */}
               <button
@@ -343,8 +375,32 @@ export default function AIGIFGenerator() {
           </div>
         )}
 
+        <div className="flex flex-col items-center gap-6 mt-6">
+          <button
+            onClick={getGIF}
+            className="bg-[#23b5b5] hover:bg-[#1da3a3] text-white font-semibold px-6 py-2 rounded-full shadow-md transition-all duration-200"
+          >
+            Get GIF
+          </button>
+
+          {url && (
+            <div className="flex flex-col items-center gap-4">
+              <img
+                src={url}
+                alt="gif"
+                className="h-48 w-48 object-cover rounded-lg border border-gray-300 shadow"
+              />
+              <a href={url} download="my-gif.gif">
+                <button className="bg-[#23b5b5] hover:bg-[#1da3a3] text-white font-medium px-4 py-2 rounded-full shadow transition duration-200">
+                  Download GIF
+                </button>
+              </a>
+            </div>
+          )}
+        </div>
+
         {/* Looking for Inspiration Section */}
-        <div>
+        <div className="mt-20">
           <h2 className="text-2xl font-semibold mb-8 text-center">
             Looking for Inspiration?
           </h2>

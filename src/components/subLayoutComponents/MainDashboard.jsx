@@ -6,8 +6,9 @@ import {
   ImagePlay,
   Images,
   FileVideo2,
+  Plus,
 } from "lucide-react";
-import WorkflowEngine from "./WorkflowEngine";
+import MostPopular from "./workflows/MostPopular";
 import InstagramAnalytics from "./InstagramAnalytics";
 import { useNavigate } from "react-router-dom";
 
@@ -77,6 +78,7 @@ const MainDashboard = () => {
   return (
     <>
       <div className=" w-full h-full px-5 mb-10 flex flex-col items-center">
+        {/* heading */}
         <div className="heading  py-10 flex items-center justify-center">
           <h1 className="text-3xl text-gray-400 font-thin tracking-tighter">
             Simplify{" "}
@@ -90,7 +92,7 @@ const MainDashboard = () => {
             .
           </h1>
         </div>
-
+        {/* main dashboard */}
         <div className=" flex gap-4">
           <div className="bg-gray-900  rounded-2xl border border-gray-800 h-fit p-4 shadow-2xl">
             {/* Tools Grid with Accordion Transition */}
@@ -174,8 +176,53 @@ const MainDashboard = () => {
           </div>
           <InstagramAnalytics />
         </div>
+        {/* workflow Engine */}
+        <div>
+          <h1 className="text-4xl font-bold text-cyan-500 px-10 py-5 mt-5">
+            Workflow Engine
+          </h1>
+          <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4 md:p-6 lg:p-8 shadow-2xl flex flex-col md:flex-row gap-6">
+            {/* Create Workflow Button Card */}
+            <div className="mb-6 md:mb-0 w-full h-full md:w-1/3 flex-shrink-0 flex flex-col items-center justify-center">
+              {/* Card content reduced in size */}
+              <div className="group h-[370px] flex items-center justify-center relative bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl p-4 md:p-6 border-2 border-dashed border-cyan-500/50 hover:border-cyan-400 transition-all duration-300 hover:transform hover:scale-[1.02] cursor-pointer w-full">
+                <div className="text-center">
+                  <div className="inline-flex p-3 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 mb-3 group-hover:scale-110 transition-transform duration-300">
+                    <Plus className="w-7 h-7 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-1 group-hover:text-cyan-300 transition-colors duration-300">
+                    Create Custom Workflow
+                  </h3>
+                  <p className="text-gray-400 text-base group-hover:text-gray-300 transition-colors duration-300">
+                    Build your own automated workflow from scratch with our
+                    visual drag-and-drop editor
+                  </p>
+                  <div className="mt-4">
+                    <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg text-white font-semibold hover:from-cyan-400 hover:to-blue-400 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-cyan-500/25 text-sm">
+                      <span>Get Started</span>
+                      <svg
+                        className="w-4 h-4 ml-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 7l5 5m0 0l-5 5m5-5H6"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-        <WorkflowEngine />
+            {/* most popular workflows */}
+            <MostPopular />
+          </div>
+        </div>
       </div>
     </>
   );
