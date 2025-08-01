@@ -83,7 +83,7 @@ const toolCategories = [
       },
       {
         name: "AI Subtitler Tool",
-        route: "/ai-subtitler-tool",
+        route: "/ai-subtitler",
         icon: PiSubtitles,
       },
       {

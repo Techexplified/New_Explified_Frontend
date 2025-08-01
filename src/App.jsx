@@ -280,7 +280,7 @@ function App() {
             <Route path="/socials/newPost" element={<NewPost />} />
             <Route path="/youtube-summarizer" element={<YoutubeSummarizer />} />
             <Route path="/ai-subtitler" element={<AISubtitler />} />
-
+            <Route path="/ai-subtitler-ui" element={<SubtitleToolUI />} />
             <Route
               path="/youtube-summarizer/deep-search"
               element={<DeepSearch />}
@@ -295,8 +295,6 @@ function App() {
             />
             <Route path="/*" element={<ComingSoon />} />
           </Route>
-
-          <Route path="/ai-subtitler-ui" element={<SubtitleToolUI />} />
 
           {/* Tools Page */}
 

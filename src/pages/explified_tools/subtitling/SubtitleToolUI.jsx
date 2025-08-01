@@ -27,12 +27,66 @@ export default function SubtitleToolUI() {
   const [selectedFontSize, setSelectedFontSize] = useState("");
   const [selectedFontColor, setSelectedFontColor] = useState("");
   const [isAutoTheme, setIsAutoTheme] = useState(false);
-
+  const [thumbnails, setThumbnails] = useState([]);
   const containerRef = useRef(null);
   const videoRef = useRef(null);
   const tooltipRef = useRef(null);
 
   const uploadedFile = useSelector((state) => state.video);
+
+  useEffect(() => {
+    if (uploadedFile) {
+      generateThumbnails();
+    }
+  }, [uploadedFile]);
+
+  const generateThumbnails = () => {
+    const video = document.createElement("video");
+    video.src = URL.createObjectURL(uploadedFile);
+    video.muted = true;
+
+    video.onloadedmetadata = () => {
+      const duration = video.duration;
+      const frames = 6; // number of thumbnails to show
+      const interval = duration / frames;
+      const captures = [];
+
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      let currentFrame = 0;
+
+      const captureFrame = () => {
+        if (currentFrame >= frames) {
+          setThumbnails(captures);
+          return;
+        }
+
+        video.currentTime = currentFrame * interval;
+
+        video.onseeked = () => {
+          canvas.width = 160;
+          canvas.height = 90;
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          captures.push({
+            time: video.currentTime,
+            image: canvas.toDataURL("image/jpeg"),
+          });
+          currentFrame++;
+          captureFrame();
+        };
+      };
+
+      captureFrame();
+    };
+  };
+
+  const handleThumbnailClick = (time) => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = time;
+      videoRef.current.play();
+    }
+  };
 
   useEffect(() => {
     if (subtitleText) {
@@ -308,8 +362,6 @@ export default function SubtitleToolUI() {
 
   return (
     <div className="bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white min-h-screen">
-      <SubtitlerHeader />
-
       <div className="flex gap-8 p-6">
         {/* Enhanced Sidebar */}
         <div className="w-96 space-y-6 overflow-y-auto max-h-[85vh]">
@@ -380,22 +432,22 @@ export default function SubtitleToolUI() {
               </div>
 
               {/* Separator */}
-              <div className="flex items-center gap-4">
+              {/* <div className="flex items-center gap-4">
                 <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent"></div>
                 <span className="text-xs text-gray-500 font-medium">
                   ACTION
                 </span>
                 <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent"></div>
-              </div>
+              </div> */}
 
               {/* Action Button Section */}
-              <button className="w-full bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-500 hover:to-teal-400 text-white py-6 px-8 rounded-xl text-lg font-semibold flex items-center justify-between gap-4 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl hover:shadow-teal-500/30 group">
+              {/* <button className="w-full bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-500 hover:to-teal-400 text-white py-6 px-8 rounded-xl text-lg font-semibold flex items-center justify-between gap-4 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl hover:shadow-teal-500/30 group">
                 <span className="flex-1 text-left">Get Subtitles</span>
                 <div className="flex items-center gap-3 bg-white/10 px-4 py-2 rounded-lg">
                   <span className="text-lg font-bold">5</span>
                   <div className="w-6 h-6 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full shadow-lg group-hover:animate-pulse"></div>
                 </div>
-              </button>
+              </button> */}
             </div>
           )}
 
@@ -498,8 +550,8 @@ export default function SubtitleToolUI() {
 
         {uploadedFile && (
           <div className="flex-1 flex flex-col space-y-6">
-            <div className="bg-gray-800/30 border border-gray-700 rounded-2xl p-6 backdrop-blur-sm">
-              <div className="flex items-center justify-between mb-4">
+            <div className="bg-gray-800/30 border border-gray-700 rounded-2xl p-4 backdrop-blur-sm">
+              {/* <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-300">
                   Video Preview
                 </h3>
@@ -511,7 +563,7 @@ export default function SubtitleToolUI() {
                     Auto
                   </button>
                 </div>
-              </div>
+              </div> */}
 
               <div className="relative rounded-xl overflow-hidden shadow-2xl">
                 <video
@@ -540,57 +592,77 @@ export default function SubtitleToolUI() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none rounded-xl"></div>
               </div>
 
-              <div className="flex items-center justify-end gap-4 mt-4">
-                <select
-                  value={selectedFontColor}
-                  onChange={(e) => setSelectedFontColor(e.target.value)}
-                  className="bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30 text-white px-6 py-3 rounded-full font-medium transition-colors appearance-none cursor-pointer hover:from-teal-600/30 hover:to-blue-600/30 focus:outline-none focus:ring-2 focus:ring-teal-400/50"
-                >
-                  <option value="">Color</option>
-                  <option value="#ffffff">White</option>
-                  <option value="#00ffff">Cyan</option>
-                  <option value="#ff69b4">Pink</option>
-                  <option value="#ffcc00">Yellow</option>
-                </select>
-
-                {/* A Dropdown */}
-                <div className="relative">
-                  <select
-                    value={selectedFontSize}
-                    onChange={(e) => setSelectedFontSize(e.target.value)}
-                    className="bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30 text-white px-6 py-3 rounded-full font-medium transition-colors appearance-none cursor-pointer hover:from-teal-600/30 hover:to-blue-600/30 focus:outline-none focus:ring-2 focus:ring-teal-400/50"
-                  >
-                    <option value="">Size</option>
-                    <option value="14px">14px</option>
-                    <option value="18px">18px </option>
-                    <option value="24px"> 24px</option>
-                    <option value="32px"> 32px </option>
-                  </select>
-                </div>
-
-                {/* T Dropdown */}
-                <div className="relative">
-                  <select
-                    value={selectedFont}
-                    onChange={(e) => setSelectedFont(e.target.value)}
-                    className="bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30 text-white px-6 py-3 rounded-full font-medium transition-colors appearance-none cursor-pointer hover:from-teal-600/30 hover:to-blue-600/30 focus:outline-none focus:ring-2 focus:ring-teal-400/50"
-                  >
-                    <option value="">Font</option>
-                    <option value="arial">Arial</option>
-                    <option value="times">Times New Roman</option>
-                    <option value="helvetica">Helvetica</option>
-                    <option value="georgia">Georgia</option>
-                  </select>
-                </div>
-
-                {/* Remove Filler Button */}
-                <button
-                  onClick={handleRemoveFiller}
-                  className="bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30 px-6 py-3 rounded-full hover:from-teal-600/30 hover:to-blue-600/30 transition-colors"
-                >
-                  Remove Filler
-                </button>
+              <div className="flex gap-2 overflow-x-auto p-2 bg-gray-900 rounded-lg">
+                {thumbnails.map((thumb, index) => (
+                  <img
+                    key={index}
+                    src={thumb.image}
+                    alt={`Thumbnail ${index}`}
+                    className="w-32 h-20 cursor-pointer hover:scale-105 transition-transform rounded-md border border-gray-600"
+                    onClick={() => handleThumbnailClick(thumb.time)}
+                  />
+                ))}
               </div>
+              {subtitleText && (
+                <div className="flex items-center justify-end gap-4 mt-4">
+                  <button
+                    onClick={() => setIsAutoTheme((prev) => !prev)}
+                    className="bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30  px-6 py-3 rounded-full transition-colors appearance-none cursor-pointer hover:from-teal-600/30 hover:to-blue-600/30 "
+                  >
+                    Auto
+                  </button>
+
+                  <select
+                    value={selectedFontColor}
+                    onChange={(e) => setSelectedFontColor(e.target.value)}
+                    className="bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30  px-6 py-3 rounded-full transition-colors appearance-none cursor-pointer hover:from-teal-600/30 hover:to-blue-600/30  "
+                  >
+                    <option value="">Color</option>
+                    <option value="#ffffff">White</option>
+                    <option value="#00ffff">Cyan</option>
+                    <option value="#ff69b4">Pink</option>
+                    <option value="#ffcc00">Yellow</option>
+                  </select>
+
+                  {/* A Dropdown */}
+                  <div className="relative">
+                    <select
+                      value={selectedFontSize}
+                      onChange={(e) => setSelectedFontSize(e.target.value)}
+                      className="bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30 text-white px-6 py-3 rounded-full font-medium transition-colors appearance-none cursor-pointer hover:from-teal-600/30 hover:to-blue-600/30 focus:outline-none focus:ring-2 focus:ring-teal-400/50"
+                    >
+                      <option value="">Size</option>
+                      <option value="14px">14px</option>
+                      <option value="18px">18px </option>
+                      <option value="24px"> 24px</option>
+                      <option value="32px"> 32px </option>
+                    </select>
+                  </div>
+
+                  {/* T Dropdown */}
+                  <div className="relative">
+                    <select
+                      value={selectedFont}
+                      onChange={(e) => setSelectedFont(e.target.value)}
+                      className="bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30 text-white px-6 py-3 rounded-full font-medium transition-colors appearance-none cursor-pointer hover:from-teal-600/30 hover:to-blue-600/30 focus:outline-none focus:ring-2 focus:ring-teal-400/50"
+                    >
+                      <option value="">Font</option>
+                      <option value="arial">Arial</option>
+                      <option value="times">Times New Roman</option>
+                      <option value="helvetica">Helvetica</option>
+                      <option value="georgia">Georgia</option>
+                    </select>
+                  </div>
+
+                  {/* Remove Filler Button */}
+                  <button
+                    onClick={handleRemoveFiller}
+                    className="bg-gradient-to-r from-teal-600/20 to-blue-600/20 border border-teal-500/30 px-6 py-3 rounded-full hover:from-teal-600/30 hover:to-blue-600/30 transition-colors"
+                  >
+                    Remove Filler
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}
