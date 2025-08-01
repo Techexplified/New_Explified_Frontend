@@ -2,13 +2,16 @@ import React, { useState } from "react";
 import {
   Search,
   Sliders,
-  ChevronDown,
-  User,
-  LogOut,
-  Menu,
-  X,
-  ChevronLeft,
-  ChevronRight,
+  Users,
+  Star,
+  TrendingUp,
+  Filter,
+  Grid,
+  List,
+  Heart,
+  Share2,
+  Eye,
+  DollarSign,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
