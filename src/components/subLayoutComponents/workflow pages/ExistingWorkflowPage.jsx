@@ -42,15 +42,6 @@ const ExistingWorkflowsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [openMenuId, setOpenMenuId] = useState(null);
   const [selectedTimeframe, setSelectedTimeframe] = useState("week");
-  const [glowPosition, setGlowPosition] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setGlowPosition({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
 
   // Scroll to top when component mounts
   useEffect(() => {

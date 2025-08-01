@@ -1,6 +1,12 @@
+import { useEffect } from "react";
 import WorkflowEngine from "../WorkflowEngine";
 
 const MainWorkflowPage = () => {
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="w-full h-full flex flex-col items-center p-10">
       {/* Header */}

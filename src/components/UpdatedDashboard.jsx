@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 
 import {
   Home,
@@ -38,6 +38,7 @@ const UpdatedDashboard = () => {
   const [expandedAccordions, setExpandedAccordions] = useState({});
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const userCredits = {
     remaining: 245,
@@ -71,6 +72,24 @@ const UpdatedDashboard = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
+
+  // Set selectedTool based on URL
+  useEffect(() => {
+    const pathname = location.pathname;
+
+    if (pathname === "/") {
+      setSelectedTool("Dashboard");
+    } else if (pathname === "/workflows") {
+      setSelectedTool("Workflows");
+    } else if (pathname === "/socials") {
+      setSelectedTool("Socials");
+    } else if (pathname === "/favorites") {
+      setSelectedTool("Favorites");
+    } else {
+      // For other routes, don't set any tool as selected
+      setSelectedTool(null);
+    }
+  }, [location.pathname]);
 
   const navItems = [
     { name: "Home", icon: Home },
@@ -156,7 +175,7 @@ const UpdatedDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-800 via-gray-900 to-gray-900 flex flex-col overflow-hidden">
       <UserModal
         showUserModal={showUserModal}
         setShowUserModal={setShowUserModal}

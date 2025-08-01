@@ -105,9 +105,10 @@ import ComingSoon from "./reusable_components/ComingSoon";
 import MainDashboard from "./components/subLayoutComponents/MainDashboard";
 import TextToVideoGenerator from "./components/tools/TextToVideoGenerator";
 import AIMemeGenerator from "./pages/explified_tools/video_meme_generator/VideoMemeGenerator";
-import MainWorkflowPage from "./components/subLayoutComponents/workflow pages/MainWorkflowPage";
+import ZapierChat from "./zapierComponents/ZapierChat";
 import RecommendedWorkflowsPage from "./components/subLayoutComponents/workflow pages/RecommendedWorklowsPage";
 import ExistingWorkflowsPage from "./components/subLayoutComponents/workflow pages/ExistingWorkflowPage";
+import NewZapier from "./zapierComponents/NewZapier";
 
 function App() {
   return (
@@ -212,7 +213,7 @@ function App() {
 
             <Route path="/history" element={<History />}></Route>
             <Route path="/favorites" element={<Favourites />}></Route>
-            <Route path="/workflows" element={<MainWorkflowPage />} />
+            {/* <Route path="/workflows" element={<MainWorkflowPage />} /> */}
             <Route path="/workflows/new" element={<CreateNewPage />}></Route>
             <Route
               path="/workflows/recommended"
@@ -222,6 +223,10 @@ function App() {
               path="/workflows/existing"
               element={<ExistingWorkflowsPage />}
             ></Route>
+            {/* <Route
+              path="/workflows/unfinished"
+              element={<UnfinishedWorkflowsPage />}
+            ></Route> */}
             <Route path="/socials/:id" element={<DetailedCard />}></Route>
             <Route path="/aitools" element={<AITools />}></Route>
             <Route path="/lurph" element={<Trone />} />
@@ -258,11 +263,9 @@ function App() {
             <Route path="/bg-remover" element={<BGLayout />} />
 
             <Route path="/result" element={<Result />} />
-            <Route path="/zeno" element={<Zapier />} />
-            {/* <Route
-              path="/api/youtube/oauth2callback"
-              element={<OAuthCallback />}
-            /> */}
+            <Route path="/zeno" element={<NewZapier />} />
+            <Route path="/zenonew" element={<ZapierChat />} />
+
             <Route path="/result2" element={<ZapResult />} />
             <Route path="/influmark/:name" element={<InfluencerProfile />} />
             <Route path="/Meme" element={<Meme />} />
