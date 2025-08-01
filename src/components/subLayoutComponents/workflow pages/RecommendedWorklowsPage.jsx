@@ -30,15 +30,6 @@ const RecommendedWorkflowsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [openAccordions, setOpenAccordions] = useState({});
   const [openMenuId, setOpenMenuId] = useState(null);
-  const [glowPosition, setGlowPosition] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setGlowPosition({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -256,7 +247,7 @@ const RecommendedWorkflowsPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-800 via-slate-900 to-slate-950 relative overflow-hidden">
+    <div className="min-h-screen  relative overflow-hidden">
       <div className="relative z-10 p-6">
         <div className="max-w-7xl mx-auto">
           {/* Header */}

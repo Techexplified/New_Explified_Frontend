@@ -78,25 +78,23 @@ const UserModal = ({ showUserModal, setShowUserModal }) => {
                 >
                   Log Out
                 </span>
-                
-                      <LogOut size={16} />
-                      <span
-  className="w-full py-2 flex justify-center items-center space-x-2 cursor-pointer"
-  onClick={() => {
-    signOut(auth)
-      .then(() => {
-        dispatch(clearUser());
-        navigate("/login"); // Redirect after logout
-      })
-      .catch((error) => {
-        console.error("Logout failed:", error);
-      });
-  }}
->
-  Log Out
-</span>
 
-    
+                <LogOut size={16} />
+                <span
+                  className="w-full py-2 flex justify-center items-center space-x-2 cursor-pointer"
+                  onClick={() => {
+                    signOut(auth)
+                      .then(() => {
+                        dispatch(clearUser());
+                        navigate("/login"); // Redirect after logout
+                      })
+                      .catch((error) => {
+                        console.error("Logout failed:", error);
+                      });
+                  }}
+                >
+                  Log Out
+                </span>
               </>
             ) : (
               <>

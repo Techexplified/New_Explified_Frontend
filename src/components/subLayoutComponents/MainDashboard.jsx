@@ -30,6 +30,7 @@ const MainDashboard = () => {
       color: "from-cyan-400 to-yellow-500",
       route: "/youtube-summarizer",
     },
+
     {
       title: "AI Subtitler",
       description: "Centralized AI Subtitler for your videos",
@@ -165,14 +166,16 @@ const MainDashboard = () => {
             </div>
 
             {/* Accordion Toggle Button */}
-            <div className="flex justify-center ">
-              <button
-                className="px-4 py-2 bg-cyan-700 text-white rounded-lg hover:bg-cyan-600 transition-colors duration-200"
-                onClick={() => setIsOpen((prev) => !prev)}
-              >
-                {isOpen ? "Show Less" : `Show More (${tools.length - 3})`}
-              </button>
-            </div>
+            {tools.length > 6 && (
+              <div className="flex justify-center ">
+                <button
+                  className="px-4 py-2 bg-cyan-700 text-white rounded-lg hover:bg-cyan-600 transition-colors duration-200"
+                  onClick={() => setIsOpen((prev) => !prev)}
+                >
+                  {isOpen ? "Show Less" : `Show More `}
+                </button>
+              </div>
+            )}
           </div>
           <InstagramAnalytics />
         </div>

@@ -61,7 +61,7 @@ const InstagramAnalytics = () => {
   const topHashtags = ["#photography", "#lifestyle", "#travel", "#inspiration"];
 
   return (
-    <div className="min-w-[30%] h-[385px]  bg-gray-900 rounded-2xl border border-gray-800 p-5 shadow-2xl overflow-y-auto">
+    <div className="min-w-[30%] h-fit  bg-gray-900 rounded-2xl border border-gray-800 p-5 shadow-2xl overflow-y-auto">
       {/* Header */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
