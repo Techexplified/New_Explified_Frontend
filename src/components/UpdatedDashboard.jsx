@@ -171,9 +171,9 @@ const UpdatedDashboard = () => {
         <div className="flex items-center justify-between">
           <div className="logo flex items-center justify-center gap-1">
   <img className="w-6" src={logo} alt="Explified" />
-  <h2 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-    <Link to="/" className="cursor-pointer">Explified</Link>
-  </h2>
+  <a className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent cursor-pointer" href="https://explified.com/">
+    Explified
+  </a>
 </div>
 
           {/* Navigation Items */}

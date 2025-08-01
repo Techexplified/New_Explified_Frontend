@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 
-const CLIENT_ID =
-  "318413348080-2s9aqq746ih1lvpcdr9ib9guglbctlio.apps.googleusercontent.com";
+const CLIENT_ID = "1080089039501-2rkku1lknn3d0ukj3a3oh8hi3rg496hl.apps.googleusercontent.com";
+const CLIENT_SECRET = "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";
 const REDIRECT_URI = "http://localhost:8000/api/youtube/oauth2callback";
 const SCOPE = "https://www.googleapis.com/auth/youtube.upload";
 
 const YouTubeUpload = () => {
   const location = useLocation();
-  const { videoUrl } = location.state || "";
+  const { videoUrl } = location.state || {};
   const [videoBlob, setVideoBlob] = useState(null);
   const [uploading, setUploading] = useState(false);
 
@@ -27,21 +27,13 @@ const YouTubeUpload = () => {
     if (videoUrl) fetchVideo();
   }, [videoUrl]);
 
-  const handleLogin = () => {
-    const returnTo = encodeURIComponent(window.location.href);
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${encodeURIComponent(
-      SCOPE
-    )}&access_type=offline&prompt=consent&state=${returnTo}`;
-
-    window.location.href = authUrl;
-  };
-
-  const handleUpload = async () => {
+  const handleUpload = async (isShort) => {
     if (!videoBlob) return alert("Video not ready.");
 
     setUploading(true);
     const formData = new FormData();
     formData.append("video", videoBlob);
+    formData.append("isShort", isShort); // <-- distinguish short vs video
 
     try {
       const res = await fetch("http://localhost:8000/api/youtube/upload", {
@@ -49,6 +41,7 @@ const YouTubeUpload = () => {
         body: formData,
         credentials: "include",
       });
+
       const result = await res.json();
 
       if (result.videoId) {
@@ -66,40 +59,47 @@ const YouTubeUpload = () => {
   };
 
   return (
-    <div className=" bg-black text-white flex items-center justify-center px-4 py-10">
-      <div className=" w-full max-w-3xl rounded-2xl shadow-lg p-8">
-        <h1 className="text-2xl font-bold text-[#23b5b5] mb-6">
-          Upload to YouTube
-        </h1>
-
-        <button
-          className="bg-[#23b5b5] hover:bg-[#1aa2a2] text-white px-6 py-2 rounded-md font-semibold transition"
-          onClick={handleLogin}
-        >
-          Sign in with Google
-        </button>
+    <div className="bg-black text-white flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-3xl rounded-2xl shadow-lg p-8 relative">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-[#23b5b5]">Upload to YouTube</h1>
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleUpload(true)}
+              className="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50"
+              disabled={!videoBlob || uploading}
+            >
+              {uploading ? "Uploading..." : "Upload as Short"}
+            </button>
+            <button
+              onClick={() => handleUpload(false)}
+              className="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50"
+              disabled={!videoBlob || uploading}
+            >
+              {uploading ? "Uploading..." : "Upload as Video"}
+            </button>
+          </div>
+        </div>
 
         <div className="mt-8">
-          {videoBlob && (
+          {videoBlob ? (
             <>
-              <video controls className="mt-4 w-full rounded-md">
+              <div className="flex justify-between items-center mb-2">
+                <a
+                  href={URL.createObjectURL(videoBlob)}
+                  download="video.mp4"
+                  className="text-sm text-blue-400 underline hover:text-blue-300"
+                >
+                  Download Video
+                </a>
+              </div>
+
+              <video controls className="mt-2 w-full rounded-md">
                 <source src={URL.createObjectURL(videoBlob)} type="video/mp4" />
               </video>
-
-              <button
-                onClick={handleUpload}
-                className="mt-6 bg-[#23b5b5] hover:bg-[#1aa2a2] text-white px-6 py-2 rounded-md font-semibold transition disabled:opacity-50"
-                disabled={!videoBlob || uploading}
-              >
-                {uploading ? "Uploading..." : "Upload Video"}
-              </button>
             </>
-          )}
-
-          {!videoBlob && (
-            <p className="mt-4 text-sm text-gray-400 italic">
-              Preparing video...
-            </p>
+          ) : (
+            <p className="mt-4 text-sm text-gray-400 italic">Preparing video...</p>
           )}
         </div>
       </div>

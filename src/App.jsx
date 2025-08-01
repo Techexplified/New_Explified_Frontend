@@ -95,6 +95,7 @@ import ZapResult from "./components1/ZapResult";
 import ZapEnhanced from "./components1/ZapEnhanced";
 import Influmark from "./components1/Influmark";
 
+
 import TextToVideo1 from "./components1/TextToVideo";
 import VideoDescription from "./components1/VideoDescription";
 import WhatsAppChatbot from "./components1/WhatsAppChatbot";
@@ -104,6 +105,7 @@ import Trone from "./components1/Trone";
 import ComingSoon from "./reusable_components/ComingSoon";
 import MainDashboard from "./components/subLayoutComponents/MainDashboard";
 import TextToVideoGenerator from "./components/tools/TextToVideoGenerator";
+import OAuthCallback from "./components1/OAuthCallback";
 
 function App() {
   return (
@@ -246,12 +248,14 @@ function App() {
 
             <Route path="/result" element={<Result />} />
             <Route path="/zeno" element={<Zapier />} />
+            <Route path="/api/youtube/oauth2callback" element={<OAuthCallback />} />
             <Route path="/result2" element={<ZapResult />} />
             <Route path="/influmark/:name" element={<InfluencerProfile />} />
             <Route path="/Meme" element={<Meme />} />
             <Route path="/influmark" element={<Influmark />} />
             <Route path="/integrations" element={<Integrations />} />
             <Route path="/enhanced" element={<ZapEnhanced />} />
+             <Route path="/ZapAuth" element={<ZapEnhanced/>}/>
 
             <Route path="/yt-automation" element={<TextToVideo1 />} />
             <Route
