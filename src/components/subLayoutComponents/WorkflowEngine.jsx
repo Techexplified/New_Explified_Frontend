@@ -19,14 +19,19 @@ import Existing from "./workflows/Existing";
 import Unfinished from "./workflows/Unfinished";
 import Recommended from "./workflows/Recommended";
 import MostPopular from "./workflows/MostPopular";
+import { useNavigate } from "react-router-dom";
 
 const WorkflowEngine = () => {
+  const navigate = useNavigate();
   return (
     <div className="w-full">
       {/* Main Container */}
       <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4 md:p-6 lg:p-8 shadow-2xl flex flex-col md:flex-row gap-6">
         {/* Create Workflow Button Card */}
-        <div className="mb-6 md:mb-0 w-full h-full md:w-1/3 flex-shrink-0 flex flex-col items-center justify-center">
+        <div
+          onClick={() => navigate("/workflows/create")}
+          className="mb-6 md:mb-0 w-full h-full md:w-1/3 flex-shrink-0 flex flex-col items-center justify-center"
+        >
           {/* Card content reduced in size */}
           <div className="group h-[370px] flex items-center justify-center relative bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl p-4 md:p-6 border-2 border-dashed border-cyan-500/50 hover:border-cyan-400 transition-all duration-300 hover:transform hover:scale-[1.02] cursor-pointer w-full">
             <div className="text-center">
