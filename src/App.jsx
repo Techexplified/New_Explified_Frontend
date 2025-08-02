@@ -99,18 +99,18 @@ import TextToVideo1 from "./components1/TextToVideo";
 import VideoDescription from "./components1/VideoDescription";
 import WhatsAppChatbot from "./components1/WhatsAppChatbot";
 import YouTubeUpload from "./components1/YoutubeUpload";
-
+import MainWorkflowPage from "./components/subLayoutComponents/workflowPages/MainWorkflowPage";
 import Trone from "./components1/Trone";
 import ComingSoon from "./reusable_components/ComingSoon";
 import MainDashboard from "./components/subLayoutComponents/MainDashboard";
 import TextToVideoGenerator from "./components/tools/TextToVideoGenerator";
 import AIMemeGenerator from "./pages/explified_tools/video_meme_generator/VideoMemeGenerator";
 import ZapierChat from "./zapierComponents/ZapierChat";
-import RecommendedWorkflowsPage from "./components/subLayoutComponents/workflow pages/RecommendedWorklowsPage";
-import ExistingWorkflowsPage from "./components/subLayoutComponents/workflow pages/ExistingWorkflowPage";
+import RecommendedWorkflowsPage from "./components/subLayoutComponents/workflowPages/RecommendedWorklowsPage";
+import ExistingWorkflowsPage from "./components/subLayoutComponents/workflowPages/ExistingWorkflowPage";
 import NewZapier from "./zapierComponents/NewZapier";
-import UnfinishedWorkflowsPage from "./components/subLayoutComponents/workflow pages/UnfinishedWorkflowsPage";
-import MainWorkflowPage from "./components/subLayoutComponents/workflow pages/MainWorkflowPage";
+import CreateWorkflow from "./components/subLayoutComponents/workflowPages/CreateWorkflow";
+import UnfinishedWorkflowsPage from "./components/subLayoutComponents/workflowPages/UnfinishedWorkflowsPage";
 
 function App() {
   return (
@@ -266,6 +266,7 @@ function App() {
 
             <Route path="/result" element={<Result />} />
             <Route path="/zeno" element={<NewZapier />} />
+            <Route path="/workflows/create" element={<CreateWorkflow />} />
             <Route path="/zenonew" element={<ZapierChat />} />
 
             <Route path="/result2" element={<ZapResult />} />
