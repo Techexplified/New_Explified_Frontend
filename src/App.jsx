@@ -111,7 +111,8 @@ import ExistingWorkflowsPage from "./components/subLayoutComponents/workflow pag
 import NewZapier from "./zapierComponents/NewZapier";
 import UnfinishedWorkflowsPage from "./components/subLayoutComponents/workflow pages/UnfinishedWorkflowsPage";
 import MainWorkflowPage from "./components/subLayoutComponents/workflow pages/MainWorkflowPage";
-
+import AutomatedVideoGenerator from "./components1/Zapier";
+import OAuthCallback from "./components1/OAuthCallback";
 function App() {
   return (
     <div>
@@ -265,7 +266,7 @@ function App() {
             <Route path="/bg-remover" element={<BGLayout />} />
 
             <Route path="/result" element={<Result />} />
-            <Route path="/zeno" element={<NewZapier />} />
+            <Route path="/zeno" element={<AutomatedVideoGenerator />} />
             <Route path="/zenonew" element={<ZapierChat />} />
 
             <Route path="/result2" element={<ZapResult />} />
@@ -275,7 +276,7 @@ function App() {
             <Route path="/integrations" element={<Integrations />} />
             <Route path="/enhanced" element={<ZapEnhanced />} />
             <Route path="/ZapAuth" element={<ZapEnhanced />} />
-
+            <Route path="/api/youtube/oauth2callback" element={<OAuthCallback />} />
             <Route path="/yt-automation" element={<TextToVideo1 />} />
             <Route
               path="/yt-automation/description"
