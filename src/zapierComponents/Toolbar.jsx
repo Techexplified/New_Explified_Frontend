@@ -74,6 +74,10 @@ const Toolbar = () => {
   const [arrowStart, setArrowStart] = useState({ x: 0, y: 0 });
   const [currentMousePos, setCurrentMousePos] = useState({ x: 0, y: 0 });
   const [startSide, setStartSide] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Flatten all tools for search
+  const allTools = Object.values(categorizedTools).flat();
 
   const handleToolClick = (toolId) => {
     setSelectedTool(toolId);
@@ -386,43 +390,45 @@ const Toolbar = () => {
         </svg>
       )}
 
-      {/* Select tool window - positioned outside boxes.map for higher z-index */}
-      {activeBoxId && boxes.find((box) => box.id === activeBoxId) && (
+      {/* Search Sidebar */}
+      {activeBoxId === boxes.find((box) => box.id === activeBoxId)?.id && (
         <div
-          className="absolute w-64 max-h-[300px] overflow-y-auto p-3 bg-white rounded-lg shadow-lg border border-cyan-300 z-[999999]"
+          className="absolute left-full top-0 ml-4 w-64 max-h-[300px] p-3 bg-cyan-200 rounded-xl shadow-xl border border-cyan-300 z-50"
           style={{
-            left: `${boxes.find((box) => box.id === activeBoxId).left}px`,
-            top: `${
-              (boxes.find((box) => box.id === activeBoxId).top || 160) + 100
+            left: `${
+              boxes.find((box) => box.id === activeBoxId)?.left + 120
             }px`,
+            top: `${boxes.find((box) => box.id === activeBoxId)?.top || 160}px`,
           }}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="w-full flex mb-2 font-semibold justify-between items-center text-black">
-            <h1>Select a tool</h1>
-          </div>
-          <div>
-            {Object.entries(categorizedTools).map(([category, tools]) => (
-              <div key={category} className="mb-4">
-                <h3 className="text-sm font-bold text-gray-600 mb-1">
-                  {category}
-                </h3>
-                <div className="grid grid-cols-2 gap-2">
-                  {tools.map((tool) => (
-                    <button
-                      key={tool.name}
-                      onClick={() =>
-                        handleSelectToolIcon(activeBoxId, tool.icon)
-                      }
-                      className="flex items-center gap-2 p-2 rounded-md hover:bg-cyan-100 text-gray-800 text-sm border border-gray-200"
-                    >
-                      <span className="text-lg">{tool.icon}</span>
-                      <span>{tool.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ))}
+          <input
+            type="text"
+            placeholder="🔍 Search tools..."
+            className="w-full mb-3 px-3 py-2 text-sm border border-cyan-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all"
+            style={{
+              backgroundColor: "#e0f7fa",
+              color: "#036c73",
+              fontWeight: "500",
+            }}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <div className="max-h-48 overflow-y-auto space-y-2 stylish-scrollbar">
+            {allTools
+              .filter((tool) =>
+                tool.name.toLowerCase().includes(searchQuery.toLowerCase())
+              )
+              .map((tool) => (
+                <button
+                  key={tool.name}
+                  onClick={() => handleSelectToolIcon(activeBoxId, tool.icon)}
+                  className="flex items-center gap-2 p-2 w-full rounded-md hover:bg-cyan-100 text-gray-800 text-sm border border-gray-200"
+                >
+                  <span className="text-lg">{tool.icon}</span>
+                  <span>{tool.name}</span>
+                </button>
+              ))}
           </div>
         </div>
       )}
