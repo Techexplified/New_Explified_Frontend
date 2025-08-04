@@ -111,6 +111,7 @@ import ExistingWorkflowsPage from "./components/subLayoutComponents/workflowPage
 import NewZapier from "./zapierComponents/NewZapier";
 import CreateWorkflow from "./components/subLayoutComponents/workflowPages/CreateWorkflow";
 import UnfinishedWorkflowsPage from "./components/subLayoutComponents/workflowPages/UnfinishedWorkflowsPage";
+import AutomationWorkflow from "./linkedin/AutomationWorkflow";
 
 function App() {
   return (
@@ -229,6 +230,10 @@ function App() {
               path="/workflows/unfinished"
               element={<UnfinishedWorkflowsPage />}
             ></Route>
+            <Route
+              path="/automation-workflows"
+              element={<AutomationWorkflow />}
+            />
             <Route path="/socials/:id" element={<DetailedCard />}></Route>
             <Route path="/aitools" element={<AITools />}></Route>
             <Route path="/lurph" element={<Trone />} />
