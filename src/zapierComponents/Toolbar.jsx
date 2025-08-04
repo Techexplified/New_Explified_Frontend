@@ -3,77 +3,62 @@ import {
   Square,
   MoveUpRight,
   Plus,
-  CircleX,
-  // Icons for tools
+  MessageCircle,
+  Bot,
+  Search,
+  Brain,
+  Edit,
+  Video,
+  Users,
+  Zap,
+  Chrome,
+  Github,
+  Mail,
 } from "lucide-react";
-
-import {
-  FaWhatsapp,
-  FaDiscord,
-  FaTelegram,
-  FaSlack,
-  FaRobot,
-  FaGem,
-  FaSearch,
-  FaBrain,
-  FaFeatherAlt,
-  FaMicrosoft,
-  FaFacebook,
-  FaTwitter,
-  FaGithub,
-  FaGoogle,
-  FaComments,
-  FaInstagram,
-  FaLinkedin,
-  FaYoutube,
-  FaChrome,
-} from "react-icons/fa";
 
 const categorizedTools = {
   Messaging: [
-    { name: "WhatsApp by Twilio", icon: <FaWhatsapp /> },
-    { name: "Discord", icon: <FaDiscord /> },
-    { name: "Telegram", icon: <FaTelegram /> },
-    { name: "Dealbot for Slack", icon: <FaSlack /> },
+    { name: "WhatsApp", icon: <MessageCircle /> },
+    { name: "Discord", icon: <MessageCircle /> },
+    { name: "Telegram", icon: <MessageCircle /> },
+    { name: "Slack", icon: <MessageCircle /> },
   ],
   "AI Tools": [
-    { name: "ChatGPT", icon: <FaRobot /> },
-    { name: "Gemini", icon: <FaGem /> },
-    { name: "DeepSeek", icon: <FaSearch /> },
-    { name: "Perplexity AI", icon: <FaBrain /> },
-    { name: "Notion AI", icon: <FaFeatherAlt /> },
-    { name: "Slack GPT", icon: <FaSlack /> },
-    { name: "Bing AI", icon: <FaMicrosoft /> },
-    { name: "Facebook AI", icon: <FaFacebook /> },
-    { name: "Twitter AI", icon: <FaTwitter /> },
-    { name: "GitHub Copilot", icon: <FaGithub /> },
+    { name: "ChatGPT", icon: <Bot /> },
+    { name: "Gemini", icon: <Bot /> },
+    { name: "DeepSeek", icon: <Search /> },
+    { name: "Perplexity AI", icon: <Brain /> },
+    { name: "Notion AI", icon: <Edit /> },
+    { name: "Slack GPT", icon: <Bot /> },
+    { name: "Bing AI", icon: <Search /> },
+    { name: "GitHub Copilot", icon: <Github /> },
   ],
   "Video Conferencing": [
-    { name: "Google Meet", icon: <FaGoogle /> },
-    { name: "Microsoft Teams", icon: <FaMicrosoft /> },
-    { name: "Zoom Meetings", icon: <FaComments /> },
+    { name: "Google Meet", icon: <Video /> },
+    { name: "Microsoft Teams", icon: <Video /> },
+    { name: "Zoom Meetings", icon: <Video /> },
   ],
   "Social Media": [
-    { name: "Instagram", icon: <FaInstagram /> },
-    { name: "LinkedIn Tools", icon: <FaLinkedin /> },
-    { name: "YouTube AI", icon: <FaYoutube /> },
+    { name: "Instagram", icon: <Users /> },
+    { name: "LinkedIn", icon: <Users /> },
+    { name: "YouTube", icon: <Video /> },
   ],
-  Automation: [{ name: "Zapier", icon: <FaFeatherAlt /> }],
-  "Browser Extensions": [{ name: "Chrome Extensions", icon: <FaChrome /> }],
+  Automation: [{ name: "Zapier", icon: <Zap /> }],
+  "Browser Extensions": [{ name: "Chrome Extensions", icon: <Chrome /> }],
 };
 
 const Toolbar = () => {
   const [selectedTool, setSelectedTool] = useState("square");
   const [boxes, setBoxes] = useState([]);
-  const [activeBoxId, setActiveBoxId] = useState(null); // for showing sidebar
+  const [activeBoxId, setActiveBoxId] = useState(null);
   const [draggedBoxId, setDraggedBoxId] = useState(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [hasDragged, setHasDragged] = useState(false);
   const [arrows, setArrows] = useState([]);
   const [isDrawingArrow, setIsDrawingArrow] = useState(false);
   const [arrowStart, setArrowStart] = useState({ x: 0, y: 0 });
+  const [arrowStartBoxId, setArrowStartBoxId] = useState(null);
   const [currentMousePos, setCurrentMousePos] = useState({ x: 0, y: 0 });
-  const [startSide, setStartSide] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   // Flatten all tools for search
@@ -109,61 +94,7 @@ const Toolbar = () => {
     setBoxes((prev) =>
       prev.map((box) => (box.id === boxId ? { ...box, icon } : box))
     );
-    setActiveBoxId(null); // close navbar
-  };
-
-  const handleMouseDown = (e, boxId) => {
-    // Don't allow box dragging when arrow tool is selected
-    if (selectedTool === "arrow") {
-      return;
-    }
-
-    const box = boxes.find((box) => box.id === boxId);
-    if (box) {
-      setDraggedBoxId(boxId);
-      setHasDragged(false);
-      setDragOffset({
-        x: e.clientX - box.left,
-        y: e.clientY - (box.top || 160),
-      });
-    }
-  };
-
-  const handleMouseMove = (e) => {
-    if (draggedBoxId) {
-      setHasDragged(true);
-      setBoxes((prev) =>
-        prev.map((box) =>
-          box.id === draggedBoxId
-            ? {
-                ...box,
-                left: e.clientX - dragOffset.x,
-                top: e.clientY - dragOffset.y,
-              }
-            : box
-        )
-      );
-    }
-  };
-
-  const handleMouseUp = () => {
-    setDraggedBoxId(null);
-  };
-
-  const handleCanvasMouseDown = (e) => {
-    if (selectedTool === "arrow") {
-      // Check if clicking on a box using position
-      const clickedBox = findBoxAtPosition(e.clientX, e.clientY);
-
-      if (clickedBox) {
-        const side = findClosestSide(e.clientX, e.clientY, clickedBox);
-        const connectionPoint = getConnectionPoint(clickedBox, side);
-
-        setIsDrawingArrow(true);
-        setStartSide(side);
-        setArrowStart(connectionPoint);
-      }
-    }
+    setActiveBoxId(null);
   };
 
   // Helper function to find box at mouse position
@@ -178,82 +109,105 @@ const Toolbar = () => {
     });
   };
 
-  // Helper function to find which side of a box the mouse is closest to
-  const findClosestSide = (clientX, clientY, box) => {
-    const centerX = box.left + 60;
-    const centerY = box.top + 50;
-
-    const dx = clientX - centerX;
-    const dy = clientY - centerY;
-
-    // Determine which side is closest
-    if (Math.abs(dx) > Math.abs(dy)) {
-      // Horizontal side (left or right)
-      return dx > 0 ? "right" : "left";
-    } else {
-      // Vertical side (top or bottom)
-      return dy > 0 ? "bottom" : "top";
-    }
+  // Helper function to get center point of a box
+  const getBoxCenter = (box) => {
+    return {
+      x: box.left + 60, // 120px width / 2
+      y: box.top + 50, // 100px height / 2
+    };
   };
 
-  // Helper function to get connection point on a box side
-  const getConnectionPoint = (box, side) => {
-    switch (side) {
-      case "left":
-        return { x: box.left, y: box.top + 50 };
-      case "right":
-        return { x: box.left + 120, y: box.top + 50 };
-      case "top":
-        return { x: box.left + 60, y: box.top };
-      case "bottom":
-        return { x: box.left + 60, y: box.top + 100 };
-      default:
-        return { x: box.left + 60, y: box.top + 50 };
-    }
-  };
+  const handleBoxMouseDown = (e, boxId) => {
+    e.preventDefault();
+    e.stopPropagation();
 
-  const handleCanvasMouseMove = (e) => {
-    if (isDrawingArrow) {
-      // Check if hovering over a box using position
-      const hoveredBox = findBoxAtPosition(e.clientX, e.clientY);
-
-      if (hoveredBox) {
-        // Find the closest side of the hovered box
-        const side = findClosestSide(e.clientX, e.clientY, hoveredBox);
-        const connectionPoint = getConnectionPoint(hoveredBox, side);
-
-        // Update current mouse position to the connection point
-        setCurrentMousePos(connectionPoint);
-      } else {
-        // If not hovering over a box, follow mouse cursor
-        setCurrentMousePos({ x: e.clientX, y: e.clientY });
+    if (selectedTool === "arrow") {
+      // Start drawing arrow from center of clicked box
+      const box = boxes.find((b) => b.id === boxId);
+      if (box) {
+        const center = getBoxCenter(box);
+        setIsDrawingArrow(true);
+        setArrowStart(center);
+        setArrowStartBoxId(boxId);
+        setCurrentMousePos(center);
       }
     } else {
-      setCurrentMousePos({ x: e.clientX, y: e.clientY });
+      // Regular box dragging for square tool
+      const box = boxes.find((box) => box.id === boxId);
+      if (box) {
+        setDraggedBoxId(boxId);
+        setHasDragged(false);
+        setDragOffset({
+          x: e.clientX - box.left,
+          y: e.clientY - (box.top || 160),
+        });
+      }
     }
   };
 
-  const handleCanvasMouseUp = (e) => {
+  const handleMouseMove = (e) => {
+    // Handle box dragging (only for square tool)
+    if (draggedBoxId && selectedTool !== "arrow") {
+      setHasDragged(true);
+      setBoxes((prev) =>
+        prev.map((box) =>
+          box.id === draggedBoxId
+            ? {
+                ...box,
+                left: e.clientX - dragOffset.x,
+                top: e.clientY - dragOffset.y,
+              }
+            : box
+        )
+      );
+    }
+
+    // Handle arrow drawing
+    if (isDrawingArrow) {
+      const hoveredBox = findBoxAtPosition(e.clientX, e.clientY);
+
+      if (hoveredBox && hoveredBox.id !== arrowStartBoxId) {
+        // Snap to center of hovered box
+        const center = getBoxCenter(hoveredBox);
+        setCurrentMousePos(center);
+      } else {
+        // Follow mouse cursor
+        setCurrentMousePos({ x: e.clientX, y: e.clientY });
+      }
+    }
+  };
+
+  const handleMouseUp = (e) => {
+    // Handle arrow completion
     if (isDrawingArrow && selectedTool === "arrow") {
-      // Check if releasing on a box using position
       const targetBox = findBoxAtPosition(e.clientX, e.clientY);
 
-      if (targetBox) {
-        // Find the closest side of the target box
-        const endSide = findClosestSide(e.clientX, e.clientY, targetBox);
-        const endPoint = getConnectionPoint(targetBox, endSide);
+      if (targetBox && targetBox.id !== arrowStartBoxId) {
+        const endCenter = getBoxCenter(targetBox);
 
         const newArrow = {
           id: Date.now(),
           startX: arrowStart.x,
           startY: arrowStart.y,
-          endX: endPoint.x,
-          endY: endPoint.y,
+          endX: endCenter.x,
+          endY: endCenter.y,
+          startBoxId: arrowStartBoxId,
+          endBoxId: targetBox.id,
         };
         setArrows((prev) => [...prev, newArrow]);
       }
+
       setIsDrawingArrow(false);
-      setStartSide(null);
+      setArrowStartBoxId(null);
+    }
+
+    // Handle box dragging cleanup
+    setDraggedBoxId(null);
+  };
+
+  const handleBoxClick = (e, boxId) => {
+    if (!hasDragged && selectedTool !== "arrow") {
+      setActiveBoxId(boxId);
     }
   };
 
@@ -262,22 +216,15 @@ const Toolbar = () => {
       className={`relative w-full h-screen ${
         selectedTool === "arrow" ? "cursor-crosshair" : ""
       }`}
-      onMouseMove={(e) => {
-        handleMouseMove(e);
-        handleCanvasMouseMove(e);
-      }}
-      onMouseUp={(e) => {
-        handleMouseUp();
-        handleCanvasMouseUp(e);
-      }}
-      onMouseDown={handleCanvasMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
     >
       {/* Render Boxes */}
       {boxes.map((box, index) => (
         <div
           key={box.id}
           data-box-id={box.id}
-          className={`absolute w-[120px] h-[100px] bg-gradient-to-r from-cyan-400 to-blue-500 border-2 border-cyan-500 rounded-md z-40 cursor-pointer ${
+          className={`absolute w-[120px] h-[100px] bg-gradient-to-r from-cyan-400 to-blue-500 border-2 border-cyan-500 rounded-md z-40 ${
             selectedTool === "arrow"
               ? "cursor-crosshair"
               : draggedBoxId === box.id
@@ -288,20 +235,8 @@ const Toolbar = () => {
             left: `${box.left}px`,
             top: `${box.top || 160}px`,
           }}
-          onMouseDown={(e) => {
-            // If arrow tool is selected, prevent box dragging and let canvas handle it
-            if (selectedTool === "arrow") {
-              e.preventDefault();
-              e.stopPropagation();
-              return;
-            }
-            handleMouseDown(e, box.id);
-          }}
-          onClick={(e) => {
-            if (!hasDragged && selectedTool !== "arrow") {
-              setActiveBoxId(box.id);
-            }
-          }}
+          onMouseDown={(e) => handleBoxMouseDown(e, box.id)}
+          onClick={(e) => handleBoxClick(e, box.id)}
         >
           <div className="w-full h-full flex items-center justify-center text-4xl text-white">
             {box.icon || <Square size={48} />}
