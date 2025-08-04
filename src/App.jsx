@@ -1,6 +1,6 @@
 // file starts here
 import "./App.css";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import LoginPage from "./pages/auth/LoginPage";
 import MainPage from "./pages/landing_pages/MainPage";
 
@@ -111,91 +111,99 @@ import ExistingWorkflowsPage from "./components/subLayoutComponents/workflowPage
 import NewZapier from "./zapierComponents/NewZapier";
 import CreateWorkflow from "./components/subLayoutComponents/workflowPages/CreateWorkflow";
 import UnfinishedWorkflowsPage from "./components/subLayoutComponents/workflowPages/UnfinishedWorkflowsPage";
+import { useEffect } from "react";
 
 function App() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (window.location.hostname === "luph.com") {
+      navigate("/lurph", { replace: true });
+    }
+  }, []);
+
   return (
     <div>
-      <Router>
-        <Routes>
-          <Route path="/web" element={<MainPage />} />
-          <Route path="/result" element={<Result />} />
-          <Route path="influmark/:name" element={<InfluencerProfile />} />
-          <Route path="/login" element={<LoginPage />} />
+      <Routes>
+        <Route path="/web" element={<MainPage />} />
+        <Route path="/result" element={<Result />} />
+        <Route path="influmark/:name" element={<InfluencerProfile />} />
+        <Route path="/login" element={<LoginPage />} />
 
-          {/* <Route path="/influmark" element={<Influmark />} /> */}
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/about-us" element={<AboutUs />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/terms" element={<TermsAndServices />} />
-          <Route path="/contact-us" element={<ContactUs />} />
-          <Route path="/affliate-policy" element={<AffiliatePartnerPolicy />} />
-          <Route path="/solutions" element={<ExplifiedServices />} />
-          <Route path="/work" element={<ExplifiedWork />} />
+        {/* <Route path="/influmark" element={<Influmark />} /> */}
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/about-us" element={<AboutUs />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsAndServices />} />
+        <Route path="/contact-us" element={<ContactUs />} />
+        <Route path="/affliate-policy" element={<AffiliatePartnerPolicy />} />
+        <Route path="/solutions" element={<ExplifiedServices />} />
+        <Route path="/work" element={<ExplifiedWork />} />
 
-          {/* <Route path="/integrations" element={<Integrations />} /> */}
-          <Route path="/blaze" element={<BlazeToolLandingPage />} />
-          <Route path="/bridge" element={<BridgeToolLandingPage />} />
-          <Route path="/motion" element={<MotionToolLandingPage />} />
+        {/* <Route path="/integrations" element={<Integrations />} /> */}
+        <Route path="/blaze" element={<BlazeToolLandingPage />} />
+        <Route path="/bridge" element={<BridgeToolLandingPage />} />
+        <Route path="/motion" element={<MotionToolLandingPage />} />
 
-          {/* Services */}
+        {/* Services */}
+        <Route
+          path="/content-marketing-service"
+          element={<ContentMarketingServicePage />}
+        />
+        <Route
+          path="/youtube-management-service"
+          element={<YoutubeManagementServicePage />}
+        />
+        <Route
+          path="/market-research-analysis-service"
+          element={<MarketResearchAnalysisPage />}
+        />
+        <Route path="/seo-and-smo-service" element={<SEOServicePage />} />
+
+        {/* publish dashboard */}
+        <Route path="/publish" element={<Publish />}>
+          <Route index element={<AllChannels />} />
           <Route
-            path="/content-marketing-service"
-            element={<ContentMarketingServicePage />}
+            path="/publish/connect-to-facebook"
+            element={<ConnectToFacebook />}
           />
           <Route
-            path="/youtube-management-service"
-            element={<YoutubeManagementServicePage />}
+            path="/publish/connect-to-instagram"
+            element={<ConnectToInstagram />}
           />
           <Route
-            path="/market-research-analysis-service"
-            element={<MarketResearchAnalysisPage />}
+            path="/publish/connect-to-twitter"
+            element={<ConnectToTwitter />}
           />
-          <Route path="/seo-and-smo-service" element={<SEOServicePage />} />
+        </Route>
 
-          {/* publish dashboard */}
-          <Route path="/publish" element={<Publish />}>
-            <Route index element={<AllChannels />} />
-            <Route
-              path="/publish/connect-to-facebook"
-              element={<ConnectToFacebook />}
-            />
-            <Route
-              path="/publish/connect-to-instagram"
-              element={<ConnectToInstagram />}
-            />
-            <Route
-              path="/publish/connect-to-twitter"
-              element={<ConnectToTwitter />}
-            />
-          </Route>
+        {/* grow dashboard */}
+        <Route path="/grow" element={<Grow />}></Route>
 
-          {/* grow dashboard */}
-          <Route path="/grow" element={<Grow />}></Route>
+        <Route path="/dashboard" element={<DashboardLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="/dashboard/discover" element={<Discover />} />
+          <Route path="/dashboard/trending" element={<Trending />} />
 
-          <Route path="/dashboard" element={<DashboardLayout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="/dashboard/discover" element={<Discover />} />
-            <Route path="/dashboard/trending" element={<Trending />} />
+          {/* Updated Dashboard */}
 
-            {/* Updated Dashboard */}
+          {/* Tools Page */}
+          <Route path="clipper" element={<Clipper />} />
+          <Route path="subtitling" element={<Subtitling />} />
+          <Route path="video-generator" element={<VideoFromLink />} />
+          <Route path="gif-generator" element={<GIFGenerator />} />
+          <Route path="scribble" element={<Scribbling />} />
+          <Route path="remove-bg" element={<RemoveBackground />} />
+          <Route path="image-cartoonizer" element={<ImageCartoonizer />} />
+          <Route path="image-to-video" element={<ImageToVideoConvertor />} />
+          <Route path="text-to-video" element={<TextToVideo />} />
+          <Route path="text-to-image" element={<TextToImage />} />
+          <Route path="ai-image-styler" element={<AIImageStyler />} />
+          <Route path="slideshow" element={<AISlideshow />} />
+          <Route path="ageing_ai" element={<AgeingVideoMaker />} />
+        </Route>
 
-            {/* Tools Page */}
-            <Route path="clipper" element={<Clipper />} />
-            <Route path="subtitling" element={<Subtitling />} />
-            <Route path="video-generator" element={<VideoFromLink />} />
-            <Route path="gif-generator" element={<GIFGenerator />} />
-            <Route path="scribble" element={<Scribbling />} />
-            <Route path="remove-bg" element={<RemoveBackground />} />
-            <Route path="image-cartoonizer" element={<ImageCartoonizer />} />
-            <Route path="image-to-video" element={<ImageToVideoConvertor />} />
-            <Route path="text-to-video" element={<TextToVideo />} />
-            <Route path="text-to-image" element={<TextToImage />} />
-            <Route path="ai-image-styler" element={<AIImageStyler />} />
-            <Route path="slideshow" element={<AISlideshow />} />
-            <Route path="ageing_ai" element={<AgeingVideoMaker />} />
-          </Route>
-
-          {/* <Route path="/" element={<NewDashBoardLayout />}>
+        {/* <Route path="/" element={<NewDashBoardLayout />}>
             <Route index element={<NewDashboard />} />
             <Route path="/youtube-summarizer" element={<YoutubeSummarizer />} />
             <Route path="/pdf-tools" element={<PDFHome />} />
@@ -207,110 +215,103 @@ function App() {
             <Route path="/pdf-tools/sign" element={<Sign />} />
           </Route> */}
 
-          <Route path="/" element={<UpdatedDashboard />}>
-            <Route index element={<MainDashboard />}></Route>
-            <Route path="/socials" element={<SocialsPage />}></Route>
-            <Route path="/history" element={<History />}></Route>
-            <Route path="/text-to-video" element={<TextToVideoGenerator />} />
+        <Route path="/" element={<UpdatedDashboard />}>
+          <Route index element={<MainDashboard />}></Route>
+          <Route path="/socials" element={<SocialsPage />}></Route>
+          <Route path="/history" element={<History />}></Route>
+          <Route path="/text-to-video" element={<TextToVideoGenerator />} />
 
-            <Route path="/history" element={<History />}></Route>
-            <Route path="/favorites" element={<Favourites />}></Route>
-            <Route path="/workflows" element={<MainWorkflowPage />} />
-            <Route path="/workflows/new" element={<CreateNewPage />}></Route>
-            <Route
-              path="/workflows/recommended"
-              element={<RecommendedWorkflowsPage />}
-            ></Route>
-            <Route
-              path="/workflows/existing"
-              element={<ExistingWorkflowsPage />}
-            ></Route>
-            <Route
-              path="/workflows/unfinished"
-              element={<UnfinishedWorkflowsPage />}
-            ></Route>
-            <Route path="/socials/:id" element={<DetailedCard />}></Route>
-            <Route path="/aitools" element={<AITools />}></Route>
-            <Route path="/lurph" element={<Trone />} />
-            <Route path="/Meme" element={<Meme />} />
-            <Route path="/ai-gif-generator" element={<GIFGenerator />} />
-            <Route path="/video-meme-generator" element={<AIMemeGenerator />} />
+          <Route path="/history" element={<History />}></Route>
+          <Route path="/favorites" element={<Favourites />}></Route>
+          <Route path="/workflows" element={<MainWorkflowPage />} />
+          <Route path="/workflows/new" element={<CreateNewPage />}></Route>
+          <Route
+            path="/workflows/recommended"
+            element={<RecommendedWorkflowsPage />}
+          ></Route>
+          <Route
+            path="/workflows/existing"
+            element={<ExistingWorkflowsPage />}
+          ></Route>
+          <Route
+            path="/workflows/unfinished"
+            element={<UnfinishedWorkflowsPage />}
+          ></Route>
+          <Route path="/socials/:id" element={<DetailedCard />}></Route>
+          <Route path="/aitools" element={<AITools />}></Route>
+          <Route path="/lurph" element={<Trone />} />
+          <Route path="/Meme" element={<Meme />} />
+          <Route path="/ai-gif-generator" element={<GIFGenerator />} />
+          <Route path="/video-meme-generator" element={<AIMemeGenerator />} />
 
-            <Route
-              path="/socials/:id/posts/recents"
-              element={<RecentPosts />}
-            />
-            <Route path="/socials/:id/lastPosts" element={<LastPosts />} />
-            <Route path="/socials/:id/:id1" element={<ScheduleDraftPosts />} />
-            <Route path="/socials/newPost" element={<NewPost />} />
-            <Route
-              path="/presentation"
-              element={<PresentationLandingPage />}
-            ></Route>
-            {/* <Route
+          <Route path="/socials/:id/posts/recents" element={<RecentPosts />} />
+          <Route path="/socials/:id/lastPosts" element={<LastPosts />} />
+          <Route path="/socials/:id/:id1" element={<ScheduleDraftPosts />} />
+          <Route path="/socials/newPost" element={<NewPost />} />
+          <Route
+            path="/presentation"
+            element={<PresentationLandingPage />}
+          ></Route>
+          {/* <Route
               path="/presentation/create"
               element={<CreatePresentation />} 
             /> */}
 
-            <Route path="/image-styler" element={<ImageFilter />} />
-            <Route path="/image-styler/filter" element={<AiImageStyler />} />
-            <Route
-              path="/image-styler/backChanger"
-              element={<BackgroundChanger />}
-            />
-            <Route path="/image-styler/merger" element={<ImageMerger />} />
-            <Route path="/image-styler/expander" element={<ImageExpander />} />
-            <Route path="/image-styler/editor" element={<ImageEditor />} />
+          <Route path="/image-styler" element={<ImageFilter />} />
+          <Route path="/image-styler/filter" element={<AiImageStyler />} />
+          <Route
+            path="/image-styler/backChanger"
+            element={<BackgroundChanger />}
+          />
+          <Route path="/image-styler/merger" element={<ImageMerger />} />
+          <Route path="/image-styler/expander" element={<ImageExpander />} />
+          <Route path="/image-styler/editor" element={<ImageEditor />} />
 
-            <Route path="/bg-remover" element={<BGLayout />} />
+          <Route path="/bg-remover" element={<BGLayout />} />
 
-            <Route path="/result" element={<Result />} />
-            <Route path="/zeno" element={<NewZapier />} />
-            <Route path="/workflows/create" element={<CreateWorkflow />} />
-            <Route path="/zenonew" element={<ZapierChat />} />
+          <Route path="/result" element={<Result />} />
+          <Route path="/zeno" element={<NewZapier />} />
+          <Route path="/workflows/create" element={<CreateWorkflow />} />
+          <Route path="/zenonew" element={<ZapierChat />} />
 
-            <Route path="/result2" element={<ZapResult />} />
-            <Route path="/influmark/:name" element={<InfluencerProfile />} />
-            <Route path="/Meme" element={<Meme />} />
-            <Route path="/influmark" element={<Influmark />} />
-            <Route path="/integrations" element={<Integrations />} />
-            <Route path="/enhanced" element={<ZapEnhanced />} />
-            <Route path="/ZapAuth" element={<ZapEnhanced />} />
+          <Route path="/result2" element={<ZapResult />} />
+          <Route path="/influmark/:name" element={<InfluencerProfile />} />
+          <Route path="/Meme" element={<Meme />} />
+          <Route path="/influmark" element={<Influmark />} />
+          <Route path="/integrations" element={<Integrations />} />
+          <Route path="/enhanced" element={<ZapEnhanced />} />
+          <Route path="/ZapAuth" element={<ZapEnhanced />} />
 
-            <Route path="/yt-automation" element={<TextToVideo1 />} />
-            <Route
-              path="/yt-automation/description"
-              element={<VideoDescription />}
-            />
+          <Route path="/yt-automation" element={<TextToVideo1 />} />
+          <Route
+            path="/yt-automation/description"
+            element={<VideoDescription />}
+          />
 
-            <Route path="/ai/whatsapp" element={<WhatsAppChatbot />} />
-            <Route path="/ai/youtube-upload" element={<YouTubeUpload />} />
+          <Route path="/ai/whatsapp" element={<WhatsAppChatbot />} />
+          <Route path="/ai/youtube-upload" element={<YouTubeUpload />} />
 
-            <Route path="/socials/newPost" element={<NewPost />} />
-            <Route path="/youtube-summarizer" element={<YoutubeSummarizer />} />
-            <Route path="/ai-subtitler" element={<AISubtitler />} />
-            <Route path="/ai-subtitler-ui" element={<SubtitleToolUI />} />
-            <Route
-              path="/youtube-summarizer/deep-search"
-              element={<DeepSearch />}
-            />
-            <Route
-              path="/presentation"
-              element={<PresentationLandingPage />}
-            ></Route>
-            <Route
-              path="/presentation/create"
-              element={<CreatePresentation />}
-            />
-            <Route path="/*" element={<ComingSoon />} />
-          </Route>
+          <Route path="/socials/newPost" element={<NewPost />} />
+          <Route path="/youtube-summarizer" element={<YoutubeSummarizer />} />
+          <Route path="/ai-subtitler" element={<AISubtitler />} />
+          <Route path="/ai-subtitler-ui" element={<SubtitleToolUI />} />
+          <Route
+            path="/youtube-summarizer/deep-search"
+            element={<DeepSearch />}
+          />
+          <Route
+            path="/presentation"
+            element={<PresentationLandingPage />}
+          ></Route>
+          <Route path="/presentation/create" element={<CreatePresentation />} />
+          <Route path="/*" element={<ComingSoon />} />
+        </Route>
 
-          {/* Tools Page */}
+        {/* Tools Page */}
 
-          {/* Landing Page */}
-          {/* <Route path="/clipper-landing" element={<ClipperLandingPage />} /> */}
-        </Routes>
-      </Router>
+        {/* Landing Page */}
+        {/* <Route path="/clipper-landing" element={<ClipperLandingPage />} /> */}
+      </Routes>
     </div>
   );
 }
