@@ -7,6 +7,8 @@ import {
   Images,
   Laugh,
   PenOff,
+  BoomBox,
+  Zap,
 } from "lucide-react";
 import { PiSubtitles } from "react-icons/pi";
 import {
@@ -25,6 +27,16 @@ const toolCategories = [
         name: "AI Video Generator",
         route: "/ai-video-generator",
         icon: Play,
+      },
+      {
+        name: "Socials",
+        route: "/socials",
+        icon: BoomBox,
+      },
+      {
+        name: "Integrations",
+        route: "/integrations",
+        icon: Zap,
       },
       {
         name: "Link To Video AI",

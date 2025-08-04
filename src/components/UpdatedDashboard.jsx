@@ -28,7 +28,7 @@ import UserModal from "./UserModal";
 
 const UpdatedDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeNav, setActiveNav] = useState("Home");
+  const [activeNav, setActiveNav] = useState("");
   const [selectedTool, setSelectedTool] = useState(null);
   const [showContent, setShowContent] = useState(true);
   // Navbar show/hide on scroll
@@ -91,12 +91,26 @@ const UpdatedDashboard = () => {
     }
   }, [location.pathname]);
 
-  const navItems = [
-    { name: "Home", icon: Home },
-    { name: "History", icon: History },
-    { name: "Integrations", icon: Zap },
-    { name: "Lurph", icon: BotMessageSquare },
-  ];
+  // Set activeNav based on URL ending with "/itemname"
+  useEffect(() => {
+    const pathname = location.pathname;
+
+    // Check if URL ends with "/itemname" pattern
+    const navItems = ["Lurph"]; // Add more items here if needed
+
+    for (const item of navItems) {
+      const itemPath = `/${item.toLowerCase()}`;
+      if (pathname.endsWith(itemPath)) {
+        setActiveNav(item);
+        return;
+      }
+    }
+
+    // If no match found, clear activeNav
+    setActiveNav("");
+  }, [location.pathname]);
+
+  const navItems = [{ name: "Lurph", icon: BotMessageSquare }];
 
   const tools = [
     {
@@ -126,6 +140,11 @@ const UpdatedDashboard = () => {
           name: "AI Tools",
           icon: BrainCircuit,
           route: "/aitools",
+        },
+        {
+          name: "Integrations",
+          icon: Zap,
+          route: "/integrations",
         },
         {
           name: "Youtube Summarizer",
@@ -187,17 +206,20 @@ const UpdatedDashboard = () => {
         } fixed top-0 left-0 w-full`}
       >
         <div className="flex items-center justify-between">
+          {/* logo */}
           <div className="logo flex items-center justify-center gap-1">
-            <img className="w-6" src={logo} alt="Explified" />
+            <Link to="https://explified.com/">
+              <img className="w-6" src={logo} alt="Explified" />
+            </Link>
             <h2 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-              <Link to="/" className="cursor-pointer">
+              <Link to="https://explified.com/" className="cursor-pointer">
                 Explified
               </Link>
             </h2>
           </div>
 
-          {/* Navigation Items */}
-          <div className="flex gap-3 space-x-1">
+          {/* user profile */}
+          <div className=" flex items-center justify-center gap-2">
             {navItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -205,13 +227,7 @@ const UpdatedDashboard = () => {
                   key={item.name}
                   onClick={() => {
                     setActiveNav(item.name);
-                    {
-                      if (
-                        item.name === "Home"
-                          ? navigate("/")
-                          : navigate(`/${item.name.toLowerCase()}`)
-                      );
-                    }
+                    navigate(`/${item.name.toLowerCase()}`);
                   }}
                   className={`flex items-center px-4 py-2 rounded-lg transition-all duration-200 ${
                     activeNav === item.name
@@ -224,13 +240,10 @@ const UpdatedDashboard = () => {
                 </button>
               );
             })}
-          </div>
-          {/* user profile */}
-          <div
-            onClick={() => setShowUserModal(true)}
-            className="hover:scale-105 transition-all duration-200 cursor-pointer text-cyan-500"
-          >
-            <CircleUserRound />
+            <CircleUserRound
+              onClick={() => setShowUserModal(true)}
+              className="hover:scale-105 transition-all duration-200 cursor-pointer text-cyan-500"
+            />
           </div>
         </div>
       </header>
