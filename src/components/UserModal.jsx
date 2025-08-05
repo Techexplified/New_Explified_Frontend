@@ -62,7 +62,8 @@ const UserModal = ({ showUserModal, setShowUserModal }) => {
         <div className="text-center mb-8">
           <div className="w-20 h-20 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-white font-bold text-2xl">
-              {userData.avatar}
+              {/* {userData.avatar} */}
+              {userData.name[0]}
             </span>
           </div>
           <h2 className="text-white text-xl font-bold mb-1">{userData.name}</h2>

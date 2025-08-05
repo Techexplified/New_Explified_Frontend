@@ -117,6 +117,62 @@ const Toolbar = () => {
     };
   };
 
+  // Helper function to calculate arrow end point at box border
+  const getArrowEndPoint = (startBox, endBox) => {
+    const startCenter = getBoxCenter(startBox);
+    const endCenter = getBoxCenter(endBox);
+
+    // Calculate direction vector
+    const dx = endCenter.x - startCenter.x;
+    const dy = endCenter.y - startCenter.y;
+
+    // Normalize the direction
+    const length = Math.sqrt(dx * dx + dy * dy);
+    if (length === 0) return endCenter;
+
+    const unitX = dx / length;
+    const unitY = dy / length;
+
+    // Box dimensions
+    const boxWidth = 120;
+    const boxHeight = 100;
+    const halfWidth = boxWidth / 2;
+    const halfHeight = boxHeight / 2;
+
+    // Calculate intersection with box border
+    let intersectionX, intersectionY;
+
+    // Check which side of the box the arrow will hit
+    const slope = Math.abs(dy / dx);
+    const boxSlope = boxHeight / boxWidth;
+
+    if (slope <= boxSlope) {
+      // Arrow hits left or right side
+      if (unitX > 0) {
+        // Hits right side
+        intersectionX = endBox.left;
+        intersectionY = endCenter.y - (halfWidth * unitY) / unitX;
+      } else {
+        // Hits left side
+        intersectionX = endBox.left + boxWidth;
+        intersectionY = endCenter.y + (halfWidth * unitY) / unitX;
+      }
+    } else {
+      // Arrow hits top or bottom side
+      if (unitY > 0) {
+        // Hits bottom side
+        intersectionY = endBox.top;
+        intersectionX = endCenter.x - (halfHeight * unitX) / unitY;
+      } else {
+        // Hits top side
+        intersectionY = endBox.top + boxHeight;
+        intersectionX = endCenter.x + (halfHeight * unitX) / unitY;
+      }
+    }
+
+    return { x: intersectionX, y: intersectionY };
+  };
+
   const handleBoxMouseDown = (e, boxId) => {
     e.preventDefault();
     e.stopPropagation();
@@ -167,9 +223,10 @@ const Toolbar = () => {
       const hoveredBox = findBoxAtPosition(e.clientX, e.clientY);
 
       if (hoveredBox && hoveredBox.id !== arrowStartBoxId) {
-        // Snap to center of hovered box
-        const center = getBoxCenter(hoveredBox);
-        setCurrentMousePos(center);
+        // Calculate arrow end point at box border instead of center
+        const startBox = boxes.find((b) => b.id === arrowStartBoxId);
+        const endPoint = getArrowEndPoint(startBox, hoveredBox);
+        setCurrentMousePos(endPoint);
       } else {
         // Follow mouse cursor
         setCurrentMousePos({ x: e.clientX, y: e.clientY });
@@ -183,14 +240,15 @@ const Toolbar = () => {
       const targetBox = findBoxAtPosition(e.clientX, e.clientY);
 
       if (targetBox && targetBox.id !== arrowStartBoxId) {
-        const endCenter = getBoxCenter(targetBox);
+        const startBox = boxes.find((b) => b.id === arrowStartBoxId);
+        const endPoint = getArrowEndPoint(startBox, targetBox);
 
         const newArrow = {
           id: Date.now(),
           startX: arrowStart.x,
           startY: arrowStart.y,
-          endX: endCenter.x,
-          endY: endCenter.y,
+          endX: endPoint.x,
+          endY: endPoint.y,
           startBoxId: arrowStartBoxId,
           endBoxId: targetBox.id,
         };
