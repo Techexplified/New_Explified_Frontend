@@ -112,13 +112,16 @@ import NewZapier from "./zapierComponents/NewZapier";
 import CreateWorkflow from "./components/subLayoutComponents/workflowPages/CreateWorkflow";
 import UnfinishedWorkflowsPage from "./components/subLayoutComponents/workflowPages/UnfinishedWorkflowsPage";
 import { useEffect } from "react";
+import LurphLanding from "./components/LurphLanding";
 
 function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (window.location.hostname === "luph.com") {
-      navigate("/lurph", { replace: true });
+    const hostname = window.location.hostname;
+
+    if (hostname === "lurph.com" || hostname === "www.lurph.com") {
+      navigate("/newlurph");
     }
   }, []);
 
@@ -222,6 +225,7 @@ function App() {
           <Route path="/text-to-video" element={<TextToVideoGenerator />} />
 
           <Route path="/history" element={<History />}></Route>
+          <Route path="/newlurph" element={<LurphLanding />}></Route>
           <Route path="/favorites" element={<Favourites />}></Route>
           <Route path="/workflows" element={<MainWorkflowPage />} />
           <Route path="/workflows/new" element={<CreateNewPage />}></Route>
