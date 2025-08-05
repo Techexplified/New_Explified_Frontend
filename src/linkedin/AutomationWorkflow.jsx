@@ -4,16 +4,14 @@ import { ChevronLeft, Plus, Check } from "lucide-react";
 const AutomationWorkflow = () => {
   const [eventType, setEventType] = useState("Posting");
   const [watchPreview, setWatchPreview] = useState(true);
-  const [navbarHeight, setNavbarHeight] = useState(70); // dynamically updates
+  const [showNavbar, setShowNavbar] = useState(true);
 
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      const newNavbarHeight = Math.max(0, 70 - scrollY);
-      setNavbarHeight(newNavbarHeight);
+      setShowNavbar(scrollY < 70);
     };
 
-    handleScroll(); // set initial height
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -42,19 +40,19 @@ const AutomationWorkflow = () => {
           </button>
 
           {/* Title */}
-          <h1 className="text-2xl font-light tracking-wide mb-12 mt-8">
-            Prompt to post - Linkedin
+          <h1 className="text-2xl md:text-3xl font-bold bg-white bg-clip-text text-transparent tracking-tight leading-tight mb-4 mt-12">
+            Prompt to Post - LinkedIn
           </h1>
 
           {/* Workflow Container */}
-          <div className="flex flex-col items-center gap-8 mt-8">
+          <div className="flex flex-col items-center gap-8 mt-2 mb-4">
             {/* Status Indicator */}
-            <div className="border-2 border-[#1da3a3] rounded-full px-8 py-3 text-lg font-medium tracking-wide ">
+            <div className="border-2 border-[#1da3a3] bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-full px-8 py-3 text-lg font-medium tracking-wide ">
               <div className="flex items-center gap-2">Zeno Active</div>
             </div>
 
             {/* Trigger Step */}
-            <div className="bg-blue-600/30 backdrop-blur-sm border border-white/20 rounded-xl p-6 min-w-[200px] text-center hover:bg-blue-600/40 hover:border-white/30 hover:-translate-y-1 transition-all duration-300">
+            <div className="bg-gradient-to-r from-cyan-400 to-blue-500 border border-white/20 rounded-xl p-6 min-w-[200px] text-center hover:bg-blue-600/40 hover:border-white/30 hover:-translate-y-1 transition-all duration-300">
               <div className="text-xs text-white/60 uppercase tracking-widest mb-2">
                 Trigger
               </div>
@@ -63,12 +61,12 @@ const AutomationWorkflow = () => {
 
             {/* Connector */}
             <div className="relative">
-              <div className="w-0.5 h-16 bg-gradient-to-b from-white/30 to-white/10"></div>
-              <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[5px] border-r-[5px] border-t-[8px] border-l-transparent border-r-transparent border-t-white/40"></div>
+              <div className="w-1 h-16 bg-green-400"></div>
+              {/* <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[5px] border-r-[5px] border-t-[8px] border-l-transparent border-r-transparent border-t-white/40"></div> */}
             </div>
 
             {/* Action Step */}
-            <div className="bg-cyan-600/30 backdrop-blur-sm border border-white/20 rounded-xl p-6 min-w-[200px] text-center hover:bg-cyan-600/40 hover:border-white/30 hover:-translate-y-1 transition-all duration-300">
+            <div className="bg-gradient-to-r from-cyan-400 to-blue-500  border border-white/20 rounded-xl p-6 min-w-[200px] text-center hover:bg-cyan-600/40 hover:border-white/30 hover:-translate-y-1 transition-all duration-300">
               <div className="text-xs text-white/60 uppercase tracking-widest mb-2">
                 Action
               </div>
@@ -77,28 +75,25 @@ const AutomationWorkflow = () => {
 
             {/* Connector */}
             <div className="relative">
-              <div className="w-0.5 h-16 bg-gradient-to-b from-white/30 to-white/10"></div>
-              <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[5px] border-r-[5px] border-t-[8px] border-l-transparent border-r-transparent border-t-white/40"></div>
+              <div className="w-1 h-16 bg-green-400"></div>
+              {/* <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[5px] border-r-[5px] border-t-[8px] border-l-transparent border-r-transparent border-t-white/40"></div> */}
             </div>
 
             {/* Add Button */}
             <button
               onClick={handleAddStep}
-              className="w-12 h-12 rounded-full bg-white/10 border-2 border-dashed border-white/30 flex items-center justify-center text-white/50 hover:bg-white/20 hover:border-white/50 hover:text-white hover:scale-110 transition-all duration-300"
+              className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border-2 border-dashed border-white/30 flex items-center justify-center text-white/50 hover:bg-white/20 hover:border-white/50 hover:text-white hover:scale-110 transition-all duration-300"
             >
               <Plus size={24} />
             </button>
           </div>
         </div>
 
-        {/* Sidebar with dynamic height */}
+        {/* Sidebar - Dynamic height based on scroll */}
         <div
-          className="w-80 bg-slate-800/90 backdrop-blur-xl border-l border-white/10 p-8 flex flex-col"
-          style={{
-            height: `calc(100vh - ${navbarHeight}px)`,
-            // marginTop: `${navbarHeight}px`,
-            transition: "height 0.2s ease, margin-top 0.2s ease",
-          }}
+          className={`w-80 fixed right-0 bg-slate-800/90 transition-all duration-300 backdrop-blur-xl border-l border-white/10 p-8 flex flex-col ${
+            showNavbar ? "h-[calc(100vh-70px)] top-[70px]" : "h-screen top-0"
+          }`}
         >
           <h2 className="text-xl font-medium mb-8 text-center">LinkedIn</h2>
 
