@@ -123,7 +123,7 @@ function App() {
     const hostname = window.location.hostname;
 
     if (hostname === "lurph.com" || hostname === "www.lurph.com") {
-      navigate("/newlurph");
+      navigate("/lurph");
     }
   }, []);
 
@@ -219,6 +219,7 @@ function App() {
             <Route path="/pdf-tools/merge" element={<Merge />} />
             <Route path="/pdf-tools/sign" element={<Sign />} />
           </Route> */}
+        <Route path="/lurph" element={<LurphLanding />}></Route>
 
         <Route path="/" element={<UpdatedDashboard />}>
           <Route index element={<MainDashboard />}></Route>
@@ -227,7 +228,7 @@ function App() {
           <Route path="/text-to-video" element={<TextToVideoGenerator />} />
 
           <Route path="/history" element={<History />}></Route>
-          <Route path="/newlurph" element={<LurphLanding />}></Route>
+          {/* <Route path="/newlurph" element={<LurphLanding />}></Route> */}
           <Route path="/favorites" element={<Favourites />}></Route>
           <Route path="/workflows" element={<MainWorkflowPage />} />
           <Route path="/workflows/new" element={<CreateNewPage />}></Route>

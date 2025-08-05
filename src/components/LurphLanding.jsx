@@ -5,7 +5,7 @@ const LurphLanding = () => {
   // Function to handle the button click.
   // This function is where you would add your navigation logic.
   const handleGoToLurph = () => {
-    window.location.href = "/lurph";
+    window.location.href = "https://explified-home.web.app/lurph";
   };
 
   return (
