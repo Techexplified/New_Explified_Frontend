@@ -6,6 +6,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { HeroUIProvider } from "@heroui/react";
 import { Provider } from "react-redux";
 import { store } from "./utils/store";
+import { BrowserRouter } from "react-router-dom";
 
 createRoot(document.getElementById("root")).render(
   <GoogleOAuthProvider
@@ -16,7 +17,9 @@ createRoot(document.getElementById("root")).render(
     <StrictMode>
       <HeroUIProvider>
         <Provider store={store}>
-          <App />{" "}
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
         </Provider>
       </HeroUIProvider>
     </StrictMode>

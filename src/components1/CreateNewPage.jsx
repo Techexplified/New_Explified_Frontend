@@ -15,7 +15,10 @@ export default function AutomatePage() {
       style={dotGrid}
     >
       {/* Back button */}
-      <button onClick={() => navigate(-1)} className="absolute top-4 left-4 text-lg font-medium hover:underline">
+      <button
+        onClick={() => navigate(-1)}
+        className="absolute top-4 left-4 text-lg font-medium hover:underline"
+      >
         Back
       </button>
 
@@ -40,9 +43,11 @@ export default function AutomatePage() {
             <BulletRow />
           </div>
 
-          <input type="text" placeholder="What can I help you with ?" className="mt-4 rounded-md border bg-black border-[#23b5b5] px-4 py-2 text-sm hover:bg-[#23b5b5]/10 transition">
-          </input>
-          
+          <input
+            type="text"
+            placeholder="What can I help you with ?"
+            className="mt-4 rounded-md border bg-black border-[#23b5b5] px-4 py-2 text-sm hover:bg-[#23b5b5]/10 transition"
+          ></input>
         </div>
 
         {/* OR divider */}
@@ -58,10 +63,7 @@ export default function AutomatePage() {
         <div className="w-[3px] h-8 bg-white/70" />
 
         {/* Action pill */}
-        <Pill
-          label="Action"
-          text="Select an action to your trigger event"
-        />
+        <Pill label="Action" text="Select an action to your trigger event" />
       </div>
     </div>
   );

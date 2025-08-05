@@ -2,13 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Play,
-  Rewind,
-  FastForward,
   Download,
-  Settings,
-  RotateCcw,
-  Pencil,
-  Captions,
 } from 'lucide-react';
 
 const GEMINI_API_KEY = 'AIzaSyCjxEkSZKRdCohde0z5FKaZAO624gF3wms';
@@ -18,6 +12,8 @@ const ZapResultStyled = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const query = new URLSearchParams(location.search).get('query');
+  const type = new URLSearchParams(location.search).get('type') || 'video'; // short or video
+
   const [videoUrl, setVideoUrl] = useState(null);
   const [loading, setLoading] = useState(true);
   const [suggestion, setSuggestion] = useState('');
@@ -28,20 +24,35 @@ const ZapResultStyled = () => {
   useEffect(() => {
     if (!query) return navigate('/');
 
-    fetch(`https://api.pexels.com/videos/search?query=${query}&per_page=1`, {
+    fetch(`https://api.pexels.com/videos/search?query=${query}&per_page=5`, {
       headers: {
         Authorization: PEXELS_API_KEY,
       },
     })
       .then((res) => res.json())
       .then((data) => {
-        const video = data.videos?.[0];
+        let video = null;
+
+        // Prefer vertical (short) videos if type is short
+        if (type === 'short') {
+          video =
+            data.videos?.find((v) => {
+              const { width, height } = v.video_files?.[0] || {};
+              return height > width;
+            }) || data.videos?.[0];
+        } else {
+          video = data.videos?.[0];
+        }
+
         if (video) {
-          setVideoUrl(video.video_files.find((v) => v.quality === 'hd')?.link || video.video_files[0].link);
+          setVideoUrl(
+            video.video_files.find((v) => v.quality === 'hd')?.link ||
+              video.video_files[0].link
+          );
         }
       })
       .finally(() => setLoading(false));
-  }, [query]);
+  }, [query, type]);
 
   const handleFinalSubmit = () => {
     setSubmitting(true);
@@ -52,7 +63,7 @@ const ZapResultStyled = () => {
   };
 
   return (
-    <div className=" bg-black text-white flex flex-col items-center justify-center p-4">
+    <div className="bg-black text-white flex flex-col items-center justify-center p-4">
       {/* Title and Download Icon */}
       <div className="w-full max-w-3xl flex justify-between items-center mb-4">
         <h1 className="text-3xl font-semibold">Text to video generator</h1>
@@ -64,7 +75,11 @@ const ZapResultStyled = () => {
       </div>
 
       {/* Video or Placeholder */}
-      <div className="w-full max-w-3xl aspect-video bg-gray-300 flex items-center justify-center rounded-lg overflow-hidden">
+      <div
+        className={`w-full ${
+          type === 'short' ? 'max-w-xs aspect-[9/16]' : 'max-w-3xl aspect-video'
+        } bg-gray-300 flex items-center justify-center rounded-lg overflow-hidden`}
+      >
         {loading ? (
           <p className="text-black font-semibold">Loading...</p>
         ) : videoUrl ? (
@@ -73,16 +88,17 @@ const ZapResultStyled = () => {
             Your browser does not support the video tag.
           </video>
         ) : (
-          <p className="text-black font-bold text-lg">No video found for "{query}"</p>
+          <p className="text-black font-bold text-lg">
+            No video found for "{query}"
+          </p>
         )}
       </div>
 
-      {/* Control Bar */}
-      
-
       {/* Suggestion Input */}
       <div className="w-full max-w-3xl mt-10">
-        <label className="block text-sm mb-2 text-gray-300">Suggest any changes:</label>
+        <label className="block text-sm mb-2 text-gray-300">
+          Suggest any changes:
+        </label>
         <div className="flex items-center bg-transparent border border-teal-500 rounded-full px-4 py-2">
           <input
             type="text"
@@ -94,7 +110,7 @@ const ZapResultStyled = () => {
           <button
             onClick={() => {
               if (!videoUrl) return;
-              navigate('/enhanced', { state: { videoUrl, query } });
+              navigate('/enhanced', { state: { videoUrl, query, type } });
             }}
             className="ml-2"
           >
@@ -107,12 +123,16 @@ const ZapResultStyled = () => {
       {responseData && (
         <div className="bg-zinc-800 p-4 rounded-lg w-full max-w-3xl mt-8 space-y-4">
           {responseData.split('\n').map((line, idx) => (
-            <p key={idx} className="text-gray-100 whitespace-pre-line">{line}</p>
+            <p key={idx} className="text-gray-100 whitespace-pre-line">
+              {line}
+            </p>
           ))}
 
           {/* Final Confirmation */}
           <div className="mt-6">
-            <label className="block text-sm mb-2 text-gray-400">Are these changes OK?</label>
+            <label className="block text-sm mb-2 text-gray-400">
+              Are these changes OK?
+            </label>
             <input
               type="text"
               value={finalFeedback}
@@ -136,3 +156,4 @@ const ZapResultStyled = () => {
 };
 
 export default ZapResultStyled;
+

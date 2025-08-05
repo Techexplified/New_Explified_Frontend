@@ -11,12 +11,16 @@ const EnhancedPost = () => {
   const [description, setDescription] = useState("");
   const [hashtags, setHashtags] = useState("");
   const [timeline, setTimeline] = useState([]);
-  const [links, setLinks] = useState("");
+  const [links, setLinks] = useState([]);
   const [bestTime, setBestTime] = useState("");
   const [loading, setLoading] = useState(true);
-  const [ytChannel, setYtChannel] = useState("MrBeast");
+ const [ytChannel, setYtChannel] = useState("");
+  const [userChannels, setUserChannels] = useState([]);
+
   const [subs, setSubs] = useState("40M");
   const [members, setMembers] = useState("40M");
+  const [authChecked, setAuthChecked] = useState(false);
+
 
   const timeOptions = ["08:00 Am", "09:00 Pm", "12:00 Pm", "Custom"];
 
@@ -36,7 +40,8 @@ const EnhancedPost = () => {
           {
             parts: [
               {
-                text: `Generate the following for a video titled "${query}":\n\n1. A compelling video description\n2. Relevant hashtags (comma-separated)\n3. Timeline-based guesses for what the video might include in each 3-second interval (up to 30s).\n\nFormat:\n**Description:**\n...\n\n**Hashtags:**\n...\n\n**Timeline:**\n0-3s: ...\n3-6s: ...\n...`,
+                text: `Generate the following for a video titled "${query}":\n\n1. A compelling video description\n2. Relevant hashtags (comma-separated)\n3. Timeline-based guesses for what the video might include in each 3-second interval (up to 30s)\n4. 2-3 helpful and credible links related to the video topic\n\nFormat:\n**Description:**\n...\n\n**Hashtags:**\n...\n\n**Timeline:**\n0-3s: ...\n3-6s: ...\n...\n\n**Links:**\n- https://example.com\n- https://anotherlink.com`,
+
               },
             ],
           },
@@ -58,7 +63,8 @@ const EnhancedPost = () => {
 
         const descMatch = text.match(/\*\*Description:\*\*\n([\s\S]*?)\n\n/);
         const hashMatch = text.match(/\*\*Hashtags:\*\*\n([\s\S]*?)\n\n/);
-        const timelineMatch = text.match(/\*\*Timeline:\*\*\n([\s\S]*)/);
+        const timelineMatch = text.match(/\*\*Timeline:\*\*\n([\s\S]*?)(?:\n\n|\n\*\*Links:)/);
+
 
         setDescription(descMatch?.[1]?.trim() || "");
         setHashtags(hashMatch?.[1]?.trim() || "");
@@ -69,6 +75,16 @@ const EnhancedPost = () => {
             ?.map((line) => line.trim()) || [];
 
         setTimeline(timelineLines);
+
+         const linksMatch = text.match(/\*\*Links:\*\*\n([\s\S]*)/);
+const extractedLinks =
+  linksMatch?.[1]
+    ?.trim()
+    ?.split("\n")
+    ?.map((l) => l.replace(/^[-*]\s*/, "").trim()) || [];
+
+setLinks(extractedLinks);
+
       } catch (err) {
         console.error("❌ Gemini Error:", err);
       } finally {
@@ -78,48 +94,95 @@ const EnhancedPost = () => {
 
     fetchGeminiContent();
   }, [query]);
+ 
+useEffect(() => {
+  const checkAuthAndFetchChannels = async () => {
+    const token = localStorage.getItem("yt_access_token");
+    console.log("🔑 YouTube Access Token:", token);
+    if (!token) {
+      setAuthChecked(true);
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:8000/api/youtube/channels", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ access_token: token }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && Array.isArray(data.channels)) {
+        setUserChannels(data.channels);
+        setYtChannel(data.channels[0]?.title || "");
+      } else {
+        alert("Failed to fetch channels.");
+      }
+    } catch (err) {
+      console.error("Error:", err);
+      alert("Something went wrong.");
+    }
+
+    setAuthChecked(true);
+  };
+
+  checkAuthAndFetchChannels();
+}, []);
+
+
+
+
+ 
+
 
   return (
     <div className="min-h-screen bg-black text-white p-6 flex flex-col items-center text-lg">
       {/* YouTube Channel Selector */}
-      <div className="mb-8 w-full flex justify-center">
-        <div className="w-full max-w-xs">
-          <label className="text-lg font-semibold text-white text-center block mb-2">
-            Select YouTube Channel
-          </label>
+     <div className="mb-8 w-full flex justify-center">
+  <div className="w-full max-w-xs">
+    <label className="text-lg font-semibold text-white text-center block mb-2">
+      Select YouTube Channel
+    </label>
 
-          <div className="relative group">
-            <Youtube
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-red-600"
-              size={20}
-            />
-            <select
-              value={ytChannel}
-              onChange={(e) => setYtChannel(e.target.value)}
-              className="w-full bg-zinc-800 text-white border border-zinc-700 rounded-md pl-10 pr-10 py-2 text-center appearance-none focus:outline-none focus:ring-2 focus:ring-red-500 hover:border-red-400 transition duration-200 ease-in-out cursor-pointer"
-            >
-              <option value="MrBeast">MrBeast</option>
-              <option value="Veritasium">Veritasium</option>
-              <option value="MKBHD">MKBHD</option>
-              <option value="Kurzgesagt">Kurzgesagt</option>
-              <option value="YourCustomChannel">YourCustomChannel</option>
-            </select>
+    <div className="relative group">
+      <Youtube
+        className="absolute left-3 top-1/2 -translate-y-1/2 text-red-600"
+        size={20}
+      />
+      <select
+        value={ytChannel}
+        onChange={(e) => setYtChannel(e.target.value)}
+        className="w-full bg-zinc-800 text-white border border-zinc-700 rounded-md pl-10 pr-10 py-2 text-center appearance-none focus:outline-none focus:ring-2 focus:ring-red-500 hover:border-red-400 transition duration-200 ease-in-out cursor-pointer"
+      >
+        {userChannels.length === 0 ? (
+          <option>Loading...</option>
+        ) : (
+          userChannels.map((channel) => (
+            <option key={channel.id} value={channel.title}>
+              {channel.title}
+            </option>
+          ))
+        )}
+      </select>
 
-            {/* Animated dropdown arrow */}
-            <svg
-              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 group-hover:text-white transition-transform duration-200"
-              width="20"
-              height="20"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path d="M6 9l6 6 6-6" />
-            </svg>
-          </div>
-        </div>
-      </div>
+      <svg
+        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 group-hover:text-white transition-transform duration-200"
+        width="20"
+        height="20"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        viewBox="0 0 24 24"
+      >
+        <path d="M6 9l6 6 6-6" />
+      </svg>
+    </div>
+  </div>
+</div>
+
 
       <h1 className="text-3xl font-semibold mb-4">AI Video Post Generator</h1>
 
@@ -215,26 +278,44 @@ const EnhancedPost = () => {
         </div>
       </div>
 
-      {/* Relevant Links */}
       <div className="w-full max-w-3xl mb-8">
-        <label className="block mb-1">Relevant links:</label>
+  <label className="block mb-1">Relevant links:</label>
+  <div
+    className="border rounded-xl p-3 space-y-3"
+    style={{ borderColor: "#23b5b5" }}
+  >
+    {links.length === 0 ? (
+      <p className="text-gray-500">No links found</p>
+    ) : (
+      links.map((link, idx) => (
         <div
-          className="relative border rounded-xl p-3 flex items-center"
-          style={{ borderColor: "#23b5b5" }}
+          key={idx}
+          className="flex items-center gap-2 border-b border-zinc-600 pb-2"
         >
-          <LinkIcon className="mr-2" />
+          <LinkIcon className="text-white" />
           <input
             type="text"
-            className="flex-1 bg-transparent outline-none"
-            placeholder="https://"
-            value={links}
-            onChange={(e) => setLinks(e.target.value)}
+            className="flex-1 bg-transparent outline-none text-white"
+            value={link}
+            onChange={(e) => {
+              const newLinks = [...links];
+              newLinks[idx] = e.target.value;
+              setLinks(newLinks);
+            }}
           />
-          {links && (
-            <X className="ml-2 cursor-pointer" onClick={() => setLinks("")} />
-          )}
+          <X
+            className="cursor-pointer"
+            onClick={() => {
+              const newLinks = links.filter((_, i) => i !== idx);
+              setLinks(newLinks);
+            }}
+          />
         </div>
-      </div>
+      ))
+    )}
+  </div>
+</div>
+
 
       {/* Best Time to Post */}
       <div className="w-full max-w-3xl mb-8">

@@ -7,8 +7,7 @@ import {
   RotateCcw,
   ArrowRight,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import PptxGenJS from "pptxgenjs";
 
 // Reusable bordered box for the three‑step row
@@ -30,7 +29,6 @@ export default function LandingPage() {
   const [generatedContent, setGeneratedContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const navigate = useNavigate();
 
   const handleInputChange = (e) => setTopic(e.target.value);
 
@@ -42,13 +40,16 @@ export default function LandingPage() {
       setErrorMsg("");
       setGeneratedContent("");
 
-      const response = await fetch(`${import.meta.env.VITE_APP_URL}api/gemini/topic`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ topic: topic, slideCount: slideCount }),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_APP_URL}api/gemini/topic`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ topic: topic, slideCount: slideCount }),
+        }
+      );
       const data = await response.json();
 
       await buildPPT(data.pptData);
@@ -64,23 +65,24 @@ export default function LandingPage() {
     }
   };
 
-
   async function getImageBase64(prompt) {
-  try {
-    const res = await fetch(`${import.meta.env.VITE_APP_URL}api/gemini/image`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt }),
-    });
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_APP_URL}api/gemini/image`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt }),
+        }
+      );
 
-    const data = await res.json();
-    return data.base64;
-  } catch (err) {
-    console.error("Image generation error:", err);
-    return null;
+      const data = await res.json();
+      return data.base64;
+    } catch (err) {
+      console.error("Image generation error:", err);
+      return null;
+    }
   }
-}
- 
 
   function tempPPT() {
     let pptx = new PptxGenJS();
@@ -290,7 +292,7 @@ export default function LandingPage() {
 
     slide.addText(bulletText, {
       x: 0.7,
-      y: contentTopY ,
+      y: contentTopY,
       w: bulletBoxWidth - 0.4,
       h: contentHeight - 0.4,
       fontSize,

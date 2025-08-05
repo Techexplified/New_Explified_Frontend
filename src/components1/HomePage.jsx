@@ -20,7 +20,7 @@ import { useNavigate } from "react-router-dom";
 export default function HomePage() {
   const [toolsDropdown, setToolsDropdown] = useState(false);
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("window");
+  // const [activeTab, setActiveTab] = useState("window");
 
   const quickToolsDropdown = [
     {
@@ -42,28 +42,31 @@ export default function HomePage() {
     {
       title: "Research & Summarization Tools",
       tools: [
-        { name: "Youtube Summarizer", icon: Play , route:"/youtube-summarizer" },
-        { name: "AI Subtitler", icon: FileText, route:"/" },
-        { name: "Perplexity Extension", icon: Puzzle , route:"/" },
+        {
+          name: "Youtube Summarizer",
+          icon: Play,
+          route: "/youtube-summarizer",
+        },
+        { name: "AI Subtitler", icon: FileText, route: "/ai-subtitler" },
+        { name: "Perplexity Extension", icon: Puzzle, route: "/" },
       ],
     },
     {
       title: "Productivity & Content Tools",
       tools: [
-        { name: "Linkedin Extension", icon: Linkedin , route:"/" },
-        { name: "Awesome Screenshot", icon: ScreenShare , route:"/" },
-        { name: "Slideshow Maker", icon: Presentation,route:"/presentation" },
-        { name: "Video Generator", icon: Video ,route:"/"},
+        { name: "Linkedin Extension", icon: Linkedin, route: "/" },
+        { name: "Awesome Screenshot", icon: ScreenShare, route: "/" },
+        { name: "Slideshow Maker", icon: Presentation, route: "/presentation" },
+        { name: "Video Generator", icon: Video, route: "/" },
       ],
     },
     {
       title: "Design & Visual Tools",
       tools: [
-        { name: "BG Remover", icon: Palette,route:"/bg-remover"},
-        { name: "Link To Video", icon: Link ,route:"/"},
-        { name: "Keyword Extractor", icon: Type,route:"/" },
-        { name: "Image Styler", icon: Images,route:"/image-styler" },
-        
+        { name: "BG Remover", icon: Palette, route: "/bg-remover" },
+        { name: "Link To Video", icon: Link, route: "/" },
+        { name: "Keyword Extractor", icon: Type, route: "/" },
+        { name: "Image Styler", icon: Images, route: "/image-styler" },
       ],
     },
   ];
@@ -115,32 +118,38 @@ export default function HomePage() {
           Workflows
         </h1>
 
-        <div className="flex absolute right-[-90px]  items-center gap-6 mb-12">
-            <button
-              onClick={() => setActiveTab('window')}
-              className={`text-xl lg:text-2xl ${activeTab === 'window' ? 'text-white' : 'text-gray-500'}`}
-            >
-              Window View
-            </button>
+        {/* <div className="flex absolute right-[-90px]  items-center gap-6 mb-12">
+          <button
+            onClick={() => setActiveTab("window")}
+            className={`text-xl lg:text-2xl ${
+              activeTab === "window" ? "text-white" : "text-gray-500"
+            }`}
+          >
+            Window View
+          </button>
+          <div
+            onClick={() =>
+              setActiveTab(activeTab === "window" ? "mcp" : "window")
+            }
+            className={`w-14 h-8 bg-gray-600 rounded-full flex items-center transition-colors duration-300 cursor-pointer ${
+              activeTab === "mcp" ? "bg-cyan-400" : "bg-gray-600"
+            }`}
+          >
             <div
-              onClick={() => setActiveTab(activeTab === 'window' ? 'mcp' : 'window')}
-              className={`w-14 h-8 bg-gray-600 rounded-full flex items-center transition-colors duration-300 cursor-pointer ${
-                activeTab === 'mcp' ? 'bg-cyan-400' : 'bg-gray-600'
+              className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
+                activeTab === "mcp" ? "translate-x-6" : "translate-x-1"
               }`}
-            >
-              <div
-                className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-                  activeTab === 'mcp' ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </div>
-            <button
-              onClick={() => setActiveTab('mcp')}
-              className={`text-xl lg:text-2xl ${activeTab === 'mcp' ? 'text-white' : 'text-gray-500'}`}
-            >
-              Mcp view
-            </button>
+            />
           </div>
+          <button
+            onClick={() => setActiveTab("mcp")}
+            className={`text-xl lg:text-2xl ${
+              activeTab === "mcp" ? "text-white" : "text-gray-500"
+            }`}
+          >
+            Mcp view
+          </button>
+        </div> */}
 
         <div className="space-y-12 text-white">
           {toolCategories.map((category, categoryIndex) => (
@@ -153,7 +162,7 @@ export default function HomePage() {
                   const IconComponent = tool.icon;
                   return (
                     <button
-                    onClick={() => navigate(tool.route)}
+                      onClick={() => navigate(tool.route)}
                       key={toolIndex}
                       className="bg-gray-900 hover:bg-gray-800 border border-gray-700 rounded-lg p-4 
              transition-all duration-200 hover:scale-105 group relative overflow-hidden w-50"
