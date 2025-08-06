@@ -41,14 +41,14 @@ const RecommendedWorkflowsPage = () => {
       id: "marketing",
       name: "Marketing & Campaigns",
       icon: Megaphone,
-      color: "from-pink-500 to-rose-500",
+      color: "from-minimal-primary to-minimal-gray-600",
       description: "Boost your marketing efforts with AI-powered campaigns",
       workflows: [
         {
           title: "Neural Email Sequences",
           description: "AI-powered email automation with behavioral triggers",
           icon: Mail,
-          color: "from-pink-500 to-purple-500",
+          color: "from-minimal-primary to-minimal-gray-600",
           steps: 8,
           category: "Marketing",
           users: "2.4K",
@@ -58,7 +58,7 @@ const RecommendedWorkflowsPage = () => {
           title: "Social Media Orchestrator",
           description: "Multi-platform content scheduling and engagement",
           icon: Users,
-          color: "from-purple-500 to-blue-500",
+          color: "from-minimal-primary to-minimal-gray-600",
           steps: 6,
           category: "Marketing",
           users: "1.8K",
@@ -68,7 +68,7 @@ const RecommendedWorkflowsPage = () => {
           title: "Lead Qualification Matrix",
           description: "Intelligent lead scoring and nurturing pipeline",
           icon: BarChart3,
-          color: "from-blue-500 to-cyan-500",
+          color: "from-minimal-primary to-minimal-gray-600",
           steps: 10,
           category: "Marketing",
           users: "3.2K",
@@ -78,7 +78,7 @@ const RecommendedWorkflowsPage = () => {
           title: "Campaign Analytics Engine",
           description: "Real-time marketing performance analysis",
           icon: Activity,
-          color: "from-cyan-500 to-teal-500",
+          color: "from-minimal-primary to-minimal-gray-600",
           steps: 7,
           category: "Marketing",
           users: "1.5K",
@@ -90,14 +90,14 @@ const RecommendedWorkflowsPage = () => {
       id: "content",
       name: "Content Creation",
       icon: PenTool,
-      color: "from-purple-500 to-indigo-500",
+      color: "from-minimal-primary to-minimal-gray-600",
       description: "Streamline content production with creative workflows",
       workflows: [
         {
           title: "AI Content Generator",
           description: "Automated blog posts and article creation",
           icon: FileText,
-          color: "from-purple-500 to-pink-500",
+          color: "from-minimal-primary to-minimal-gray-600",
           steps: 5,
           category: "Content",
           users: "4.1K",
@@ -107,7 +107,7 @@ const RecommendedWorkflowsPage = () => {
           title: "Video Production Pipeline",
           description: "End-to-end video creation and editing workflow",
           icon: Calendar,
-          color: "from-indigo-500 to-purple-500",
+          color: "from-minimal-primary to-minimal-gray-600",
           steps: 12,
           category: "Content",
           users: "2.7K",
@@ -117,7 +117,7 @@ const RecommendedWorkflowsPage = () => {
           title: "Content Review Matrix",
           description: "Multi-stakeholder approval and revision system",
           icon: Shield,
-          color: "from-blue-500 to-indigo-500",
+          color: "from-minimal-primary to-minimal-gray-600",
           steps: 6,
           category: "Content",
           users: "1.9K",
@@ -127,7 +127,7 @@ const RecommendedWorkflowsPage = () => {
           title: "SEO Optimization Engine",
           description: "Automated keyword research and content optimization",
           icon: BarChart3,
-          color: "from-cyan-500 to-blue-500",
+          color: "from-minimal-primary to-minimal-gray-600",
           steps: 8,
           category: "Content",
           users: "3.3K",
@@ -139,14 +139,14 @@ const RecommendedWorkflowsPage = () => {
       id: "development",
       name: "Development & IT",
       icon: Code,
-      color: "from-cyan-500 to-blue-500",
+      color: "from-minimal-primary to-minimal-gray-600",
       description: "Accelerate development with automated IT workflows",
       workflows: [
         {
           title: "Quantum CI/CD Pipeline",
           description: "Next-gen build, test, and deployment automation",
           icon: GitBranch,
-          color: "from-cyan-500 to-blue-500",
+          color: "from-minimal-primary to-minimal-gray-600",
           steps: 9,
           category: "Development",
           users: "5.2K",
@@ -156,7 +156,7 @@ const RecommendedWorkflowsPage = () => {
           title: "Cloud Infrastructure Manager",
           description: "Auto-scaling cloud resource provisioning",
           icon: Cloud,
-          color: "from-blue-500 to-purple-500",
+          color: "from-minimal-primary to-minimal-gray-600",
           steps: 7,
           category: "Development",
           users: "3.8K",
@@ -166,7 +166,7 @@ const RecommendedWorkflowsPage = () => {
           title: "API Integration Hub",
           description: "Seamless third-party service connections",
           icon: Zap,
-          color: "from-purple-500 to-pink-500",
+          color: "from-minimal-primary to-minimal-gray-600",
           steps: 6,
           category: "Development",
           users: "2.9K",
@@ -176,7 +176,7 @@ const RecommendedWorkflowsPage = () => {
           title: "Security Audit Scanner",
           description: "Automated vulnerability detection and patching",
           icon: Shield,
-          color: "from-pink-500 to-red-500",
+          color: "from-minimal-primary to-minimal-gray-600",
           steps: 11,
           category: "Development",
           users: "2.1K",
@@ -218,62 +218,62 @@ const RecommendedWorkflowsPage = () => {
       icon: Heart,
       label: "Add to Favorites",
       action: "favorite",
-      className: "text-cyan-400 hover:text-cyan-300",
+      className: "text-minimal-primary hover:text-minimal-white",
     },
     {
       icon: Copy,
       label: "Duplicate",
       action: "duplicate",
-      className: "text-cyan-400 hover:text-cyan-300",
+      className: "text-minimal-primary hover:text-minimal-white",
     },
     {
       icon: Edit3,
       label: "Edit Workflow",
       action: "edit",
-      className: "text-cyan-400 hover:text-cyan-300",
+      className: "text-minimal-primary hover:text-minimal-white",
     },
     {
       icon: Clock,
       label: "View History",
       action: "history",
-      className: "text-cyan-400 hover:text-cyan-300",
+      className: "text-minimal-primary hover:text-minimal-white",
     },
     {
       icon: Trash2,
       label: "Delete",
       action: "delete",
-      className: "text-cyan-400 hover:text-cyan-300",
+      className: "text-minimal-primary hover:text-minimal-white",
     },
   ];
 
   return (
-    <div className="min-h-screen  relative overflow-hidden">
+    <div className="min-h-screen bg-minimal-background relative overflow-hidden">
       <div className="relative z-10 p-6">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-cyan-400 mb-4">
+            <h1 className="text-4xl font-bold text-minimal-white mb-4">
               Recommended Workflows
             </h1>
-            <p className="text-slate-400 text-lg">
+            <p className="text-minimal-muted text-lg">
               Discover AI-powered workflows tailored to your needs
             </p>
           </div>
 
           {/* Search Bar */}
           <div className="relative mb-12 max-w-2xl mx-auto">
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 blur-sm"></div>
-            <div className="relative bg-slate-900/80 backdrop-blur-xl rounded-xl border border-slate-700/50 p-1">
+            <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-minimal-primary/20 to-minimal-gray-600/20 blur-sm"></div>
+            <div className="relative bg-minimal-card/80 backdrop-blur-xl rounded-xl border border-minimal-border p-1">
               <div className="flex items-center">
                 <div className="pl-4">
-                  <Search className="w-5 h-5 text-slate-400" />
+                  <Search className="w-5 h-5 text-minimal-muted" />
                 </div>
                 <input
                   type="text"
                   placeholder="Search workflows, categories, or descriptions..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-transparent text-white placeholder-slate-400 px-4 py-4 outline-none text-lg"
+                  className="w-full bg-transparent text-minimal-white placeholder-minimal-muted px-4 py-4 outline-none text-lg"
                 />
               </div>
             </div>
@@ -288,40 +288,40 @@ const RecommendedWorkflowsPage = () => {
               return (
                 <div key={category.id} className="relative group">
                   {/* Holographic border effect */}
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-cyan-500/10 via-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-all duration-500 blur-sm"></div>
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-all duration-500 blur-sm"></div>
 
-                  <div className="relative bg-slate-900/80 backdrop-blur-xl rounded-xl border border-slate-700/50 group-hover:border-cyan-500/30 transition-all duration-500 overflow-hidden">
+                  <div className="relative bg-minimal-card/80 backdrop-blur-xl rounded-xl border border-minimal-border group-hover:border-minimal-primary/30 transition-all duration-500 overflow-hidden">
                     {/* Category Header */}
                     <button
                       onClick={() => toggleAccordion(category.id)}
-                      className="w-full p-6 flex items-center justify-between hover:bg-slate-800/50 transition-all duration-300"
+                      className="w-full p-6 flex items-center justify-between hover:bg-minimal-cardHover/50 transition-all duration-300"
                     >
                       <div className="flex items-center space-x-4">
                         <div
                           className={`p-3 rounded-xl bg-gradient-to-r ${category.color} shadow-lg`}
                         >
-                          <CategoryIcon className="w-6 h-6 text-white" />
+                          <CategoryIcon className="w-6 h-6 text-minimal-white" />
                         </div>
                         <div className="text-left">
-                          <h3 className="text-xl font-semibold text-white mb-1">
+                          <h3 className="text-xl font-semibold text-minimal-white mb-1">
                             {category.name}
                           </h3>
-                          <p className="text-slate-400 text-sm">
+                          <p className="text-minimal-muted text-sm">
                             {category.description}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-4">
                         <div className="text-right">
-                          <div className="text-cyan-400 text-sm font-medium">
+                          <div className="text-minimal-primary text-sm font-medium">
                             {category.workflows.length} Workflows
                           </div>
-                          <div className="text-xs text-slate-500">
+                          <div className="text-xs text-minimal-muted">
                             {isOpen ? "Click to collapse" : "Click to expand"}
                           </div>
                         </div>
                         <div
-                          className={`p-2 rounded-lg bg-slate-700 text-cyan-400 transition-transform duration-300 ${
+                          className={`p-2 rounded-lg bg-minimal-cardHover text-minimal-primary transition-transform duration-300 ${
                             isOpen ? "rotate-180" : "rotate-0"
                           }`}
                         >
@@ -332,20 +332,20 @@ const RecommendedWorkflowsPage = () => {
 
                     {/* Category Content */}
                     {isOpen && (
-                      <div className="border-t border-slate-700/50 p-6">
+                      <div className="border-t border-minimal-border/50 p-6">
                         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
                           {/* Create New Workflow Button */}
                           <div className="lg:col-span-1">
                             <div className="group/create relative cursor-pointer h-full min-h-[200px]">
-                              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-500/20 to-purple-500/20 opacity-0 group-hover/create:opacity-100 transition-all duration-500 blur-sm"></div>
-                              <div className="relative bg-slate-800/60 rounded-xl border-2 border-dashed border-slate-600 group-hover/create:border-cyan-500/50 p-6 flex flex-col items-center justify-center text-center h-full transition-all duration-300">
-                                <div className="w-16 h-16 bg-gradient-to-br from-slate-700 to-slate-600 rounded-xl flex items-center justify-center mb-4 group-hover/create:from-cyan-900/50 group-hover/create:to-purple-900/50 transition-all duration-500">
-                                  <Plus className="w-8 h-8 text-slate-400 group-hover/create:text-cyan-300 transition-colors duration-300" />
+                              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/20 to-minimal-gray-600/20 opacity-0 group-hover/create:opacity-100 transition-all duration-500 blur-sm"></div>
+                              <div className="relative bg-minimal-dark-100/60 rounded-xl border-2 border-dashed border-minimal-border group-hover/create:border-minimal-primary/50 p-6 flex flex-col items-center justify-center text-center h-full transition-all duration-300">
+                                <div className="w-16 h-16 bg-gradient-to-br from-minimal-cardHover to-minimal-dark-100 rounded-xl flex items-center justify-center mb-4 group-hover/create:from-minimal-primary/50 group-hover/create:to-minimal-gray-600/50 transition-all duration-500">
+                                  <Plus className="w-8 h-8 text-minimal-muted group-hover/create:text-minimal-primary transition-colors duration-300" />
                                 </div>
-                                <h4 className="text-white font-semibold mb-2 group-hover/create:text-cyan-300 transition-colors duration-300">
+                                <h4 className="text-minimal-white font-semibold mb-2 group-hover/create:text-minimal-primary transition-colors duration-300">
                                   Create New
                                 </h4>
-                                <p className="text-slate-400 text-sm group-hover/create:text-slate-300 transition-colors duration-300">
+                                <p className="text-minimal-muted text-sm group-hover/create:text-minimal-white transition-colors duration-300">
                                   Build a custom {category.name.toLowerCase()}{" "}
                                   workflow
                                 </p>
@@ -366,14 +366,14 @@ const RecommendedWorkflowsPage = () => {
                                   className="group/card relative cursor-pointer transform transition-all duration-300 hover:scale-105 hover:-translate-y-2"
                                 >
                                   {/* Card glow effect */}
-                                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-500/20 to-purple-500/20 opacity-0 group-hover/card:opacity-100 transition-all duration-500 blur-sm"></div>
+                                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/20 to-minimal-gray-600/20 opacity-0 group-hover/card:opacity-100 transition-all duration-500 blur-sm"></div>
 
-                                  <div className="relative bg-slate-800/80 backdrop-blur-xl rounded-xl border border-slate-700/50 p-4 group-hover/card:border-cyan-500/50 transition-all duration-500 h-full">
+                                  <div className="relative bg-minimal-card/80 backdrop-blur-xl rounded-xl border border-minimal-border p-4 group-hover/card:border-minimal-primary/50 transition-all duration-500 h-full">
                                     <div className="flex items-start justify-between mb-3">
                                       <div
                                         className={`p-2 rounded-lg bg-gradient-to-r ${workflow.color} group-hover/card:scale-110 transition-transform duration-300`}
                                       >
-                                        <IconComponent className="w-4 h-4 text-white" />
+                                        <IconComponent className="w-4 h-4 text-minimal-white" />
                                       </div>
 
                                       {/* Menu Button */}
@@ -382,14 +382,14 @@ const RecommendedWorkflowsPage = () => {
                                           onClick={(e) =>
                                             toggleMenu(workflowId, e)
                                           }
-                                          className="p-1 rounded-lg hover:bg-slate-700 transition-colors duration-200 opacity-0 group-hover/card:opacity-100"
+                                          className="p-1 rounded-lg hover:bg-minimal-cardHover transition-colors duration-200 opacity-0 group-hover/card:opacity-100"
                                         >
-                                          <MoreHorizontal className="w-4 h-4 text-slate-400 hover:text-cyan-400" />
+                                          <MoreHorizontal className="w-4 h-4 text-minimal-muted hover:text-minimal-primary" />
                                         </button>
 
                                         {/* Dropdown Menu */}
                                         {isMenuOpen && (
-                                          <div className="absolute right-0 top-8 w-48 bg-slate-800/95 backdrop-blur-sm rounded-lg border border-slate-700 shadow-2xl z-50 overflow-hidden">
+                                          <div className="absolute right-0 top-8 w-48 bg-minimal-card/95 backdrop-blur-sm rounded-lg border border-minimal-border shadow-2xl z-50 overflow-hidden">
                                             <div className="py-2">
                                               {menuOptions.map(
                                                 (option, optionIndex) => {
@@ -404,7 +404,7 @@ const RecommendedWorkflowsPage = () => {
                                                           workflow.title
                                                         )
                                                       }
-                                                      className={`w-full flex items-center px-4 py-2 text-sm hover:bg-slate-700/50 transition-all duration-200 ${option.className}`}
+                                                      className={`w-full flex items-center px-4 py-2 text-sm hover:bg-minimal-cardHover/50 transition-all duration-200 ${option.className}`}
                                                     >
                                                       <OptionIcon className="w-4 h-4 mr-3" />
                                                       <span>
@@ -420,16 +420,16 @@ const RecommendedWorkflowsPage = () => {
                                       </div>
                                     </div>
 
-                                    <h4 className="text-white font-semibold text-sm mb-2 group-hover/card:text-cyan-300 transition-colors duration-300">
+                                    <h4 className="text-minimal-white font-semibold text-sm mb-2 group-hover/card:text-minimal-primary transition-colors duration-300">
                                       {workflow.title}
                                     </h4>
-                                    <p className="text-slate-400 text-xs leading-relaxed mb-4 group-hover/card:text-slate-300 transition-colors duration-300">
+                                    <p className="text-minimal-muted text-xs leading-relaxed mb-4 group-hover/card:text-minimal-white transition-colors duration-300">
                                       {workflow.description}
                                     </p>
 
                                     <div className="space-y-2">
                                       <div className="flex items-center justify-between text-xs"></div>
-                                      <div className="text-xs text-slate-500">
+                                      <div className="text-xs text-minimal-muted">
                                         {workflow.users} users
                                       </div>
                                     </div>
