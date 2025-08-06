@@ -113,6 +113,7 @@ import CreateWorkflow from "./components/subLayoutComponents/workflowPages/Creat
 import UnfinishedWorkflowsPage from "./components/subLayoutComponents/workflowPages/UnfinishedWorkflowsPage";
 import { useEffect } from "react";
 import LurphLanding from "./components/LurphLanding";
+import Canvas from "./components/subLayoutComponents/workflowPages/Canvas";
 
 function App() {
   const navigate = useNavigate();
@@ -223,6 +224,7 @@ function App() {
           <Route index element={<MainDashboard />}></Route>
           <Route path="/socials" element={<SocialsPage />}></Route>
           <Route path="/history" element={<History />}></Route>
+          <Route path="/canvas" element={<Canvas />}></Route>
           <Route path="/text-to-video" element={<TextToVideoGenerator />} />
 
           <Route path="/history" element={<History />}></Route>
