@@ -177,20 +177,18 @@ const MainDashboard = () => {
               </div>
             )}
           </div>
-          <InstagramAnalytics />
+          {/* <InstagramAnalytics /> */}
         </div>
         {/* workflow Engine */}
         <div>
-          <h1 className="text-4xl font-bold text-cyan-500 px-10 py-5 mt-5">
+          {/* <h1 className="text-4xl font-bold text-cyan-500 px-10 py-5 mt-5">
             Workflow Engine
-          </h1>
+          </h1> */}
           <div className="bg-gray-900 rounded-2xl border border-gray-800 p-4 md:p-6 lg:p-8 shadow-2xl flex flex-col md:flex-row gap-6">
-            {/* Create Workflow Button Card */}
-            <div
+            {/* <div
               onClick={() => navigate("/workflows/create")}
               className="mb-6 md:mb-0 w-full h-full md:w-1/3 flex-shrink-0 flex flex-col items-center justify-center"
             >
-              {/* Card content reduced in size */}
               <div className="group h-[370px] flex items-center justify-center relative bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl p-4 md:p-6 border-2 border-dashed border-cyan-500/50 hover:border-cyan-400 transition-all duration-300 hover:transform hover:scale-[1.02] cursor-pointer w-full">
                 <div className="text-center">
                   <div className="inline-flex p-3 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 mb-3 group-hover:scale-110 transition-transform duration-300">
@@ -223,10 +221,10 @@ const MainDashboard = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* most popular workflows */}
-            <MostPopular />
+            {/* <MostPopular /> */}
           </div>
         </div>
       </div>

@@ -112,9 +112,12 @@ import NewZapier from "./zapierComponents/NewZapier";
 import CreateWorkflow from "./components/subLayoutComponents/workflowPages/CreateWorkflow";
 import UnfinishedWorkflowsPage from "./components/subLayoutComponents/workflowPages/UnfinishedWorkflowsPage";
 import AutomationWorkflow from "./linkedin/AutomationWorkflow";
-import SchedulerForm from "./linkedin/SchedulerForm";
+import SchedulerForm from "./linkedin/LinkedinPost";
 import { useEffect } from "react";
 import LurphLanding from "./components/LurphLanding";
+import TwitterPost from "./linkedin/TwitterPost.jsx";
+import LinkedinPost from "./linkedin/LinkedinPost";
+import WorkflowTwitter from "./linkedin/WorkflowTwitter.jsx";
 
 function App() {
   const navigate = useNavigate();
@@ -270,13 +273,12 @@ function App() {
             path="/automation-workflows"
             element={<AutomationWorkflow />}
           />
-          <Route path="/post" element={<SchedulerForm />} />
-          <Route path="/socials/:id" element={<DetailedCard />}></Route>
-          <Route path="/aitools" element={<AITools />}></Route>
-          <Route path="/lurph" element={<Trone />} />
-          <Route path="/Meme" element={<Meme />} />
-          <Route path="/ai-gif-generator" element={<GIFGenerator />} />
-          <Route path="/video-meme-generator" element={<AIMemeGenerator />} />
+          <Route
+            path="/automation-workflows-twitter"
+            element={<WorkflowTwitter />}
+          />
+          <Route path="/post-linkedin" element={<LinkedinPost />} />
+          <Route path="/post-twitter" element={<TwitterPost />} />
 
           <Route path="/socials/:id/posts/recents" element={<RecentPosts />} />
           <Route path="/socials/:id/lastPosts" element={<LastPosts />} />

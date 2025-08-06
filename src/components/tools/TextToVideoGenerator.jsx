@@ -14,6 +14,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import WorkFlowButton from "../../reusable_components/WorkFlowButton";
 
 const TextToVideoGenerator = () => {
   const [prompt, setPrompt] = useState("");
@@ -79,7 +80,8 @@ const TextToVideoGenerator = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-slate-900 text-white overflow-hidden">
+    <div className="min-h-screen relative bg-gradient-to-br from-slate-900 via-gray-900 to-slate-900 text-white overflow-hidden">
+      <WorkFlowButton />
       {/* Background effects */}
       <div className="fixed inset-0 opacity-20">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500 rounded-full blur-3xl animate-pulse"></div>

@@ -21,10 +21,15 @@ import {
   ImagePlay,
   SquarePercent,
   BotMessageSquare,
+  Plus,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "../assets/logos/explified_logo.png";
 import UserModal from "./UserModal";
+import { BsLayoutSidebar } from "react-icons/bs";
+import { FaPlus } from "react-icons/fa6";
+import { MdAttachMoney, MdOutlineCardTravel } from "react-icons/md";
+import { IoBookOutline } from "react-icons/io5";
 
 const UpdatedDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -36,6 +41,12 @@ const UpdatedDashboard = () => {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [showUserModal, setShowUserModal] = useState(false);
   const [expandedAccordions, setExpandedAccordions] = useState({});
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  function PlusClick() {
+    setIsDrawerOpen((prev) => !prev);
+    navigate("/lurphchat");
+  }
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -110,7 +121,7 @@ const UpdatedDashboard = () => {
     setActiveNav("");
   }, [location.pathname]);
 
-  const navItems = [{ name: "Lurph", icon: BotMessageSquare }];
+  // const navItems = [{ name: "Lurph", icon: BotMessageSquare }];
 
   const tools = [
     {
@@ -216,11 +227,14 @@ const UpdatedDashboard = () => {
                 Explified
               </Link>
             </h2>
+            <span className="px-2 cursor-pointer">
+              <BsLayoutSidebar size={20} className="text-cyan-400" />
+            </span>
           </div>
 
           {/* user profile */}
           <div className=" flex items-center justify-center gap-2">
-            {navItems.map((item) => {
+            {/* {navItems.map((item) => {
               const Icon = item.icon;
               return (
                 <button
@@ -239,7 +253,7 @@ const UpdatedDashboard = () => {
                   <span className="font-medium">{item.name}</span>
                 </button>
               );
-            })}
+            })} */}
             <CircleUserRound
               onClick={() => setShowUserModal(true)}
               className="hover:scale-105 transition-all duration-200 cursor-pointer text-cyan-500"
@@ -262,6 +276,13 @@ const UpdatedDashboard = () => {
           <div className="h-full bg-gray-800/50 backdrop-blur-lg border-r border-gray-700/50 p-4 flex flex-col">
             {/* Tools */}
             <div className="flex-1">
+              <div
+                onClick={PlusClick}
+                className="flex font-thin justify-center px-2 py-3 rounded-xl cursor-pointer hover:text-cyan-400 hover:border hover:border-cyan-500/30"
+              >
+                <Plus />
+              </div>
+
               <div className="space-y-2">
                 {tools.map((tool, idx) => {
                   const Icon = tool.icon;
@@ -452,11 +473,63 @@ const UpdatedDashboard = () => {
             </div>
           </div>
         </div>
+
+        {isDrawerOpen && (
+          <div
+            className={`w-60 z-[9999] absolute h-full top-[70px] ${
+              sidebarOpen ? "ml-80" : "ml-20"
+            }  bg-gray-900 text-white p-4 space-y-6 transition-all duration-300`}
+          >
+            {/* Home Section */}
+            <div>
+              <h2 className="font-bold mb-4">Home</h2>
+              <div className="space-y-3 text-gray-300">
+                <div className="flex items-center gap-2 cursor-pointer hover:text-white">
+                  <span>
+                    <MdAttachMoney />
+                  </span>
+                  <span>Finance</span>
+                </div>
+                <div className="flex items-center gap-2 cursor-pointer hover:text-white">
+                  <span>
+                    <MdOutlineCardTravel />
+                  </span>
+                  <span>Travel</span>
+                </div>
+                <div className="flex items-center gap-2 cursor-pointer hover:text-white">
+                  <span>
+                    <IoBookOutline />
+                  </span>
+                  <span>Academic</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-gray-600"></div>
+
+            {/* Recent & Other Chats */}
+            <div className="space-y-3">
+              <div className="bg-gray-600 rounded-md px-3 py-2 text-sm cursor-pointer hover:bg-gray-500">
+                Recent
+              </div>
+              <div className="bg-gray-600 rounded-md px-3 py-2 text-sm cursor-pointer hover:bg-gray-500">
+                Youtube Summariser
+              </div>
+              <div className="bg-gray-600 rounded-md px-3 py-2 text-sm cursor-pointer hover:bg-gray-500">
+                Chat 123
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Main Content Area */}
         <div className={`ml-20 w-full`} style={{ marginTop: "70px" }}>
           <Outlet />
         </div>
       </div>
+
+      {/* Drawer Component */}
     </div>
   );
 };
