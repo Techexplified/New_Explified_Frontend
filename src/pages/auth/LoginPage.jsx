@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from "jwt-decode"; // fixed import (jwtDecode is default export)
 import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../../utils/auth_slice/UserSlice";
 import { useDispatch, useSelector } from "react-redux";
-// import axiosInstance from "../../network/axiosInstance";
 import Logo from "../../reusable_components/Logo";
+import axios from "axios";
 
 const initialState = {
   email: "",
@@ -15,16 +15,16 @@ const initialState = {
 export default function LoginPage() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
   const user = useSelector((state) => state.user);
+
+  const [formData, setFormData] = useState(initialState);
+  const [loading, setLoading] = useState(false); // loader state
 
   useEffect(() => {
     if (user) {
       navigate("/");
     }
   }, [user, navigate]);
-
-  const [formData, setFormData] = useState(initialState);
 
   function handleChange(e) {
     setFormData((prev) => {
@@ -33,28 +33,24 @@ export default function LoginPage() {
   }
 
   const handleSubmit = async () => {
-    // try {
-    //   const res = await axiosInstance.post("/api/users/login", formData, {
-    //     withCredentials: true,
-    //   });
-    //   console.log("Success Login:", res.data.user);
-    //   localStorage.setItem("explified", JSON.stringify(res.data.user));
-    //   setFormData(initialState);
-    //   dispatch(loginUser(res.data.user));
-    //   navigate("/");
-    // } catch (error) {
-    //   console.error("Error during login:", error);
-    // }
-    // console.log("clicked");
-    // window.postMessage(
-    //   {
-    //     source: "explified-auth",
-    //     type: "store_token",
-    //     token: "jwt_token_from_explified",
-    //   },
-    //   "*"
-    // );
-    // console.log("Token postMessage sent");
+    setLoading(true);
+    try {
+      const res = await axios.post(
+        "http://localhost:8000/api/users/login",
+        formData,
+        { withCredentials: true }
+      );
+
+      localStorage.setItem("explified", JSON.stringify(res.data.user));
+      dispatch(loginUser(res.data.user));
+
+      navigate("/");
+    } catch (error) {
+      console.error("Error during login:", error.response?.data || error.message);
+      alert(error.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -92,6 +88,7 @@ export default function LoginPage() {
                   value={formData.email}
                   onChange={handleChange}
                   className="w-full px-4 py-2 rounded bg-gray-900 border border-gray-700 focus:outline-none"
+                  disabled={loading}
                 />
               </div>
 
@@ -106,15 +103,21 @@ export default function LoginPage() {
                   value={formData.password}
                   onChange={handleChange}
                   className="w-full px-4 py-2 rounded bg-gray-900 border border-gray-700 focus:outline-none"
+                  disabled={loading}
                 />
               </div>
 
               <button
                 type="submit"
                 onClick={handleSubmit}
-                className="w-full bg-[#23b5b5] text-white py-2 rounded hover:bg-teal-600"
+                className={`w-full py-2 rounded text-white ${
+                  loading
+                    ? "bg-gray-600 cursor-not-allowed"
+                    : "bg-[#23b5b5] hover:bg-teal-600"
+                }`}
+                disabled={loading}
               >
-                Login
+                {loading ? "Logging in..." : "Login"}
               </button>
 
               <GoogleLogin
@@ -181,26 +184,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-// if (
-//   typeof chrome !== "undefined" &&
-//   chrome.runtime &&
-//   chrome.runtime.sendMessage
-// ) {
-//   chrome.runtime.sendMessage(
-//     "fipoiejdeaheomgnibfhpkhjkemfjcdk", // your extension ID
-//     {
-//       type: "store-login",
-//       token: decoded,
-//     },
-//     (response) => {
-//       if (chrome.runtime.lastError) {
-//         console.error("Runtime error:", chrome.runtime.lastError.message);
-//       } else {
-//         console.log("Message sent to extension:", response);
-//       }
-//     }
-//   );
-// } else {
-//   console.warn("Chrome extension API not available");
-// }

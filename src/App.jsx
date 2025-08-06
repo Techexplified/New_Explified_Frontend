@@ -75,10 +75,10 @@ import CreateNewPage from "./components1/CreateNewPage";
 import PresentationLandingPage from "./components2/LandingPage";
 import CreatePresentation from "./components2/CreatePresentation";
 import Integrations from "./components1/Integrations";
-import InfluencerProfile from "./components1/Influencerprofile";
+import InfluencerProfile from "./components1/InfluencerProfile";
 
 import ImageFilter from "./component3/ImageFilter";
-import AiImageStyler from "./component3/AiImageStyler.";
+import AiImageStyler from "./component3/AiImageStyler";
 import BackgroundChanger from "./component3/BackgroundChanger";
 import ImageMerger from "./component3/ImageMerger";
 import ImageExpander from "./component3/ImageExpander";
