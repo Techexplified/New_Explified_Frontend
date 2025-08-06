@@ -1,10 +1,20 @@
-import { X, LogIn, LogOut, MessageSquare, Mail } from "lucide-react";
+import {
+  X,
+  LogIn,
+  LogOut,
+  MessageSquare,
+  Mail,
+  BoomBox,
+  Zap,
+  History,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { auth } from "../firebase";
 import { signOut } from "firebase/auth";
 import { clearUser } from "../utils/auth_slice/UserSlice";
 import { useDispatch } from "react-redux";
+
 const UserModal = ({ showUserModal, setShowUserModal }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -29,6 +39,10 @@ const UserModal = ({ showUserModal, setShowUserModal }) => {
     }
   };
 
+  const handleFeedbackClick = () => {
+    window.location.href = "https://admin.explified.com/";
+  };
+
   if (!showUserModal) return null;
 
   return (
@@ -48,7 +62,8 @@ const UserModal = ({ showUserModal, setShowUserModal }) => {
         <div className="text-center mb-8">
           <div className="w-20 h-20 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-white font-bold text-2xl">
-              {userData.avatar}
+              {/* {userData.avatar} */}
+              {userData.name[0]}
             </span>
           </div>
           <h2 className="text-white text-xl font-bold mb-1">{userData.name}</h2>
@@ -57,6 +72,7 @@ const UserModal = ({ showUserModal, setShowUserModal }) => {
 
         {/* Action Buttons */}
         <div className="space-y-3">
+          {/* logout button */}
           <button
             onClick={handleAuthClick}
             className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 text-cyan-400 rounded-xl hover:from-cyan-500/30 hover:to-blue-500/30 hover:border-cyan-500/50 transition-all duration-200"
@@ -104,17 +120,59 @@ const UserModal = ({ showUserModal, setShowUserModal }) => {
             )}
           </button>
 
-          <button
-            onClick={() => {
-              setShowUserModal(false);
-              // Handle feedback logic
-            }}
-            className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 text-cyan-400 rounded-xl hover:from-cyan-500/30 hover:to-blue-500/30 hover:border-cyan-500/50 transition-all duration-200"
-          >
-            <MessageSquare className="w-5 h-5 mr-3" />
-            <span className="font-medium">Feedback</span>
-          </button>
+          {isLoggedIn && (
+            <>
+              {/* feedback button */}
+              <button
+                onClick={() => {
+                  setShowUserModal(false);
+                  handleFeedbackClick();
+                }}
+                className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 text-cyan-400 rounded-xl hover:from-cyan-500/30 hover:to-blue-500/30 hover:border-cyan-500/50 transition-all duration-200"
+              >
+                <MessageSquare className="w-5 h-5 mr-3" />
+                <span className="font-medium">Feedback</span>
+              </button>
 
+              {/* socials button */}
+              <button
+                onClick={() => {
+                  setShowUserModal(false);
+                  navigate("/socials");
+                }}
+                className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 text-cyan-400 rounded-xl hover:from-cyan-500/30 hover:to-blue-500/30 hover:border-cyan-500/50 transition-all duration-200"
+              >
+                <BoomBox className="w-5 h-5 mr-3" />
+                <span className="font-medium">Socials</span>
+              </button>
+
+              {/* Integrations button */}
+              <button
+                onClick={() => {
+                  setShowUserModal(false);
+                  navigate("/integrations");
+                }}
+                className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 text-cyan-400 rounded-xl hover:from-cyan-500/30 hover:to-blue-500/30 hover:border-cyan-500/50 transition-all duration-200"
+              >
+                <Zap className="w-5 h-5 mr-3" />
+                <span className="font-medium">Integrations</span>
+              </button>
+
+              {/* History button */}
+              <button
+                onClick={() => {
+                  setShowUserModal(false);
+                  navigate("/history");
+                }}
+                className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 text-cyan-400 rounded-xl hover:from-cyan-500/30 hover:to-blue-500/30 hover:border-cyan-500/50 transition-all duration-200"
+              >
+                <History className="w-5 h-5 mr-3" />
+                <span className="font-medium">History</span>
+              </button>
+            </>
+          )}
+
+          {/* contact us button */}
           <button
             onClick={() => {
               setShowUserModal(false);

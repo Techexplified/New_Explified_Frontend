@@ -46,9 +46,9 @@ export default function Influmark() {
               Influmark
             </h1>
             {/* <div className="h-1 w-24 bg-gradient-to-r from-cyan-400 to-purple-600 mx-auto rounded-full"></div> */}
-            <p className="text-gray-400 mt-4 text-lg">
+            {/* <p className="text-gray-400 mt-4 text-lg">
               Discover and connect with top influencers
-            </p>
+            </p> */}
           </div>
 
           {/* Enhanced Search Section */}
