@@ -14,6 +14,7 @@ import {
   Chrome,
   Github,
   Mail,
+  Sparkles,
 } from "lucide-react";
 
 const categorizedTools = {
@@ -61,13 +62,16 @@ const Toolbar = () => {
   const [currentMousePos, setCurrentMousePos] = useState({ x: 0, y: 0 });
   const [searchQuery, setSearchQuery] = useState("");
   const [hoveredBoxId, setHoveredBoxId] = useState(null);
+  const [isAIChatbotOpen, setIsAIChatbotOpen] = useState(false);
 
   // Flatten all tools for search
   const allTools = Object.values(categorizedTools).flat();
 
   const handleToolClick = (toolId) => {
     setSelectedTool(toolId);
-    if (toolId === "square" && boxes.length === 0) {
+    if (toolId === "ai-stars") {
+      setIsAIChatbotOpen(!isAIChatbotOpen);
+    } else if (toolId === "square" && boxes.length === 0) {
       setBoxes([
         {
           id: Date.now(),
@@ -556,7 +560,7 @@ const Toolbar = () => {
       {/* Floating Toolbar */}
       <div className="fixed bottom-8 left-1/2 transform -translate-x-1/5 z-50">
         <div className="bg-minimal-card/80 backdrop-blur-xl border border-minimal-primary/50 rounded-2xl p-2 flex items-center gap-2 shadow-2xl shadow-minimal-primary/20 relative">
-          {["square", "arrow"].map((tool) => (
+          {["square", "arrow", "ai-stars"].map((tool) => (
             <button
               key={tool}
               onClick={() => handleToolClick(tool)}
@@ -571,7 +575,13 @@ const Toolbar = () => {
               `}
             >
               <span className="text-4xl relative z-10 p-1">
-                {tool === "square" ? <Square /> : <MoveUpRight />}
+                {tool === "square" ? (
+                  <Square />
+                ) : tool === "arrow" ? (
+                  <MoveUpRight />
+                ) : (
+                  <Sparkles />
+                )}
               </span>
 
               {selectedTool === tool && (
@@ -583,6 +593,65 @@ const Toolbar = () => {
 
         {/* Glow Effect */}
         <div className="absolute inset-0 bg-gradient-to-r from-minimal-primary/10 to-minimal-gray-600/10 rounded-2xl blur-3xl -z-30 animate-pulse" />
+      </div>
+
+      {/* AI Chatbot Sidebar */}
+      <div
+        className={`fixed top-30 right-0 min-h-[600px] w-80 bg-minimal-dark-100 border-y border-l rounded-l-lg border-minimal-primary/50 backdrop-blur-xl z-50 transform transition-transform duration-300 ease-in-out ${
+          isAIChatbotOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-minimal-primary/30">
+          <div className="flex items-center gap-2">
+            <Sparkles className="text-minimal-primary" size={20} />
+            <span className="text-minimal-white font-medium">AI Assistant</span>
+          </div>
+          <button
+            onClick={() => setIsAIChatbotOpen(false)}
+            className="text-minimal-muted hover:text-minimal-white transition-colors"
+          >
+            <MoveUpRight size={20} />
+          </button>
+        </div>
+
+        {/* Chat Content */}
+        <div className="p-4 min-h-[600px] flex flex-col">
+          <div className="flex-1">
+            <div className="mb-6">
+              <div className="text-minimal-white text-lg mb-2">Hi User 👋</div>
+              <div className="text-minimal-white/80 text-sm leading-relaxed">
+                I can answer most questions about building workflows in n8n.
+              </div>
+              <div className="text-minimal-white/80 text-sm leading-relaxed mt-2">
+                For specific tasks, you'll see the{" "}
+                <button className="inline-flex items-center gap-1 px-3 py-1 bg-minimal-dark-200 border border-minimal-primary rounded-md text-minimal-white text-sm hover:bg-minimal-dark-300 transition-colors">
+                  <Sparkles size={14} />
+                  Ask Assistant
+                </button>{" "}
+                button in the UI.
+              </div>
+            </div>
+
+            <div className="text-minimal-white text-lg font-medium">
+              How can I help?
+            </div>
+          </div>
+
+          {/* Input Area */}
+          <div className="mt-auto pt-4">
+            <div className="flex items-center gap-2 p-3 bg-minimal-dark-200 rounded-lg border border-minimal-primary/30">
+              <input
+                type="text"
+                placeholder="Type your message..."
+                className="flex-1 bg-transparent text-minimal-white placeholder-minimal-muted outline-none"
+              />
+              <button className="text-minimal-primary hover:text-minimal-white transition-colors">
+                <MoveUpRight size={18} />
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
