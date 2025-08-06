@@ -115,6 +115,7 @@ import AutomationWorkflow from "./linkedin/AutomationWorkflow";
 import SchedulerForm from "./linkedin/SchedulerForm";
 import { useEffect } from "react";
 import LurphLanding from "./components/LurphLanding";
+import OAuthCallback from "./components1/OAuthCallback";
 
 function App() {
   const navigate = useNavigate();
@@ -206,6 +207,7 @@ function App() {
           <Route path="ai-image-styler" element={<AIImageStyler />} />
           <Route path="slideshow" element={<AISlideshow />} />
           <Route path="ageing_ai" element={<AgeingVideoMaker />} />
+          <Route path="/api/youtube/oauth2callback" element={<OAuthCallback />} />
         </Route>
 
         {/* <Route path="/" element={<NewDashBoardLayout />}>
