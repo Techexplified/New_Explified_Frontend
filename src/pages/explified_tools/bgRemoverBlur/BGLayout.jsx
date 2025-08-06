@@ -3,6 +3,9 @@ import { SquareStack, Image as ImageIcon, Wand2 } from "lucide-react";
 import RemoveBg from "./RemoveBg"; // Make sure these point to your new files
 import BlurBg from "./BlurBg";
 import WorkFlowButton from "../../../reusable_components/WorkFlowButton";
+import Aibackground from "./Aibackground";
+import FilterImage from "./FilterImage";
+import ReplaceBg from "./ReplaceBg";
 
 /**
  * Main shell that houses both RemoveBg and BlurBg tools with a slick sidebar.
@@ -48,12 +51,37 @@ export default function BgToolsApp() {
             <ImageIcon className="w-4 h-4 stroke-current" />,
             "Blur Background"
           )}
+          {navItem(
+            "aiBg",
+            <ImageIcon className="w-4 h-4 stroke-current" />,
+            "Color Background"
+          )}
+          {navItem(
+            "imgfilter",
+            <ImageIcon className="w-4 h-4 stroke-current" />,
+            "filter image"
+          )}
+          {navItem(
+            "imgreplace",
+            <ImageIcon className="w-4 h-4 stroke-current" />,
+            "Replace BG"
+          )}
         </nav>
       </aside>
 
       {/* ── Tool Panel ── */}
-      <main className="flex-1 overflow-y-auto bg-black text-teal-300">
-        {activeTool === "remove" ? <RemoveBg /> : <BlurBg />}
+      <main className="flex-1 overflow-y-auto bg-black">
+        {activeTool === "remove" ? (
+          <RemoveBg />
+        ) : activeTool === "blur" ? (
+          <BlurBg />
+        ) : activeTool === "aiBg" ? (
+          <Aibackground />
+        ) : activeTool === "imgfilter" ? (
+          <FilterImage />
+        ) : (
+          <ReplaceBg />
+        )}
       </main>
     </div>
   );
