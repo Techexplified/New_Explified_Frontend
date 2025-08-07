@@ -43,10 +43,22 @@ const UpdatedDashboard = () => {
   const [expandedAccordions, setExpandedAccordions] = useState({});
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  function PlusClick() {
-    setIsDrawerOpen((prev) => !prev);
-    navigate("/lurphchat");
-  }
+function PlusClick() {
+  const newIsDrawerOpen = !isDrawerOpen;
+  setIsDrawerOpen(newIsDrawerOpen);
+
+  // Pass updated drawer state via navigation state
+  navigate("/lurphchat", {
+    state: {
+      isDrawerOpen: newIsDrawerOpen,
+      firstClick: true,
+      key: Date.now(), // force rerender of component
+    },
+  });
+}
+
+
+
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -203,6 +215,10 @@ const UpdatedDashboard = () => {
       [accordionId]: !prev[accordionId],
     }));
   };
+const [recentQueries, setRecentQueries] = useState(() => {
+  const stored = localStorage.getItem("recentPrompts");
+  return stored ? [stored] : [];
+});
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 flex flex-col overflow-hidden">
@@ -474,53 +490,37 @@ const UpdatedDashboard = () => {
         </div>
 
         {isDrawerOpen && (
-          <div
-            className={`w-60 z-[9999] absolute h-full top-[70px] ${
-              sidebarOpen ? "ml-80" : "ml-20"
-            }  bg-gray-900 text-white p-4 space-y-6 transition-all duration-300`}
-          >
-            {/* Home Section */}
-            <div>
-              <h2 className="font-bold mb-4">Home</h2>
-              <div className="space-y-3 text-gray-300">
-                <div className="flex items-center gap-2 cursor-pointer hover:text-white">
-                  <span>
-                    <MdAttachMoney />
-                  </span>
-                  <span>Finance</span>
-                </div>
-                <div className="flex items-center gap-2 cursor-pointer hover:text-white">
-                  <span>
-                    <MdOutlineCardTravel />
-                  </span>
-                  <span>Travel</span>
-                </div>
-                <div className="flex items-center gap-2 cursor-pointer hover:text-white">
-                  <span>
-                    <IoBookOutline />
-                  </span>
-                  <span>Academic</span>
-                </div>
-              </div>
-            </div>
+  <div
+    className={`w-60 z-[9999] absolute h-full top-[70px] ${
+      sidebarOpen ? "ml-80" : "ml-20"
+    } bg-gray-900 text-white p-4 space-y-6 transition-all duration-300`}
+  >
+    {/* Home Section */}
 
-            {/* Divider */}
-            <div className="border-t border-gray-600"></div>
+    {/* Divider */}
 
-            {/* Recent & Other Chats */}
-            <div className="space-y-3">
-              <div className="bg-gray-600 rounded-md px-3 py-2 text-sm cursor-pointer hover:bg-gray-500">
-                Recent
-              </div>
-              <div className="bg-gray-600 rounded-md px-3 py-2 text-sm cursor-pointer hover:bg-gray-500">
-                Youtube Summariser
-              </div>
-              <div className="bg-gray-600 rounded-md px-3 py-2 text-sm cursor-pointer hover:bg-gray-500">
-                Chat 123
-              </div>
-            </div>
-          </div>
-        )}
+    {/* Recent & Other Chats */}
+   <div className="space-y-3">
+  <div className="bg-gray-600 rounded-md px-3 py-2 text-sm cursor-pointer hover:bg-gray-500">
+    Recent
+  </div>
+
+  {recentQueries.length > 0 &&
+    [...new Map(
+      JSON.parse(recentQueries[0]).map(q => [q.toLowerCase(), q])
+    ).values()].map((query, index) => (
+      <div
+        key={index}
+        className="bg-gray-600 rounded-md px-3 py-2 text-sm cursor-pointer hover:bg-gray-500"
+      >
+        {query}
+      </div>
+    ))}
+</div>
+
+  </div>
+)}
+
 
         {/* Main Content Area */}
         <div className={`ml-20 w-full`} style={{ marginTop: "70px" }}>

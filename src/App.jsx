@@ -119,6 +119,7 @@ import TwitterPost from "./linkedin/TwitterPost.jsx";
 import LinkedinPost from "./linkedin/LinkedinPost";
 import WorkflowTwitter from "./linkedin/WorkflowTwitter.jsx";
 import Canvas from "./components/subLayoutComponents/workflowPages/Canvas";
+import OAuthCallback from "./components1/OAuthCallback";
 
 function App() {
   const navigate = useNavigate();
@@ -210,9 +211,9 @@ function App() {
           <Route path="ai-image-styler" element={<AIImageStyler />} />
           <Route path="slideshow" element={<AISlideshow />} />
           <Route path="ageing_ai" element={<AgeingVideoMaker />} />
-          <Route path="/api/youtube/oauth2callback" element={<OAuthCallback />} />
+          
         </Route>
-
+        <Route path="/api/youtube/oauth2callback" element={<OAuthCallback />} />
         {/* <Route path="/" element={<NewDashBoardLayout />}>
             <Route index element={<NewDashboard />} />
             <Route path="/youtube-summarizer" element={<YoutubeSummarizer />} />
