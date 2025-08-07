@@ -73,44 +73,31 @@ const UserModal = ({ showUserModal, setShowUserModal }) => {
         {/* Action Buttons */}
         <div className="space-y-3">
           {/* logout button */}
+          
           <button
-            onClick={handleAuthClick}
+            onClick={() => {
+              if (isLoggedIn) {
+                signOut(auth)
+                  .then(() => {
+                    dispatch(clearUser());
+                    localStorage.removeItem("explified");
+                    navigate("/login"); // redirect after logout
+                    setShowUserModal(false);
+                  })
+                  .catch((error) => {
+                    console.error("Logout failed:", error);
+                  });
+              } else {
+                setShowUserModal(false);
+                navigate("/login");
+              }
+            }}
             className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 text-cyan-400 rounded-xl hover:from-cyan-500/30 hover:to-blue-500/30 hover:border-cyan-500/50 transition-all duration-200"
           >
             {isLoggedIn ? (
               <>
-                <LogOut size={16} />
-                <span
-                  className="w-full py-2 flex justify-center items-center space-x-2"
-                  onClick={() => {
-                    signOut(auth)
-                      .then(() => {
-                        dispatch(clearUser());
-                      })
-                      .catch((error) => {
-                        console.error("Logout failed:", error);
-                      });
-                  }}
-                >
-                  Log Out
-                </span>
-
-                <LogOut size={16} />
-                <span
-                  className="w-full py-2 flex justify-center items-center space-x-2 cursor-pointer"
-                  onClick={() => {
-                    signOut(auth)
-                      .then(() => {
-                        dispatch(clearUser());
-                        navigate("/login"); // Redirect after logout
-                      })
-                      .catch((error) => {
-                        console.error("Logout failed:", error);
-                      });
-                  }}
-                >
-                  Log Out
-                </span>
+                <LogOut size={16} className="mr-2" />
+                <span className="font-medium cursor-pointer">Log Out</span>
               </>
             ) : (
               <>
@@ -119,7 +106,6 @@ const UserModal = ({ showUserModal, setShowUserModal }) => {
               </>
             )}
           </button>
-
           {isLoggedIn && (
             <>
               {/* feedback button */}
@@ -171,7 +157,6 @@ const UserModal = ({ showUserModal, setShowUserModal }) => {
               </button>
             </>
           )}
-
           {/* contact us button */}
           <button
             onClick={() => {

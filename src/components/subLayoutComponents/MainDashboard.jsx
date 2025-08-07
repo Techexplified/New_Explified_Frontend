@@ -8,6 +8,22 @@ import {
   FileVideo2,
   Plus,
 } from "lucide-react";
+import {
+  Play,
+  ScreenShare,
+  Link,
+  Image,
+  Laugh,
+  PenOff,
+  BoomBox,
+  Zap,
+} from "lucide-react";
+import { PiSubtitles } from "react-icons/pi";
+import {
+  MdOutlineGifBox,
+  MdFaceRetouchingNatural,
+  MdElderlyWoman,
+} from "react-icons/md";
 import MostPopular from "./workflows/MostPopular";
 import InstagramAnalytics from "./InstagramAnalytics";
 import { useNavigate } from "react-router-dom";
@@ -30,7 +46,6 @@ const MainDashboard = () => {
       color: "from-minimal-primary to-minimal-gray-400",
       route: "/youtube-summarizer",
     },
-
     {
       title: "AI Subtitler",
       description: "Centralized AI Subtitler for your videos",
@@ -38,34 +53,97 @@ const MainDashboard = () => {
       color: "from-minimal-primary to-minimal-gray-500",
       route: "/ai-subtitler",
     },
-    {
-      title: "Text To Video Generator",
-      description: "Generate videos using prompts.",
-      icon: FileVideo2,
-      route: "/text-to-video",
-      color: "from-minimal-primary to-minimal-gray-600",
-    },
-    {
-      title: "Slideshow Maker",
-      description: "Create stunning slideshows.",
-      icon: Projector,
-      route: "/presentation",
-      color: "from-minimal-primary to-minimal-gray-600",
-    },
-    {
-      title: "Bg Remover",
-      description: "Remove background from images.",
-      icon: ImagePlay,
-      route: "/bg-remover",
-      color: "from-minimal-primary to-minimal-gray-600",
-    },
-    {
-      title: "Image Styler",
-      description: "Style your images.",
-      icon: Images,
-      route: "/image-styler",
-      color: "from-minimal-primary to-minimal-gray-600",
-    },
+    // {
+    //   title: "Text To Video Generator",
+    //   description: "Generate videos using prompts.",
+    //   icon: FileVideo2,
+    //   route: "/text-to-video",
+    //   color: "from-minimal-primary to-minimal-gray-600",
+    // },
+    // {
+    //   title: "Slideshow Maker",
+    //   description: "Create stunning slideshows.",
+    //   icon: Projector,
+    //   route: "/presentation",
+    //   color: "from-minimal-primary to-minimal-gray-600",
+    // },
+    // {
+    //   title: "Bg Remover",
+    //   description: "Remove background from images.",
+    //   icon: ImagePlay,
+    //   route: "/bg-remover",
+    //   color: "from-minimal-primary to-minimal-gray-600",
+    // },
+    // {
+    //   title: "Image Styler",
+    //   description: "Style your images.",
+    //   icon: Images,
+    //   route: "/image-styler",
+    //   color: "from-minimal-primary to-minimal-gray-600",
+    // },
+    // {
+    //   title: "Video Meme Generator AI",
+    //   description: "Style your images.",
+    //   icon: Laugh,
+    //   route: "/video-meme-generator",
+    //   color: "from-minimal-primary to-minimal-gray-600",
+    // },
+    // {
+    //   title: "Integrations",
+    //   description: "Style your images.",
+    //   icon: Zap,
+    //   route: "/integrations",
+    //   color: "from-minimal-primary to-minimal-gray-600",
+    // },
+    // {
+    //   title: "Socials",
+    //   description: "Style your images.",
+    //   icon: BoomBox,
+    //   route: "/socials",
+    //   color: "from-minimal-primary to-minimal-gray-600",
+    // },
+    // {
+    //   title: "AI GIF Generator",
+    //   description: "Style your images.",
+    //   icon: MdOutlineGifBox,
+    //   route: "/ai-gif-generator",
+    //   color: "from-minimal-primary to-minimal-gray-600",
+    // },
+    // {
+    //   title: "AI Hugging Video Maker",
+    //   description: "Style your images.",
+    //   icon: ScreenShare,
+    //   route: "/ai-hugging-video-maker",
+    //   color: "from-minimal-primary to-minimal-gray-600",
+    // },
+    // {
+    //   title: "Ageing Video Maker AI",
+    //   description: "Style your images.",
+    //   icon: MdElderlyWoman,
+    //   route: "/ageing-video-maker-ai",
+    //   color: "from-minimal-primary to-minimal-gray-600",
+    // },
+    // {
+    //   title: "AI Tattoo Art Generator",
+    //   description: "Style your images.",
+    //   icon: PenOff,
+    //   route: "/ai-tattoo-art-generator",
+    //   color: "from-minimal-primary to-minimal-gray-600",
+    // },
+    // {
+    //   title: "Image To Video AI",
+    //   description: "Style your images.",
+    //   icon: Image,
+    //   route: "/image-to-video-ai",
+    //   color: "from-minimal-primary to-minimal-gray-600",
+    // },
+    // {
+    //   title: "Link To Video AI",
+    //   description: "Style your images.",
+    //   icon: Link,
+    //   route: "/link-to-video-ai",
+    //   color: "from-minimal-primary to-minimal-gray-600",
+    // },
   ];
 
   useEffect(() => {
@@ -93,6 +171,12 @@ const MainDashboard = () => {
             .
           </h1>
         </div>
+
+        <p className="p-4 w-full text-2xl text-minimal-white tracking-tighter">
+          Recent
+        </p>
+        <div className="border-t border-gray-600 w-full mb-6"></div>
+
         {/* main dashboard */}
         <div className=" flex gap-4">
           <div className="bg-minimal-card rounded-2xl border border-minimal-border h-fit p-4 shadow-2xl">
@@ -177,20 +261,18 @@ const MainDashboard = () => {
               </div>
             )}
           </div>
-          <InstagramAnalytics />
+          {/* <InstagramAnalytics /> */}
         </div>
         {/* workflow Engine */}
-        <div>
+        {/* <div>
           <h1 className="text-4xl font-bold text-minimal-primary px-10 py-5 mt-5">
             Workflow Engine
           </h1>
           <div className="bg-minimal-card rounded-2xl border border-minimal-border p-4 md:p-6 lg:p-8 shadow-2xl flex flex-col md:flex-row gap-6">
-            {/* Create Workflow Button Card */}
             <div
               onClick={() => navigate("/workflows/create")}
               className="mb-6 md:mb-0 w-full h-full md:w-1/3 flex-shrink-0 flex flex-col items-center justify-center"
             >
-              {/* Card content reduced in size */}
               <div className="group h-[370px] flex items-center justify-center relative bg-gradient-to-br from-minimal-primary/60 to-minimal-gray-600/20 rounded-xl p-4 md:p-6 border-2 border-dashed border-minimal-primary/50 hover:border-minimal-primary transition-all duration-300 hover:transform hover:scale-[1.02] cursor-pointer w-full">
                 <div className="text-center">
                   <div className="inline-flex p-3 rounded-full bg-gradient-to-r from-minimal-primary to-minimal-gray-600 mb-3 group-hover:scale-110 transition-transform duration-300">
@@ -225,10 +307,9 @@ const MainDashboard = () => {
               </div>
             </div>
 
-            {/* most popular workflows */}
             <MostPopular />
           </div>
-        </div>
+        </div> */}
       </div>
     </>
   );

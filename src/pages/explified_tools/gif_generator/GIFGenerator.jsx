@@ -1,7 +1,22 @@
 import React, { useState, useRef } from "react";
-import { Mic, Camera, Upload, Type, Image, Video } from "lucide-react";
+import { Mic, Camera, Upload, Image } from "lucide-react";
 import axiosInstance from "../../../network/axiosInstance";
+import DownloadButtons from "./DownloadButtons";
+import { MdSpeed } from "react-icons/md";
+import { PiVideoLight } from "react-icons/pi";
+const speeds = [
+  { label: "0.5x", value: 0.5 },
+  { label: "1x", value: 1 },
+  { label: "1.5x", value: 1.5 },
+  { label: "2x", value: 2 },
+];
 
+const qualities = [
+  { label: "Low", value: "low" },
+  { label: "Medium", value: "medium" },
+  { label: "High", value: "high" },
+  { label: "Ultra", value: "ultra" },
+];
 export default function AIGIFGenerator() {
   const [inputText, setInputText] = useState("");
   const [activeTab, setActiveTab] = useState("Humor");
@@ -13,6 +28,10 @@ export default function AIGIFGenerator() {
   const [isLoading, setIsLoading] = useState(false);
   const [uid, setUid] = useState("cmdos6rth00o51e0z2ptt3ddw");
   const [url, setUrl] = useState("");
+  const [showSpeedDropdown, setShowSpeedDropdown] = useState(false);
+  const [showQualityDropdown, setShowQualityDropdown] = useState(false);
+  const [selectedSpeed, setSelectedSpeed] = useState("");
+  const [selectedQuality, setSelectedQuality] = useState("");
 
   const fileInputRef = useRef(null);
   const documentInputRef = useRef(null);
@@ -210,231 +229,311 @@ export default function AIGIFGenerator() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <h1 className="text-4xl font-bold text-center mb-12">
-          AI GIF Generator
-        </h1>
-
-        {/* Generate GIF Section */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-semibold mb-6">Generate GIF</h2>
-
-          {/* Input Container */}
-          <div className="relative mb-4">
-            <textarea
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              placeholder="Describe what the GIF should communicate — the story, the mood, or the core message behind the visual"
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg p-4 text-white placeholder-gray-400 resize-none h-24 pr-32"
+      {url ? (
+        <div className="flex flex-col gap-2 items-center w-full">
+          <h1 className="text-3xl mb-6">Your GIF is Ready!</h1>
+          <div className="flex items-center gap-4">
+            <DownloadButtons url={url} />
+            <img
+              src={url}
+              alt="gif"
+              className="h-72 w-72 object-cover rounded-lg border border-gray-300 shadow"
             />
-
-            <div className="absolute right-3 bottom-3 flex items-center space-x-3">
-              {/* Document Upload */}
+          </div>
+          <div className="flex relative items-center gap-2">
+            <div className="relative">
               <button
-                onClick={() => documentInputRef.current?.click()}
-                className="text-gray-400 hover:text-white transition-colors"
-                title="Upload Document"
+                onClick={() => {
+                  setShowQualityDropdown((prev) => !prev);
+                  setShowSpeedDropdown(false); // Close other dropdown
+                }}
+                className="flex flex-col items-center gap-2 hover:bg-gray-700 p-2 rounded-lg transition-colors"
               >
-                <Upload size={20} />
+                <PiVideoLight size={20} />
+                <span className="text-[8px]">
+                  {selectedQuality ? selectedQuality : "Quality"}
+                </span>
               </button>
-              <input
-                ref={documentInputRef}
-                type="file"
-                accept=".pdf,.doc,.docx,.txt,.rtf"
-                onChange={handleDocumentUpload}
-                className="hidden"
+
+              {showQualityDropdown && (
+                <div className="absolute top-12 mt-1 w-20 bg-gray-800 border border-gray-600 rounded shadow-lg z-50">
+                  {qualities.map((quality) => (
+                    <div
+                      key={quality.value}
+                      onClick={() => {
+                        setSelectedQuality(quality.label);
+                        setShowQualityDropdown(false);
+                        // Add quality logic here if needed
+                      }}
+                      className="px-4 py-2 text-sm hover:bg-gray-700 cursor-pointer"
+                    >
+                      {quality.label}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Speed Button with Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setShowSpeedDropdown((prev) => !prev);
+                  setShowQualityDropdown(false); // Close other dropdown
+                }}
+                className="flex flex-col items-center gap-2 hover:bg-gray-700 p-2 rounded-lg transition-colors"
+              >
+                <MdSpeed size={20} />
+                <span className="text-[8px]">
+                  {selectedSpeed ? selectedSpeed : "Speed"}
+                </span>
+              </button>
+
+              {showSpeedDropdown && (
+                <div className="absolute top-12 mt-1 w-20 bg-gray-800 border border-gray-600 rounded shadow-lg z-50">
+                  {speeds.map((speed) => (
+                    <div
+                      key={speed.value}
+                      onClick={() => {
+                        setSelectedSpeed(speed.label);
+                        setShowSpeedDropdown(false);
+                        // Add speed logic here if needed
+                      }}
+                      className="px-4 py-2 text-sm hover:bg-gray-700 cursor-pointer"
+                    >
+                      {speed.label}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <h1 className="text-4xl font-bold text-center mb-12">
+            AI GIF Generator
+          </h1>
+
+          {/* Generate GIF Section */}
+          <div className="mb-12">
+            <h2 className="text-2xl font-semibold mb-6">Generate GIF</h2>
+
+            {/* Input Container */}
+            <div className="relative mb-4">
+              <textarea
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                placeholder="Describe what the GIF should communicate — the story, the mood, or the core message behind the visual"
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg p-4 text-white placeholder-gray-400 resize-none h-24 pr-32"
               />
 
-              {/* <button className="text-gray-400 hover:text-white transition-colors">
+              <div className="absolute right-3 bottom-3 flex items-center space-x-3">
+                {/* Document Upload */}
+                <button
+                  onClick={() => documentInputRef.current?.click()}
+                  className="text-gray-400 hover:text-white transition-colors"
+                  title="Upload Document"
+                >
+                  <Upload size={20} />
+                </button>
+                <input
+                  ref={documentInputRef}
+                  type="file"
+                  accept=".pdf,.doc,.docx,.txt,.rtf"
+                  onChange={handleDocumentUpload}
+                  className="hidden"
+                />
+
+                {/* <button className="text-gray-400 hover:text-white transition-colors">
                 <Type size={20} />
               </button> */}
 
-              {/* Image Upload from Gallery */}
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="text-gray-400 hover:text-white transition-colors"
-                title="Upload Image from Gallery"
-              >
-                <Image size={20} />
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="hidden"
-              />
-
-              {/* Camera Capture */}
-              <button
-                onClick={startCamera}
-                className="text-gray-400 hover:text-white transition-colors"
-                title="Take Photo with Camera"
-              >
-                <Camera size={20} />
-              </button>
-
-              {/* Voice Recording */}
-              <button
-                onClick={handleMicClick}
-                className={`transition-colors ${
-                  isRecording
-                    ? "text-red-500"
-                    : "text-gray-400 hover:text-white"
-                }`}
-                title={isRecording ? "Stop Recording" : "Start Voice Recording"}
-              >
-                <Mic size={20} />
-              </button>
-
-              {/* Generate Button */}
-              <button
-                onClick={handleGenerate}
-                className="bg-teal-600 hover:bg-teal-700 px-4 py-2 rounded-lg font-medium transition-colors"
-              >
-                Generate
-              </button>
-            </div>
-          </div>
-
-          {/* Upload Status */}
-          <div className="flex items-center space-x-4 text-sm">
-            {uploadedDocument && (
-              <div className="flex items-center space-x-2 text-green-400">
-                <Upload size={16} />
-                <span>Document uploaded: {uploadedDocument.name}</span>
-              </div>
-            )}
-            {uploadedImage && (
-              <div className="flex items-center space-x-2 text-green-400">
-                <Image size={16} />
-                <span>Image uploaded</span>
-              </div>
-            )}
-            {audioBlob && (
-              <div className="flex items-center space-x-2 text-green-400">
-                <Mic size={16} />
-                <span>Audio recorded</span>
-              </div>
-            )}
-            {isRecording && (
-              <div className="flex items-center space-x-2 text-red-400">
-                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                <span>Recording...</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Camera Modal */}
-        {isCameraOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-            <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">Take a Photo</h3>
+                {/* Image Upload from Gallery */}
                 <button
-                  onClick={closeCamera}
-                  className="text-gray-400 hover:text-white"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="text-gray-400 hover:text-white transition-colors"
+                  title="Upload Image from Gallery"
                 >
-                  ✕
+                  <Image size={20} />
                 </button>
-              </div>
-
-              <div className="relative mb-4 bg-black rounded-lg overflow-hidden">
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  muted
-                  className="w-full h-64 object-cover"
-                  onLoadedMetadata={() => {
-                    if (videoRef.current) {
-                      videoRef.current.play();
-                    }
-                  }}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
                 />
-                <canvas ref={canvasRef} className="hidden" />
-              </div>
 
-              <div className="flex justify-center space-x-4">
+                {/* Camera Capture */}
                 <button
-                  onClick={closeCamera}
-                  className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors"
+                  onClick={startCamera}
+                  className="text-gray-400 hover:text-white transition-colors"
+                  title="Take Photo with Camera"
                 >
-                  Cancel
+                  <Camera size={20} />
                 </button>
+
+                {/* Voice Recording */}
                 <button
-                  onClick={capturePhoto}
-                  className="px-4 py-2 bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors"
+                  onClick={handleMicClick}
+                  className={`transition-colors ${
+                    isRecording
+                      ? "text-red-500"
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                  title={
+                    isRecording ? "Stop Recording" : "Start Voice Recording"
+                  }
                 >
-                  Take Photo
+                  <Mic size={20} />
+                </button>
+
+                {/* Generate Button */}
+                <button
+                  onClick={handleGenerate}
+                  className="bg-teal-600 hover:bg-teal-700 px-4 py-2 rounded-lg font-medium transition-colors"
+                >
+                  Generate
                 </button>
               </div>
             </div>
+
+            {/* Upload Status */}
+            <div className="flex items-center space-x-4 text-sm">
+              {uploadedDocument && (
+                <div className="flex items-center space-x-2 text-green-400">
+                  <Upload size={16} />
+                  <span>Document uploaded: {uploadedDocument.name}</span>
+                </div>
+              )}
+              {uploadedImage && (
+                <div className="flex items-center space-x-2 text-green-400">
+                  <Image size={16} />
+                  <span>Image uploaded</span>
+                </div>
+              )}
+              {audioBlob && (
+                <div className="flex items-center space-x-2 text-green-400">
+                  <Mic size={16} />
+                  <span>Audio recorded</span>
+                </div>
+              )}
+              {isRecording && (
+                <div className="flex items-center space-x-2 text-red-400">
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                  <span>Recording...</span>
+                </div>
+              )}
+            </div>
           </div>
-        )}
 
-        <div className="flex flex-col items-center gap-6 mt-6">
-          <button
-            onClick={getGIF}
-            className="bg-[#23b5b5] hover:bg-[#1da3a3] text-white font-semibold px-6 py-2 rounded-full shadow-md transition-all duration-200"
-          >
-            Get GIF
-          </button>
+          {/* Camera Modal */}
+          {isCameraOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+              <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold">Take a Photo</h3>
+                  <button
+                    onClick={closeCamera}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    ✕
+                  </button>
+                </div>
 
-          {url && (
-            <div className="flex flex-col items-center gap-4">
-              <img
-                src={url}
-                alt="gif"
-                className="h-48 w-48 object-cover rounded-lg border border-gray-300 shadow"
-              />
-              <a href={url} download="my-gif.gif">
-                <button className="bg-[#23b5b5] hover:bg-[#1da3a3] text-white font-medium px-4 py-2 rounded-full shadow transition duration-200">
-                  Download GIF
-                </button>
-              </a>
+                <div className="relative mb-4 bg-black rounded-lg overflow-hidden">
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className="w-full h-64 object-cover"
+                    onLoadedMetadata={() => {
+                      if (videoRef.current) {
+                        videoRef.current.play();
+                      }
+                    }}
+                  />
+                  <canvas ref={canvasRef} className="hidden" />
+                </div>
+
+                <div className="flex justify-center space-x-4">
+                  <button
+                    onClick={closeCamera}
+                    className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={capturePhoto}
+                    className="px-4 py-2 bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors"
+                  >
+                    Take Photo
+                  </button>
+                </div>
+              </div>
             </div>
           )}
-        </div>
 
-        {/* Looking for Inspiration Section */}
-        <div className="mt-20">
-          <h2 className="text-2xl font-semibold mb-8 text-center">
-            Looking for Inspiration?
-          </h2>
+          <div className="flex flex-col items-center gap-6 mt-6">
+            <button
+              onClick={getGIF}
+              className="bg-[#23b5b5] hover:bg-[#1da3a3] text-white font-semibold px-6 py-2 rounded-full shadow-md transition-all duration-200"
+            >
+              Get GIF
+            </button>
 
-          {/* Tabs */}
-          <div className="flex justify-center mb-8">
-            {tabs.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-8 py-3 font-medium border-b-2 transition-colors ${
-                  activeTab === tab
-                    ? "border-white text-white"
-                    : "border-transparent text-gray-400 hover:text-white"
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-
-          {/* Content Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {[1, 2, 3, 4, 5, 6].map((item) => (
-              <div
-                key={item}
-                className="aspect-square bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors cursor-pointer"
-              >
-                {/* Placeholder for inspiration content */}
+            {url && (
+              <div className="flex  items-center gap-4">
+                <DownloadButtons url={url} />
+                <img
+                  src={url}
+                  alt="gif"
+                  className="h-48 w-48 object-cover rounded-lg border border-gray-300 shadow"
+                />
               </div>
-            ))}
+            )}
+          </div>
+
+          {/* Looking for Inspiration Section */}
+          <div className="mt-20">
+            <h2 className="text-2xl font-semibold mb-8 text-center">
+              Looking for Inspiration?
+            </h2>
+
+            {/* Tabs */}
+            <div className="flex justify-center mb-8">
+              {tabs.map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-8 py-3 font-medium border-b-2 transition-colors ${
+                    activeTab === tab
+                      ? "border-white text-white"
+                      : "border-transparent text-gray-400 hover:text-white"
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+
+            {/* Content Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {[1, 2, 3, 4, 5, 6].map((item) => (
+                <div
+                  key={item}
+                  className="aspect-square bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors cursor-pointer"
+                >
+                  {/* Placeholder for inspiration content */}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

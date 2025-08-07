@@ -75,10 +75,10 @@ import CreateNewPage from "./components1/CreateNewPage";
 import PresentationLandingPage from "./components2/LandingPage";
 import CreatePresentation from "./components2/CreatePresentation";
 import Integrations from "./components1/Integrations";
-import InfluencerProfile from "./components1/Influencerprofile";
+import InfluencerProfile from "./components1/InfluencerProfile";
 
 import ImageFilter from "./component3/ImageFilter";
-import AiImageStyler from "./component3/AiImageStyler.";
+import AiImageStyler from "./component3/AiImageStyler";
 import BackgroundChanger from "./component3/BackgroundChanger";
 import ImageMerger from "./component3/ImageMerger";
 import ImageExpander from "./component3/ImageExpander";
@@ -111,8 +111,13 @@ import ExistingWorkflowsPage from "./components/subLayoutComponents/workflowPage
 import NewZapier from "./zapierComponents/NewZapier";
 import CreateWorkflow from "./components/subLayoutComponents/workflowPages/CreateWorkflow";
 import UnfinishedWorkflowsPage from "./components/subLayoutComponents/workflowPages/UnfinishedWorkflowsPage";
+import AutomationWorkflow from "./linkedin/AutomationWorkflow";
+import SchedulerForm from "./linkedin/LinkedinPost";
 import { useEffect } from "react";
 import LurphLanding from "./components/LurphLanding";
+import TwitterPost from "./linkedin/TwitterPost.jsx";
+import LinkedinPost from "./linkedin/LinkedinPost";
+import WorkflowTwitter from "./linkedin/WorkflowTwitter.jsx";
 import Canvas from "./components/subLayoutComponents/workflowPages/Canvas";
 
 function App() {
@@ -250,6 +255,32 @@ function App() {
           <Route path="/Meme" element={<Meme />} />
           <Route path="/ai-gif-generator" element={<GIFGenerator />} />
           <Route path="/video-meme-generator" element={<AIMemeGenerator />} />
+          <Route path="/history" element={<History />}></Route>
+          <Route path="/favorites" element={<Favourites />}></Route>
+          <Route path="/workflows" element={<MainWorkflowPage />} />
+          <Route path="/workflows/new" element={<CreateNewPage />}></Route>
+          <Route
+            path="/workflows/recommended"
+            element={<RecommendedWorkflowsPage />}
+          ></Route>
+          <Route
+            path="/workflows/existing"
+            element={<ExistingWorkflowsPage />}
+          ></Route>
+          <Route
+            path="/workflows/unfinished"
+            element={<UnfinishedWorkflowsPage />}
+          ></Route>
+          <Route
+            path="/automation-workflows"
+            element={<AutomationWorkflow />}
+          />
+          <Route
+            path="/automation-workflows-twitter"
+            element={<WorkflowTwitter />}
+          />
+          <Route path="/post-linkedin" element={<LinkedinPost />} />
+          <Route path="/post-twitter" element={<TwitterPost />} />
 
           <Route path="/socials/:id/posts/recents" element={<RecentPosts />} />
           <Route path="/socials/:id/lastPosts" element={<LastPosts />} />
