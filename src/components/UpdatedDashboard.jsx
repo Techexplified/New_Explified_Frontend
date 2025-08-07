@@ -22,6 +22,7 @@ import {
   SquarePercent,
   BotMessageSquare,
   Plus,
+  SectionIcon,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "../assets/logos/explified_logo.png";
@@ -42,10 +43,15 @@ const UpdatedDashboard = () => {
   const [showUserModal, setShowUserModal] = useState(false);
   const [expandedAccordions, setExpandedAccordions] = useState({});
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isToolsOpen, setIsToolsOpen] = useState(false);
 
   function PlusClick() {
     setIsDrawerOpen((prev) => !prev);
     navigate("/lurphchat");
+  }
+  function ToolsClick() {
+    setIsToolsOpen((prev) => !prev);
+    navigate("/aitools");
   }
 
   const navigate = useNavigate();
@@ -141,6 +147,49 @@ const UpdatedDashboard = () => {
     },
   ];
 
+  const aiTools = [
+    {
+      name: "Integrations",
+      icon: Zap,
+      route: "/integrations",
+    },
+    {
+      name: "Youtube Summarizer",
+      icon: Youtube,
+      route: "/youtube-summarizer",
+    },
+    {
+      name: "AI Subtitler",
+      icon: Captions,
+      route: "/ai-subtitler",
+    },
+    {
+      name: "Linkedin Extension",
+      icon: Linkedin,
+      route: "/linkedin",
+    },
+    {
+      name: "Meme Generator",
+      icon: Video,
+      route: "/video-meme-generator",
+    },
+    {
+      name: "Bg Remover",
+      icon: ImagePlay,
+      route: "/bg-remover",
+    },
+    {
+      name: "Influmark",
+      icon: SquarePercent,
+      route: "/influmark",
+    },
+    {
+      name: "Chats",
+      icon: SquarePercent,
+      description: "Lets you chat with others",
+    },
+  ];
+
   const accordionSections = [
     {
       id: "Tools",
@@ -196,13 +245,13 @@ const UpdatedDashboard = () => {
     },
   ];
 
-  const toggleAccordion = (accordionId) => {
-    if (!sidebarOpen) return;
-    setExpandedAccordions((prev) => ({
-      ...prev,
-      [accordionId]: !prev[accordionId],
-    }));
-  };
+  // const toggleAccordion = (accordionId) => {
+  //   if (!sidebarOpen) return;
+  //   setExpandedAccordions((prev) => ({
+  //     ...prev,
+  //     [accordionId]: !prev[accordionId],
+  //   }));
+  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 flex flex-col overflow-hidden">
@@ -227,7 +276,10 @@ const UpdatedDashboard = () => {
                 Explified
               </Link>
             </h2>
-            <span className="px-2 cursor-pointer">
+            <span
+              onClick={() => setSidebarOpen((prev) => !prev)}
+              className="px-2 cursor-pointer"
+            >
               <BsLayoutSidebar size={20} className="text-cyan-400" />
             </span>
           </div>
@@ -323,17 +375,18 @@ const UpdatedDashboard = () => {
                   );
                 })}
               </div>
+
               {/* Accordions */}
               <div className="mb-5">
                 {accordionSections.map((section) => {
                   const SectionIcon = section.icon;
-                  const isExpanded = expandedAccordions[section.id];
+                  // const isExpanded = expandedAccordions[section.id];
 
                   return (
                     <div key={section.id}>
                       {/* Accordion Header */}
                       <button
-                        onClick={() => toggleAccordion(section.id)}
+                        onClick={ToolsClick}
                         className={`w-full flex items-center ${
                           sidebarOpen
                             ? "justify-between px-4"
@@ -349,17 +402,17 @@ const UpdatedDashboard = () => {
                             </span>
                           )}
                         </div>
-                        {sidebarOpen && (
+                        {/* {sidebarOpen && (
                           <ChevronDown
                             className={`w-4 h-4 transition-transform duration-200 ${
                               isExpanded ? "rotate-180" : ""
                             }`}
                           />
-                        )}
+                        )} */}
                       </button>
 
                       {/* Accordion Content */}
-                      {sidebarOpen && (
+                      {/* {sidebarOpen && (
                         <div
                           className={`overflow-hidden transition-all duration-200 ${
                             isExpanded
@@ -387,7 +440,7 @@ const UpdatedDashboard = () => {
                             })}
                           </div>
                         </div>
-                      )}
+                      )} */}
                     </div>
                   );
                 })}
@@ -477,46 +530,49 @@ const UpdatedDashboard = () => {
           <div
             className={`w-60 z-[9999] absolute h-full top-[70px] ${
               sidebarOpen ? "ml-80" : "ml-20"
-            }  bg-gray-900 text-white p-4 space-y-6 transition-all duration-300`}
+            }  bg-stone-900 text-white p-4 space-y-6 transition-all duration-300`}
           >
             {/* Home Section */}
             <div>
-              <h2 className="font-bold mb-4">Home</h2>
-              <div className="space-y-3 text-gray-300">
-                <div className="flex items-center gap-2 cursor-pointer hover:text-white">
-                  <span>
-                    <MdAttachMoney />
-                  </span>
-                  <span>Finance</span>
-                </div>
-                <div className="flex items-center gap-2 cursor-pointer hover:text-white">
-                  <span>
-                    <MdOutlineCardTravel />
-                  </span>
-                  <span>Travel</span>
-                </div>
-                <div className="flex items-center gap-2 cursor-pointer hover:text-white">
-                  <span>
-                    <IoBookOutline />
-                  </span>
-                  <span>Academic</span>
-                </div>
-              </div>
+              <h2 className="font-bold mb-4">Recent</h2>
+              <div className="space-y-3 text-gray-300"></div>
             </div>
 
             {/* Divider */}
             <div className="border-t border-gray-600"></div>
+          </div>
+        )}
 
-            {/* Recent & Other Chats */}
-            <div className="space-y-3">
-              <div className="bg-gray-600 rounded-md px-3 py-2 text-sm cursor-pointer hover:bg-gray-500">
-                Recent
-              </div>
-              <div className="bg-gray-600 rounded-md px-3 py-2 text-sm cursor-pointer hover:bg-gray-500">
-                Youtube Summariser
-              </div>
-              <div className="bg-gray-600 rounded-md px-3 py-2 text-sm cursor-pointer hover:bg-gray-500">
-                Chat 123
+        {isToolsOpen && (
+          <div
+            className={`w-60 z-[9999] absolute h-full top-[70px] ${
+              sidebarOpen ? "ml-80" : "ml-20"
+            } bg-stone-900 text-white p-4 space-y-6 transition-all duration-300`}
+          >
+            <div>
+              <input
+                type="text"
+                placeholder="Enter text..."
+                className="flex-1 px-3 py-2 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none"
+              />
+            </div>
+            {/* Divider */}
+            <div className="border-t border-gray-600"></div>
+
+            {/* Tools Header */}
+            <div>
+              <div className="space-y-3 text-gray-300">
+                {aiTools.map((tool, index) => (
+                  <a
+                    key={index}
+                    href={tool.route || "#"}
+                    className="flex items-center gap-2 hover:text-white cursor-pointer transition-colors"
+                    title={tool.description || tool.name}
+                  >
+                    <tool.icon size={18} />
+                    <span className="text-sm">{tool.name}</span>
+                  </a>
+                ))}
               </div>
             </div>
           </div>
