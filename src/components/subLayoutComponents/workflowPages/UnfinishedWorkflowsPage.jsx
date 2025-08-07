@@ -36,62 +36,62 @@ const UnfinishedWorkflowsPage = () => {
     zoom: {
       icon: "📹",
       name: "Zoom",
-      color: "from-blue-500 to-blue-600",
+      color: "from-minimal-primary to-minimal-gray-600",
     },
     googledrive: {
       icon: "📁",
       name: "Google Drive",
-      color: "from-green-500 to-green-600",
+      color: "from-minimal-primary to-minimal-gray-600",
     },
     slack: {
       icon: "💬",
       name: "Slack",
-      color: "from-purple-500 to-purple-600",
+      color: "from-minimal-primary to-minimal-gray-600",
     },
     gmail: {
       icon: "✉️",
       name: "Gmail",
-      color: "from-red-500 to-red-600",
+      color: "from-minimal-primary to-minimal-gray-600",
     },
     notion: {
       icon: "📝",
       name: "Notion",
-      color: "from-gray-600 to-gray-700",
+      color: "from-minimal-primary to-minimal-gray-600",
     },
     trello: {
       icon: "📋",
       name: "Trello",
-      color: "from-blue-600 to-blue-700",
+      color: "from-minimal-primary to-minimal-gray-600",
     },
     dropbox: {
       icon: "📦",
       name: "Dropbox",
-      color: "from-blue-400 to-blue-500",
+      color: "from-minimal-primary to-minimal-gray-600",
     },
     spotify: {
       icon: "🎵",
       name: "Spotify",
-      color: "from-green-400 to-green-500",
+      color: "from-minimal-primary to-minimal-gray-600",
     },
     youtube: {
       icon: "🎥",
       name: "YouTube",
-      color: "from-red-600 to-red-700",
+      color: "from-minimal-primary to-minimal-gray-600",
     },
     twitter: {
       icon: "🐦",
       name: "Twitter",
-      color: "from-blue-400 to-blue-500",
+      color: "from-minimal-primary to-minimal-gray-600",
     },
     github: {
       icon: "🐙",
       name: "GitHub",
-      color: "from-gray-700 to-gray-800",
+      color: "from-minimal-primary to-minimal-gray-600",
     },
     discord: {
       icon: "🎮",
       name: "Discord",
-      color: "from-indigo-500 to-indigo-600",
+      color: "from-minimal-primary to-minimal-gray-600",
     },
   };
 
@@ -370,52 +370,56 @@ const UnfinishedWorkflowsPage = () => {
   const getStatusIcon = (status) => {
     switch (status) {
       case "processing":
-        return <RefreshCw className="w-4 h-4 text-blue-400 animate-spin" />;
+        return (
+          <RefreshCw className="w-4 h-4 text-minimal-primary animate-spin" />
+        );
       case "waiting":
-        return <Clock className="w-4 h-4 text-yellow-400" />;
+        return <Clock className="w-4 h-4 text-minimal-gray-400" />;
       case "error":
-        return <XCircle className="w-4 h-4 text-red-400" />;
+        return <XCircle className="w-4 h-4 text-minimal-gray-400" />;
       case "paused":
-        return <Pause className="w-4 h-4 text-orange-400" />;
+        return <Pause className="w-4 h-4 text-minimal-gray-400" />;
       default:
-        return <AlertCircle className="w-4 h-4 text-gray-400" />;
+        return <AlertCircle className="w-4 h-4 text-minimal-gray-400" />;
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
       case "processing":
-        return "text-blue-400 bg-blue-900/20 border-blue-500/30";
+        return "text-minimal-primary bg-minimal-primary/10 border-minimal-primary/30";
       case "waiting":
-        return "text-yellow-400 bg-yellow-900/20 border-yellow-500/30";
+        return "text-minimal-gray-400 bg-minimal-gray-400/10 border-minimal-gray-400/30";
       case "error":
-        return "text-red-400 bg-red-900/20 border-red-500/30";
+        return "text-minimal-gray-400 bg-minimal-gray-400/10 border-minimal-gray-400/30";
       case "paused":
-        return "text-orange-400 bg-orange-900/20 border-orange-500/30";
+        return "text-minimal-gray-400 bg-minimal-gray-400/10 border-minimal-gray-400/30";
       default:
-        return "text-gray-400 bg-gray-900/20 border-gray-500/30";
+        return "text-minimal-gray-400 bg-minimal-gray-400/10 border-minimal-gray-400/30";
     }
   };
 
   const getStepStatusIcon = (status) => {
     switch (status) {
       case "completed":
-        return <CheckCircle className="w-3 h-3 text-green-400" />;
+        return <CheckCircle className="w-3 h-3 text-minimal-primary" />;
       case "in-progress":
-        return <RefreshCw className="w-3 h-3 text-blue-400 animate-spin" />;
+        return (
+          <RefreshCw className="w-3 h-3 text-minimal-primary animate-spin" />
+        );
       case "failed":
-        return <XCircle className="w-3 h-3 text-red-400" />;
+        return <XCircle className="w-3 h-3 text-minimal-gray-400" />;
       default:
-        return <Clock className="w-3 h-3 text-slate-500" />;
+        return <Clock className="w-3 h-3 text-minimal-muted" />;
     }
   };
 
   const getProgressColor = (progress, status) => {
-    if (status === "error") return "from-red-500 to-red-400";
-    if (progress < 25) return "from-red-500 to-orange-500";
-    if (progress < 50) return "from-orange-500 to-yellow-500";
-    if (progress < 75) return "from-yellow-500 to-blue-500";
-    return "from-blue-500 to-green-500";
+    if (status === "error") return "from-minimal-gray-400 to-minimal-gray-500";
+    if (progress < 25) return "from-minimal-gray-400 to-minimal-gray-500";
+    if (progress < 50) return "from-minimal-gray-400 to-minimal-gray-500";
+    if (progress < 75) return "from-minimal-primary to-minimal-gray-600";
+    return "from-minimal-primary to-minimal-gray-600";
   };
 
   const toggleMenu = (workflowId, event) => {
@@ -444,60 +448,60 @@ const UnfinishedWorkflowsPage = () => {
       icon: Play,
       label: "Resume Workflow",
       action: "resume",
-      className: "text-green-400 hover:text-green-300",
+      className: "text-minimal-primary hover:text-minimal-white",
     },
     {
       icon: RotateCcw,
       label: "Restart from Beginning",
       action: "restart",
-      className: "text-blue-400 hover:text-blue-300",
+      className: "text-minimal-primary hover:text-minimal-white",
     },
     {
       icon: Pause,
       label: "Pause Workflow",
       action: "pause",
-      className: "text-yellow-400 hover:text-yellow-300",
+      className: "text-minimal-gray-400 hover:text-minimal-white",
     },
     {
       icon: Eye,
       label: "View Details",
       action: "view",
-      className: "text-cyan-400 hover:text-cyan-300",
+      className: "text-minimal-primary hover:text-minimal-white",
     },
     {
       icon: Edit3,
       label: "Edit Workflow",
       action: "edit",
-      className: "text-purple-400 hover:text-purple-300",
+      className: "text-minimal-primary hover:text-minimal-white",
     },
     {
       icon: Copy,
       label: "Duplicate",
       action: "duplicate",
-      className: "text-indigo-400 hover:text-indigo-300",
+      className: "text-minimal-primary hover:text-minimal-white",
     },
     {
       icon: Archive,
       label: "Archive",
       action: "archive",
-      className: "text-orange-400 hover:text-orange-300",
+      className: "text-minimal-gray-400 hover:text-minimal-white",
     },
     {
       icon: Trash2,
       label: "Cancel & Delete",
       action: "delete",
-      className: "text-red-400 hover:text-red-300",
+      className: "text-minimal-gray-400 hover:text-minimal-white",
     },
   ];
 
   return (
-    <div className="min-h-screen  relative overflow-hidden">
+    <div className="min-h-screen bg-minimal-background relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 opacity-5">
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, cyan 1px, transparent 0)`,
+            backgroundImage: `radial-gradient(circle at 1px 1px, minimal-primary 1px, transparent 0)`,
             backgroundSize: "50px 50px",
             animation: "gridMove 20s linear infinite",
           }}
@@ -508,10 +512,10 @@ const UnfinishedWorkflowsPage = () => {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-cyan-400 mb-4">
+            <h1 className="text-4xl font-bold text-minimal-white mb-4">
               Unfinished Workflows
             </h1>
-            <p className="text-slate-400 text-lg">
+            <p className="text-minimal-muted text-lg">
               Monitor and manage workflows that are in progress or need
               attention
             </p>
@@ -519,18 +523,18 @@ const UnfinishedWorkflowsPage = () => {
 
           {/* Search Bar */}
           <div className="relative mb-12 max-w-2xl mx-auto">
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 blur-sm"></div>
-            <div className="relative bg-slate-900/80 backdrop-blur-xl rounded-xl border border-slate-700/50 p-1">
+            <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-minimal-primary/20 to-minimal-gray-600/20 blur-sm"></div>
+            <div className="relative bg-minimal-card/80 backdrop-blur-xl rounded-xl border border-minimal-border p-1">
               <div className="flex items-center">
                 <div className="pl-4">
-                  <Search className="w-5 h-5 text-slate-400" />
+                  <Search className="w-5 h-5 text-minimal-muted" />
                 </div>
                 <input
                   type="text"
                   placeholder="Search unfinished workflows, tools, or status..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-transparent text-white placeholder-slate-400 px-4 py-4 outline-none text-lg"
+                  className="w-full bg-transparent text-minimal-white placeholder-minimal-muted px-4 py-4 outline-none text-lg"
                 />
               </div>
             </div>
@@ -547,11 +551,11 @@ const UnfinishedWorkflowsPage = () => {
 
               return (
                 <div key={workflow.id} className="group/card relative">
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-cyan-500/10 to-purple-500/10 opacity-0 group-hover/card:opacity-100 transition-all duration-500 blur-sm"></div>
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover/card:opacity-100 transition-all duration-500 blur-sm"></div>
 
-                  <div className="relative bg-slate-900/80 backdrop-blur-xl rounded-xl border border-slate-700/50 group-hover/card:border-cyan-500/30 transition-all duration-500 overflow-hidden">
+                  <div className="relative bg-minimal-card/80 backdrop-blur-xl rounded-xl border border-minimal-border group-hover/card:border-minimal-primary/30 transition-all duration-500 overflow-hidden">
                     {/* Scanning line effect
-                    <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent transform -translate-x-full group-hover/card:translate-x-full transition-transform duration-1000"></div> */}
+                    <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-minimal-primary to-transparent transform -translate-x-full group-hover/card:translate-x-full transition-transform duration-1000"></div> */}
 
                     <div className="p-6">
                       {/* Header */}
@@ -570,7 +574,7 @@ const UnfinishedWorkflowsPage = () => {
                                       {tool.icon}
                                     </div>
                                     {index < workflow.tools.length - 1 && (
-                                      <ArrowRight className="w-3 h-3 text-slate-500 absolute -right-2 top-2.5 z-10" />
+                                      <ArrowRight className="w-3 h-3 text-minimal-muted absolute -right-2 top-2.5 z-10" />
                                     )}
                                   </div>
                                 );
@@ -590,35 +594,35 @@ const UnfinishedWorkflowsPage = () => {
                             </div>
                           </div>
 
-                          {/* <h3 className="text-white font-semibold text-lg mb-2 group-hover/card:text-cyan-300 transition-colors duration-300">
+                          {/* <h3 className="text-minimal-white font-semibold text-lg mb-2 group-hover/card:text-minimal-primary transition-colors duration-300">
                             {workflow.title}
                           </h3> */}
 
                           {/* Progress Bar */}
                           {/* <div className="mb-4">
                             <div className="flex items-center justify-between text-sm mb-2">
-                              <span className="text-slate-400">Progress</span>
-                              <span className="text-white font-mono">
+                              <span className="text-minimal-muted">Progress</span>
+                              <span className="text-minimal-white font-mono">
                                 {workflow.progress}%
                               </span>
                             </div>
-                            <div className="w-full bg-slate-700/50 rounded-full h-2 overflow-hidden">
+                            <div className="w-full bg-minimal-cardHover/50 rounded-full h-2 overflow-hidden">
                               <div
                                 className={`h-full bg-gradient-to-r ${progressColor} transition-all duration-500 relative`}
                                 style={{ width: `${workflow.progress}%` }}
                               >
-                                <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+                                <div className="absolute inset-0 bg-minimal-white/20 animate-pulse"></div>
                               </div>
                             </div>
                           </div> */}
 
                           {/* Current Step */}
-                          {/* <div className="bg-slate-800/60 rounded-lg p-3 mb-4">
+                          {/* <div className="bg-minimal-dark-100/60 rounded-lg p-3 mb-4">
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-slate-400 text-sm">
+                              <span className="text-minimal-muted text-sm">
                                 Current Step
                               </span>
-                              <span className="text-cyan-400 text-sm font-mono">
+                              <span className="text-minimal-primary text-sm font-mono">
                                 {workflow.currentStep}/{workflow.totalSteps}
                               </span>
                             </div>
@@ -626,12 +630,12 @@ const UnfinishedWorkflowsPage = () => {
                               {getStepStatusIcon(
                                 workflow.steps[workflow.currentStep - 1]?.status
                               )}
-                              <span className="text-white text-sm font-medium">
+                              <span className="text-minimal-white text-sm font-medium">
                                 {workflow.stepDescription}
                               </span>
                             </div>
                             {workflow.errorMessage && (
-                              <div className="mt-2 text-red-400 text-xs bg-red-900/20 rounded p-2 border border-red-500/30">
+                              <div className="mt-2 text-minimal-gray-400 text-xs bg-minimal-gray-400/20 rounded p-2 border border-minimal-gray-400/30">
                                 <AlertCircle className="w-3 h-3 inline mr-1" />
                                 {workflow.errorMessage}
                               </div>
@@ -641,34 +645,34 @@ const UnfinishedWorkflowsPage = () => {
                           {/* Workflow Details */}
                           {/* <div className="grid grid-cols-2 gap-4 text-xs mb-4">
                             <div>
-                              <span className="text-slate-500">Started:</span>
-                              <span className="text-slate-300 ml-1">
+                              <span className="text-minimal-muted">Started:</span>
+                              <span className="text-minimal-white ml-1">
                                 {workflow.startedAt}
                               </span>
                             </div>
                             <div>
-                              <span className="text-slate-500">
+                              <span className="text-minimal-muted">
                                 Last activity:
                               </span>
-                              <span className="text-slate-300 ml-1">
+                              <span className="text-minimal-white ml-1">
                                 {workflow.lastActivity}
                               </span>
                             </div>
                             <div className="col-span-2">
-                              <span className="text-slate-500">
+                              <span className="text-minimal-muted">
                                 Est. completion:
                               </span>
-                              <span className="text-cyan-400 ml-1">
+                              <span className="text-minimal-primary ml-1">
                                 {workflow.estimatedCompletion}
                               </span>
                             </div>
                           </div> */}
 
                           {/* Steps Progress */}
-                          {/* <div className="border-t border-slate-700/30 pt-3">
+                          {/* <div className="border-t border-minimal-border/30 pt-3">
                             <div className="flex items-center space-x-2 mb-2">
-                              <Clock className="w-3 h-3 text-slate-500" />
-                              <span className="text-xs text-slate-500">
+                              <Clock className="w-3 h-3 text-minimal-muted" />
+                              <span className="text-xs text-minimal-muted">
                                 Steps Progress
                               </span>
                             </div>
@@ -683,18 +687,18 @@ const UnfinishedWorkflowsPage = () => {
                                     <span
                                       className={`${
                                         step.status === "completed"
-                                          ? "text-green-400"
+                                          ? "text-minimal-primary"
                                           : step.status === "in-progress"
-                                          ? "text-blue-400"
+                                          ? "text-minimal-primary"
                                           : step.status === "failed"
-                                          ? "text-red-400"
-                                          : "text-slate-500"
+                                          ? "text-minimal-gray-400"
+                                          : "text-minimal-muted"
                                       }`}
                                     >
                                       {step.name}
                                     </span>
                                   </div>
-                                  <span className="text-slate-500 text-xs">
+                                  <span className="text-minimal-muted text-xs">
                                     {step.duration}
                                   </span>
                                 </div>
@@ -707,13 +711,13 @@ const UnfinishedWorkflowsPage = () => {
                         <div className="relative flex-shrink-0 ml-4">
                           <button
                             onClick={(e) => toggleMenu(workflow.id, e)}
-                            className="p-2 rounded-lg hover:bg-slate-700 transition-colors duration-200 opacity-0 group-hover/card:opacity-100"
+                            className="p-2 rounded-lg hover:bg-minimal-cardHover transition-colors duration-200 opacity-0 group-hover/card:opacity-100"
                           >
-                            <MoreHorizontal className="w-5 h-5 text-slate-400 hover:text-cyan-400" />
+                            <MoreHorizontal className="w-5 h-5 text-minimal-muted hover:text-minimal-primary" />
                           </button>
 
                           {isMenuOpen && (
-                            <div className="absolute right-0 top-12 w-56 bg-slate-800/95 backdrop-blur-sm rounded-lg border border-slate-700 shadow-2xl z-50 overflow-hidden">
+                            <div className="absolute right-0 top-12 w-56 bg-minimal-card/95 backdrop-blur-sm rounded-lg border border-minimal-border shadow-2xl z-50 overflow-hidden">
                               <div className="py-2">
                                 {menuOptions.map((option, optionIndex) => {
                                   const OptionIcon = option.icon;
@@ -726,7 +730,7 @@ const UnfinishedWorkflowsPage = () => {
                                           workflow.title
                                         )
                                       }
-                                      className={`w-full flex items-center px-4 py-2 text-sm hover:bg-slate-700/50 transition-all duration-200 ${option.className}`}
+                                      className={`w-full flex items-center px-4 py-2 text-sm hover:bg-minimal-cardHover/50 transition-all duration-200 ${option.className}`}
                                     >
                                       <OptionIcon className="w-4 h-4 mr-3" />
                                       <span>{option.label}</span>
@@ -748,13 +752,13 @@ const UnfinishedWorkflowsPage = () => {
           {/* Empty State */}
           {filteredWorkflows.length === 0 && (
             <div className="text-center py-12">
-              <div className="w-24 h-24 bg-slate-800/60 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-12 h-12 text-slate-600" />
+              <div className="w-24 h-24 bg-minimal-card/60 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-12 h-12 text-minimal-muted" />
               </div>
-              <h3 className="text-xl font-semibold text-slate-300 mb-2">
+              <h3 className="text-xl font-semibold text-minimal-white mb-2">
                 No unfinished workflows found
               </h3>
-              <p className="text-slate-500">
+              <p className="text-minimal-muted">
                 {searchQuery
                   ? "Try adjusting your search terms"
                   : "All your workflows are completed!"}
