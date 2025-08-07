@@ -175,8 +175,6 @@ export default function AIMemeGenerator() {
 
   return (
     <div className="min-h-screen relative bg-gray-900 text-white flex flex-col p-6">
-      <WorkFlowButton />
-
       {/* Header */}
       <div className="text-center py-8">
         <h1 className="text-4xl font-bold tracking-tight">AI Meme Generator</h1>
