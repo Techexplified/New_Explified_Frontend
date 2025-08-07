@@ -58,7 +58,10 @@ function PlusClick() {
     },
   });
 }
-
+  function ToolsClick() {
+    setIsToolsOpen((prev) => !prev);
+    navigate("/aitools");
+  }
 
 
 
