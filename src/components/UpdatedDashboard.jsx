@@ -135,11 +135,11 @@ const UpdatedDashboard = () => {
       icon: LayoutDashboard,
       description: "Shows key metrics",
     },
-    {
-      name: "Socials",
-      icon: BoomBox,
-      description: "Connects your social accounts",
-    },
+    // {
+    //   name: "Socials",
+    //   icon: BoomBox,
+    //   description: "Connects your social accounts",
+    // },
     {
       name: "Workflows",
       icon: Workflow,
@@ -152,6 +152,11 @@ const UpdatedDashboard = () => {
       name: "Integrations",
       icon: Zap,
       route: "/integrations",
+    },
+    {
+      name: "Socials",
+      icon: BoomBox,
+      route: "/socials",
     },
     {
       name: "Youtube Summarizer",
