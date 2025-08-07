@@ -23,7 +23,7 @@ const InstagramAnalytics = () => {
       change: "+12.5%",
       trend: "up",
       icon: Users,
-      color: "from-cyan-400 to-blue-500",
+      color: "from-minimal-primary to-minimal-gray-400",
     },
     {
       label: "Engagement",
@@ -31,7 +31,7 @@ const InstagramAnalytics = () => {
       change: "+2.1%",
       trend: "up",
       icon: Heart,
-      color: "from-cyan-500 to-purple-500",
+      color: "from-minimal-primary to-minimal-gray-500",
     },
     {
       label: "Reach",
@@ -39,7 +39,7 @@ const InstagramAnalytics = () => {
       change: "-5.3%",
       trend: "down",
       icon: Eye,
-      color: "from-cyan-400 to-teal-500",
+      color: "from-minimal-primary to-minimal-gray-600",
     },
     {
       label: "Impressions",
@@ -47,7 +47,7 @@ const InstagramAnalytics = () => {
       change: "+18.7%",
       trend: "up",
       icon: BarChart3,
-      color: "from-cyan-600 to-indigo-500",
+      color: "from-minimal-primary to-minimal-gray-700",
     },
   ];
 
@@ -61,19 +61,19 @@ const InstagramAnalytics = () => {
   const topHashtags = ["#photography", "#lifestyle", "#travel", "#inspiration"];
 
   return (
-    <div className="min-w-[30%] h-fit  bg-gray-900 rounded-2xl border border-gray-800 p-5 shadow-2xl overflow-y-auto">
+    <div className="min-w-[30%] h-fit  bg-minimal-card rounded-2xl border border-minimal-border p-5 shadow-2xl overflow-y-auto">
       {/* Header */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-xl font-bold text-white bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+          <h2 className="text-xl font-bold text-minimal-white">
             Analytics that matter
           </h2>
           <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
-            <span className="text-xs text-gray-400">Live</span>
+            <div className="w-2 h-2 rounded-full bg-minimal-primary animate-pulse"></div>
+            <span className="text-xs text-minimal-muted">Live</span>
           </div>
         </div>
-        <p className="text-gray-400 text-xs">@yourhandle • Last 30 days</p>
+        <p className="text-minimal-muted text-xs">@yourhandle • Last 30 days</p>
       </div>
 
       {/* Key Metrics Grid */}
@@ -83,17 +83,19 @@ const InstagramAnalytics = () => {
           return (
             <div
               key={index}
-              className="bg-gray-800 rounded-lg p-3 border border-gray-700 hover:border-cyan-500/50 transition-all duration-300 group"
+              className="bg-minimal-dark-100 rounded-lg p-3 border border-minimal-border hover:border-minimal-primary/50 transition-all duration-300 group"
             >
               <div className="flex items-center justify-between mb-2">
                 <div
                   className={`p-1.5 rounded-lg bg-gradient-to-r ${metric.color}`}
                 >
-                  <IconComponent className="w-3 h-3 text-white" />
+                  <IconComponent className="w-3 h-3 text-minimal-white" />
                 </div>
                 <div
                   className={`flex items-center space-x-1 text-xs ${
-                    metric.trend === "up" ? "text-green-400" : "text-red-400"
+                    metric.trend === "up"
+                      ? "text-minimal-gray-300"
+                      : "text-minimal-gray-500"
                   }`}
                 >
                   {metric.trend === "up" ? (
@@ -105,10 +107,10 @@ const InstagramAnalytics = () => {
                 </div>
               </div>
               <div>
-                <p className="text-lg font-bold text-white group-hover:text-cyan-300 transition-colors">
+                <p className="text-lg font-bold text-minimal-white group-hover:text-minimal-primary transition-colors">
                   {metric.value}
                 </p>
-                <p className="text-xs text-gray-400">{metric.label}</p>
+                <p className="text-xs text-minimal-muted">{metric.label}</p>
               </div>
             </div>
           );
@@ -122,31 +124,31 @@ const InstagramAnalytics = () => {
         }`}
       >
         <div className="mb-4">
-          <h3 className="text-sm font-semibold text-white mb-2 flex items-center">
-            <Calendar className="w-3 h-3 mr-2 text-cyan-400" />
+          <h3 className="text-sm font-semibold text-minimal-white mb-2 flex items-center">
+            <Calendar className="w-3 h-3 mr-2 text-minimal-primary" />
             Recent Posts
           </h3>
           <div className="space-y-2">
             {recentPosts.slice(0, 3).map((post, index) => (
               <div
                 key={index}
-                className="bg-gray-800 rounded-lg p-2 border border-gray-700"
+                className="bg-minimal-dark-100 rounded-lg p-2 border border-minimal-border"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex space-x-3 text-xs">
-                    <div className="flex items-center text-gray-300">
-                      <Heart className="w-3 h-3 mr-1 text-red-400" />
+                    <div className="flex items-center text-minimal-gray-300">
+                      <Heart className="w-3 h-3 mr-1 text-minimal-gray-400" />
                       {post.likes > 999
                         ? `${(post.likes / 1000).toFixed(1)}k`
                         : post.likes}
                     </div>
-                    <div className="flex items-center text-gray-300">
-                      <MessageCircle className="w-3 h-3 mr-1 text-blue-400" />
+                    <div className="flex items-center text-minimal-gray-300">
+                      <MessageCircle className="w-3 h-3 mr-1 text-minimal-gray-400" />
                       {post.comments}
                     </div>
                   </div>
                   <div className="flex items-center">
-                    <span className="text-xs text-cyan-400 font-medium">
+                    <span className="text-xs text-minimal-primary font-medium">
                       {post.engagement}%
                     </span>
                   </div>
@@ -157,15 +159,15 @@ const InstagramAnalytics = () => {
         </div>
 
         <div className="mb-3">
-          <h3 className="text-xs font-semibold text-white mb-2 flex items-center">
-            <span className="text-cyan-400 mr-2">#</span>
+          <h3 className="text-xs font-semibold text-minimal-white mb-2 flex items-center">
+            <span className="text-minimal-primary mr-2">#</span>
             Top Hashtags
           </h3>
           <div className="flex flex-wrap gap-1">
             {topHashtags.slice(0, 3).map((hashtag, index) => (
               <span
                 key={index}
-                className="px-2 py-0.5 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 rounded-full text-xs text-cyan-300 hover:border-cyan-400/50 transition-colors cursor-pointer"
+                className="px-2 py-0.5 bg-gradient-to-r from-minimal-primary/20 to-minimal-gray-600/20 border border-minimal-primary/30 rounded-full text-xs text-minimal-primary hover:border-minimal-primary/50 transition-colors cursor-pointer"
               >
                 {hashtag}
               </span>
@@ -177,7 +179,7 @@ const InstagramAnalytics = () => {
       {/* Toggle Button */}
       {/* <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full py-2 mb-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-cyan-500/50 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 text-gray-300 hover:text-cyan-300"
+        className="w-full py-2 mb-3 bg-minimal-dark-100 hover:bg-minimal-cardHover border border-minimal-border hover:border-minimal-primary/50 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 text-minimal-muted hover:text-minimal-primary"
       >
         <span className="text-xs font-medium">
           {isExpanded ? "Show Less" : "Show More"}

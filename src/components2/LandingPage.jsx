@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import PptxGenJS from "pptxgenjs";
+import WorkFlowButton from "../reusable_components/WorkFlowButton";
 
 // Reusable bordered box for the three‑step row
 const StepBox = ({ label }) => (
@@ -435,6 +436,8 @@ export default function LandingPage() {
 
   return (
     <section className="relative min-h-screen w-full bg-black text-white overflow-x-hidden font-sans">
+      <WorkFlowButton />
+
       {/* Brand header */}
       <header className="flex flex-col items-center pt-8 px-4 space-y-1 text-center">
         <h1 className="text-[2.8rem] font-extrabold tracking-wide mb-4 border border-gray-600 px-4 py-2">

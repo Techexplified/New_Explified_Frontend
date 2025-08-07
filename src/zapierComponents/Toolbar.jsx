@@ -60,6 +60,7 @@ const Toolbar = () => {
   const [arrowStartBoxId, setArrowStartBoxId] = useState(null);
   const [currentMousePos, setCurrentMousePos] = useState({ x: 0, y: 0 });
   const [searchQuery, setSearchQuery] = useState("");
+  const [hoveredBoxId, setHoveredBoxId] = useState(null);
 
   // Flatten all tools for search
   const allTools = Object.values(categorizedTools).flat();
@@ -95,6 +96,69 @@ const Toolbar = () => {
       prev.map((box) => (box.id === boxId ? { ...box, icon } : box))
     );
     setActiveBoxId(null);
+  };
+
+  const handleCreateBoxFromSide = (parentBoxId, side) => {
+    const parentBox = boxes.find((box) => box.id === parentBoxId);
+    if (!parentBox) return;
+
+    let newBoxPosition = { left: 0, top: 0 };
+    const spacing = 80; // Distance between boxes
+
+    switch (side) {
+      case "top":
+        newBoxPosition = {
+          left: parentBox.left,
+          top: parentBox.top - 100 - spacing,
+        };
+        break;
+      case "bottom":
+        newBoxPosition = {
+          left: parentBox.left,
+          top: parentBox.top + 100 + spacing,
+        };
+        break;
+      case "left":
+        newBoxPosition = {
+          left: parentBox.left - 120 - spacing,
+          top: parentBox.top,
+        };
+        break;
+      case "right":
+        newBoxPosition = {
+          left: parentBox.left + 120 + spacing,
+          top: parentBox.top,
+        };
+        break;
+    }
+
+    const newBox = {
+      id: Date.now(),
+      left: newBoxPosition.left,
+      top: newBoxPosition.top,
+      icon: null,
+    };
+
+    setBoxes((prev) => [...prev, newBox]);
+
+    // Create arrow connecting the boxes
+    const startBox = parentBox;
+    const endBox = newBox;
+    const startCenter = getBoxCenter(startBox);
+    const endCenter = getBoxCenter(endBox);
+    const endPoint = getArrowEndPoint(startBox, endBox);
+
+    const newArrow = {
+      id: Date.now() + 1,
+      startX: startCenter.x,
+      startY: startCenter.y,
+      endX: endPoint.x,
+      endY: endPoint.y,
+      startBoxId: parentBoxId,
+      endBoxId: newBox.id,
+    };
+
+    setArrows((prev) => [...prev, newArrow]);
   };
 
   // Helper function to find box at mouse position
@@ -277,39 +341,102 @@ const Toolbar = () => {
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
     >
+      {/* Empty Canvas Placeholder */}
+      {boxes.length === 0 && (
+        <div className="absolute inset-0 flex items-center justify-center ml-10  z-30">
+          <div
+            className="w-[120px] h-[100px] border-2 border-dashed border-minimal-primary rounded-md flex items-center justify-center cursor-pointer hover:border-minimal-primary/80 hover:bg-minimal-dark-100/20 transition-all duration-200"
+            onClick={() => {
+              setBoxes([
+                {
+                  id: Date.now(),
+                  left: window.innerWidth / 2 - 60,
+                  top: window.innerHeight / 2 - 50,
+                  icon: null,
+                },
+              ]);
+            }}
+          >
+            <Plus size={48} className="text-minimal-primary" />
+          </div>
+        </div>
+      )}
+
       {/* Render Boxes */}
       {boxes.map((box, index) => (
         <div
           key={box.id}
-          data-box-id={box.id}
-          className={`absolute w-[120px] h-[100px] bg-gradient-to-r from-cyan-400 to-blue-500 border-2 border-cyan-500 rounded-md z-40 ${
-            selectedTool === "arrow"
-              ? "cursor-crosshair"
-              : draggedBoxId === box.id
-              ? "cursor-grabbing"
-              : "cursor-grab"
-          }`}
+          className="absolute"
           style={{
-            left: `${box.left}px`,
-            top: `${box.top || 160}px`,
+            left: `${box.left - 32}px`,
+            top: `${(box.top || 160) - 32}px`,
+            width: "184px", // 120px + 64px (32px on each side)
+            height: "164px", // 100px + 64px (32px on each side)
           }}
-          onMouseDown={(e) => handleBoxMouseDown(e, box.id)}
-          onClick={(e) => handleBoxClick(e, box.id)}
+          onMouseEnter={() => setHoveredBoxId(box.id)}
+          onMouseLeave={() => setHoveredBoxId(null)}
         >
-          <div className="w-full h-full flex items-center justify-center text-4xl text-white">
-            {box.icon || <Square size={48} />}
+          <div
+            data-box-id={box.id}
+            className={`absolute w-[120px] h-[100px] bg-gradient-to-r from-minimal-dark-100 to-minimal-dark-200 border-2 border-minimal-primary rounded-md z-40 ${
+              selectedTool === "arrow"
+                ? "cursor-crosshair"
+                : draggedBoxId === box.id
+                ? "cursor-grabbing"
+                : "cursor-grab"
+            }`}
+            style={{
+              left: "32px",
+              top: "32px",
+            }}
+            onMouseDown={(e) => handleBoxMouseDown(e, box.id)}
+            onClick={(e) => handleBoxClick(e, box.id)}
+          >
+            <div className="w-full h-full flex items-center justify-center text-4xl text-minimal-white">
+              {box.icon || <Square size={48} />}
+            </div>
           </div>
 
-          {/* Plus Button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleAddBox();
-            }}
-            className="absolute -right-6 top-1/2 -translate-y-1/2 w-8 h-8 bg-green-400 text-white rounded-full flex items-center justify-center shadow-md hover:bg-cyan-700"
-          >
-            <Plus size={18} />
-          </button>
+          {/* Side Dots - Only show when hovering */}
+          {hoveredBoxId === box.id && (
+            <>
+              {/* Top dot */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCreateBoxFromSide(box.id, "top");
+                }}
+                className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-minimal-gray-300 opacity-15 rounded-full hover:bg-minimal-primary transition-colors duration-200 z-50"
+              />
+
+              {/* Bottom dot */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCreateBoxFromSide(box.id, "bottom");
+                }}
+                className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-minimal-gray-300 opacity-15 rounded-full hover:bg-minimal-primary transition-colors duration-200 z-50"
+              />
+
+              {/* Left dot */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCreateBoxFromSide(box.id, "left");
+                }}
+                className="absolute top-1/2 -translate-y-1/2 left-0 w-4 h-4 bg-minimal-gray-300 opacity-15 rounded-full hover:bg-minimal-primary transition-colors duration-200 z-50"
+              />
+
+              {/* Right dot */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCreateBoxFromSide(box.id, "right");
+                }}
+                className="absolute top-1/2 -translate-y-1/2 right-0 w-4 h-4 bg-minimal-gray-300 opacity-15 rounded-full hover:bg-minimal-primary transition-colors duration-200 z-50"
+              />
+            </>
+          )}
         </div>
       ))}
 
@@ -331,8 +458,8 @@ const Toolbar = () => {
             >
               <polygon
                 points="0 0, 10 3.5, 0 7"
-                fill="#3b82f6"
-                stroke="#3b82f6"
+                fill="#23B5B5"
+                stroke="#23B5B5"
               />
             </marker>
           </defs>
@@ -341,7 +468,7 @@ const Toolbar = () => {
             y1={arrow.startY}
             x2={arrow.endX}
             y2={arrow.endY}
-            stroke="#3b82f6"
+            stroke="#23B5B5"
             strokeWidth="3"
             markerEnd={`url(#arrowhead-${arrow.id})`}
           />
@@ -365,8 +492,8 @@ const Toolbar = () => {
             >
               <polygon
                 points="0 0, 10 3.5, 0 7"
-                fill="#3b82f6"
-                stroke="#3b82f6"
+                fill="#23B5B5"
+                stroke="#23B5B5"
               />
             </marker>
           </defs>
@@ -375,7 +502,7 @@ const Toolbar = () => {
             y1={arrowStart.y}
             x2={currentMousePos.x}
             y2={currentMousePos.y}
-            stroke="#3b82f6"
+            stroke="#23B5B5"
             strokeWidth="3"
             markerEnd="url(#temp-arrowhead)"
             strokeDasharray="5,5"
@@ -386,7 +513,7 @@ const Toolbar = () => {
       {/* Search Sidebar */}
       {activeBoxId === boxes.find((box) => box.id === activeBoxId)?.id && (
         <div
-          className="absolute left-full top-0 ml-4 w-64 max-h-[300px] p-3 bg-cyan-200 rounded-xl shadow-xl border border-cyan-300 z-50"
+          className="absolute left-full top-0 ml-4 w-64 max-h-[300px] p-3 bg-minimal-dark-100/90 backdrop-blur-sm rounded-xl shadow-xl border border-minimal-primary z-50"
           style={{
             left: `${
               boxes.find((box) => box.id === activeBoxId)?.left + 120
@@ -398,10 +525,10 @@ const Toolbar = () => {
           <input
             type="text"
             placeholder="🔍 Search tools..."
-            className="w-full mb-3 px-3 py-2 text-sm border border-cyan-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all"
+            className="w-full mb-3 px-3 py-2 text-sm border border-minimal-primary rounded-lg focus:outline-none focus:ring-2 focus:ring-minimal-primary transition-all"
             style={{
-              backgroundColor: "#e0f7fa",
-              color: "#036c73",
+              backgroundColor: "rgba(26, 26, 26, 0.8)",
+              color: "#e2e8f0",
               fontWeight: "500",
             }}
             value={searchQuery}
@@ -416,7 +543,7 @@ const Toolbar = () => {
                 <button
                   key={tool.name}
                   onClick={() => handleSelectToolIcon(activeBoxId, tool.icon)}
-                  className="flex items-center gap-2 p-2 w-full rounded-md hover:bg-cyan-100 text-gray-800 text-sm border border-gray-200"
+                  className="flex items-center gap-2 p-2 w-full rounded-md hover:bg-minimal-cardHover/50 text-minimal-white text-sm border border-minimal-border"
                 >
                   <span className="text-lg">{tool.icon}</span>
                   <span>{tool.name}</span>
@@ -428,7 +555,7 @@ const Toolbar = () => {
 
       {/* Floating Toolbar */}
       <div className="fixed bottom-8 left-1/2 transform -translate-x-1/5 z-50">
-        <div className="bg-slate-800/90 backdrop-blur-xl border border-cyan-400/50 rounded-2xl p-2 flex items-center gap-2 shadow-2xl shadow-cyan-500/20 relative">
+        <div className="bg-minimal-card/80 backdrop-blur-xl border border-minimal-primary/50 rounded-2xl p-2 flex items-center gap-2 shadow-2xl shadow-minimal-primary/20 relative">
           {["square", "arrow"].map((tool) => (
             <button
               key={tool}
@@ -438,8 +565,8 @@ const Toolbar = () => {
                 flex items-center justify-center gap-2 group overflow-hidden
                 ${
                   selectedTool === tool
-                    ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/25 scale-105"
-                    : "text-slate-300 hover:text-white hover:bg-slate-700/50"
+                    ? "bg-gradient-to-r from-minimal-primary to-minimal-gray-600 text-minimal-white shadow-lg shadow-minimal-primary/25 scale-105"
+                    : "text-minimal-muted hover:text-minimal-white hover:bg-minimal-cardHover/50"
                 }
               `}
             >
@@ -448,14 +575,14 @@ const Toolbar = () => {
               </span>
 
               {selectedTool === tool && (
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 opacity-20 animate-pulse" />
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-minimal-primary to-minimal-gray-600 opacity-20 animate-pulse" />
               )}
             </button>
           ))}
         </div>
 
         {/* Glow Effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-2xl blur-3xl -z-30 animate-pulse" />
+        <div className="absolute inset-0 bg-gradient-to-r from-minimal-primary/10 to-minimal-gray-600/10 rounded-2xl blur-3xl -z-30 animate-pulse" />
       </div>
     </div>
   );
