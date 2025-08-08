@@ -147,7 +147,7 @@ function AITools() {
       <div className="heading  py-10 flex items-center justify-center">
         <h1 className="text-3xl text-minimal-white font-thin tracking-tighter">
           <span className="text-5xl font-semibold text-minimal-primary animate-pulse tracking-normal">
-            AI Tools
+            All Tools
           </span>
           .
         </h1>
