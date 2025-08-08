@@ -136,7 +136,6 @@ function App() {
     <div>
       <Routes>
         <Route path="/web" element={<MainPage />} />
-        <Route path="/result" element={<Result />} />
         <Route path="influmark/:name" element={<InfluencerProfile />} />
         <Route path="/login" element={<LoginPage />} />
 
