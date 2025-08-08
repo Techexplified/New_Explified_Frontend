@@ -241,6 +241,7 @@ function App() {
             path="/workflows/recommended"
             element={<RecommendedWorkflowsPage />}
           ></Route>
+
           <Route
             path="/workflows/existing"
             element={<ExistingWorkflowsPage />}
@@ -253,6 +254,7 @@ function App() {
           <Route path="/aitools" element={<AITools />}></Route>
           <Route path="/lurphchat" element={<Trone />} />
           <Route path="/Meme" element={<Meme />} />
+          <Route path="/result" element={<Result />} />
           <Route path="/ai-gif-generator" element={<GIFGenerator />} />
           <Route path="/video-meme-generator" element={<AIMemeGenerator />} />
           <Route path="/history" element={<History />}></Route>
@@ -307,12 +309,12 @@ function App() {
 
           <Route path="/bg-remover" element={<BGLayout />} />
 
-          <Route path="/result" element={<Result />} />
+          {/* <Route path="/result" element={<Result />} /> */}
           <Route path="/zeno" element={<NewZapier />} />
           <Route path="/workflows/create" element={<CreateWorkflow />} />
           <Route path="/zenonew" element={<ZapierChat />} />
 
-          <Route path="/result2" element={<ZapResult />} />
+          {/* <Route path="/result2" element={<ZapResult />} /> */}
           <Route path="/influmark/:name" element={<InfluencerProfile />} />
           <Route path="/Meme" element={<Meme />} />
           <Route path="/influmark" element={<Influmark />} />
