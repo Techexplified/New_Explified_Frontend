@@ -21,10 +21,16 @@ import {
   ImagePlay,
   SquarePercent,
   BotMessageSquare,
+  Plus,
+  SectionIcon,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "../assets/logos/explified_logo.png";
 import UserModal from "./UserModal";
+import { BsLayoutSidebar } from "react-icons/bs";
+import { FaPlus } from "react-icons/fa6";
+import { MdAttachMoney, MdOutlineCardTravel } from "react-icons/md";
+import { IoBookOutline } from "react-icons/io5";
 
 const UpdatedDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -36,6 +42,17 @@ const UpdatedDashboard = () => {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [showUserModal, setShowUserModal] = useState(false);
   const [expandedAccordions, setExpandedAccordions] = useState({});
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isToolsOpen, setIsToolsOpen] = useState(false);
+
+  function PlusClick() {
+    setIsDrawerOpen((prev) => !prev);
+    navigate("/lurphchat");
+  }
+  function ToolsClick() {
+    setIsToolsOpen((prev) => !prev);
+    navigate("/aitools");
+  }
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -110,7 +127,7 @@ const UpdatedDashboard = () => {
     setActiveNav("");
   }, [location.pathname]);
 
-  const navItems = [{ name: "Lurph", icon: BotMessageSquare }];
+  // const navItems = [{ name: "Lurph", icon: BotMessageSquare }];
 
   const tools = [
     {
@@ -118,15 +135,63 @@ const UpdatedDashboard = () => {
       icon: LayoutDashboard,
       description: "Shows key metrics",
     },
-    {
-      name: "Socials",
-      icon: BoomBox,
-      description: "Connects your social accounts",
-    },
+    // {
+    //   name: "Socials",
+    //   icon: BoomBox,
+    //   description: "Connects your social accounts",
+    // },
     {
       name: "Workflows",
       icon: Workflow,
       description: "Automates task sequences",
+    },
+  ];
+
+  const aiTools = [
+    {
+      name: "Integrations",
+      icon: Zap,
+      route: "/integrations",
+    },
+    {
+      name: "Socials",
+      icon: BoomBox,
+      route: "/socials",
+    },
+    {
+      name: "Youtube Summarizer",
+      icon: Youtube,
+      route: "/youtube-summarizer",
+    },
+    {
+      name: "AI Subtitler",
+      icon: Captions,
+      route: "/ai-subtitler",
+    },
+    {
+      name: "Linkedin Extension",
+      icon: Linkedin,
+      route: "/linkedin",
+    },
+    {
+      name: "Meme Generator",
+      icon: Video,
+      route: "/video-meme-generator",
+    },
+    {
+      name: "Bg Remover",
+      icon: ImagePlay,
+      route: "/bg-remover",
+    },
+    {
+      name: "Influmark",
+      icon: SquarePercent,
+      route: "/influmark",
+    },
+    {
+      name: "Chats",
+      icon: SquarePercent,
+      description: "Lets you chat with others",
     },
   ];
 
@@ -185,23 +250,23 @@ const UpdatedDashboard = () => {
     },
   ];
 
-  const toggleAccordion = (accordionId) => {
-    if (!sidebarOpen) return;
-    setExpandedAccordions((prev) => ({
-      ...prev,
-      [accordionId]: !prev[accordionId],
-    }));
-  };
+  // const toggleAccordion = (accordionId) => {
+  //   if (!sidebarOpen) return;
+  //   setExpandedAccordions((prev) => ({
+  //     ...prev,
+  //     [accordionId]: !prev[accordionId],
+  //   }));
+  // };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-800 via-gray-900 to-gray-900 flex flex-col overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 flex flex-col overflow-hidden">
       <UserModal
         showUserModal={showUserModal}
         setShowUserModal={setShowUserModal}
       />
       {/* Top Navigation Bar */}
       <header
-        className={`bg-gray-800/50 h-[70px] backdrop-blur-sm border-b border-gray-700/50 px-8 py-4 transition-transform duration-300 z-50 ${
+        className={`bg-minimal-dark-100/50 h-[70px] backdrop-blur-sm border-b border-minimal-border/50 px-8 py-4 transition-transform duration-300 z-50 ${
           showNavbar ? "translate-y-0" : "-translate-y-full"
         } fixed top-0 left-0 w-full`}
       >
@@ -211,16 +276,50 @@ const UpdatedDashboard = () => {
             <Link to="https://explified.com/">
               <img className="w-6" src={logo} alt="Explified" />
             </Link>
-            <h2 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+            <h2 className="text-xl font-bold text-minimal-white">
               <Link to="https://explified.com/" className="cursor-pointer">
                 Explified
               </Link>
             </h2>
+            {/* sidebar toggle */}
+            <span
+              onClick={() => setSidebarOpen((prev) => !prev)}
+              className="px-2 cursor-pointer group relative"
+            >
+              {/* Enhanced background glow */}
+              <div className="absolute inset-0 bg-cyan-400/30 rounded-lg scale-100 transition-transform duration-300 ease-out shadow-lg shadow-cyan-400/40"></div>
+
+              {/* Pulsing ring effect - more prominent */}
+              <div className="absolute inset-0 rounded-lg border-2 border-cyan-400/50 opacity-100 transition-opacity duration-700 animate-ping"></div>
+
+              {/* Main icon - brighter */}
+              <BsLayoutSidebar
+                size={20}
+                className={`text-cyan-300 transition-all duration-300 ease-out relative z-10 ${
+                  sidebarOpen ? "rotate-180" : "rotate-0"
+                }`}
+              />
+
+              {/* Enhanced glow effect */}
+              <div className="absolute inset-0 bg-cyan-400/20 rounded-lg opacity-100 transition-opacity duration-300 blur-sm"></div>
+
+              {/* Energy waves - more visible */}
+              <div
+                className="absolute inset-0 rounded-lg border-2 border-cyan-400/40 opacity-100 transition-opacity duration-1000 animate-ping"
+                style={{ animationDuration: "2s" }}
+              ></div>
+
+              {/* Additional pulsing ring for extra visibility */}
+              <div
+                className="absolute inset-0 rounded-lg border border-cyan-400/70 opacity-100 transition-opacity duration-1500 animate-ping"
+                style={{ animationDuration: "1.5s" }}
+              ></div>
+            </span>
           </div>
 
           {/* user profile */}
           <div className=" flex items-center justify-center gap-2">
-            {navItems.map((item) => {
+            {/* {navItems.map((item) => {
               const Icon = item.icon;
               return (
                 <button
@@ -231,18 +330,18 @@ const UpdatedDashboard = () => {
                   }}
                   className={`flex items-center px-4 py-2 rounded-lg transition-all duration-200 ${
                     activeNav === item.name
-                      ? "bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-400 border border-cyan-500/30"
-                      : "text-gray-400 hover:text-cyan-400 hover:bg-gray-700/30 border-none"
+                      ? "bg-minimal-primary/20 text-minimal-primary border border-minimal-primary/30"
+                      : "text-minimal-white hover:text-minimal-primary hover:bg-minimal-cardHover border-none"
                   }`}
                 >
                   <Icon className="w-4 h-4 mr-2" />
                   <span className="font-medium">{item.name}</span>
                 </button>
               );
-            })}
+            })} */}
             <CircleUserRound
               onClick={() => setShowUserModal(true)}
-              className="hover:scale-105 transition-all duration-200 cursor-pointer text-cyan-500"
+              className="hover:scale-105 transition-all duration-200 cursor-pointer text-minimal-white hover:text-minimal-primary"
             />
           </div>
         </div>
@@ -252,211 +351,273 @@ const UpdatedDashboard = () => {
         {/* Sidebar */}
         <div
           className={`z-[99999] flex-shrink-0 sidebar-transition transition-all duration-300 ease-in-out ${
-            sidebarOpen ? "w-80" : "w-20"
+            sidebarOpen ? "w-80" : "w-0"
           } fixed left-0 ${
             showNavbar ? "h-[calc(100vh-70px)] top-[70px]" : "h-screen top-0"
-          }`}
-          onMouseEnter={() => setSidebarOpen(true)}
-          onMouseLeave={() => setSidebarOpen(false)}
+          } ${sidebarOpen ? "" : "overflow-hidden"}`}
         >
-          <div className="h-full bg-gray-800/50 backdrop-blur-lg border-r border-gray-700/50 p-4 flex flex-col">
+          <div className="h-full bg-minimal-dark-100/50 backdrop-blur-lg border-r border-minimal-border/50 p-4 flex flex-col">
             {/* Tools */}
             <div className="flex-1">
-              <div className="space-y-2">
-                {tools.map((tool, idx) => {
-                  const Icon = tool.icon;
-                  return (
-                    <button
-                      key={tool.name}
-                      onClick={() => {
-                        setSelectedTool(
-                          selectedTool === tool.name ? null : tool.name
-                        );
-                        if (idx === 0) {
-                          navigate("/");
-                        } else {
-                          navigate(`/${tool.name.toLowerCase()}`);
-                        }
-                      }}
-                      className={`w-full flex items-center ${
-                        sidebarOpen
-                          ? "justify-start px-4"
-                          : "justify-center px-2"
-                      } py-3 rounded-xl transition-all duration-200 ${
-                        selectedTool === tool.name
-                          ? "bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-400 border border-cyan-500/30"
-                          : "text-gray-400 hover:text-cyan-400 hover:bg-gray-700/30 border-none"
-                      }`}
-                      title={!sidebarOpen ? tool.name : undefined}
-                    >
-                      <Icon className="w-5 h-5" />
-                      {sidebarOpen && showContent && (
-                        <div className="ml-3 text-left opacity-0 animate-fade-in">
-                          <div className="font-medium text-sm">{tool.name}</div>
-                          <div className="text-xs opacity-60">
-                            {tool.description}
-                          </div>
-                        </div>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-              {/* Accordions */}
-              <div className="mb-5">
-                {accordionSections.map((section) => {
-                  const SectionIcon = section.icon;
-                  const isExpanded = expandedAccordions[section.id];
+              {sidebarOpen && (
+                <div
+                  onClick={PlusClick}
+                  className="flex font-thin justify-center px-2 py-3 rounded-xl cursor-pointer hover:text-cyan-400 hover:border hover:border-cyan-500/30"
+                >
+                  <Plus />
+                </div>
+              )}
 
-                  return (
-                    <div key={section.id}>
-                      {/* Accordion Header */}
+              {sidebarOpen && (
+                <div className="space-y-2">
+                  {tools.map((tool, idx) => {
+                    const Icon = tool.icon;
+                    return (
                       <button
-                        onClick={() => toggleAccordion(section.id)}
-                        className={`w-full flex items-center ${
-                          sidebarOpen
-                            ? "justify-between px-4"
-                            : "justify-center px-2"
-                        } py-3 rounded-xl transition-all duration-200 text-gray-400 hover:text-cyan-400 hover:bg-gray-700/30`}
-                        title={!sidebarOpen ? section.title : undefined}
+                        key={tool.name}
+                        onClick={() => {
+                          setSelectedTool(
+                            selectedTool === tool.name ? null : tool.name
+                          );
+                          if (idx === 0) {
+                            navigate("/");
+                          } else {
+                            navigate(`/${tool.name.toLowerCase()}`);
+                          }
+                        }}
+                        className={`w-full flex items-center justify-start px-4 py-3 rounded-xl transition-all duration-200 ${
+                          selectedTool === tool.name
+                            ? "bg-minimal-primary/20 text-minimal-primary border border-minimal-primary/30"
+                            : "text-minimal-white hover:text-minimal-primary hover:bg-minimal-cardHover border-none"
+                        }`}
                       >
-                        <div className="flex items-center">
-                          <SectionIcon className="w-5 h-5" />
-                          {sidebarOpen && (
+                        <Icon className="w-5 h-5" />
+                        {showContent && (
+                          <div className="ml-3 text-left opacity-0 animate-fade-in">
+                            <div className="font-medium text-sm">
+                              {tool.name}
+                            </div>
+                            <div className="text-xs text-minimal-white opacity-70">
+                              {tool.description}
+                            </div>
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Accordions */}
+              {sidebarOpen && (
+                <div className="mb-5">
+                  {accordionSections.map((section) => {
+                    const SectionIcon = section.icon;
+                    // const isExpanded = expandedAccordions[section.id];
+
+                    return (
+                      <div key={section.id}>
+                        {/* Accordion Header */}
+                        <button
+                          onClick={ToolsClick}
+                          className="w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 text-minimal-white hover:text-minimal-primary hover:bg-minimal-cardHover"
+                        >
+                          <div className="flex items-center">
+                            <SectionIcon className="w-5 h-5" />
                             <span className="ml-3 font-medium text-sm">
                               {section.title}
                             </span>
-                          )}
-                        </div>
-                        {sidebarOpen && (
-                          <ChevronDown
-                            className={`w-4 h-4 transition-transform duration-200 ${
-                              isExpanded ? "rotate-180" : ""
-                            }`}
-                          />
-                        )}
-                      </button>
-
-                      {/* Accordion Content */}
-                      {sidebarOpen && (
-                        <div
-                          className={`overflow-hidden transition-all duration-200 ${
-                            isExpanded
-                              ? "max-h-96 opacity-100"
-                              : "max-h-0 opacity-0"
-                          }`}
-                        >
-                          <div className="ml-6 mt-2 space-y-1">
-                            {section.items.map((item) => {
-                              const ItemIcon = item.icon;
-                              return (
-                                <button
-                                  onClick={() => navigate(item.route)}
-                                  key={item.name}
-                                  className="w-full flex items-center justify-start px-3 py-2 rounded-lg transition-all duration-200 text-gray-400 hover:text-cyan-400 hover:bg-gray-700/30"
-                                >
-                                  <ItemIcon className="w-4 h-4" />
-                                  <div className="ml-3 text-left">
-                                    <div className="font-medium text-xs">
-                                      {item.name}
-                                    </div>
-                                  </div>
-                                </button>
-                              );
-                            })}
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+                          {/* {sidebarOpen && (
+                             <ChevronDown
+                               className={`w-4 h-4 transition-transform duration-200 ${
+                                 isExpanded ? "rotate-180" : ""
+                               }`}
+                             />
+                           )} */}
+                        </button>
+
+                        {/* Accordion Content */}
+                        {/* {sidebarOpen && (
+                           <div
+                             className={`overflow-hidden transition-all duration-200 ${
+                               isExpanded
+                                 ? "max-h-96 opacity-100"
+                                 : "max-h-0 opacity-0"
+                             }`}
+                           >
+                             <div className="ml-6 mt-2 space-y-1">
+                               {section.items.map((item) => {
+                                 const ItemIcon = item.icon;
+                                 return (
+                                   <button
+                                     onClick={() => navigate(item.route)}
+                                     key={item.name}
+                                     className="w-full flex items-center justify-start px-3 py-2 rounded-lg transition-all duration-200 text-minimal-white hover:text-minimal-primary hover:bg-minimal-cardHover"
+                                   >
+                                     <ItemIcon className="w-4 h-4" />
+                                     <div className="ml-3 text-left">
+                                       <div className="font-medium text-xs">
+                                         {item.name}
+                                       </div>
+                                   </div>
+                                 </button>
+                               );
+                             })}
+                           </div>
+                         </div>
+                       )} */}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             {/* Footer */}
-            <div className="mt-auto pt-4 border-t border-gray-700/50">
-              <div className="mb-3">
-                <button
-                  onClick={() => {
-                    setSelectedTool(
-                      selectedTool === "Favorites" ? null : "Favorites"
-                    );
-                    navigate("/favorites");
-                  }}
-                  className={`w-full flex items-center ${
-                    sidebarOpen ? "justify-start px-4" : "justify-center px-2"
-                  } py-3 rounded-xl transition-all duration-200 ${
-                    selectedTool === "Favorites"
-                      ? "bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-400 border border-cyan-500/30"
-                      : "text-gray-400 hover:text-cyan-400 hover:bg-gray-700/30 border-none"
-                  }`}
-                  title={!sidebarOpen ? "Favorites" : undefined}
-                >
-                  <Star className="w-5 h-5" />
-                  {sidebarOpen && showContent && (
-                    <div className="ml-3 text-left opacity-0 animate-fade-in">
-                      <div className="font-medium text-sm">Favorites</div>
-                      <div className="text-xs opacity-60">
-                        Your favorite tools
+            {sidebarOpen && (
+              <div className="mt-auto pt-4 border-t border-minimal-border/50">
+                <div className="mb-3">
+                  <button
+                    onClick={() => {
+                      setSelectedTool(
+                        selectedTool === "Favorites" ? null : "Favorites"
+                      );
+                      navigate("/favorites");
+                    }}
+                    className={`w-full flex items-center justify-start px-4 py-3 rounded-xl transition-all duration-200 ${
+                      selectedTool === "Favorites"
+                        ? "bg-minimal-primary/20 text-minimal-primary border border-minimal-primary/30"
+                        : "text-minimal-white hover:text-minimal-primary hover:bg-minimal-cardHover border-none"
+                    }`}
+                  >
+                    <Star className="w-5 h-5" />
+                    {showContent && (
+                      <div className="ml-3 text-left opacity-0 animate-fade-in">
+                        <div className="font-medium text-sm">Favorites</div>
+                        <div className="text-xs text-minimal-white opacity-70">
+                          Your favorite tools
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </button>
-              </div>
-              {/* Credits Section */}
-              <div className={`${sidebarOpen ? "block" : "hidden"}`}>
-                <div className="bg-gray-700/30 rounded-lg p-3 border border-gray-600/30">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center space-x-2">
-                      {/* <CreditCard className="w-4 h-4 text-cyan-400" /> */}
-                      <span className="text-white text-sm font-medium">
-                        {userCredits.plan}
-                      </span>
-                    </div>
-                    <span className="text-cyan-400 text-sm font-semibold">
-                      {userCredits.remaining}
-                    </span>
-                  </div>
-                  <div className="mb-2">
-                    <div className="flex justify-between text-xs text-gray-400 mb-1">
-                      <span>Credits left</span>
-                      <span>
-                        {userCredits.remaining}/{userCredits.total}
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-600/50 rounded-full h-2">
-                      <div
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                          creditsPercentage > 50
-                            ? "bg-gradient-to-r from-green-500 to-cyan-500"
-                            : creditsPercentage > 20
-                            ? "bg-gradient-to-r from-yellow-500 to-orange-500"
-                            : "bg-gradient-to-r from-red-500 to-pink-500"
-                        }`}
-                        style={{ width: `${creditsPercentage}%` }}
-                      />
-                    </div>
-                  </div>
-                  <button className="w-full text-xs text-cyan-400 hover:text-cyan-300 transition-colors duration-200">
-                    Upgrade Plan
+                    )}
                   </button>
                 </div>
+                {/* Credits Section */}
+                <div className={`${sidebarOpen ? "block" : "hidden"}`}>
+                  <div className="bg-minimal-card rounded-lg p-3 border border-minimal-border">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-minimal-white text-sm font-medium">
+                          {userCredits.plan}
+                        </span>
+                      </div>
+                      <span className="text-minimal-white text-sm font-semibold">
+                        {userCredits.remaining}
+                      </span>
+                    </div>
+                    <div className="mb-2">
+                      <div className="flex justify-between text-xs text-minimal-muted mb-1">
+                        <span>Credits left</span>
+                        <span>
+                          {userCredits.remaining}/{userCredits.total}
+                        </span>
+                      </div>
+                      <div className="w-full bg-minimal-gray-800 rounded-full h-2">
+                        <div
+                          className={`h-2 rounded-full transition-all duration-300 ${
+                            creditsPercentage > 50
+                              ? "bg-gradient-to-r from-minimal-gray-400 to-minimal-gray-300"
+                              : creditsPercentage > 20
+                              ? "bg-gradient-to-r from-minimal-gray-500 to-minimal-gray-400"
+                              : "bg-gradient-to-r from-minimal-gray-600 to-minimal-gray-500"
+                          }`}
+                          style={{ width: `${creditsPercentage}%` }}
+                        />
+                      </div>
+                    </div>
+                    <button className="w-full text-xs text-minimal-primary hover:text-minimal-primary/80 transition-colors duration-200">
+                      Upgrade Plan
+                    </button>
+                  </div>
+                </div>
+                <div
+                  className={`${
+                    sidebarOpen && showContent ? "block" : "hidden"
+                  } text-center opacity-0 animate-fade-in mt-2`}
+                >
+                  <div className="text-minimal-muted text-xs">
+                    Explified.com
+                  </div>
+                </div>
               </div>
-              <div
-                className={`${
-                  sidebarOpen && showContent ? "block" : "hidden"
-                } text-center opacity-0 animate-fade-in mt-2`}
-              >
-                <div className="text-gray-400 text-xs">Explified.com</div>
+            )}
+          </div>
+        </div>
+
+        {isDrawerOpen && (
+          <div
+            className={`w-60 z-[9999] absolute h-full top-[70px] ${
+              sidebarOpen ? "ml-80" : "ml-0"
+            }  bg-stone-900 text-white p-4 space-y-6 transition-all duration-300`}
+          >
+            {/* Home Section */}
+            <div>
+              <h2 className="font-bold mb-4">Recent</h2>
+              <div className="space-y-3 text-gray-300"></div>
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-gray-600"></div>
+          </div>
+        )}
+
+        {isToolsOpen && (
+          <div
+            className={`w-60 z-[9999] absolute h-full top-[70px] ${
+              sidebarOpen ? "ml-80" : "ml-0"
+            } bg-stone-900 text-white p-4 space-y-6 transition-all duration-300`}
+          >
+            <div>
+              <input
+                type="text"
+                placeholder="Enter text..."
+                className="flex-1 px-3 py-2 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none"
+              />
+            </div>
+            {/* Divider */}
+            <div className="border-t border-gray-600"></div>
+
+            {/* Tools Header */}
+            <div>
+              <div className="space-y-3 text-gray-300">
+                {aiTools.map((tool, index) => (
+                  <a
+                    key={index}
+                    href={tool.route || "#"}
+                    className="flex items-center gap-2 hover:text-white cursor-pointer transition-colors"
+                    title={tool.description || tool.name}
+                  >
+                    <tool.icon size={18} />
+                    <span className="text-sm">{tool.name}</span>
+                  </a>
+                ))}
               </div>
             </div>
           </div>
-        </div>
+        )}
+
         {/* Main Content Area */}
-        <div className={`ml-20 w-full`} style={{ marginTop: "70px" }}>
+        <div
+          className={`${
+            sidebarOpen ? "ml-80" : "ml-0"
+          } w-full transition-all duration-300`}
+          style={{ marginTop: "70px" }}
+        >
           <Outlet />
         </div>
       </div>
+
+      {/* Drawer Component */}
     </div>
   );
 };

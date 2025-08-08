@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import PptxGenJS from "pptxgenjs";
+import WorkFlowButton from "../reusable_components/WorkFlowButton";
 
 // Reusable bordered box for the three‑step row
 const StepBox = ({ label }) => (
@@ -435,6 +436,8 @@ export default function LandingPage() {
 
   return (
     <section className="relative min-h-screen w-full bg-black text-white overflow-x-hidden font-sans">
+      <WorkFlowButton />
+
       {/* Brand header */}
       <header className="flex flex-col items-center pt-8 px-4 space-y-1 text-center">
         <h1 className="text-[2.8rem] font-extrabold tracking-wide mb-4 border border-gray-600 px-4 py-2">
@@ -447,42 +450,6 @@ export default function LandingPage() {
           let AI handle the heavy lifting, while you focus on your message
         </p>
       </header>
-
-      <div className="flex justify-center mt-4 px-4 ">
-        <section className="w-full max-w-5xl mx-auto mt-12 px-4">
-          <h2 className="text-center text-2xl font-medium mb-6 text-gray-400">
-            What do we provide?
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gray-600  border-b border-gray-600">
-            {/* Box 1 */}
-            <div className="flex flex-col items-center py-6 space-y-3">
-              <RotateCcw className="w-8 h-8" />
-              <div className="mt-2 text-center text-md text-gray-400 space-y-1">
-                <p>Instantly update your slides</p>
-                <p>Revise your message on the go</p>
-              </div>
-            </div>
-
-            {/* Box 2 */}
-            <div className="flex flex-col items-center py-6 space-y-3">
-              <FileText className="w-8 h-8" />
-              <div className="mt-2 text-center text-md text-gray-400 space-y-1">
-                <p>AI‑powered text creation</p>
-                <p>Bullet to paragraph converter</p>
-              </div>
-            </div>
-
-            {/* Box 3 */}
-            <div className="flex flex-col items-center py-6 space-y-3">
-              <Pencil className="w-8 h-8" />
-              <div className="mt-2 text-center text-md text-gray-400 space-y-1">
-                <p>Choose from design styles</p>
-                <p>Customize colors & fonts</p>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
 
       {/* Prompt input */}
       <div className="flex justify-center items-center mt-14 px-4 gap-4">
@@ -585,6 +552,42 @@ export default function LandingPage() {
           </button> */}
         </div>
       )}
+
+      <div className="flex justify-center mt-4 px-4 ">
+        <section className="w-full max-w-5xl mx-auto mt-12 px-4">
+          <h2 className="text-center text-2xl font-medium mb-6 text-gray-400">
+            What do we provide?
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-gray-600  border-b border-gray-600">
+            {/* Box 1 */}
+            <div className="flex flex-col items-center py-6 space-y-3">
+              <RotateCcw className="w-8 h-8" />
+              <div className="mt-2 text-center text-md text-gray-400 space-y-1">
+                <p>Instantly update your slides</p>
+                <p>Revise your message on the go</p>
+              </div>
+            </div>
+
+            {/* Box 2 */}
+            <div className="flex flex-col items-center py-6 space-y-3">
+              <FileText className="w-8 h-8" />
+              <div className="mt-2 text-center text-md text-gray-400 space-y-1">
+                <p>AI‑powered text creation</p>
+                <p>Bullet to paragraph converter</p>
+              </div>
+            </div>
+
+            {/* Box 3 */}
+            <div className="flex flex-col items-center py-6 space-y-3">
+              <Pencil className="w-8 h-8" />
+              <div className="mt-2 text-center text-md text-gray-400 space-y-1">
+                <p>Choose from design styles</p>
+                <p>Customize colors & fonts</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
 
       {/* 3 easy steps */}
       <h2 className="text-center text-base sm:text-2xl mt-12 px-4 transition-opacity duration-700 ease-out">

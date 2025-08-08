@@ -19,8 +19,7 @@ import axios from "axios";
 import TranscriptCard from "./TranscriptCard";
 import SummaryCard from "./SummaryCard";
 import HistoryCard from "./HistoryCard";
-// import axios from "axios";
-const API_URL = "https://api.supadata.ai/v1/youtube/transcript";
+import WorkFlowButton from "../../../reusable_components/WorkFlowButton";
 
 const YoutubeSummarizer = () => {
   const [videoUrl, setVideoUrl] = useState("");
@@ -217,6 +216,12 @@ const YoutubeSummarizer = () => {
 
   return (
     <div className="flex flex-col relative min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
+      <WorkFlowButton />
+
+      <button className="fixed z-[100] top-24 right-4 px-4 py-2 rounded-full bg-white text-black">
+        Add Extension
+      </button>
+
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#23b5b5]/5 rounded-full blur-3xl animate-pulse"></div>

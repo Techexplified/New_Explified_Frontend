@@ -10,6 +10,50 @@ export default {
   ],
   theme: {
     extend: {
+      colors: {
+        // Minimalistic color palette
+        minimal: {
+          // Primary colors
+          black: "#000000",
+          white: "#FFFFFF",
+          primary: "#23B5B5",
+
+          // Gray scale
+          gray: {
+            50: "#FAFAFA",
+            100: "#F5F5F5",
+            200: "#EEEEEE",
+            300: "#E0E0E0",
+            400: "#BDBDBD",
+            500: "#9E9E9E",
+            600: "#757575",
+            700: "#616161",
+            800: "#424242",
+            900: "#212121",
+            950: "#0A0A0A",
+          },
+
+          // Dark gradients
+          dark: {
+            100: "#1A1A1A",
+            200: "#141414",
+            300: "#0F0F0F",
+            400: "#0A0A0A",
+            500: "#050505",
+          },
+
+          // Component specific colors
+          heading: "#FFFFFF",
+          paragraph: "#E0E0E0",
+          muted: "#9E9E9E",
+          border: "#424242",
+          card: "#1A1A1A",
+          cardHover: "#212121",
+          background: "#000000",
+          surface: "#0A0A0A",
+          accent: "#08444F",
+        },
+      },
       willChange: {
         transform: "transform",
       },

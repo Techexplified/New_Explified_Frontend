@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { SquareStack, Image as ImageIcon, Wand2 } from "lucide-react";
 import RemoveBg from "./RemoveBg"; // Make sure these point to your new files
 import BlurBg from "./BlurBg";
+import WorkFlowButton from "../../../reusable_components/WorkFlowButton";
 import Aibackground from "./Aibackground";
 import FilterImage from "./FilterImage";
 import ReplaceBg from "./ReplaceBg";
@@ -30,9 +31,11 @@ export default function BgToolsApp() {
   );
 
   return (
-    <div className="h-5/6 flex bg-black text-teal-300">
+    <div className="h-full flex bg-black ">
+      <WorkFlowButton />
+
       {/* ── Sidebar ── */}
-      <aside className="w-60 shrink-0 border-r border-teal-800 bg-black p-6 flex flex-col gap-6">
+      <aside className="w-60 shrink-0 text-teal-300 border-r border-teal-800 bg-black p-6 flex flex-col gap-6">
         <h1 className="flex items-center gap-2 text-xl font-semibold text-teal-400">
           <SquareStack className="w-5 h-5" />
           AI Image Tools
@@ -64,12 +67,21 @@ export default function BgToolsApp() {
             "Replace BG"
           )}
         </nav>
-        
       </aside>
 
       {/* ── Tool Panel ── */}
       <main className="flex-1 overflow-y-auto bg-black">
-        {activeTool === "remove" ? <RemoveBg /> : activeTool === "blur" ? <BlurBg /> : activeTool === "aiBg" ? <Aibackground /> : activeTool === "imgfilter" ? <FilterImage /> : <ReplaceBg />}
+        {activeTool === "remove" ? (
+          <RemoveBg />
+        ) : activeTool === "blur" ? (
+          <BlurBg />
+        ) : activeTool === "aiBg" ? (
+          <Aibackground />
+        ) : activeTool === "imgfilter" ? (
+          <FilterImage />
+        ) : (
+          <ReplaceBg />
+        )}
       </main>
     </div>
   );

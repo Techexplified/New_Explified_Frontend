@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, Plus, Check } from "lucide-react";
 
-const AutomationWorkflow = () => {
+const WorkflowTwitter = () => {
   const [eventType, setEventType] = useState("Posting");
   const [watchPreview, setWatchPreview] = useState(true);
   const [showNavbar, setShowNavbar] = useState(true);
@@ -41,7 +41,7 @@ const AutomationWorkflow = () => {
 
           {/* Title */}
           <h1 className="text-2xl md:text-3xl font-bold bg-white bg-clip-text text-transparent tracking-tight leading-tight mb-4 mt-12">
-            Prompt to Post - LinkedIn
+            Prompt to Post - Twitter
           </h1>
 
           {/* Workflow Container */}
@@ -70,7 +70,7 @@ const AutomationWorkflow = () => {
               <div className="text-xs text-white/60 uppercase tracking-widest mb-2">
                 Action
               </div>
-              <div className="text-lg font-medium">LinkedIn</div>
+              <div className="text-lg font-medium">Twitter</div>
             </div>
 
             {/* Connector */}
@@ -95,7 +95,7 @@ const AutomationWorkflow = () => {
             showNavbar ? "h-[calc(100vh-70px)] top-[70px]" : "h-screen top-0"
           }`}
         >
-          <h2 className="text-xl font-medium mb-8 text-center">LinkedIn</h2>
+          <h2 className="text-xl font-medium mb-8 text-center">Twitter</h2>
 
           {/* Link Account */}
           <div className="mb-6">
@@ -118,7 +118,7 @@ const AutomationWorkflow = () => {
               onChange={(e) => setEventType(e.target.value)}
               className="w-full px-3 py-2 bg-slate-700/80 border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:border-blue-400 cursor-pointer"
             >
-              <option value="Posting">Posting</option>
+              <option value="Posting">Posting A Tweet</option>
               <option value="Comment">Comment</option>
               <option value="Share">Share</option>
             </select>
@@ -154,4 +154,4 @@ const AutomationWorkflow = () => {
   );
 };
 
-export default AutomationWorkflow;
+export default WorkflowTwitter;

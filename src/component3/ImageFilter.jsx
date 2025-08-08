@@ -12,6 +12,7 @@ import {
   Camera,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import WorkFlowButton from "../reusable_components/WorkFlowButton";
 
 const AiImageTool = () => {
   const [aiPrompt, setAiPrompt] = useState("");
@@ -20,12 +21,42 @@ const AiImageTool = () => {
   const navigate = useNavigate();
 
   const tools = [
-    { id: "expand", name: "AI Image Expand", icon: Expand ,link:"/image-styler/expander"},
-    { id: "styler", name: "AI Image Styler", icon: Wand2 ,link:"/image-styler/filter"},
-    { id: "background", name: "AI Background Generator", icon: Layers ,link:"/image-styler/backChanger"},
-    { id: "template", name: "AI Template", icon: Layout ,link:"/image-styler/filter"},
-    { id: "editor", name: "AI Editor", icon: Type ,link:"/image-styler/editor"},
-    { id: "mage", name: "AI Image Mage", icon: Shuffle ,link:"/image-styler/merger"},
+    {
+      id: "expand",
+      name: "AI Image Expand",
+      icon: Expand,
+      link: "/image-styler/expander",
+    },
+    {
+      id: "styler",
+      name: "AI Image Styler",
+      icon: Wand2,
+      link: "/image-styler/filter",
+    },
+    {
+      id: "background",
+      name: "AI Background Generator",
+      icon: Layers,
+      link: "/image-styler/backChanger",
+    },
+    {
+      id: "template",
+      name: "AI Template",
+      icon: Layout,
+      link: "/image-styler/filter",
+    },
+    {
+      id: "editor",
+      name: "AI Editor",
+      icon: Type,
+      link: "/image-styler/editor",
+    },
+    {
+      id: "mage",
+      name: "AI Image Mage",
+      icon: Shuffle,
+      link: "/image-styler/merger",
+    },
   ];
 
   const handleImageUpload = (event) => {
@@ -48,15 +79,18 @@ const AiImageTool = () => {
   };
 
   return (
-    <div className=" bg-black text-white flex">
+    <div className=" bg-black relative text-white flex">
+      <WorkFlowButton />
+
       {/* Sidebar */}
       <div className="w-80 bg-[#111] p-6 space-y-6">
         <div className="grid grid-cols-1 gap-4">
           {tools.map((tool) => (
             <button
               key={tool.id}
-              onClick={() => {setSelectedTool(tool.id)
-                navigate(tool.link)
+              onClick={() => {
+                setSelectedTool(tool.id);
+                navigate(tool.link);
               }}
               className={`w-full p-5 rounded-xl bg-[#1a1a1a] hover:bg-[#2a2a2a] transition-all duration-200 flex items-center space-x-4 ${
                 selectedTool === tool.id ? "ring-2 ring-[#23b5b5]" : ""

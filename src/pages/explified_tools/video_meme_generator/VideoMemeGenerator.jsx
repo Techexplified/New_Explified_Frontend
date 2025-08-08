@@ -7,6 +7,7 @@ import {
 } from "react-icons/pi";
 import Inspiration from "./Inspiration";
 import axiosInstance from "../../../network/axiosInstance";
+import WorkFlowButton from "../../../reusable_components/WorkFlowButton";
 const speeds = [
   { label: "5 sec", value: 5 },
   { label: "10 sec", value: 10 },
@@ -173,7 +174,7 @@ export default function AIMemeGenerator() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex flex-col p-6">
+    <div className="min-h-screen relative bg-gray-900 text-white flex flex-col p-6">
       {/* Header */}
       <div className="text-center py-8">
         <h1 className="text-4xl font-bold tracking-tight">AI Meme Generator</h1>
