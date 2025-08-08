@@ -119,6 +119,7 @@ import TwitterPost from "./linkedin/TwitterPost.jsx";
 import LinkedinPost from "./linkedin/LinkedinPost";
 import WorkflowTwitter from "./linkedin/WorkflowTwitter.jsx";
 import Canvas from "./components/subLayoutComponents/workflowPages/Canvas";
+import ImageToVideoConverter from "./pages/explified_tools/image_to_video_convertor/ImageToVideoConverter.jsx";
 
 function App() {
   const navigate = useNavigate();
@@ -333,6 +334,10 @@ function App() {
           <Route path="/youtube-summarizer" element={<YoutubeSummarizer />} />
           <Route path="/ai-subtitler" element={<AISubtitler />} />
           <Route path="/ai-subtitler-ui" element={<SubtitleToolUI />} />
+          <Route
+            path="/image-to-video-ai"
+            element={<ImageToVideoConverter />}
+          />
           <Route
             path="/youtube-summarizer/deep-search"
             element={<DeepSearch />}

@@ -10,6 +10,7 @@ import {
 import { useState } from "react";
 import PptxGenJS from "pptxgenjs";
 import WorkFlowButton from "../reusable_components/WorkFlowButton";
+import axiosInstance from "../network/axiosInstance";
 
 // Reusable bordered box for the three‑step row
 const StepBox = ({ label }) => (
@@ -41,20 +42,14 @@ export default function LandingPage() {
       setErrorMsg("");
       setGeneratedContent("");
 
-      const response = await fetch(
-        `${import.meta.env.VITE_APP_URL}api/gemini/topic`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ topic: topic, slideCount: slideCount }),
-        }
-      );
-      const data = await response.json();
+      const response = await axiosInstance.post(`api/gemini/topic`, {
+        topic: topic,
+        slideCount: slideCount,
+      });
+
+      const data = response.data;
 
       await buildPPT(data.pptData);
-
       setGeneratedContent(data.content);
     } catch (err) {
       console.error(err);
