@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import WorkFlowButton from "../../reusable_components/WorkFlowButton";
+import { InferenceClient } from "@huggingface/inference";
 
 const TextToVideoGenerator = () => {
   const [prompt, setPrompt] = useState("");
@@ -25,6 +26,26 @@ const TextToVideoGenerator = () => {
   const [duration, setDuration] = useState(5);
   const [showDurationDropdown, setShowDurationDropdown] = useState(false);
   const durationDropdownRef = useRef(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    const user = localStorage.getItem("explified");
+    if (user) {
+      try {
+        const userData = JSON.parse(user);
+        setIsLoggedIn(userData.isLoggedIn === "true");
+        console.log("User data:", userData);
+        console.log("Is logged in:", userData.isLoggedIn);
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+        setIsLoggedIn(false);
+      }
+    } else {
+      setIsLoggedIn(false);
+    }
+  }, []);
 
   // Handle clicks outside dropdown
   useEffect(() => {
@@ -54,19 +75,54 @@ const TextToVideoGenerator = () => {
 
     setIsGenerating(true);
     setShowResult(false);
+    setErrorMsg("");
 
-    // Simulate video generation
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    try {
+      const hfToken = "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";
+      if (!hfToken) {
+        throw new Error(
+          "Missing Hugging Face token. Please set VITE_HF_TOKEN in your .env file."
+        );
+      }
 
-    setGeneratedVideo({
-      prompt,
-      duration,
-      url: `https://example.com/generated-video-${Date.now()}.mp4`,
-      thumbnail: `https://picsum.photos/800/450?random=${Date.now()}`,
-    });
+      const client = new InferenceClient(hfToken);
 
-    setIsGenerating(false);
-    setShowResult(true);
+      const response = await client.textToVideo({
+        provider: "fal-ai",
+        model: "zai-org/CogVideoX-5b",
+        inputs: prompt,
+      });
+
+      let videoUrl = null;
+      if (response instanceof Blob) {
+        videoUrl = URL.createObjectURL(response);
+      } else if (typeof response === "string") {
+        videoUrl = response;
+      } else if (response?.video instanceof Blob) {
+        videoUrl = URL.createObjectURL(response.video);
+      } else if (response?.url) {
+        videoUrl = response.url;
+      } else if (Array.isArray(response) && response[0]?.url) {
+        videoUrl = response[0].url;
+      }
+
+      if (!videoUrl) {
+        throw new Error("Failed to retrieve video URL from the API response.");
+      }
+
+      setGeneratedVideo({
+        prompt,
+        duration,
+        url: videoUrl,
+        thumbnail: "",
+      });
+      setShowResult(true);
+    } catch (error) {
+      console.error("Text-to-video error:", error);
+      setErrorMsg(error?.message || "Failed to generate video.");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const usePrompt = (selectedPrompt) => {
@@ -78,6 +134,39 @@ const TextToVideoGenerator = () => {
     { value: 8, label: "8 seconds", icon: Clock },
     { value: 10, label: "10 seconds", icon: Clock },
   ];
+
+  const handleDownload = async () => {
+    try {
+      if (!generatedVideo?.url) return;
+      const url = generatedVideo.url;
+
+      // If it's already a blob url, we can download directly
+      if (url.startsWith("blob:")) {
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `video-${Date.now()}.mp4`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        return;
+      }
+
+      // Otherwise fetch and convert to blob for reliable downloading
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = `video-${Date.now()}.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error("Download failed:", err);
+      setErrorMsg("Failed to download video.");
+    }
+  };
 
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-slate-900 via-gray-900 to-slate-900 text-white overflow-hidden">
@@ -112,6 +201,11 @@ const TextToVideoGenerator = () => {
           {/* Main Input Section */}
           <div className="bg-slate-800/50 backdrop-blur-lg rounded-3xl border border-cyan-500/20 p-8 mb-8 shadow-2xl">
             <div className="space-y-6">
+              {errorMsg && (
+                <div className="rounded-xl border border-red-500/30 bg-red-500/10 text-red-300 px-4 py-3">
+                  {errorMsg}
+                </div>
+              )}
               {/* Prompt Input */}
               <div>
                 <label className=" text-sm font-medium text-cyan-400 mb-3 flex items-center gap-2">
@@ -339,14 +433,19 @@ const TextToVideoGenerator = () => {
               </h3>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="relative group">
-                  <img
-                    src={generatedVideo.thumbnail}
-                    alt="Generated video thumbnail"
-                    className="w-full h-64 object-cover rounded-xl"
-                  />
-                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <Play className="w-16 h-16 text-cyan-400" />
-                  </div>
+                  {generatedVideo.url ? (
+                    <video
+                      ref={videoRef}
+                      src={generatedVideo.url}
+                      poster={generatedVideo.thumbnail || undefined}
+                      className="w-full h-64 object-cover rounded-xl"
+                      controls
+                    />
+                  ) : (
+                    <div className="w-full h-64 bg-slate-900/60 rounded-xl flex items-center justify-center text-gray-400">
+                      No video URL available
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-4">
                   <div>
@@ -359,7 +458,10 @@ const TextToVideoGenerator = () => {
                       {generatedVideo.duration} seconds
                     </p>
                   </div>
-                  <button className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 flex items-center gap-2 transform hover:scale-105">
+                  <button
+                    onClick={handleDownload}
+                    className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 flex items-center gap-2 transform hover:scale-105"
+                  >
                     <Download className="w-4 h-4" />
                     Download Video
                   </button>
