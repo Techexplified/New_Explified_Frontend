@@ -9,11 +9,16 @@ import {
   Image,
   Video,
 } from "lucide-react";
+import axiosInstance from "../../../network/axiosInstance";
+import axios from "axios";
 
 export default function ImageToVideoConverter() {
   const [uploadedImage, setUploadedImage] = useState(null);
+  const [imageBase64, setImageBase64] = useState("");
+  const [uuid, setUuid] = useState("b7b0fc5a-e22f-46d3-b1e3-2fa4e61aabd5");
   const [isProcessing, setIsProcessing] = useState(false);
   const [processedVideo, setProcessedVideo] = useState(null);
+  const [url, setUrl] = useState(null);
   const [progress, setProgress] = useState(0);
   const [settings, setSettings] = useState({
     duration: 3,
@@ -23,43 +28,112 @@ export default function ImageToVideoConverter() {
   });
   const fileInputRef = useRef(null);
 
-  const handleImageUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setUploadedImage({
-          url: e.target.result,
-          name: file.name,
-          size: (file.size / 1024 / 1024).toFixed(2),
-        });
-        setProcessedVideo(null);
-      };
-      reader.readAsDataURL(file);
+  // const handleImageUpload = (event) => {
+  //   const file = event.target.files[0];
+  //   if (!file) return;
+
+  //   const reader = new FileReader();
+  //   reader.onload = (e) => {
+  //     const base64String = e.target.result;
+  //     setUploadedImage({
+  //       url: e.target.result,
+  //       name: file.name,
+  //       size: (file.size / 1024 / 1024).toFixed(2),
+  //     });
+  //     setProcessedVideo(null);
+  //   };
+  //   reader.readAsDataURL(file);
+  // };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      // This sets only the base64 string in a separate state
+      setImageBase64(reader.result);
+
+      // Keep your original uploadedImage state as is
+      setUploadedImage({
+        url: URL.createObjectURL(file),
+        name: file.name,
+        size: (file.size / 1024 / 1024).toFixed(2),
+      });
+    };
+
+    reader.readAsDataURL(file);
+  };
+  // const handleProcessVideo = async () => {
+  //   if (!uploadedImage) return;
+
+  //   setIsProcessing(true);
+  //   setProgress(0);
+
+  //   // Simulate processing with progress updates
+  //   const interval = setInterval(() => {
+  //     setProgress((prev) => {
+  //       if (prev >= 100) {
+  //         clearInterval(interval);
+  //         setIsProcessing(false);
+  //         setProcessedVideo({
+  //           url: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4",
+  //           name: uploadedImage.name.replace(/\.[^/.]+$/, "") + "_video.mp4",
+  //         });
+  //         return 100;
+  //       }
+  //       return prev + Math.random() * 15;
+  //     });
+  //   }, 200);
+  // };
+  const handleProcessVideo = async () => {
+    if (!imageBase64) return;
+
+    try {
+      setIsProcessing(true);
+      setProgress(0);
+
+      const res = await axiosInstance.post(
+        "api/imageToVideo",
+        { image: imageBase64 },
+        {
+          withCredentials: true,
+        }
+      );
+
+      console.log(res?.data);
+      setUuid(res?.data?.uuid);
+    } catch (error) {
+      console.log(error);
     }
   };
 
-  const handleProcessVideo = async () => {
-    if (!uploadedImage) return;
+  const getVideo = async () => {
+    try {
+      setIsProcessing(true);
+      setProgress(0);
 
-    setIsProcessing(true);
-    setProgress(0);
+      const options = {
+        method: "GET",
+        url: "https://runwayml.p.rapidapi.com/status",
+        params: {
+          uuid: "2858de6f-364c-481e-988a-b930af469aa9",
+        },
+        headers: {
+          "x-rapidapi-key":
+            "5c43358bb7msh620384fe8a16560p1a0fd1jsn853ee75f7459",
+          "x-rapidapi-host": "runwayml.p.rapidapi.com",
+        },
+      };
 
-    // Simulate processing with progress updates
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsProcessing(false);
-          setProcessedVideo({
-            url: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4",
-            name: uploadedImage.name.replace(/\.[^/.]+$/, "") + "_video.mp4",
-          });
-          return 100;
-        }
-        return prev + Math.random() * 15;
-      });
-    }, 200);
+      const response = await axios.request(options);
+      console.log(response?.data);
+
+      setUrl(response?.data?.url);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const resetUpload = () => {
@@ -250,6 +324,7 @@ export default function ImageToVideoConverter() {
               </div>
 
               {/* Result Section */}
+              {/* Result Section */}
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
                   <Video className="w-6 h-6 text-teal-400" />
@@ -258,7 +333,9 @@ export default function ImageToVideoConverter() {
                   </h2>
                 </div>
 
-                {!uploadedImage && !isProcessing && !processedVideo && (
+                {/* Unified content box */}
+
+                {!uploadedImage && !isProcessing && !processedVideo && !url && (
                   <div className="bg-gray-800 rounded-2xl p-12 text-center">
                     <Video className="w-16 h-16 text-gray-600 mx-auto mb-4" />
                     <p className="text-gray-400">
@@ -267,59 +344,31 @@ export default function ImageToVideoConverter() {
                   </div>
                 )}
 
-                {isProcessing && (
-                  <div className="bg-gray-800 rounded-2xl p-8">
-                    <div className="text-center mb-6">
-                      <div className="inline-flex items-center justify-center w-16 h-16 bg-teal-500/20 rounded-full mb-4">
-                        <Zap className="w-8 h-8 text-teal-400 animate-pulse" />
-                      </div>
-                      <h3 className="text-lg font-semibold text-white mb-2">
-                        Processing Your Video
-                      </h3>
-                      <p className="text-gray-400">
-                        AI is working its magic...
-                      </p>
-                    </div>
-
-                    <div className="space-y-3">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-400">Progress</span>
-                        <span className="text-teal-400">
-                          {Math.round(progress)}%
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-700 rounded-full h-2">
-                        <div
-                          className="bg-gradient-to-r from-teal-500 to-teal-400 h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${progress}%` }}
-                        ></div>
-                      </div>
-                    </div>
+                {isProcessing && !url && (
+                  <div className="bg-gray-800 rounded-2xl p-12 text-center">
+                    <Zap className="w-16 h-16 text-teal-400 animate-pulse mx-auto mb-4" />
+                    <p className="text-gray-400">Processing...</p>
                   </div>
                 )}
 
-                {processedVideo && (
-                  <div className="bg-gray-800 rounded-2xl overflow-hidden">
-                    <div className="bg-black h-64 flex items-center justify-center">
-                      <div className="text-center">
-                        <Play className="w-16 h-16 text-teal-400 mx-auto mb-4" />
-                        <p className="text-white">Video Preview</p>
-                        <p className="text-gray-400 text-sm">
-                          {processedVideo.name}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="p-4 flex gap-3">
-                      <button className="flex-1 bg-teal-500 hover:bg-teal-600 text-black font-semibold py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2">
-                        <Play className="w-4 h-4" />
-                        Play
-                      </button>
-                      <button className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2">
-                        <Download className="w-4 h-4" />
-                        Download
-                      </button>
-                    </div>
+                {url && (
+                  <div className="bg-gray-800 rounded-2xl text-center">
+                    <video
+                      src={url}
+                      controls
+                      className="w-full rounded-xl shadow-lg border border-gray-700"
+                    />
                   </div>
+                )}
+
+                {/* Step 2: Show "Get Video" after UUID is received */}
+                {uuid && !url && !isProcessing && (
+                  <button
+                    onClick={getVideo}
+                    className="w-full bg-teal-500 hover:bg-teal-600 text-black font-semibold py-4 px-6 rounded-xl transition-all duration-300"
+                  >
+                    Get Video
+                  </button>
                 )}
               </div>
             </div>
