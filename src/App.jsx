@@ -202,7 +202,7 @@ function App() {
           <Route path="video-generator" element={<VideoFromLink />} />
           <Route path="gif-generator" element={<GIFGenerator />} />
           <Route path="scribble" element={<Scribbling />} />
-          <Route path="remove-bg" element={<RemoveBackground />} />
+
           <Route path="image-cartoonizer" element={<ImageCartoonizer />} />
           <Route path="image-to-video" element={<ImageToVideoConvertor />} />
           <Route path="text-to-video" element={<TextToVideo />} />
@@ -230,6 +230,7 @@ function App() {
           <Route path="/socials" element={<SocialsPage />}></Route>
           <Route path="/history" element={<History />}></Route>
           <Route path="/canvas" element={<Canvas />}></Route>
+          <Route path="/remove_bg" element={<RemoveBackground />} />
           <Route path="/text-to-video" element={<TextToVideoGenerator />} />
 
           <Route path="/history" element={<History />}></Route>
@@ -255,6 +256,7 @@ function App() {
           <Route path="/lurphchat" element={<Trone />} />
           <Route path="/Meme" element={<Meme />} />
           <Route path="/result" element={<Result />} />
+          <Route path="/ageing_ai" element={<AgeingVideoMaker />} />
           <Route path="/ai-gif-generator" element={<GIFGenerator />} />
           <Route path="/video-meme-generator" element={<AIMemeGenerator />} />
           <Route path="/history" element={<History />}></Route>
@@ -299,6 +301,7 @@ function App() {
 
           <Route path="/image-styler" element={<ImageFilter />} />
           <Route path="/image-styler/filter" element={<AiImageStyler />} />
+          {/* not working */}
           <Route
             path="/image-styler/backChanger"
             element={<BackgroundChanger />}
