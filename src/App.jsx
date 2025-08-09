@@ -119,6 +119,7 @@ import TwitterPost from "./linkedin/TwitterPost.jsx";
 import LinkedinPost from "./linkedin/LinkedinPost";
 import WorkflowTwitter from "./linkedin/WorkflowTwitter.jsx";
 import Canvas from "./components/subLayoutComponents/workflowPages/Canvas";
+import TaskPage from "./components1/TaskPage.jsx";
 
 function App() {
   const navigate = useNavigate();
@@ -342,12 +343,11 @@ function App() {
             element={<PresentationLandingPage />}
           ></Route>
           <Route path="/presentation/create" element={<CreatePresentation />} />
+          <Route path="/task-manager" element={<TaskPage />} />
           <Route path="/*" element={<ComingSoon />} />
         </Route>
 
-        {/* Tools Page */}
-
-        {/* Landing Page */}
+        
         {/* <Route path="/clipper-landing" element={<ClipperLandingPage />} /> */}
       </Routes>
     </div>
