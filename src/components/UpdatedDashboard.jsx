@@ -69,7 +69,7 @@ const UpdatedDashboard = () => {
     {
       name: "Files",
       icon: File,
-      path: "/file",
+      path: "/task-manager",
     },
   ];
 
@@ -79,7 +79,13 @@ const UpdatedDashboard = () => {
       name: "Workflows",
       icon: Workflow,
       path: "/workflows",
-    },
+    },{
+      name: "Ai tools",
+      icon: PencilRuler,
+      path: "/aitools",
+    }
+
+    
     // { name: "Socials", icon: BoomBox, route: "/socials" },
     // { name: "Youtube Summarizer", icon: Youtube, route: "/youtube-summarizer" },
     // { name: "AI Subtitler", icon: Captions, route: "/ai-subtitler" },
@@ -129,14 +135,28 @@ const UpdatedDashboard = () => {
   }, [sidebarOpen]);
 
   // Navbar hide/show on scroll
+  // useEffect(() => {
+  //   const handleScroll = () => {
+  //     setShowNavbar(window.scrollY <= lastScrollY);
+  //     setLastScrollY(window.scrollY);
+  //   };
+  //   window.addEventListener("scroll", handleScroll);
+  //   return () => window.removeEventListener("scroll", handleScroll);
+  // }, [lastScrollY]);
+
   useEffect(() => {
-    const handleScroll = () => {
-      setShowNavbar(window.scrollY <= lastScrollY);
-      setLastScrollY(window.scrollY);
+    const handleMouseMove = (e) => {
+      // If mouse is within first 50px of the screen height
+      if (e.clientY <= 200) {
+        setShowNavbar(true);
+      } else {
+        setShowNavbar(false);
+      }
     };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
 
   // Set selectedTool based on route
   useEffect(() => {
@@ -183,13 +203,6 @@ const UpdatedDashboard = () => {
 
           {/* Actions */}
           <div className="flex items-center gap-2 relative">
-            {/* <button
-              onClick={() => {}}
-              className="flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 text-minimal-white hover:text-minimal-primary hover:bg-minimal-cardHover"
-            >
-              <Settings className="w-5 h-5" />
-            </button> */}
-
             {/* 1 Dashboard Button */}
             {(() => {
               const tool = {
@@ -242,7 +255,7 @@ const UpdatedDashboard = () => {
 
               {/* dropdown for plus */}
               {isPlusOpen && (
-                <div className="absolute left-[-4px] mt-1 flex flex-col bg-minimal-card p-2 rounded-xl shadow-lg border border-gray-700 z-50">
+                <div className="absolute left-[-4px] flex flex-col bg-minimal-card p-2 rounded-xl shadow-lg border border-gray-700 z-50">
                   {plusTools.map((tool) => {
                     const Icon = tool.icon;
                     const isActive = location.pathname === tool.path;
@@ -260,7 +273,7 @@ const UpdatedDashboard = () => {
                             : "text-white hover:bg-minimal-cardHover hover:text-[#23b5b5]"
                         }`}
                       >
-                        <Icon className="w-5 h-5" />
+                        <Icon className="w-4 h-5" />
                       </button>
                     );
                   })}
@@ -293,7 +306,7 @@ const UpdatedDashboard = () => {
 
               {/* Dropdown */}
               {isOpen && (
-                <div className="absolute left-0 mt-1 flex flex-col bg-minimal-card p-2 rounded-xl shadow-lg border border-gray-700 z-50">
+                <div className="absolute left-0 flex flex-col bg-minimal-card p-2 rounded-xl shadow-lg border border-gray-700 z-50">
                   {/* Manually rendered buttons (you can still map if you prefer) */}
                   {aiTools.map((tool) => {
                     const Icon = tool.icon;
@@ -360,6 +373,13 @@ const UpdatedDashboard = () => {
                 </button>
               );
             })} */}
+
+            <button
+              onClick={() => {}}
+              className="flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 text-minimal-white hover:text-minimal-primary hover:bg-minimal-cardHover"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
           </div>
         </div>
       </header>

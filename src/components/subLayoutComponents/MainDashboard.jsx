@@ -158,7 +158,7 @@ const MainDashboard = () => {
     <>
       <div className=" w-full h-full px-5 mb-10 flex flex-col items-center">
         {/* heading */}
-        <div className="heading  py-10 flex items-center justify-center">
+        {/* <div className="heading  py-10 flex items-center justify-center">
           <h1 className="text-3xl text-minimal-white font-thin tracking-tighter">
             Simplify{" "}
             <span className="text-5xl font-semibold text-minimal-primary animate-pulse tracking-normal">
@@ -170,7 +170,7 @@ const MainDashboard = () => {
             </span>
             .
           </h1>
-        </div>
+        </div> */}
 
         <p className="p-4 w-full text-2xl text-minimal-white tracking-tighter">
           Recent
