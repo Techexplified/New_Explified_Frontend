@@ -23,6 +23,8 @@ import {
   Plus,
   SectionIcon,
   Grip,
+  Settings,
+  File,
 } from "lucide-react";
 import logo from "../assets/logos/explified_logo.png";
 import UserModal from "./UserModal";
@@ -38,7 +40,8 @@ const UpdatedDashboard = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isHovered, setIsHovered] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isPlusOpen, setIsPlusOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -62,21 +65,33 @@ const UpdatedDashboard = () => {
       description: "Automates task sequences",
     },
   ];
+  const plusTools = [
+    {
+      name: "Files",
+      icon: File,
+      path: "/file",
+    },
+  ];
 
   const aiTools = [
-    { name: "Integrations", icon: Zap, route: "/integrations" },
-    { name: "Socials", icon: BoomBox, route: "/socials" },
-    { name: "Youtube Summarizer", icon: Youtube, route: "/youtube-summarizer" },
-    { name: "AI Subtitler", icon: Captions, route: "/ai-subtitler" },
-    { name: "Linkedin Extension", icon: Linkedin, route: "/linkedin" },
-    { name: "Meme Generator", icon: Video, route: "/video-meme-generator" },
-    { name: "Bg Remover", icon: ImagePlay, route: "/bg-remover" },
-    { name: "Influmark", icon: SquarePercent, route: "/influmark" },
+    { name: "Integrations", icon: Zap, path: "/integrations" },
     {
-      name: "Chats",
-      icon: SquarePercent,
-      description: "Lets you chat with others",
+      name: "Workflows",
+      icon: Workflow,
+      path: "/workflows",
     },
+    // { name: "Socials", icon: BoomBox, route: "/socials" },
+    // { name: "Youtube Summarizer", icon: Youtube, route: "/youtube-summarizer" },
+    // { name: "AI Subtitler", icon: Captions, route: "/ai-subtitler" },
+    // { name: "Linkedin Extension", icon: Linkedin, route: "/linkedin" },
+    // { name: "Meme Generator", icon: Video, route: "/video-meme-generator" },
+    // { name: "Bg Remover", icon: ImagePlay, route: "/bg-remover" },
+    // { name: "Influmark", icon: SquarePercent, route: "/influmark" },
+    // {
+    //   name: "Chats",
+    //   icon: SquarePercent,
+    //   description: "Lets you chat with others",
+    // },
   ];
 
   // Handlers
@@ -139,11 +154,6 @@ const UpdatedDashboard = () => {
     }
   }, [location.pathname]);
 
-  // Filter AI tools by search
-  const filteredAiTools = aiTools.filter((tool) =>
-    tool.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 flex flex-col overflow-hidden">
       <UserModal
@@ -173,22 +183,144 @@ const UpdatedDashboard = () => {
 
           {/* Actions */}
           <div className="flex items-center gap-2 relative">
-            {/* Plus */}
             <button
-              onClick={PlusClick}
-              className={`flex items-center justify-center rounded-xl transition-all duration-200 transform
-    ${
-      location.pathname === "/lurphchat"
-        ? "w-14 h-14 scale-110 text-[#23b5b5] bg-minimal-primary/20 border border-[#23b5b5]/30"
-        : "w-10 h-10 text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover"
-    }`}
+              onClick={() => {}}
+              className="flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 text-minimal-white hover:text-minimal-primary hover:bg-minimal-cardHover"
             >
-              <Plus
-                className={
-                  location.pathname === "/lurphchat" ? "w-6 h-6" : "w-5 h-5"
-                }
-              />
+              <Settings className="w-5 h-5" />
             </button>
+
+            {/* 1 Dashboard Button */}
+            {(() => {
+              const tool = {
+                name: "",
+                icon: LayoutDashboard,
+                description: "Shows key metrics",
+              };
+              const Icon = tool.icon;
+              const isActive = selectedTool === tool.name;
+              return (
+                <button
+                  onClick={() => {
+                    setSelectedTool(isActive ? null : tool.name);
+                    navigate(`/${tool.name.toLowerCase()}`);
+                  }}
+                  className={`flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 transform
+          ${
+            location.pathname === `/${tool.name.toLowerCase()}`
+              ? "w-14 h-14 scale-110 text-[#23b5b5] bg-minimal-primary/20 border border-[#23b5b5]/30"
+              : "w-10 h-10 text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover"
+          }`}
+                >
+                  <Icon className="w-6 h-6" />
+                </button>
+              );
+            })()}
+
+            {/* 2 Plus */}
+            {/* 2 Plus */}
+            <div
+              className="relative"
+              onMouseEnter={() => setIsPlusOpen(true)}
+              onMouseLeave={() => setIsPlusOpen(false)}
+            >
+              <button
+                onClick={PlusClick}
+                className={`flex items-center justify-center rounded-xl transition-all duration-200 transform
+      ${
+        location.pathname === "/lurphchat"
+          ? "w-14 h-14 scale-110 text-[#23b5b5] bg-minimal-primary/20 border border-[#23b5b5]/30"
+          : "w-10 h-10 text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover"
+      }`}
+              >
+                <Plus
+                  className={
+                    location.pathname === "/lurphchat" ? "w-6 h-6" : "w-5 h-5"
+                  }
+                />
+              </button>
+
+              {/* dropdown for plus */}
+              {isPlusOpen && (
+                <div className="absolute left-[-4px] mt-1 flex flex-col bg-minimal-card p-2 rounded-xl shadow-lg border border-gray-700 z-50">
+                  {plusTools.map((tool) => {
+                    const Icon = tool.icon;
+                    const isActive = location.pathname === tool.path;
+                    return (
+                      <button
+                        key={tool.name}
+                        type="button"
+                        onMouseDown={() => {
+                          navigate(tool.path);
+                          setIsPlusOpen(false);
+                        }}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-left transition-colors ${
+                          isActive
+                            ? "bg-[#23b5b5]/20 text-[#23b5b5]"
+                            : "text-white hover:bg-minimal-cardHover hover:text-[#23b5b5]"
+                        }`}
+                      >
+                        <Icon className="w-5 h-5" />
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* 3 profile */}
+            <button
+              onClick={() => setShowUserModal(true)}
+              className="flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 text-minimal-white hover:text-minimal-primary hover:bg-minimal-cardHover"
+            >
+              <CircleUserRound className="w-5 h-5" />
+            </button>
+
+            {/* 4 9 dots */}
+            <div
+              className="relative"
+              onMouseEnter={() => setIsOpen(true)}
+              onMouseLeave={() => setIsOpen(false)}
+            >
+              {/* Nine-dots button */}
+              <button
+                type="button"
+                className="flex items-center justify-center w-14 h-14 rounded-xl text-white hover:bg-minimal-cardHover"
+                onClick={() => setIsOpen((s) => !s)} // optional: click to toggle
+              >
+                <Grip className="w-6 h-6" />
+              </button>
+
+              {/* Dropdown */}
+              {isOpen && (
+                <div className="absolute left-0 mt-1 flex flex-col bg-minimal-card p-2 rounded-xl shadow-lg border border-gray-700 z-50">
+                  {/* Manually rendered buttons (you can still map if you prefer) */}
+                  {aiTools.map((tool) => {
+                    const Icon = tool.icon;
+                    const isActive = location.pathname === tool.path;
+                    return (
+                      <button
+                        key={tool.name}
+                        type="button" // prevents form submit
+                        onMouseDown={() => {
+                          // fires before blur/unmount
+                          console.log("navigating to", tool.path);
+                          navigate(tool.path);
+                          setIsOpen(false);
+                        }}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-left transition-colors ${
+                          isActive
+                            ? "bg-[#23b5b5]/20 text-[#23b5b5]"
+                            : "text-white hover:bg-minimal-cardHover hover:text-[#23b5b5]"
+                        }`}
+                      >
+                        <Icon className="w-5 h-5" />
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
 
             {/* <button
               onClick={() => navigate("/aitools")}
@@ -207,7 +339,7 @@ const UpdatedDashboard = () => {
             </button> */}
 
             {/* Tools */}
-            {tools.map((tool, idx) => {
+            {/* {tools.map((tool, idx) => {
               const Icon = tool.icon;
               const isActive = selectedTool === tool.name;
               return (
@@ -227,48 +359,7 @@ const UpdatedDashboard = () => {
                   <Icon className="w-6 h-6" />
                 </button>
               );
-            })}
-
-            {/* Grip (Dropdown Trigger) */}
-            <div
-              className="relative"
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
-              onClick={() => navigate("/aitools")}
-            >
-              <button className="tools-button flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 text-minimal-white hover:text-minimal-primary hover:bg-minimal-cardHover">
-                <Grip className="w-5 h-5" />
-              </button>
-
-              {isHovered && (
-                <div className="absolute top-[60px] right-0 w-72 bg-stone-900 border border-gray-700 rounded-2xl shadow-2xl z-[99999] p-4">
-                  <div className="grid grid-cols-3 gap-4">
-                    {aiTools.map((tool, index) => (
-                      <button
-                        key={index}
-                        onClick={() => navigate(tool.route || "/")}
-                        className="flex flex-col items-center p-3 rounded-xl transition-all duration-200 hover:bg-stone-800 hover:text-[#23b5b5] hover:scale-105 text-gray-300 text-xs"
-                      >
-                        <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-stone-800/50 mb-2 transition-colors duration-200">
-                          <tool.icon size={26} />
-                        </div>
-                        <span className="text-center leading-tight">
-                          {tool.name}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Profile */}
-            <button
-              onClick={() => setShowUserModal(true)}
-              className="flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 text-minimal-white hover:text-minimal-primary hover:bg-minimal-cardHover"
-            >
-              <CircleUserRound className="w-5 h-5" />
-            </button>
+            })} */}
           </div>
         </div>
       </header>
@@ -278,7 +369,7 @@ const UpdatedDashboard = () => {
         className={`${
           sidebarOpen ? "ml-80" : "ml-0"
         } w-full transition-all duration-300`}
-        style={{ marginTop: "70px" }}
+        style={{ marginTop: "0px" }}
       >
         <Outlet />
       </div>

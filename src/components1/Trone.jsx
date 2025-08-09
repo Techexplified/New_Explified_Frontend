@@ -17,46 +17,11 @@ function Trone() {
       )}
 
       {/* Sidebar */}
-      <div
-        className={`fixed left-0 w-60 bg-stone-900 text-white p-4 space-y-6 transition-transform duration-300 z-40 ${
-          isDrawerOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-        style={{ 
-          top: '70px', 
-          height: 'calc(100vh - 70px)' 
-        }}
-      >
-        {/* Close button */}
-        <button
-          className="flex items-center gap-2 text-gray-300 hover:text-white"
-          onClick={() => setIsDrawerOpen(false)}
-        >
-          <FiX className="text-xl" />
-          Close
-        </button>
-
-        {/* Home Section */}
-        <div>
-          <h2 className="font-bold mb-4">Recent</h2>
-          <div className="space-y-3 text-gray-300"></div>
-        </div>
-
-        {/* Divider */}
-        <div className="border-t border-gray-600"></div>
-      </div>
+      
 
       {/* Main content */}
       <div className="flex-1 flex flex-col">
         {/* Top bar */}
-        <div className="flex items-center justify-start py-4 px-4 mt-[-50px]">
-          {!isDrawerOpen && (
-            <FiPlus
-              className="text-2xl cursor-pointer hover:text-cyan-400"
-              onClick={() => setIsDrawerOpen(true)}
-            />
-          )}
-        </div>
-
         {/* Centered content */}
         <div className="flex flex-col items-center justify-center flex-grow px-4">
           <h1 className="text-3xl md:text-4xl font-semibold mb-6 text-center">
