@@ -183,12 +183,12 @@ const UpdatedDashboard = () => {
 
           {/* Actions */}
           <div className="flex items-center gap-2 relative">
-            <button
+            {/* <button
               onClick={() => {}}
               className="flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 text-minimal-white hover:text-minimal-primary hover:bg-minimal-cardHover"
             >
               <Settings className="w-5 h-5" />
-            </button>
+            </button> */}
 
             {/* 1 Dashboard Button */}
             {(() => {
