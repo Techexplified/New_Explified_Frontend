@@ -25,6 +25,7 @@ import {
   Grip,
   Settings,
   File,
+  FileText,
 } from "lucide-react";
 import logo from "../assets/logos/explified_logo.png";
 import UserModal from "./UserModal";
@@ -79,13 +80,13 @@ const UpdatedDashboard = () => {
       name: "Workflows",
       icon: Workflow,
       path: "/workflows",
-    },{
+    },
+    {
       name: "Ai tools",
       icon: PencilRuler,
       path: "/aitools",
-    }
+    },
 
-    
     // { name: "Socials", icon: BoomBox, route: "/socials" },
     // { name: "Youtube Summarizer", icon: Youtube, route: "/youtube-summarizer" },
     // { name: "AI Subtitler", icon: Captions, route: "/ai-subtitler" },
@@ -147,7 +148,7 @@ const UpdatedDashboard = () => {
   useEffect(() => {
     const handleMouseMove = (e) => {
       // If mouse is within first 50px of the screen height
-      if (e.clientY <= 200) {
+      if (e.clientY <= 300) {
         setShowNavbar(true);
       } else {
         setShowNavbar(false);
@@ -183,9 +184,9 @@ const UpdatedDashboard = () => {
 
       {/* Header */}
       <header
-        className={`relative bg-minimal-dark-100/50 h-[70px] backdrop-blur-sm border-b border-minimal-border/50 px-6 transition-transform duration-300 z-50 top-0 left-0 w-full ${
-          showNavbar ? "translate-y-0" : "-translate-y-full"
-        }`}
+        className={`fixed bg-trnsparent h-[70px]  border-minimal-border/50 px-6 transition-transform duration-300 z-50 top-0 left-0 w-full
+    ${showNavbar ? "translate-y-0" : "-translate-y-full"}
+  `}
       >
         <div className="flex items-center justify-between h-full">
           {/* Logo */}
@@ -254,7 +255,7 @@ const UpdatedDashboard = () => {
               </button>
 
               {/* dropdown for plus */}
-              {isPlusOpen && (
+              {/* {isPlusOpen && (
                 <div className="absolute left-[-4px] flex flex-col bg-minimal-card p-2 rounded-xl shadow-lg border border-gray-700 z-50">
                   {plusTools.map((tool) => {
                     const Icon = tool.icon;
@@ -278,59 +279,92 @@ const UpdatedDashboard = () => {
                     );
                   })}
                 </div>
-              )}
+              )} */}
             </div>
 
             {/* 3 profile */}
-            <button
-              onClick={() => setShowUserModal(true)}
-              className="flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 text-minimal-white hover:text-minimal-primary hover:bg-minimal-cardHover"
-            >
-              <CircleUserRound className="w-5 h-5" />
-            </button>
-
-            {/* 4 9 dots */}
             <div
-              className="relative"
               onMouseEnter={() => setIsOpen(true)}
               onMouseLeave={() => setIsOpen(false)}
+              className="relative inline-block"
             >
-              {/* Nine-dots button */}
               <button
-                type="button"
-                className="flex items-center justify-center w-14 h-14 rounded-xl text-white hover:bg-minimal-cardHover"
-                onClick={() => setIsOpen((s) => !s)} // optional: click to toggle
+                onClick={() => setShowUserModal(true)}
+                className="flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 text-minimal-white hover:text-minimal-primary hover:bg-minimal-cardHover"
               >
-                <Grip className="w-6 h-6" />
+                <CircleUserRound className="w-5 h-5" />
               </button>
 
-              {/* Dropdown */}
               {isOpen && (
-                <div className="absolute left-0 flex flex-col bg-minimal-card p-2 rounded-xl shadow-lg border border-gray-700 z-50">
-                  {/* Manually rendered buttons (you can still map if you prefer) */}
-                  {aiTools.map((tool) => {
-                    const Icon = tool.icon;
-                    const isActive = location.pathname === tool.path;
-                    return (
+                <div className="absolute left-[-130px] top-14 bg-minimal-card p-4 rounded-xl shadow-lg border border-gray-700 z-5000000 min-w-[200px] flex flex-col items-center">
+                  {/* View My Profile */}
+                  <div className="mb-4">
+                    <h3 className="text-white text-lg font-semibold mb-2">
+                      View My Profile
+                    </h3>
+                    <div className="flex gap-3">
+                      {/* Example buttons */}
                       <button
-                        key={tool.name}
-                        type="button" // prevents form submit
-                        onMouseDown={() => {
-                          // fires before blur/unmount
-                          console.log("navigating to", tool.path);
-                          navigate(tool.path);
+                        onClick={() => {
+                          navigate("/lurphchat");
                           setIsOpen(false);
                         }}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-left transition-colors ${
-                          isActive
-                            ? "bg-[#23b5b5]/20 text-[#23b5b5]"
-                            : "text-white hover:bg-minimal-cardHover hover:text-[#23b5b5]"
-                        }`}
+                        className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
                       >
-                        <Icon className="w-5 h-5" />
+                        <Plus className="w-5 h-5 text-white" />
                       </button>
-                    );
-                  })}
+                      <button
+                        onClick={() => {
+                          navigate("/task-manager");
+                          setIsOpen(false);
+                        }}
+                        className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
+                      >
+                        <FileText className="w-5 h-5 text-white" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          navigate("/integrations");
+                          setIsOpen(false);
+                        }}
+                        className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
+                      >
+                        <Zap className="w-5 h-5 text-white" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Workflows */}
+                  <div className="mb-4 flex flex-col justify-center items-center">
+                    <h3 className="text-white text-sm font-semibold mb-2">
+                      Workflows
+                    </h3>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => {
+                          navigate("/workflows");
+                          setIsOpen(false);
+                        }}
+                        className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
+                      >
+                        <Workflow className="w-5 h-5 text-white" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* All Tools */}
+                  <div className="mb-2 flex-col items-center justify-center">
+                    <h3 className="text-white text-sm font-semibold mb-2">
+                      All Tools
+                    </h3>
+                    <button
+                      type="button"
+                      className="flex items-center justify-center w-14 h-14 rounded-xl text-white hover:bg-minimal-primary"
+                      onClick={() => navigate("/aitools")} // optional: click to toggle
+                    >
+                      <Grip className="w-6 h-6" />
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -374,12 +408,12 @@ const UpdatedDashboard = () => {
               );
             })} */}
 
-            <button
+            {/* <button
               onClick={() => {}}
               className="flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 text-minimal-white hover:text-minimal-primary hover:bg-minimal-cardHover"
             >
               <Settings className="w-5 h-5" />
-            </button>
+            </button> */}
           </div>
         </div>
       </header>
