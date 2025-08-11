@@ -32,6 +32,13 @@ const RemoveBackground = () => {
     if (!selectedFile) return;
     setLoading(true);
     setError("");
+    if (!REMOVE_BG_API_KEY) {
+      setLoading(false);
+      setError(
+        "API key not configured. Please set VITE_REMOVE_BG_API_KEY and redeploy."
+      );
+      return;
+    }
 
     try {
       const formData = new FormData();
