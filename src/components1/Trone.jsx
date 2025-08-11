@@ -6,23 +6,9 @@ function Trone() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false); // controls sidebar visibility
 
   return (
-    <div className="bg-black text-white flex" style={{ minHeight: 'calc(100vh - 70px)' }}>
-      {/* Overlay for mobile */}
-      {isDrawerOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
-          onClick={() => setIsDrawerOpen(false)}
-          style={{ top: '70px' }}
-        />
-      )}
-
-      {/* Sidebar */}
-      
-
+    <div className="bg-black text-white flex h-screen">
       {/* Main content */}
       <div className="flex-1 flex flex-col">
-        {/* Top bar */}
-        {/* Centered content */}
         <div className="flex flex-col items-center justify-center flex-grow px-4">
           <h1 className="text-3xl md:text-4xl font-semibold mb-6 text-center">
             Ready when you are.
