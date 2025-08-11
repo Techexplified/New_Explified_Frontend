@@ -84,7 +84,7 @@ import ImageMerger from "./component3/ImageMerger";
 import ImageExpander from "./component3/ImageExpander";
 import ImageEditor from "./component3/ImageEditor";
 
-import BGLayout from "./pages/explified_tools/bgRemoverBlur/BGLayout";
+// import BGLayout from "./pages/explified_tools/bgRemoverBlur/BGLayout";
 
 // import Integrations from "./components1/Integrations";
 // import InfluencerProfile from "./components1/InfluencerProfile";
@@ -311,7 +311,7 @@ function App() {
           <Route path="/image-styler/expander" element={<ImageExpander />} />
           <Route path="/image-styler/editor" element={<ImageEditor />} />
 
-          <Route path="/bg-remover" element={<BGLayout />} />
+          <Route path="/bg-remover" element={<RemoveBackground />} />
 
           {/* <Route path="/result" element={<Result />} /> */}
           <Route path="/zeno" element={<NewZapier />} />
