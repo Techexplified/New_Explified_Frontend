@@ -243,7 +243,7 @@ const YoutubeSummarizer = () => {
         <div className="flex justify-center mb-6">
           <button
             className="group flex items-center gap-2 px-6 py-3 bg-gray-800/80 hover:bg-gray-700/80 backdrop-blur-sm rounded-xl border border-gray-600/30 hover:border-[#23b5b5]/50 transition-all duration-300 hover:transform hover:scale-105"
-            onClick={() => setHistoryOpen((p) => !p)}
+            onClick={() => setHistoryOpen(true)}
           >
             <History className="w-4 h-4 text-gray-400 group-hover:text-[#23b5b5] transition-colors" />
             <span className="capitalize text-gray-300 group-hover:text-white transition-colors">
@@ -258,22 +258,35 @@ const YoutubeSummarizer = () => {
         </div>
       </div>
 
-      {/* History Section */}
+      {/* History Section Modal */}
       {historyVideos.length !== 0 && historyOpen && (
-        <div className="relative z-10 max-w-4xl mx-auto w-full px-4 mb-8">
-          <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-            <History className="w-5 h-5 text-[#23b5b5]" />
-            Recent Videos
-          </h2>
-          <div className="space-y-3">
-            {historyVideos.map((item, index) => (
-              <HistoryCard
-                key={index}
-                item={item}
-                setVideoId={setVideoId}
-                setVideoUrl={setVideoUrl}
-              />
-            ))}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="relative bg-[#1a1a1a] rounded-lg shadow-lg max-w-4xl w-full mx-4 p-6 overflow-y-auto max-h-[90vh]">
+            {/* Close Button */}
+            <button
+              onClick={() => setHistoryOpen(false)}
+              className="absolute top-3 right-3 text-gray-300 hover:text-white"
+            >
+              ✕
+            </button>
+
+            {/* Title */}
+            <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+              <History className="w-5 h-5 text-[#23b5b5]" />
+              Recent Videos
+            </h2>
+
+            {/* Video List */}
+            <div className="space-y-3">
+              {historyVideos.map((item, index) => (
+                <HistoryCard
+                  key={index}
+                  item={item}
+                  setVideoId={setVideoId}
+                  setVideoUrl={setVideoUrl}
+                />
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -441,7 +454,7 @@ const YoutubeSummarizer = () => {
       )}
 
       {transcript.length !== 0 && activeTab === "transcript" && (
-        <div className="relative z-10 max-w-6xl mx-auto w-full flex-1 px-4 pb-32">
+        <div className="relative z-10 max-w-4xl mx-auto w-full flex-1 px-4 pb-32">
           <div className="relative">
             <div className="absolute left-16 top-0 bottom-0 w-0.5 bg-gradient-to-b from-[#23b5b5]/50 via-[#23b5b5]/20 to-transparent"></div>
             <div className="space-y-8">

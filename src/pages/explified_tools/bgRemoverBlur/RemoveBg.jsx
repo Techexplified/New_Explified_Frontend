@@ -1,5 +1,14 @@
-import React, { useState, useRef } from 'react';
-import { Upload, Download, X, Loader2, ImageIcon, Trash2, RotateCcw, Zap } from 'lucide-react';
+import React, { useState, useRef } from "react";
+import {
+  Upload,
+  Download,
+  X,
+  Loader2,
+  ImageIcon,
+  Trash2,
+  RotateCcw,
+  Zap,
+} from "lucide-react";
 
 const App = () => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -19,15 +28,15 @@ const App = () => {
 
   const handleFileSelect = (file) => {
     // Validate file type
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
     if (!validTypes.includes(file.type)) {
-      setError('Please select a valid image file (JPEG, PNG, or WebP)');
+      setError("Please select a valid image file (JPEG, PNG, or WebP)");
       return;
     }
 
     // Validate file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
-      setError('File size must be less than 10MB');
+      setError("File size must be less than 10MB");
       return;
     }
 
@@ -70,7 +79,7 @@ const App = () => {
 
     setLoading(true);
     setError(null);
-    
+
     const formData = new FormData();
     formData.append("image", selectedFile);
 
@@ -95,9 +104,9 @@ const App = () => {
   const downloadImage = () => {
     if (!processedImage) return;
 
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = processedImage;
-    link.download = `no-bg-${selectedFile?.name?.replace(/\.[^/.]+$/, '')}.png`;
+    link.download = `no-bg-${selectedFile?.name?.replace(/\.[^/.]+$/, "")}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -110,7 +119,7 @@ const App = () => {
     setError(null);
     setLoading(false);
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
@@ -126,7 +135,8 @@ const App = () => {
             AI Background <span className="text-[#23b5b5]">Remover</span>
           </h1>
           <p className="text-gray-400 text-xl max-w-2xl mx-auto">
-            Transform your images with AI-powered background removal. Upload, process, and download in seconds.
+            Transform your images with AI-powered background removal. Upload,
+            process, and download in seconds.
           </p>
         </div>
 
@@ -135,10 +145,10 @@ const App = () => {
           <div
             className={`border-2 border-dashed rounded-xl p-12 text-center transition-all cursor-pointer ${
               dragActive
-                ? 'border-[#23b5b5] bg-[#23b5b5]/10'
+                ? "border-[#23b5b5] bg-[#23b5b5]/10"
                 : selectedFile
-                ? 'border-[#23b5b5]/50 bg-[#23b5b5]/5'
-                : 'border-gray-600 hover:border-[#23b5b5]/50 hover:bg-[#23b5b5]/5'
+                ? "border-[#23b5b5]/50 bg-[#23b5b5]/5"
+                : "border-gray-600 hover:border-[#23b5b5]/50 hover:bg-[#23b5b5]/5"
             }`}
             onDragEnter={handleDragIn}
             onDragLeave={handleDragOut}
@@ -153,7 +163,7 @@ const App = () => {
               onChange={handleFileChange}
               className="hidden"
             />
-            
+
             {selectedFile ? (
               <div className="space-y-6">
                 <div className="w-20 h-20 mx-auto bg-[#23b5b5]/20 border border-[#23b5b5]/30 rounded-full flex items-center justify-center">
@@ -295,8 +305,12 @@ const App = () => {
                         <div className="w-16 h-16 mx-auto bg-gray-700 rounded-full flex items-center justify-center mb-4">
                           <ImageIcon className="w-8 h-8 text-gray-400" />
                         </div>
-                        <p className="text-lg">Processed image will appear here</p>
-                        <p className="text-sm text-gray-600 mt-2">Upload and process to see the magic</p>
+                        <p className="text-lg">
+                          Processed image will appear here
+                        </p>
+                        <p className="text-sm text-gray-600 mt-2">
+                          Upload and process to see the magic
+                        </p>
                       </div>
                     </div>
                   )}
@@ -313,7 +327,9 @@ const App = () => {
                     <p className="text-white">PNG with transparency</p>
                   </div>
                   <div className="bg-gray-800 rounded-lg p-4">
-                    <p className="text-[#23b5b5] font-semibold">Processing Time</p>
+                    <p className="text-[#23b5b5] font-semibold">
+                      Processing Time
+                    </p>
                     <p className="text-white">Lightning fast</p>
                   </div>
                   <div className="bg-gray-800 rounded-lg p-4">
@@ -329,10 +345,9 @@ const App = () => {
 
       <style jsx>{`
         .checkered-bg {
-          background-image: 
-            linear-gradient(45deg, #374151 25%, transparent 25%), 
-            linear-gradient(-45deg, #374151 25%, transparent 25%), 
-            linear-gradient(45deg, transparent 75%, #374151 75%), 
+          background-image: linear-gradient(45deg, #374151 25%, transparent 25%),
+            linear-gradient(-45deg, #374151 25%, transparent 25%),
+            linear-gradient(45deg, transparent 75%, #374151 75%),
             linear-gradient(-45deg, transparent 75%, #374151 75%);
           background-size: 20px 20px;
           background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
