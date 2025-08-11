@@ -31,25 +31,40 @@ function DownloadButtons({ url }) {
   };
   return (
     <div className="flex flex-col gap-2">
-      <a href={url} download="my-gif.gif">
-        <button className="text-2xl">
-          <Download />
+      <a href={url} download="my-gif.gif" className="group">
+        <button className="flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-800 bg-neutral-900 text-gray-200 shadow hover:bg-neutral-800">
+          <Download className="h-5 w-5" />
         </button>
       </a>
-      <button onClick={shareToWhatsApp} className="text-green-500 text-2xl">
-        <FaWhatsapp />
+      <button
+        onClick={shareToWhatsApp}
+        className="flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-800 bg-neutral-900 text-green-500 shadow hover:bg-neutral-800"
+      >
+        <FaWhatsapp className="h-5 w-5" />
       </button>
-      <button onClick={shareToX} className="text-white text-2xl">
-        <FaXTwitter />
+      <button
+        onClick={shareToX}
+        className="flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-800 bg-neutral-900 text-white shadow hover:bg-neutral-800"
+      >
+        <FaXTwitter className="h-5 w-5" />
       </button>
-      <button onClick={openGoogleDrive} className="text-yellow-500 text-2xl">
-        <FaGoogleDrive />
+      <button
+        onClick={openGoogleDrive}
+        className="flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-800 bg-neutral-900 text-yellow-500 shadow hover:bg-neutral-800"
+      >
+        <FaGoogleDrive className="h-5 w-5" />
       </button>
-      <button onClick={openYouTubeUpload} className="text-red-600 text-2xl">
-        <FaYoutube />
+      <button
+        onClick={openYouTubeUpload}
+        className="flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-800 bg-neutral-900 text-red-600 shadow hover:bg-neutral-800"
+      >
+        <FaYoutube className="h-5 w-5" />
       </button>
-      <button onClick={openInstagram} className="text-pink-500 text-2xl">
-        <FaInstagram />
+      <button
+        onClick={openInstagram}
+        className="flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-800 bg-neutral-900 text-pink-500 shadow hover:bg-neutral-800"
+      >
+        <FaInstagram className="h-5 w-5" />
       </button>
     </div>
   );

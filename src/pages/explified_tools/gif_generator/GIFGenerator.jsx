@@ -86,138 +86,139 @@ export default function AIGIFGenerator() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
-      {url ? (
-        <div className="flex flex-col gap-2 items-center w-full">
-          <h1 className="text-3xl mb-6">Selected GIF</h1>
-          <div className="flex items-center gap-4">
-            <DownloadButtons url={url} />
-            <img
-              src={url}
-              alt="gif"
-              className="h-72 w-72 object-cover rounded-lg border border-gray-300 shadow"
-            />
-          </div>
-          <div className="flex relative items-center gap-2"></div>
-          <button
-            onClick={() => setUrl("")}
-            className="mt-4 bg-[#23b5b5] hover:bg-[#1da3a3] text-white font-semibold px-6 py-2 rounded-full shadow-md transition-all duration-200"
-          >
-            Find Another
-          </button>
-        </div>
-      ) : (
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <h1 className="text-4xl font-bold text-center mb-12">
-            AI GIF Generator
-          </h1>
-
-          {/* Generate GIF Section */}
-          <div className="mb-12">
-            <h2 className="text-2xl font-semibold mb-6">
-              Tell me about a GIF you want
-            </h2>
-
-            {/* Input Container */}
-            <div className="relative mb-4">
-              <textarea
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                placeholder="Describe what the GIF should communicate — the story, the mood, or the core message behind the visual"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg p-4 text-white placeholder-gray-400 resize-none h-24 pr-32"
+    <div className="relative min-h-screen bg-black text-gray-100">
+      <div className="pointer-events-none absolute inset-0 opacity-50">
+        <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-teal-500/10 blur-3xl" />
+        <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-indigo-500/10 blur-3xl" />
+      </div>
+      <div className="relative mx-auto w-full max-w-6xl px-5 py-10">
+        {url ? (
+          <div className="flex flex-col items-center">
+            <h1 className="mb-8 bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-4xl font-bold text-transparent">
+              Selected GIF
+            </h1>
+            <div className="flex w-full max-w-3xl flex-col items-center gap-6 rounded-2xl border border-neutral-800 bg-neutral-900/70 p-6 shadow-2xl backdrop-blur">
+              <img
+                src={url}
+                alt="gif"
+                className="h-auto max-h-[420px] w-full rounded-xl object-contain"
               />
-
-              <div className="absolute right-3 bottom-3">
+              <div className="flex w-full flex-col items-center justify-between gap-4 sm:flex-row">
+                <DownloadButtons url={url} />
                 <button
-                  onClick={handleFindBestGif}
-                  disabled={isLoading}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                    isLoading
-                      ? "bg-indigo-600/60 cursor-not-allowed"
-                      : "bg-indigo-600 hover:bg-indigo-700"
-                  }`}
+                  onClick={() => setUrl("")}
+                  className="inline-flex items-center justify-center rounded-xl bg-teal-600 px-6 py-3 font-semibold text-white shadow-lg ring-1 ring-inset ring-teal-400/20 transition-colors hover:bg-teal-500"
                 >
-                  {isLoading ? "Searching..." : "Find Best GIF"}
+                  Find Another
                 </button>
               </div>
             </div>
-
-            {/* Upload Status removed */}
           </div>
+        ) : (
+          <div>
+            <header className="mb-10 text-center">
+              <h1 className="bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-4xl font-bold text-transparent">
+                AI GIF Generator
+              </h1>
+              <p className="mx-auto mt-2 max-w-2xl text-sm text-gray-400">
+                Search the perfect reaction or moment. Describe the vibe, and
+                we’ll find the best matching GIF instantly.
+              </p>
+            </header>
 
-          {/* Camera mic/upload UI removed */}
+            <section className="mb-12 rounded-2xl border border-neutral-800 bg-neutral-900/60 p-5 shadow-xl">
+              <h2 className="mb-4 text-lg font-semibold text-white/90">
+                What GIF are you looking for?
+              </h2>
+              <div className="relative">
+                <textarea
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  placeholder="Describe the mood, moment, or message..."
+                  className="h-28 w-full resize-none rounded-xl border border-neutral-800 bg-neutral-950/60 p-4 pr-36 text-gray-100 placeholder-gray-500 outline-none transition focus:border-neutral-700 focus:ring-2 focus:ring-teal-600/30"
+                />
+                <div className="absolute bottom-3 right-3">
+                  <button
+                    onClick={handleFindBestGif}
+                    disabled={isLoading}
+                    className={`rounded-xl px-4 py-2 font-medium text-white shadow-lg ring-1 ring-inset transition-colors ${
+                      isLoading
+                        ? "cursor-not-allowed bg-indigo-600/60 ring-indigo-400/20"
+                        : "bg-indigo-600 ring-indigo-400/20 hover:bg-indigo-500"
+                    }`}
+                  >
+                    {isLoading ? "Searching..." : "Find Best GIF"}
+                  </button>
+                </div>
+              </div>
+            </section>
 
-          <div className="flex flex-col items-center gap-6 mt-6"></div>
+            <section className="mt-16">
+              <h2 className="mb-6 text-center text-2xl font-semibold text-white/90">
+                Looking for Inspiration?
+              </h2>
 
-          {/* Looking for Inspiration Section */}
-          <div className="mt-20">
-            <h2 className="text-2xl font-semibold mb-8 text-center">
-              Looking for Inspiration?
-            </h2>
+              <div className="mx-auto mb-8 flex w-full max-w-md items-center justify-between rounded-full border border-neutral-800 bg-neutral-900/60 p-1">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`flex-1 rounded-full px-4 py-2 text-sm font-medium transition ${
+                      activeTab === tab
+                        ? "bg-neutral-800 text-white shadow"
+                        : "text-gray-400 hover:text-gray-200"
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
 
-            {/* Tabs */}
-            <div className="flex justify-center mb-8">
-              {tabs.map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-8 py-3 font-medium border-b-2 transition-colors ${
-                    activeTab === tab
-                      ? "border-white text-white"
-                      : "border-transparent text-gray-400 hover:text-white"
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-
-            {/* Content Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {isInspirationLoading && !inspirationGifs[activeTab]
-                ? Array.from({ length: 6 }).map((_, index) => (
-                    <div
-                      key={`skeleton-${index}`}
-                      className="aspect-square bg-gray-800 animate-pulse rounded-lg"
-                    />
-                  ))
-                : (inspirationGifs[activeTab] || []).map((gif) => {
-                    const imgUrl =
-                      gif?.images?.fixed_width_small?.url ||
-                      gif?.images?.downsized_small?.mp4 ||
-                      gif?.images?.downsized_medium?.url ||
-                      gif?.images?.original?.url;
-                    return (
-                      <button
-                        key={gif.id}
-                        onClick={() => {
-                          const urlToUse =
-                            gif?.images?.downsized_medium?.url ||
-                            gif?.images?.original?.url ||
-                            imgUrl;
-                          if (urlToUse) setUrl(urlToUse);
-                        }}
-                        className="aspect-square bg-gray-700 rounded-lg overflow-hidden hover:opacity-90 transition"
-                        title={gif?.title || activeTab}
-                      >
-                        {imgUrl ? (
-                          <img
-                            src={imgUrl}
-                            alt={gif?.title || activeTab}
-                            className="w-full h-full object-cover"
-                            loading="lazy"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gray-800" />
-                        )}
-                      </button>
-                    );
-                  })}
-            </div>
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+                {isInspirationLoading && !inspirationGifs[activeTab]
+                  ? Array.from({ length: 6 }).map((_, index) => (
+                      <div
+                        key={`skeleton-${index}`}
+                        className="aspect-square animate-pulse rounded-xl border border-neutral-800 bg-neutral-900"
+                      />
+                    ))
+                  : (inspirationGifs[activeTab] || []).map((gif) => {
+                      const imgUrl =
+                        gif?.images?.fixed_width_small?.url ||
+                        gif?.images?.downsized_small?.mp4 ||
+                        gif?.images?.downsized_medium?.url ||
+                        gif?.images?.original?.url;
+                      return (
+                        <button
+                          key={gif.id}
+                          onClick={() => {
+                            const urlToUse =
+                              gif?.images?.downsized_medium?.url ||
+                              gif?.images?.original?.url ||
+                              imgUrl;
+                            if (urlToUse) setUrl(urlToUse);
+                          }}
+                          className="group relative aspect-square overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900 transition-transform hover:-translate-y-0.5 hover:ring-1 hover:ring-neutral-700"
+                          title={gif?.title || activeTab}
+                        >
+                          {imgUrl ? (
+                            <img
+                              src={imgUrl}
+                              alt={gif?.title || activeTab}
+                              className="h-full w-full object-cover transition-opacity group-hover:opacity-95"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="h-full w-full bg-neutral-900" />
+                          )}
+                        </button>
+                      );
+                    })}
+              </div>
+            </section>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
