@@ -177,10 +177,7 @@ const UpdatedDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 flex flex-col overflow-hidden">
-      <UserModal
-        showUserModal={showUserModal}
-        setShowUserModal={setShowUserModal}
-      />
+      
 
       {/* Header */}
       <header
@@ -289,7 +286,7 @@ const UpdatedDashboard = () => {
               className="relative inline-block"
             >
               <button
-                onClick={() => setShowUserModal(true)}
+                onClick={() => navigate("/profile")}
                 className="flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 text-minimal-white hover:text-minimal-primary hover:bg-minimal-cardHover"
               >
                 <CircleUserRound className="w-5 h-5" />
@@ -299,9 +296,9 @@ const UpdatedDashboard = () => {
                 <div className="absolute left-[-130px] top-14 bg-minimal-card p-4 rounded-xl shadow-lg border border-gray-700 z-5000000 min-w-[200px] flex flex-col items-center">
                   {/* View My Profile */}
                   <div className="mb-4">
-                    <h3 className="text-white text-lg font-semibold mb-2">
+                    <button className="text-white text-sm font-semibold mb-2 border border-gray-700 rounded-lg px-4 py-2 hover:text-[#23b5b5]" onClick={() => navigate("/profile")}>
                       View My Profile
-                    </h3>
+                    </button>
                     <div className="flex gap-3">
                       {/* Example buttons */}
                       <button

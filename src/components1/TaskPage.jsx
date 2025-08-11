@@ -47,7 +47,7 @@ export default function TaskManager() {
   return (
     <div className="flex h-screen bg-black">
       {/* Sidebar */}
-      <aside className="w-72 bg-black/30 backdrop-blur-xl border-r border-white/10 p-6 flex flex-col">
+      <aside className="w-72 bg-black/30 backdrop-blur-xl border-r border-white/10 p-6 flex flex-col ">
         <div className="mb-8">
           <h1 className="text-2xl font-bold bg-gradient-to-r from-[#23b5b5] to-cyan-400 bg-clip-text text-transparent">
             Notes

@@ -120,6 +120,7 @@ import LinkedinPost from "./linkedin/LinkedinPost";
 import WorkflowTwitter from "./linkedin/WorkflowTwitter.jsx";
 import Canvas from "./components/subLayoutComponents/workflowPages/Canvas";
 import TaskPage from "./components1/TaskPage.jsx";
+import ProfilePage from "./components/ProfilePage.jsx";
 
 function App() {
   const navigate = useNavigate();
@@ -228,6 +229,7 @@ function App() {
 
         <Route path="/" element={<UpdatedDashboard />}>
           <Route index element={<MainDashboard />}></Route>
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/socials" element={<SocialsPage />}></Route>
           <Route path="/history" element={<History />}></Route>
           <Route path="/canvas" element={<Canvas />}></Route>
