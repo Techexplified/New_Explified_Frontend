@@ -216,7 +216,7 @@ const YoutubeSummarizer = () => {
 
   return (
     <div className="flex flex-col relative min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
-      <WorkFlowButton />
+      <WorkFlowButton id={"ytsummarizer"} />
 
       <Link to="https://chromewebstore.google.com/detail/vidsum-copilot-for-youtub/jmdecmahfbajaffljohfdlbdmkbngggj">
         <button className="fixed z-[100] top-24 right-4 px-4 py-2 rounded-full bg-white text-black">

@@ -36,8 +36,6 @@ const TextToVideoGenerator = () => {
       try {
         const userData = JSON.parse(user);
         setIsLoggedIn(userData.isLoggedIn === "true");
-        console.log("User data:", userData);
-        console.log("Is logged in:", userData.isLoggedIn);
       } catch (error) {
         console.error("Error parsing user data:", error);
         setIsLoggedIn(false);
@@ -170,7 +168,7 @@ const TextToVideoGenerator = () => {
 
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-slate-900 via-gray-900 to-slate-900 text-white overflow-hidden">
-      <WorkFlowButton />
+      <WorkFlowButton id={"vidgen"} />
       {/* Background effects */}
       <div className="fixed inset-0 opacity-20">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500 rounded-full blur-3xl animate-pulse"></div>

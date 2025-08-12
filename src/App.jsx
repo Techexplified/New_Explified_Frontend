@@ -123,6 +123,7 @@ import ImageToVideoConverter from "./pages/explified_tools/image_to_video_conver
 import TaskPage from "./components1/TaskPage.jsx";
 import ProfilePage from "./components/ProfilePage.jsx";
 
+import HuggingFaceApiInterface from "./components/tools/HuggingFaceApiInterface.jsx";
 function App() {
   const navigate = useNavigate();
 
@@ -232,7 +233,9 @@ function App() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/socials" element={<SocialsPage />}></Route>
           <Route path="/history" element={<History />}></Route>
+          <Route path="/test" element={<HuggingFaceApiInterface />} />
           <Route path="/canvas" element={<Canvas />}></Route>
+          <Route path=":tool/w" element={<CreateWorkflow />} />
           <Route path="/remove_bg" element={<RemoveBackground />} />
           <Route path="/text-to-video" element={<TextToVideoGenerator />} />
 
