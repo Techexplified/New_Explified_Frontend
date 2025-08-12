@@ -22,9 +22,11 @@ import {
   Presentation,
   Eraser,
   Image,
+  ImagePlay,
 } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
+import { MdOutlineGifBox } from "react-icons/md";
 
 const categorizedTools = {
   Messaging: [
@@ -46,6 +48,12 @@ const categorizedTools = {
     { name: "SlideShow Maker", icon: <Presentation />, toolId: "presentation" },
     { name: "AI Subtitler", icon: <Captions />, toolId: "subtitler" },
     { name: "Text to Video", icon: <Video />, toolId: "vidgen" },
+    { name: "Image To Video AI", icon: <Image />, toolId: "imgtovid" },
+    {
+      name: "AI GIF Generator",
+      icon: <MdOutlineGifBox />,
+      toolId: "gifgenerator",
+    },
   ],
   "Video Conferencing": [
     { name: "Google Meet", icon: <Video /> },

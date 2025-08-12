@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import DownloadButtons from "./DownloadButtons";
+import WorkFlowButton from "../../../reusable_components/WorkFlowButton";
 export default function AIGIFGenerator() {
   const [inputText, setInputText] = useState("");
   const [activeTab, setActiveTab] = useState("Humor");
@@ -87,6 +88,8 @@ export default function AIGIFGenerator() {
 
   return (
     <div className="relative min-h-screen bg-black text-gray-100">
+      <WorkFlowButton id={"gifgenerator"} />
+
       <div className="pointer-events-none absolute inset-0 opacity-50">
         <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-teal-500/10 blur-3xl" />
         <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-indigo-500/10 blur-3xl" />

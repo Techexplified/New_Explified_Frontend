@@ -95,6 +95,8 @@ const RemoveBackground = () => {
 
   return (
     <div className="min-h-[calc(100vh-70px)] w-full flex items-center justify-center bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 p-6">
+      <WorkFlowButton id={"bgremover"} />
+
       <div className="w-full max-w-3xl bg-minimal-card border border-minimal-border rounded-2xl p-6 shadow-lg">
         <h1 className="text-xl font-semibold text-minimal-white mb-2">
           Background Remover

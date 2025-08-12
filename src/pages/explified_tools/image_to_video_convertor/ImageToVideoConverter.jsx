@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import axiosInstance from "../../../network/axiosInstance";
 import axios from "axios";
+import WorkFlowButton from "../../../reusable_components/WorkFlowButton";
 
 export default function ImageToVideoConverter() {
   const [uploadedImage, setUploadedImage] = useState(null);
@@ -148,6 +149,8 @@ export default function ImageToVideoConverter() {
 
   return (
     <div className="min-h-screen bg-black p-6 flex items-center justify-center">
+      <WorkFlowButton id={"imgtovid"} />
+
       <div className="w-full max-w-4xl">
         {/* Header */}
         <div className="text-center mb-8">
