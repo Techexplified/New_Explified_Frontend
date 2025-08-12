@@ -119,7 +119,7 @@ import TwitterPost from "./linkedin/TwitterPost.jsx";
 import LinkedinPost from "./linkedin/LinkedinPost";
 import WorkflowTwitter from "./linkedin/WorkflowTwitter.jsx";
 import Canvas from "./components/subLayoutComponents/workflowPages/Canvas";
-
+import HuggingFaceApiInterface from "./components/tools/HuggingFaceApiInterface.jsx";
 function App() {
   const navigate = useNavigate();
 
@@ -229,7 +229,9 @@ function App() {
           <Route index element={<MainDashboard />}></Route>
           <Route path="/socials" element={<SocialsPage />}></Route>
           <Route path="/history" element={<History />}></Route>
+          <Route path="/test" element={<HuggingFaceApiInterface />} />
           <Route path="/canvas" element={<Canvas />}></Route>
+          <Route path=":tool/w" element={<CreateWorkflow />} />
           <Route path="/remove_bg" element={<RemoveBackground />} />
           <Route path="/text-to-video" element={<TextToVideoGenerator />} />
 

@@ -64,7 +64,7 @@ export default function AISubtitler() {
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-slate-800 to-slate-900 text-white">
       {/* Main Content */}
-      <WorkFlowButton />
+      <WorkFlowButton id={"subtitler"} />
       <div className="flex flex-col items-center justify-center px-4 py-12">
         {/* Title Section */}
         <div className="text-center mb-8">
