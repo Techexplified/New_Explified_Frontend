@@ -34,118 +34,105 @@ const UserPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4"
-     style={{
-       background: "radial-gradient(circle at 20% 20%, #23b5b520, transparent), radial-gradient(circle at 80% 80%, #23b5b520, transparent), black",
-     }}>
-
-      <div className="bg-black border border-[#23b5b5]/40 rounded-2xl p-8 w-96 max-w-[90vw] shadow-lg shadow-[#23b5b5]/20">
-        {/* Close button */}
-        <div className="flex justify-end mb-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="p-2 rounded-xl bg-[#23b5b5]/10 hover:bg-[#23b5b5]/20 transition-all duration-200 text-[#23b5b5]"
-          >
-            <X className="w-5 h-5" />
-          </button>
+    <div
+  className="w-full h-screen p-8"
+  style={{
+    background:
+      "black",
+  }}
+>
+  <div className="w-full h-full grid grid-cols-1 lg:grid-cols-2">
+    
+    {/* Left Column */}
+    <div className="flex flex-col justify-center p-8  border-r border-[#23b5b5]/40">
+      {/* User Profile */}
+      <div className="flex items-center gap-6 mb-8">
+        <div className="w-20 h-20 bg-[#23b5b5] rounded-full flex items-center justify-center">
+          <span className="text-black font-bold text-2xl">{userData.name[0]}</span>
         </div>
-
-        {/* User Profile */}
-        <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-[#23b5b5] rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-black font-bold text-2xl">
-              {userData.name[0]}
-            </span>
-          </div>
-          <h2 className="text-white text-xl font-bold mb-1">{userData.name}</h2>
-          <p className="text-gray-400 text-sm">{userData.email}</p>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="space-y-3">
-          {/* login/logout */}
-          <button
-            onClick={() => {
-              if (isLoggedIn) {
-                signOut(auth)
-                  .then(() => {
-                    dispatch(clearUser());
-                    localStorage.removeItem("explified");
-                    navigate("/login");
-                  })
-                  .catch((error) => console.error("Logout failed:", error));
-              } else {
-                navigate("/login");
-              }
-            }}
-            className="w-full flex items-center justify-center px-4 py-3 bg-[#23b5b5]/10 border border-[#23b5b5]/50 text-[#23b5b5] rounded-xl hover:bg-[#23b5b5]/20 hover:border-[#23b5b5]/70 transition-all duration-200"
-          >
-            {isLoggedIn ? (
-              <>
-                <LogOut size={16} className="mr-2" />
-                <span className="font-medium cursor-pointer">Log Out</span>
-              </>
-            ) : (
-              <>
-                <LogIn className="w-5 h-5 mr-3" />
-                <span className="font-medium">Login</span>
-              </>
-            )}
-          </button>
-
-          {isLoggedIn && (
-            <>
-              {/* Feedback */}
-              <button
-                onClick={handleFeedbackClick}
-                className="w-full flex items-center justify-center px-4 py-3 bg-[#23b5b5]/10 border border-[#23b5b5]/50 text-[#23b5b5] rounded-xl hover:bg-[#23b5b5]/20 hover:border-[#23b5b5]/70 transition-all duration-200"
-              >
-                <MessageSquare className="w-5 h-5 mr-3" />
-                <span className="font-medium">Feedback</span>
-              </button>
-
-              {/* Socials */}
-              <button
-                onClick={() => navigate("/socials")}
-                className="w-full flex items-center justify-center px-4 py-3 bg-[#23b5b5]/10 border border-[#23b5b5]/50 text-[#23b5b5] rounded-xl hover:bg-[#23b5b5]/20 hover:border-[#23b5b5]/70 transition-all duration-200"
-              >
-                <BoomBox className="w-5 h-5 mr-3" />
-                <span className="font-medium">Socials</span>
-              </button>
-
-              {/* Integrations */}
-              <button
-                onClick={() => navigate("/integrations")}
-                className="w-full flex items-center justify-center px-4 py-3 bg-[#23b5b5]/10 border border-[#23b5b5]/50 text-[#23b5b5] rounded-xl hover:bg-[#23b5b5]/20 hover:border-[#23b5b5]/70 transition-all duration-200"
-              >
-                <Zap className="w-5 h-5 mr-3" />
-                <span className="font-medium">Integrations</span>
-              </button>
-
-              {/* History */}
-              <button
-                onClick={() => navigate("/history")}
-                className="w-full flex items-center justify-center px-4 py-3 bg-[#23b5b5]/10 border border-[#23b5b5]/50 text-[#23b5b5] rounded-xl hover:bg-[#23b5b5]/20 hover:border-[#23b5b5]/70 transition-all duration-200"
-              >
-                <History className="w-5 h-5 mr-3" />
-                <span className="font-medium">History</span>
-              </button>
-            </>
-          )}
-
-          {/* Contact */}
-          <button
-            onClick={() => {
-              // contact logic
-            }}
-            className="w-full flex items-center justify-center px-4 py-3 bg-green-500/10 border border-green-500/50 text-green-400 rounded-xl hover:bg-green-500/20 hover:border-green-500/70 transition-all duration-200"
-          >
-            <Mail className="w-5 h-5 mr-3" />
-            <span className="font-medium">Contact Us</span>
-          </button>
+        <div>
+          <h2 className="text-white text-3xl font-bold">{userData.name}</h2>
+          <p className="text-gray-400">{userData.email}</p>
         </div>
       </div>
+
+      {/* Action Buttons */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <button
+          onClick={() => {
+            if (isLoggedIn) {
+              signOut(auth)
+                .then(() => {
+                  dispatch(clearUser());
+                  localStorage.removeItem("explified");
+                  navigate("/login");
+                })
+                .catch((error) => console.error("Logout failed:", error));
+            } else {
+              navigate("/login");
+            }
+          }}
+          className="flex items-center justify-center px-4 py-3 bg-[#23b5b5]/10 border border-[#23b5b5]/50 text-[#23b5b5] rounded-xl hover:bg-[#23b5b5]/20 hover:border-[#23b5b5]/70 transition-all"
+        >
+          {isLoggedIn ? <LogOut size={16} className="mr-2" /> : <LogIn className="w-5 h-5 mr-3" />}
+          {isLoggedIn ? "Log Out" : "Login"}
+        </button>
+
+        {isLoggedIn && (
+          <>
+            <button
+              onClick={handleFeedbackClick}
+              className="flex items-center justify-center px-4 py-3 bg-[#23b5b5]/10 border border-[#23b5b5]/50 text-[#23b5b5] rounded-xl hover:bg-[#23b5b5]/20 hover:border-[#23b5b5]/70 transition-all"
+            >
+              <MessageSquare className="w-5 h-5 mr-3" /> Feedback
+            </button>
+
+            <button
+              onClick={() => navigate("/socials")}
+              className="flex items-center justify-center px-4 py-3 bg-[#23b5b5]/10 border border-[#23b5b5]/50 text-[#23b5b5] rounded-xl hover:bg-[#23b5b5]/20 hover:border-[#23b5b5]/70 transition-all"
+            >
+              <BoomBox className="w-5 h-5 mr-3" /> Socials
+            </button>
+
+            <button
+              onClick={() => navigate("/integrations")}
+              className="flex items-center justify-center px-4 py-3 bg-[#23b5b5]/10 border border-[#23b5b5]/50 text-[#23b5b5] rounded-xl hover:bg-[#23b5b5]/20 hover:border-[#23b5b5]/70 transition-all"
+            >
+              <Zap className="w-5 h-5 mr-3" /> Integrations
+            </button>
+
+            <button
+              onClick={() => navigate("/history")}
+              className="flex items-center justify-center px-4 py-3 bg-[#23b5b5]/10 border border-[#23b5b5]/50 text-[#23b5b5] rounded-xl hover:bg-[#23b5b5]/20 hover:border-[#23b5b5]/70 transition-all"
+            >
+              <History className="w-5 h-5 mr-3" /> History
+            </button>
+          </>
+        )}
+
+        {/* Contact */}
+        <button
+          className="flex items-center justify-center px-4 py-3 bg-green-500/10 border border-green-500/50 text-green-400 rounded-xl hover:bg-green-500/20 hover:border-green-500/70 transition-all"
+        >
+          <Mail className="w-5 h-5 mr-3" /> Contact Us
+        </button>
+      </div>
     </div>
+
+    {/* Right Column */}
+    <div className="flex items-center justify-center p-8">
+      <img
+        src="/images/login.png"
+        alt="Decorative"
+        className="w-full h-full object-fit rounded-2xl border border-[#23b5b5]/40 shadow-lg shadow-[#23b5b5]/30 "
+      />
+    </div>
+  </div>
+</div>
+
+
+
+
   );
 };
 
