@@ -26,6 +26,9 @@ import {
   Settings,
   File,
   FileText,
+  ArrowDownUp,
+  Search,
+  MessageCircleMore,
 } from "lucide-react";
 import logo from "../assets/logos/explified_logo.png";
 import UserModal from "./UserModal";
@@ -104,7 +107,7 @@ const UpdatedDashboard = () => {
   // Handlers
   function PlusClick() {
     setIsDrawerOpen((prev) => !prev);
-    navigate("/lurphchat");
+    navigate("/chat");
   }
   function ToolsClick(e) {
     e.stopPropagation();
@@ -175,10 +178,19 @@ const UpdatedDashboard = () => {
     }
   }, [location.pathname]);
 
+  let timeoutId;
+
+  const handleMouseEnter = () => {
+    clearTimeout(timeoutId);
+    setIsOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    timeoutId = setTimeout(() => setIsOpen(false), 200); // 200ms delay
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 flex flex-col overflow-hidden">
-      
-
       {/* Header */}
       <header
         className={`fixed bg-trnsparent h-[70px]  border-minimal-border/50 px-6 transition-transform duration-300 z-50 top-0 left-0 w-full
@@ -187,7 +199,7 @@ const UpdatedDashboard = () => {
       >
         <div className="flex items-center justify-between h-full">
           {/* Logo */}
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <Link
               to="https://explified.com/"
               className="flex items-center gap-1"
@@ -197,7 +209,8 @@ const UpdatedDashboard = () => {
                 Explified
               </h2>
             </Link>
-          </div>
+          </div> */}
+          <div></div>
 
           {/* Actions */}
           <div className="flex items-center gap-2 relative">
@@ -239,14 +252,14 @@ const UpdatedDashboard = () => {
                 onClick={PlusClick}
                 className={`flex items-center justify-center rounded-xl transition-all duration-200 transform
       ${
-        location.pathname === "/lurphchat"
+        location.pathname === "/chat"
           ? "w-14 h-14 scale-110 text-[#23b5b5] bg-minimal-primary/20 border border-[#23b5b5]/30"
           : "w-10 h-10 text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover"
       }`}
               >
                 <Plus
                   className={
-                    location.pathname === "/lurphchat" ? "w-6 h-6" : "w-5 h-5"
+                    location.pathname === "/chat" ? "w-6 h-6" : "w-5 h-5"
                   }
                 />
               </button>
@@ -281,8 +294,8 @@ const UpdatedDashboard = () => {
 
             {/* 3 profile */}
             <div
-              onMouseEnter={() => setIsOpen(true)}
-              onMouseLeave={() => setIsOpen(false)}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
               className="relative inline-block"
             >
               <button
@@ -296,38 +309,75 @@ const UpdatedDashboard = () => {
                 <div className="absolute left-[-130px] top-14 bg-minimal-card p-4 rounded-xl shadow-lg border border-gray-700 z-5000000 min-w-[200px] flex flex-col items-center">
                   {/* View My Profile */}
                   <div className="mb-4">
-                    <button className="text-white text-sm font-semibold mb-2 border border-gray-700 rounded-lg px-4 py-2 hover:text-[#23b5b5]" onClick={() => navigate("/profile")}>
+                    <button
+                      className="text-white text-sm font-semibold mb-2 border border-gray-700 rounded-lg px-4 py-2 hover:text-[#23b5b5]"
+                      onClick={() => navigate("/profile")}
+                    >
                       View My Profile
                     </button>
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 flex-col">
                       {/* Example buttons */}
-                      <button
-                        onClick={() => {
-                          navigate("/lurphchat");
-                          setIsOpen(false);
-                        }}
-                        className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
-                      >
-                        <Plus className="w-5 h-5 text-white" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          navigate("/task-manager");
-                          setIsOpen(false);
-                        }}
-                        className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
-                      >
-                        <FileText className="w-5 h-5 text-white" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          navigate("/integrations");
-                          setIsOpen(false);
-                        }}
-                        className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
-                      >
-                        <Zap className="w-5 h-5 text-white" />
-                      </button>
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => {
+                            navigate("/chat");
+                            setIsOpen(false);
+                          }}
+                          className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
+                        >
+                          <Plus className="w-5 h-5 text-white" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            navigate("/task-manager");
+                            setIsOpen(false);
+                          }}
+                          className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
+                        >
+                          <FileText className="w-5 h-5 text-white" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            navigate("/integrations");
+                            setIsOpen(false);
+                          }}
+                          className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
+                        >
+                          <Zap className="w-5 h-5 text-white" />
+                        </button>
+                      </div>
+
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => {
+                            navigate("/flowboard");
+                            setIsOpen(false);
+                          }}
+                          className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
+                        >
+                          <ArrowDownUp className="w-5 h-5 text-white" />
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            navigate("/socials");
+                            setIsOpen(false);
+                          }}
+                          className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
+                        >
+                          <MessageCircleMore className="w-5 h-5 text-white" />
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            navigate("/search");
+                            setIsOpen(false);
+                          }}
+                          className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
+                        >
+                          <Search className="w-5 h-5 text-white" />
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -362,6 +412,13 @@ const UpdatedDashboard = () => {
                       <Grip className="w-6 h-6" />
                     </button>
                   </div>
+
+                  <Link
+                    to="https://explified.com/"
+                    className="text-white text-sm font-semibold mb-2 hover:text-[#23b5b5]"
+                  >
+                    To explified.com
+                  </Link>
                 </div>
               )}
             </div>

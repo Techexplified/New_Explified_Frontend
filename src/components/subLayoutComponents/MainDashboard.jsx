@@ -276,7 +276,7 @@ const MainDashboard = () => {
           <div className="flex flex-wrap gap-6 justify-start">
             <div
               className="group relative bg-minimal-dark-100 rounded-xl border border-minimal-border hover:border-minimal-primary/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-minimal-primary/20 cursor-pointer h-32 min-h-0 flex items-center justify-center flex-1 max-w-[390px] min-w-[280px]"
-              onClick={() => navigate("/lurphchat")}
+              onClick={() => navigate("/chat")}
             >
               <Plus className="w-8 h-8 text-white group-hover:text-minimal-primary transition-colors duration-300" />
               {/* Gradient background on hover */}
