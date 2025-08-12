@@ -1,4 +1,4 @@
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
   Play,
@@ -216,12 +216,13 @@ const YoutubeSummarizer = () => {
 
   return (
     <div className="flex flex-col relative min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
-      <WorkFlowButton tool="/youtube-summarizer" />
+      <WorkFlowButton />
 
-      <button className="fixed z-[100] top-24 right-4 px-4 py-2 rounded-full bg-white text-black">
-        Add Extension
-      </button>
-
+      <Link to="https://chromewebstore.google.com/detail/vidsum-copilot-for-youtub/jmdecmahfbajaffljohfdlbdmkbngggj">
+        <button className="fixed z-[100] top-24 right-4 px-4 py-2 rounded-full bg-white text-black">
+          Add Extension
+        </button>
+      </Link>
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#23b5b5]/5 rounded-full blur-3xl animate-pulse"></div>

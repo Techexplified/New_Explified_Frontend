@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { ArrowLeft, Upload, Wand2, Sparkles, Download, RefreshCw } from "lucide-react";
+import {
+  ArrowLeft,
+  Upload,
+  Wand2,
+  Sparkles,
+  Download,
+  RefreshCw,
+} from "lucide-react";
 
 const AiImageStyler = () => {
   const [selectedStyle, setSelectedStyle] = useState(null);
@@ -9,10 +16,30 @@ const AiImageStyler = () => {
   const [error, setError] = useState(null);
 
   const styles = [
-    { id: "cartoon", name: "Cartoon", description: "Vibrant cartoon style", gradient: "from-[#23b5b5] to-[#23b5b5]" },
-    { id: "ghibli", name: "Studio Ghibli", description: "Dreamy anime aesthetic", gradient: "from-[#23b5b5] to-[#23b5b5]" },
-    { id: "sketch", name: "Pencil Sketch", description: "Hand-drawn artwork", gradient: "from-[#23b5b5] to-[#23b5b5]" },
-    { id: "anime", name: "Anime", description: "Japanese animation style", gradient: "from-[#23b5b5] to-[#23b5b5]" },
+    {
+      id: "cartoon",
+      name: "Cartoon",
+      description: "Vibrant cartoon style",
+      gradient: "from-[#23b5b5] to-[#23b5b5]",
+    },
+    {
+      id: "ghibli",
+      name: "Studio Ghibli",
+      description: "Dreamy anime aesthetic",
+      gradient: "from-[#23b5b5] to-[#23b5b5]",
+    },
+    {
+      id: "sketch",
+      name: "Pencil Sketch",
+      description: "Hand-drawn artwork",
+      gradient: "from-[#23b5b5] to-[#23b5b5]",
+    },
+    {
+      id: "anime",
+      name: "Anime",
+      description: "Japanese animation style",
+      gradient: "from-[#23b5b5] to-[#23b5b5]",
+    },
   ];
 
   const handleImageUpload = (event) => {
@@ -81,10 +108,15 @@ const AiImageStyler = () => {
               <h1 className="text-2xl font-bold bg-gradient-to-r from-[#23b5b5] to-[#23b5b5] bg-clip-text text-transparent">
                 AI Image Styler
               </h1>
-              <p className="text-sm text-gray-400">Transform your images with AI magic</p>
+              <p className="text-sm text-gray-400">
+                Transform your images with AI magic
+              </p>
             </div>
           </div>
-          <button onClick={handleReset} className="flex items-center space-x-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors">
+          <button
+            onClick={handleReset}
+            className="flex items-center space-x-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
+          >
             <RefreshCw className="w-4 h-4" />
             <span>Reset</span>
           </button>
@@ -95,7 +127,9 @@ const AiImageStyler = () => {
         <div className="grid md:grid-cols-12 gap-8">
           {/* Left Sidebar */}
           <div className="md:col-span-4 space-y-4">
-            <h2 className="text-xl font-semibold text-white">Choose Your Style</h2>
+            <h2 className="text-xl font-semibold text-white">
+              Choose Your Style
+            </h2>
             <div className="space-y-4">
               {styles.map((style) => (
                 <button
@@ -103,7 +137,9 @@ const AiImageStyler = () => {
                   onClick={() => setSelectedStyle(style.id)}
                   className={`relative w-full p-6 rounded-xl transition-all duration-300 transform hover:scale-105 ${
                     selectedStyle === style.id
-                      ? "bg-gradient-to-r " + style.gradient + " shadow-2xl ring-4 ring-white/20"
+                      ? "bg-gradient-to-r " +
+                        style.gradient +
+                        " shadow-2xl ring-4 ring-white/20"
                       : "border border-gray-700"
                   }`}
                 >
@@ -151,16 +187,28 @@ const AiImageStyler = () => {
           <div className="md:col-span-8 grid md:grid-cols-2 gap-8">
             {/* Upload Area */}
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-white">Upload Your Image</h2>
+              <h2 className="text-xl font-semibold text-white">
+                Upload Your Image
+              </h2>
               <div className="relative">
                 <label className="block cursor-pointer">
-                  <div className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 ${
-                    uploadedImage ? "border-[#23b5b5] bg-[#23b5b5]/10" : "border-gray-700 hover:border-gray-600"
-                  }`}>
+                  <div
+                    className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 ${
+                      uploadedImage
+                        ? "border-[#23b5b5] bg-[#23b5b5]/10"
+                        : "border-gray-700 hover:border-gray-600"
+                    }`}
+                  >
                     {uploadedImage ? (
                       <div className="space-y-4">
-                        <img src={uploadedImage} alt="Uploaded" className="w-full max-w-sm mx-auto rounded-lg shadow-lg" />
-                        <div className="text-[#23b5b5] font-medium">✓ Image uploaded successfully</div>
+                        <img
+                          src={uploadedImage}
+                          alt="Uploaded"
+                          className="w-full max-w-sm mx-auto rounded-lg shadow-lg"
+                        />
+                        <div className="text-[#23b5b5] font-medium">
+                          ✓ Image uploaded successfully
+                        </div>
                       </div>
                     ) : (
                       <div className="space-y-4">
@@ -168,14 +216,25 @@ const AiImageStyler = () => {
                           <Upload className="w-8 h-8 text-gray-400" />
                         </div>
                         <div>
-                          <p className="text-lg font-medium text-gray-300">Drop your image here or click to browse</p>
-                          <p className="text-sm text-gray-500 mt-2">Supports JPG, PNG, WebP up to 10MB</p>
+                          <p className="text-lg font-medium text-gray-300">
+                            Drop your image here or click to browse
+                          </p>
+                          <p className="text-sm text-gray-500 mt-2">
+                            Supports JPG, PNG, WebP up to 10MB
+                          </p>
                         </div>
                       </div>
                     )}
                   </div>
-                  <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-                  {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                  {error && (
+                    <p className="text-sm text-red-500 mt-2">{error}</p>
+                  )}
                 </label>
               </div>
             </div>
@@ -192,11 +251,15 @@ const AiImageStyler = () => {
                       className="w-full max-w-sm mx-auto rounded-lg shadow-lg"
                       style={{
                         filter:
-                          selectedStyle === "cartoon" ? "contrast(1.2) saturate(1.5)" :
-                          selectedStyle === "ghibli" ? "sepia(0.3) saturate(1.2)" :
-                          selectedStyle === "sketch" ? "grayscale(0.8) contrast(1.3)" :
-                          selectedStyle === "anime" ? "contrast(1.1) saturate(1.3)" :
-                          "none"
+                          selectedStyle === "cartoon"
+                            ? "contrast(1.2) saturate(1.5)"
+                            : selectedStyle === "ghibli"
+                            ? "sepia(0.3) saturate(1.2)"
+                            : selectedStyle === "sketch"
+                            ? "grayscale(0.8) contrast(1.3)"
+                            : selectedStyle === "anime"
+                            ? "contrast(1.1) saturate(1.3)"
+                            : "none",
                       }}
                     />
                     <div className="flex space-x-3 justify-center">
@@ -216,9 +279,13 @@ const AiImageStyler = () => {
                     </div>
                     <div>
                       <p className="text-lg font-medium text-[#23b5b5]">
-                        Applying {styles.find((s) => s.id === selectedStyle)?.name} style...
+                        Applying{" "}
+                        {styles.find((s) => s.id === selectedStyle)?.name}{" "}
+                        style...
                       </p>
-                      <p className="text-sm text-gray-400">This may take a few moments</p>
+                      <p className="text-sm text-gray-400">
+                        This may take a few moments
+                      </p>
                     </div>
                   </div>
                 ) : (
@@ -227,8 +294,12 @@ const AiImageStyler = () => {
                       <Sparkles className="w-8 h-8" />
                     </div>
                     <div>
-                      <p className="text-lg">Your styled image will appear here</p>
-                      <p className="text-sm">Upload an image and select a style to get started</p>
+                      <p className="text-lg">
+                        Your styled image will appear here
+                      </p>
+                      <p className="text-sm">
+                        Upload an image and select a style to get started
+                      </p>
                     </div>
                   </div>
                 )}

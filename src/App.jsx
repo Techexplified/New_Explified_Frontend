@@ -317,7 +317,7 @@ function App() {
 
           {/* <Route path="/result" element={<Result />} /> */}
           <Route path="/zeno" element={<NewZapier />} />
-          <Route path="/workflows/create/:tool" element={<CreateWorkflow />} />
+          <Route path="/workflows/create/" element={<CreateWorkflow />} />
           <Route path="/zenonew" element={<ZapierChat />} />
 
           {/* <Route path="/result2" element={<ZapResult />} /> */}

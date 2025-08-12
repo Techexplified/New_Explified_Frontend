@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Square,
   MoveUpRight,
@@ -64,9 +64,6 @@ const Toolbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [hoveredBoxId, setHoveredBoxId] = useState(null);
   const [isAIChatbotOpen, setIsAIChatbotOpen] = useState(false);
-
-  const { tool } = useParams();
-  console.log(tool);
 
   // Flatten all tools for search
   const allTools = Object.values(categorizedTools).flat();
