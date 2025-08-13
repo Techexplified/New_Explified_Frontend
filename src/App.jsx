@@ -121,6 +121,8 @@ import WorkflowTwitter from "./linkedin/WorkflowTwitter.jsx";
 import Canvas from "./components/subLayoutComponents/workflowPages/Canvas";
 import TaskPage from "./components1/TaskPage.jsx";
 import ProfilePage from "./components/ProfilePage.jsx";
+import DiscoverPage from "./components1/DiscoverPage.jsx";
+import Notes from "./components1/Notes.jsx";
 
 function App() {
   const navigate = useNavigate();
@@ -254,6 +256,7 @@ function App() {
           ></Route>
           <Route path="/socials/:id" element={<DetailedCard />}></Route>
           <Route path="/aitools" element={<AITools />}></Route>
+          <Route path="/discover" element={<DiscoverPage />}></Route>
           <Route path="/chat" element={<Trone />} />
           <Route path="/Meme" element={<Meme />} />
           <Route path="/ai-gif-generator" element={<GIFGenerator />} />
@@ -345,7 +348,8 @@ function App() {
             element={<PresentationLandingPage />}
           ></Route>
           <Route path="/presentation/create" element={<CreatePresentation />} />
-          <Route path="/task-manager" element={<TaskPage />} />
+          <Route path="/tasks" element={<TaskPage />} />
+          <Route path="/notes" element={<Notes/>} />
           <Route path="/*" element={<ComingSoon />} />
         </Route>
 

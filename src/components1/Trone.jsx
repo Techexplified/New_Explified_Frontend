@@ -15,21 +15,22 @@ function Trone() {
           </h1>
 
           {/* Input + Icons */}
-          <div className="w-full max-w-2xl bg-[#1e1e1e] rounded-2xl shadow-md px-4 py-2">
-            <input
-              type="text"
-              placeholder="Ask anything"
-              className="w-full bg-transparent outline-none text-gray-200 placeholder-gray-400 text-sm px-2 py-3"
-            />
-
-            <div className="flex items-center justify-between mt-2 text-gray-400">
+          <div className="w-full max-w-2xl bg-[#1e1e1e] rounded-full shadow-md px-4 py-2">
+            <div className="flex items-center justify-between text-gray-400">
               {/* Left icons */}
               <div className="flex items-center gap-2">
-                <FiSliders className="text-lg" />
-                <span className="text-sm">Tools</span>
+                <FiPlus className="text-lg" />
+                {/* <FiSliders className="text-lg" /> */}
+                {/* <span className="text-sm">Tools</span> */}
               </div>
 
               {/* Right icons */}
+              <input
+                type="text"
+                placeholder="Ask anything"
+                className="w-full bg-transparent outline-none text-gray-200 placeholder-gray-400 text-sm px-2 py-3"
+              />
+
               <div className="flex items-center gap-4">
                 <FiMic className="text-lg" />
                 <div className="w-8 h-8 rounded-full bg-[#2a2a2a] flex items-center justify-center">
