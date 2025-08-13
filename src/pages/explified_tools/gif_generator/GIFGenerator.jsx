@@ -130,7 +130,7 @@ export default function AIGIFGenerator() {
       <div className="relative min-h-screen bg-black text-gray-100">
         <div className="pointer-events-none absolute inset-0 opacity-50">
           <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-teal-500/10 blur-3xl" />
-          <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-indigo-500/10 blur-3xl" />
+          <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-[#1a9999]/10 blur-3xl" />
         </div>
         <div className="relative mx-auto w-full max-w-6xl px-5 py-10">
           {url ? (
@@ -184,8 +184,8 @@ export default function AIGIFGenerator() {
                       disabled={isLoading}
                       className={`rounded-xl px-4 py-2 font-medium text-white shadow-lg ring-1 ring-inset transition-colors ${
                         isLoading
-                          ? "cursor-not-allowed bg-indigo-600/60 ring-indigo-400/20"
-                          : "bg-indigo-600 ring-indigo-400/20 hover:bg-indigo-500"
+                          ? "cursor-not-allowed bg-[#1a9999]/60 ring-[#1a9999]/20"
+                          : "bg-[#1a9999] ring-[#1a9999]/20 hover:bg-[#1a9999]"
                       }`}
                     >
                       {isLoading ? "Searching..." : "Find Best GIF"}
