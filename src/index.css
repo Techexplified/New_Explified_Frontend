@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import "~slick-carousel/slick/slick.css";
+@import "~slick-carousel/slick/slick-theme.css";
+
+@layer components {
+  .nav-mobile {
+    @apply flex h-full overflow-y-auto gap-4 absolute left-0 bg-gray-600 p-4 z-10;
+  }
+  .nav-desk {
+    @apply hidden lg:flex h-full overflow-y-auto gap-4 text-white border-r border-gray-700 p-4;
+  }
+}
+
+.text-gradient {
+  background: linear-gradient(90deg, #00d2ff, #ae19ff, #ff6a00, #ff007f);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-gradients {
+  background: linear-gradient(90deg, #00d2ff, #ae19ff, #ff6a00, #ff007f);
+  color: transparent;
+}
+
+@font-face {
+  font-family: "BreakBrush";
+  src: url("/src/assets/fonts/Break Brush.ttf") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.custom-slider .ant-slider-track {
+  @apply !h-[60px] border-2 rounded-lg;
+}
+
+.custom-slider .ant-slider-handle {
+  @apply !w-[10px] !h-[35px] !mt-[15px] bg-white !rounded-xl;
+}
+
+.custom-slider .ant-slider-handle::after {
+  @apply hidden;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.active {
+  background-color: aquamarine;
+  color: black;
+  padding: 3px 1px;
+  border-radius: 10%;
+}
