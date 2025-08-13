@@ -122,6 +122,8 @@ import Canvas from "./components/subLayoutComponents/workflowPages/Canvas";
 import ImageToVideoConverter from "./pages/explified_tools/image_to_video_convertor/ImageToVideoConverter.jsx";
 import TaskPage from "./components1/TaskPage.jsx";
 import ProfilePage from "./components/ProfilePage.jsx";
+import DiscoverPage from "./components1/DiscoverPage.jsx";
+import Notes from "./components1/Notes.jsx";
 
 import HuggingFaceApiInterface from "./components/tools/HuggingFaceApiInterface.jsx";
 function App() {
@@ -259,6 +261,7 @@ function App() {
           ></Route>
           <Route path="/socials/:id" element={<DetailedCard />}></Route>
           <Route path="/aitools" element={<AITools />}></Route>
+          <Route path="/discover" element={<DiscoverPage />}></Route>
           <Route path="/chat" element={<Trone />} />
           <Route path="/Meme" element={<Meme />} />
           <Route path="/result" element={<Result />} />
@@ -357,7 +360,8 @@ function App() {
             element={<PresentationLandingPage />}
           ></Route>
           <Route path="/presentation/create" element={<CreatePresentation />} />
-          <Route path="/task-manager" element={<TaskPage />} />
+          <Route path="/tasks" element={<TaskPage />} />
+          <Route path="/notes" element={<Notes/>} />
           <Route path="/*" element={<ComingSoon />} />
         </Route>
 
