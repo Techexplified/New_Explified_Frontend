@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addVideo } from "../../../utils/subtitler_slice/SubtitlerSlice";
 import SubtitlerHeader from "./components/SubtitlerHeader";
@@ -97,9 +97,11 @@ export default function AISubtitler() {
 
         {/* Bottom section */}
         <div className="mb-8">
-          <button className="w-full bg-gradient-to-r from-[#23b5b5] to-[#1a9999] hover:from-[#1a9999] hover:to-[#23b5b5] text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-[#23b5b5]/25">
-            Learn More
-          </button>
+          <Link to="https://explified.com/subtitler-tool-landing-page/">
+            <button className="w-full bg-gradient-to-r from-[#23b5b5] to-[#1a9999] hover:from-[#1a9999] hover:to-[#23b5b5] text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-[#23b5b5]/25">
+              Learn More
+            </button>
+          </Link>
         </div>
       </div>
 

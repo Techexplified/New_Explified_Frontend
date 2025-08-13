@@ -241,9 +241,11 @@ const YoutubeSummarizer = () => {
 
         {/* Bottom section */}
         <div className="mb-8">
-          <button className="w-full bg-gradient-to-r from-[#23b5b5] to-[#1a9999] hover:from-[#1a9999] hover:to-[#23b5b5] text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-[#23b5b5]/25">
-            Learn More
-          </button>
+          <Link to="https://explified.com/youtube-summariser/">
+            <button className="w-full bg-gradient-to-r from-[#23b5b5] to-[#1a9999] hover:from-[#1a9999] hover:to-[#23b5b5] text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-[#23b5b5]/25">
+              Learn More
+            </button>
+          </Link>
         </div>
       </div>
 

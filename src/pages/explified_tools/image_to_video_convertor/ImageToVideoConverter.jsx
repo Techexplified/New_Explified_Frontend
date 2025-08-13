@@ -12,6 +12,7 @@ import {
 import axiosInstance from "../../../network/axiosInstance";
 import axios from "axios";
 import WorkFlowButton from "../../../reusable_components/WorkFlowButton";
+import { Link } from "react-router-dom";
 
 export default function ImageToVideoConverter() {
   const [uploadedImage, setUploadedImage] = useState(null);
@@ -21,6 +22,7 @@ export default function ImageToVideoConverter() {
   const [processedVideo, setProcessedVideo] = useState(null);
   const [url, setUrl] = useState(null);
   const [progress, setProgress] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [settings, setSettings] = useState({
     duration: 3,
     fps: 24,
@@ -149,6 +151,39 @@ export default function ImageToVideoConverter() {
 
   return (
     <div className="min-h-screen bg-black p-6 flex items-center justify-center">
+      <div
+        className="absolute left-0 top-0 h-full w-6 z-30"
+        onMouseEnter={() => setSidebarOpen(true)}
+        onMouseLeave={() => setSidebarOpen(false)}
+      />
+
+      {/* Sidebar */}
+      <div
+        className={`fixed top-0 left-0 h-full bg-black/95 backdrop-blur-xl border-r border-[#23b5b5]/20 
+        flex flex-col justify-between transition-all duration-300 z-50
+        ${sidebarOpen ? "w-56 px-6" : "w-0 px-0 overflow-hidden"}`}
+        onMouseEnter={() => setSidebarOpen(true)}
+        onMouseLeave={() => setSidebarOpen(false)}
+      >
+        {/* Top section */}
+        <div className="mt-8">
+          <div className="flex items-center gap-3 mb-2">
+            <h2 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-[#23b5b5] bg-clip-text text-transparent">
+              Image To Video AI
+            </h2>
+          </div>
+        </div>
+
+        {/* Bottom section */}
+        <div className="mb-8">
+          <Link to="https://explified.com/image-to-video-ai/">
+            <button className="w-full bg-gradient-to-r from-[#23b5b5] to-[#1a9999] hover:from-[#1a9999] hover:to-[#23b5b5] text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-[#23b5b5]/25">
+              Learn More
+            </button>
+          </Link>
+        </div>
+      </div>
+
       <WorkFlowButton id={"imgtovid"} />
 
       <div className="w-full max-w-4xl">
@@ -159,7 +194,7 @@ export default function ImageToVideoConverter() {
               <Zap className="w-8 h-8 text-black" />
             </div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-teal-300 bg-clip-text text-transparent">
-              AI Image to Video
+              Image to Video AI
             </h1>
           </div>
           <p className="text-gray-400 text-lg">
@@ -168,7 +203,7 @@ export default function ImageToVideoConverter() {
         </div>
 
         {/* Main Content */}
-        <div className="bg-gray-900 rounded-3xl border border-gray-800 overflow-hidden">
+        <div className="bg-black rounded-3xl border border-gray-800 overflow-hidden">
           {/* Settings Bar */}
           <div className="border-b border-gray-800 p-4">
             <div className="flex items-center justify-between">
