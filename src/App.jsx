@@ -361,7 +361,7 @@ function App() {
           ></Route>
           <Route path="/presentation/create" element={<CreatePresentation />} />
           <Route path="/tasks" element={<TaskPage />} />
-          <Route path="/notes" element={<Notes/>} />
+          <Route path="/notes" element={<Notes />} />
           <Route path="/*" element={<ComingSoon />} />
         </Route>
 
