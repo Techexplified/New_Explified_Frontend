@@ -165,8 +165,13 @@ export default function Notes() {
                 </div>
               </div>
             ))}
+            
           </div>
         </div>
+        <button className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold border border-white/20 backdrop-blur-md shadow-lg transition-all duration-300">
+  Try it now
+</button>
+
       </aside>
   {/* Header Row */}
   <div className="flex items-center justify-between mb-6">

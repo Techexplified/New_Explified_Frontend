@@ -371,7 +371,7 @@ const UpdatedDashboard = () => {
 
                         <button
                           onClick={() => {
-                            navigate("/search");
+                            navigate("/discover");
                             setIsOpen(false);
                           }}
                           className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
