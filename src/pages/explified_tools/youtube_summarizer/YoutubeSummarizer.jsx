@@ -24,7 +24,7 @@ import WorkFlowButton from "../../../reusable_components/WorkFlowButton";
 const YoutubeSummarizer = () => {
   const [videoUrl, setVideoUrl] = useState("");
   const [videoId, setVideoId] = useState("");
-
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState([]);
   const [transcript, setTranscript] = useState([]);
@@ -215,7 +215,38 @@ const YoutubeSummarizer = () => {
   };
 
   return (
-    <div className="flex flex-col relative min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
+    <div className="flex flex-col relative min-h-screen bg-black ">
+      <div
+        className="absolute left-0 top-0 h-full w-6 z-30"
+        onMouseEnter={() => setSidebarOpen(true)}
+        onMouseLeave={() => setSidebarOpen(false)}
+      />
+
+      {/* Sidebar */}
+      <div
+        className={`fixed top-0 left-0 h-full bg-black/95 backdrop-blur-xl border-r border-[#23b5b5]/20 
+        flex flex-col justify-between transition-all duration-300 z-50
+        ${sidebarOpen ? "w-56 px-6" : "w-0 px-0 overflow-hidden"}`}
+        onMouseEnter={() => setSidebarOpen(true)}
+        onMouseLeave={() => setSidebarOpen(false)}
+      >
+        {/* Top section */}
+        <div className="mt-8">
+          <div className="flex items-center gap-3 mb-2">
+            <h2 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-[#23b5b5] bg-clip-text text-transparent">
+              Youtube Summarizer
+            </h2>
+          </div>
+        </div>
+
+        {/* Bottom section */}
+        <div className="mb-8">
+          <button className="w-full bg-gradient-to-r from-[#23b5b5] to-[#1a9999] hover:from-[#1a9999] hover:to-[#23b5b5] text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-[#23b5b5]/25">
+            Learn More
+          </button>
+        </div>
+      </div>
+
       <WorkFlowButton id={"ytsummarizer"} />
 
       <Link to="https://chromewebstore.google.com/detail/vidsum-copilot-for-youtub/jmdecmahfbajaffljohfdlbdmkbngggj">
