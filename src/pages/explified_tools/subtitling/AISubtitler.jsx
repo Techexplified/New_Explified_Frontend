@@ -63,7 +63,7 @@ export default function AISubtitler() {
   };
 
   return (
-    <div className="min-h-screen relative bg-black text-white flex overflow-hidden">
+    <div className="min-h-screen relative bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 text-white flex overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#23b5b5] rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse"></div>

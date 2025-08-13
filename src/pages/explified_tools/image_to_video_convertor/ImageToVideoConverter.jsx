@@ -150,7 +150,7 @@ export default function ImageToVideoConverter() {
   };
 
   return (
-    <div className="min-h-screen bg-black p-6 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 p-6 flex items-center justify-center">
       <div
         className="absolute left-0 top-0 h-full w-6 z-30"
         onMouseEnter={() => setSidebarOpen(true)}

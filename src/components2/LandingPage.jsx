@@ -432,7 +432,7 @@ export default function LandingPage() {
   };
 
   return (
-    <section className="relative min-h-screen w-full bg-black text-white overflow-x-hidden font-sans">
+    <section className="relative min-h-screen w-full bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 text-white overflow-x-hidden font-sans">
       <div
         className="absolute left-0 top-0 h-full w-6 z-30"
         onMouseEnter={() => setSidebarOpen(true)}

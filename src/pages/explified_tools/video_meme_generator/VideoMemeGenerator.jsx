@@ -175,7 +175,7 @@ export default function AIMemeGenerator() {
   };
 
   return (
-    <div className="min-h-screen relative bg-black text-white flex flex-col p-6">
+    <div className="min-h-screen relative bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 text-white flex flex-col p-6">
       <div
         className="absolute left-0 top-0 h-full w-6 z-30"
         onMouseEnter={() => setSidebarOpen(true)}

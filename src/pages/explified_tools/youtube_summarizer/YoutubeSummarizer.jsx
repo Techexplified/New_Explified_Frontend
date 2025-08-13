@@ -215,7 +215,7 @@ const YoutubeSummarizer = () => {
   };
 
   return (
-    <div className="flex flex-col relative min-h-screen bg-black ">
+    <div className="flex flex-col relative min-h-screen bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 ">
       <div
         className="absolute left-0 top-0 h-full w-6 z-30"
         onMouseEnter={() => setSidebarOpen(true)}
@@ -431,7 +431,7 @@ const YoutubeSummarizer = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl w-full">
             <button
               onClick={() => setActiveTab("transcript")}
-              className={`group relative overflow-hidden bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-gray-600/30 hover:border-[#23b5b5]/50 rounded-2xl p-8 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-[#23b5b5]/10 ${
+              className={`group relative overflow-hidden bg-minimal-dark-100 backdrop-blur-sm border border-gray-600/30 hover:border-[#23b5b5]/50 rounded-2xl p-8 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-[#23b5b5]/10 ${
                 activeTab === "transcript"
                   ? "border-[#23b5b5] shadow-lg shadow-[#23b5b5]/25"
                   : ""
@@ -453,7 +453,7 @@ const YoutubeSummarizer = () => {
 
             <button
               onClick={() => setActiveTab("summary")}
-              className={`group relative overflow-hidden bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-gray-600/30 hover:border-[#23b5b5]/50 rounded-2xl p-8 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-[#23b5b5]/10 ${
+              className={`group relative overflow-hidden bg-minimal-dark-100 backdrop-blur-sm border border-gray-600/30 hover:border-[#23b5b5]/50 rounded-2xl p-8 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-[#23b5b5]/10 ${
                 activeTab === "summary"
                   ? "border-[#23b5b5] shadow-lg shadow-[#23b5b5]/25"
                   : ""
@@ -516,7 +516,7 @@ const YoutubeSummarizer = () => {
       {/* Fixed Input Section */}
       <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/95 to-transparent backdrop-blur-sm z-20 border-t border-gray-800/50">
         <div className="max-w-4xl mx-auto w-full p-6">
-          <div className="flex gap-4 items-center bg-gray-800/80 backdrop-blur-sm rounded-2xl p-4 border border-gray-600/30 shadow-2xl">
+          <div className="flex gap-4 items-center bg-minimal-dark-100 backdrop-blur-sm rounded-2xl p-4 border border-gray-600/30 shadow-2xl">
             <div className="flex-1 relative">
               <input
                 type="text"
