@@ -95,14 +95,14 @@ export default function AIGIFGenerator() {
       <WorkFlowButton id={"gifgenerator"} />
       {/* Left-edge activator to open when collapsed */}
       <div
-        className="fixed left-0 top-[70px] h-[calc(100vh-70px)] w-2 z-50"
+        className="absolute left-0 top-0 h-full w-6 z-30"
         onMouseEnter={() => setSidebarOpen(true)}
       />
 
       {/* Replacement sidebar */}
       <div
-        className={`fixed top-[70px] left-0 h-[calc(100vh-70px)] bg-black/95 backdrop-blur-xl border-r border-[#23b5b5]/20 
-        flex flex-col justify-between transition-all duration-300 z-40
+        className={`fixed top-0 left-0 h-full bg-black/95 backdrop-blur-xl border-r border-minimal-primary/20 
+        flex flex-col justify-between transition-all duration-300 z-50
         ${sidebarOpen ? "w-56 px-6" : "w-0 px-0 overflow-hidden"}`}
         onMouseEnter={() => setSidebarOpen(true)}
         onMouseLeave={() => setSidebarOpen(false)}
@@ -132,7 +132,7 @@ export default function AIGIFGenerator() {
       <div className="relative min-h-screen bg-black text-gray-100">
         <div className="pointer-events-none absolute inset-0 opacity-50">
           <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-teal-500/10 blur-3xl" />
-          <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-indigo-500/10 blur-3xl" />
+          <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-[#1a9999]/10 blur-3xl" />
         </div>
         <div className="relative mx-auto w-full max-w-6xl px-5 py-10">
           {url ? (
@@ -186,8 +186,8 @@ export default function AIGIFGenerator() {
                       disabled={isLoading}
                       className={`rounded-xl px-4 py-2 font-medium text-white shadow-lg ring-1 ring-inset transition-colors ${
                         isLoading
-                          ? "cursor-not-allowed bg-indigo-600/60 ring-indigo-400/20"
-                          : "bg-indigo-600 ring-indigo-400/20 hover:bg-indigo-500"
+                          ? "cursor-not-allowed bg-[#1a9999]/60 ring-[#1a9999]/20"
+                          : "bg-[#1a9999] ring-[#1a9999]/20 hover:bg-[#1a9999]"
                       }`}
                     >
                       {isLoading ? "Searching..." : "Find Best GIF"}
