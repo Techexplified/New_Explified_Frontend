@@ -29,7 +29,7 @@ import {
   ArrowDownUp,
   Search,
   MessageCircleMore,
-  Database
+  Database,
 } from "lucide-react";
 import logo from "../assets/logos/explified_logo.png";
 import UserModal from "./UserModal";

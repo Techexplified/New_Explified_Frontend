@@ -39,7 +39,7 @@ export default function PresentationCustomizer() {
             <div className="w-48 h-32 border border-yellow-400" />
             <div className="w-48 h-32 border border-white" />
             <div className="w-48 h-32 border border-white" />
-            
+
             <button className="px-2 py-6 bg-black border border-white text-white">
               <ChevronRight size={16} />
             </button>

@@ -1,4 +1,4 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Edit3, Clock, Search } from "lucide-react";
 import { X } from "lucide-react";
@@ -13,7 +13,9 @@ export default function Notes() {
   const [tasks, setTasks] = useState([]);
   const navigate = useNavigate();
   const [selectedTaskId, setSelectedTaskId] = useState(null);
-  const genAI = new GoogleGenerativeAI("AIzaSyCjxEkSZKRdCohde0z5FKaZAO624gF3wms");
+  const genAI = new GoogleGenerativeAI(
+    "AIzaSyCjxEkSZKRdCohde0z5FKaZAO624gF3wms"
+  );
 
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
   const handleEditClick = () => {
@@ -26,38 +28,38 @@ export default function Notes() {
     setIsEditing(false);
   };
   useEffect(() => {
-      try {
-        const storedTasks = JSON.parse(localStorage.getItem("tasks") || "[]");
-        const normalizedTasks = storedTasks.map((t, index) => {
-          if (typeof t === "string") {
-            return {
-              id: Date.now() + index,
-              title: "",
-              content: t,
-              lastModified: new Date().toISOString(),
-            };
-          }
+    try {
+      const storedTasks = JSON.parse(localStorage.getItem("tasks") || "[]");
+      const normalizedTasks = storedTasks.map((t, index) => {
+        if (typeof t === "string") {
           return {
-            id: t.id || Date.now() + index,
-            title: t.title || "",
-            content: t.content || "",
-            lastModified: t.lastModified || new Date().toISOString(),
+            id: Date.now() + index,
+            title: "",
+            content: t,
+            lastModified: new Date().toISOString(),
           };
-        });
-        setTasks(normalizedTasks);
-  
-        // Generate missing titles
-        normalizedTasks.forEach(async (task) => {
-          if (!task.title && task.content) {
-            const title = await generateTitle(task.content);
-            updateTaskTitle(task.id, title);
-          }
-        });
-      } catch {
-        setTasks([]);
-      }
-    }, []);
-      const updateTaskTitle = (id, title) => {
+        }
+        return {
+          id: t.id || Date.now() + index,
+          title: t.title || "",
+          content: t.content || "",
+          lastModified: t.lastModified || new Date().toISOString(),
+        };
+      });
+      setTasks(normalizedTasks);
+
+      // Generate missing titles
+      normalizedTasks.forEach(async (task) => {
+        if (!task.title && task.content) {
+          const title = await generateTitle(task.content);
+          updateTaskTitle(task.id, title);
+        }
+      });
+    } catch {
+      setTasks([]);
+    }
+  }, []);
+  const updateTaskTitle = (id, title) => {
     setTasks((prev) => {
       const updated = prev.map((task) =>
         task.id === id ? { ...task, title } : task
@@ -93,7 +95,7 @@ export default function Notes() {
       return "Untitled";
     }
   };
-    const formatDate = (dateString) => {
+  const formatDate = (dateString) => {
     if (!dateString) return "Unknown date";
     const date = new Date(dateString);
     const diffDays = Math.ceil((date - new Date()) / (1000 * 60 * 60 * 24));
@@ -108,28 +110,28 @@ export default function Notes() {
   );
   return (
     <div
-  className={`p-8 pt-[50px] bg-black min-h-screen text-white transition-all duration-300 ${
-    isSidebarOpen ? "w-[calc(100%-250px)] ml-[260px]" : "w-full"
-  }`}
->
+      className={`p-8 pt-[50px] bg-black min-h-screen text-white transition-all duration-300 ${
+        isSidebarOpen ? "w-[calc(100%-250px)] ml-[260px]" : "w-full"
+      }`}
+    >
       <div
         className="fixed left-0 top-0 h-full w-2 z-50"
         onMouseEnter={() => setIsSidebarOpen(true)}
       />
-       {/* Sidebar */}
+      {/* Sidebar */}
       <aside
-  className={`fixed left-0 top-[0px] h-screen bg-black/30 backdrop-blur-xl border-r border-white/10 p-6 flex flex-col transform transition-transform duration-300 overflow-x-hidden ${
-    isSidebarOpen ? "translate-x-0 w-72" : "-translate-x-full w-72"
-  }`}
-  onMouseLeave={() => setIsSidebarOpen(false)}
->
-
-
+        className={`fixed left-0 top-[0px] h-screen bg-black/30 backdrop-blur-xl border-r border-white/10 p-6 flex flex-col transform transition-transform duration-300 overflow-x-hidden ${
+          isSidebarOpen ? "translate-x-0 w-72" : "-translate-x-full w-72"
+        }`}
+        onMouseLeave={() => setIsSidebarOpen(false)}
+      >
         <div className="mb-8">
           <h1 className="text-2xl font-bold bg-gradient-to-r from-[#23b5b5] to-cyan-400 bg-clip-text text-transparent">
             Notes
           </h1>
-          <p className="text-sm text-gray-400 mt-1">{tasks.length} notes total</p>
+          <p className="text-sm text-gray-400 mt-1">
+            {tasks.length} notes total
+          </p>
         </div>
 
         {/* Search */}
@@ -165,71 +167,75 @@ export default function Notes() {
                 </div>
               </div>
             ))}
-            
           </div>
         </div>
-        <button className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold border border-white/20 backdrop-blur-md shadow-lg transition-all duration-300">
-  Try it now
-</button>
-
+        <a
+          href="https://explified.com/notes/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <button className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold border border-white/20 backdrop-blur-md shadow-lg transition-all duration-300">
+            Know more
+          </button>
+        </a>
       </aside>
-  {/* Header Row */}
-  <div className="flex items-center justify-between mb-6">
-    <div className="flex items-center gap-3">
-      {/* Editable icon */}
-      <div
-        className="w-10 h-10 bg-gradient-to-r from-[#23b5b5] to-cyan-500 rounded-full flex items-center justify-center cursor-pointer"
-        onClick={handleEditClick}
-      >
-        <Edit3 className="w-5 h-5 text-white" />
+      {/* Header Row */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          {/* Editable icon */}
+          <div
+            className="w-10 h-10 bg-gradient-to-r from-[#23b5b5] to-cyan-500 rounded-full flex items-center justify-center cursor-pointer"
+            onClick={handleEditClick}
+          >
+            <Edit3 className="w-5 h-5 text-white" />
+          </div>
+
+          {/* Title editing */}
+          {isEditing ? (
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={tempTitle}
+                onChange={(e) => setTempTitle(e.target.value)}
+                className="bg-white/10 border border-white/20 rounded px-2 py-1 text-white"
+                autoFocus
+              />
+              <button
+                onClick={handleSave}
+                className="px-3 py-1 bg-cyan-500 rounded text-white"
+              >
+                Save
+              </button>
+            </div>
+          ) : (
+            <h2 className="text-2xl font-bold">{title}</h2>
+          )}
+        </div>
+
+        {/* Cross icon to go back */}
+        <X
+          className="w-6 h-6 text-gray-400 hover:text-white cursor-pointer"
+          onClick={() => navigate("/Tasks")}
+        />
       </div>
 
-      {/* Title editing */}
-      {isEditing ? (
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            value={tempTitle}
-            onChange={(e) => setTempTitle(e.target.value)}
-            className="bg-white/10 border border-white/20 rounded px-2 py-1 text-white"
-            autoFocus
-          />
-          <button
-            onClick={handleSave}
-            className="px-3 py-1 bg-cyan-500 rounded text-white"
-          >
-            Save
-          </button>
-        </div>
-      ) : (
-        <h2 className="text-2xl font-bold">{title}</h2>
-      )}
+      <textarea
+        value={newTask}
+        onChange={(e) => setNewTask(e.target.value)}
+        className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white resize-none h-40"
+        placeholder="Start writing your note..."
+        autoFocus
+      />
+
+      <div className="flex justify-end gap-3 mt-6">
+        <button
+          onClick={addTask}
+          disabled={!newTask.trim()}
+          className="px-6 py-3 bg-gradient-to-r from-[#23b5b5] to-cyan-500 text-white rounded-xl disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed"
+        >
+          Create Note
+        </button>
+      </div>
     </div>
-
-    {/* Cross icon to go back */}
-    <X
-      className="w-6 h-6 text-gray-400 hover:text-white cursor-pointer"
-      onClick={() => navigate("/Tasks")}
-    />
-  </div>
-
-  <textarea
-    value={newTask}
-    onChange={(e) => setNewTask(e.target.value)}
-    className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-white resize-none h-40"
-    placeholder="Start writing your note..."
-    autoFocus
-  />
-
-  <div className="flex justify-end gap-3 mt-6">
-    <button
-      onClick={addTask}
-      disabled={!newTask.trim()}
-      className="px-6 py-3 bg-gradient-to-r from-[#23b5b5] to-cyan-500 text-white rounded-xl disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed"
-    >
-      Create Note
-    </button>
-  </div>
-</div>
   );
 }

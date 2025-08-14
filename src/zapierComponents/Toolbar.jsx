@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import HuggingFaceApiInterface from "../components/tools/HuggingFaceApiInterface";
+
 import {
   Square,
   MoveUpRight,
@@ -15,7 +17,16 @@ import {
   Github,
   Mail,
   Sparkles,
+  Captions,
+  Youtube,
+  Presentation,
+  Eraser,
+  Image,
+  ImagePlay,
 } from "lucide-react";
+import { useParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { MdOutlineGifBox } from "react-icons/md";
 
 const categorizedTools = {
   Messaging: [
@@ -31,8 +42,18 @@ const categorizedTools = {
     { name: "Perplexity AI", icon: <Brain /> },
     { name: "Notion AI", icon: <Edit /> },
     { name: "Slack GPT", icon: <Bot /> },
-    { name: "Bing AI", icon: <Search /> },
-    { name: "GitHub Copilot", icon: <Github /> },
+    { name: "Bg Remover", icon: <Eraser />, toolId: "bgremover" },
+    { name: "Image Styler", icon: <Image />, toolId: "styler" },
+    { name: "Youtube Summarizer", icon: <Youtube />, toolId: "ytsummarizer" },
+    { name: "SlideShow Maker", icon: <Presentation />, toolId: "presentation" },
+    { name: "AI Subtitler", icon: <Captions />, toolId: "subtitler" },
+    { name: "Text to Video", icon: <Video />, toolId: "vidgen" },
+    { name: "Image To Video AI", icon: <Image />, toolId: "imgtovid" },
+    {
+      name: "AI GIF Generator",
+      icon: <MdOutlineGifBox />,
+      toolId: "gifgenerator",
+    },
   ],
   "Video Conferencing": [
     { name: "Google Meet", icon: <Video /> },
@@ -63,9 +84,45 @@ const Toolbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [hoveredBoxId, setHoveredBoxId] = useState(null);
   const [isAIChatbotOpen, setIsAIChatbotOpen] = useState(false);
+  const [showApiInterface, setShowApiInterface] = useState(true);
+  const [isApiPresent, setIsApiPresent] = useState(false);
+  const [params] = useSearchParams();
+
+  const toolId = params.get("id");
+  const shouldShowApiInterface = toolId === "vidgen";
 
   // Flatten all tools for search
   const allTools = Object.values(categorizedTools).flat();
+
+  const tool = allTools.find((t) => (t.toolId ?? t.id) === toolId);
+
+  // If and only if a tool exists, set the center box icon to tool.icon
+  useEffect(() => {
+    if (!tool) return;
+    // Create a centered box if none exists yet
+    if (boxes.length === 0) {
+      setBoxes([
+        {
+          id: Date.now(),
+          left: window.innerWidth / 2 - 60,
+          top: window.innerHeight / 2 - 50,
+          icon: tool.icon,
+        },
+      ]);
+      return;
+    }
+    // Update first (center) box icon if different
+    if (boxes[0]?.icon !== tool.icon) {
+      setBoxes((prev) =>
+        prev.map((box, idx) => (idx === 0 ? { ...box, icon: tool.icon } : box))
+      );
+    }
+  }, [tool]);
+
+  // Determine the current box: active one if set, otherwise the first (center) box
+  const currentBox = activeBoxId
+    ? boxes.find((b) => b.id === activeBoxId)
+    : boxes[0];
 
   const handleToolClick = (toolId) => {
     setSelectedTool(toolId);
@@ -366,6 +423,20 @@ const Toolbar = () => {
         </div>
       )}
 
+      {/* Hugging Face API interface positioned above the current box */}
+      {showApiInterface && shouldShowApiInterface && currentBox && (
+        <div
+          className="absolute z-50"
+          style={{
+            left: `${currentBox.left + 60}px`,
+            top: `${(currentBox.top || 160) - 12}px`,
+            transform: "translate(-50%, -100%)",
+          }}
+        >
+          <HuggingFaceApiInterface setShowApiInterface={setShowApiInterface} />
+        </div>
+      )}
+
       {/* Render Boxes */}
       {boxes.map((box, index) => (
         <div
@@ -396,8 +467,15 @@ const Toolbar = () => {
             onMouseDown={(e) => handleBoxMouseDown(e, box.id)}
             onClick={(e) => handleBoxClick(e, box.id)}
           >
-            <div className="w-full h-full flex items-center justify-center text-4xl text-minimal-white">
-              {box.icon || <Square size={48} />}
+            <div className="w-full h-full flex items-center justify-center text-minimal-white">
+              {box.icon ? (
+                React.cloneElement(box.icon, {
+                  size: 40,
+                  className: "text-minimal-white",
+                })
+              ) : (
+                <Square size={40} className="text-minimal-white" />
+              )}
             </div>
           </div>
 
@@ -558,7 +636,7 @@ const Toolbar = () => {
       )}
 
       {/* Floating Toolbar */}
-      <div className="fixed bottom-8 left-1/2 transform -translate-x-1/5 z-50">
+      <div className="fixed bottom-8 left-[46%] transform -translate-x-1/5 z-50">
         <div className="bg-minimal-card/80 backdrop-blur-xl border border-minimal-primary/50 rounded-2xl p-2 flex items-center gap-2 shadow-2xl shadow-minimal-primary/20 relative">
           {["square", "arrow", "ai-stars"].map((tool) => (
             <button
