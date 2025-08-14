@@ -12,6 +12,7 @@ import PptxGenJS from "pptxgenjs";
 import WorkFlowButton from "../reusable_components/WorkFlowButton";
 import axiosInstance from "../network/axiosInstance";
 import { Link } from "react-router-dom";
+import SidebarOnHover from "../reusable_components/SidebarOnHover";
 
 // Reusable bordered box for the three‑step row
 const StepBox = ({ label }) => (
@@ -32,7 +33,6 @@ export default function LandingPage() {
   const [generatedContent, setGeneratedContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleInputChange = (e) => setTopic(e.target.value);
 
@@ -433,38 +433,10 @@ export default function LandingPage() {
 
   return (
     <section className="relative min-h-screen w-full bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 text-white overflow-x-hidden font-sans">
-      <div
-        className="absolute left-0 top-0 h-full w-6 z-30"
-        onMouseEnter={() => setSidebarOpen(true)}
-        onMouseLeave={() => setSidebarOpen(false)}
+      <SidebarOnHover
+        link={"https://explified.com/slideshow-maker-ai-tool/"}
+        toolName={"AutoDeck AI"}
       />
-
-      {/* Sidebar */}
-      <div
-        className={`fixed top-0 left-0 h-full bg-black/95 backdrop-blur-xl border-r border-[#23b5b5]/20 
-        flex flex-col justify-between transition-all duration-300 z-50
-        ${sidebarOpen ? "w-56 px-6" : "w-0 px-0 overflow-hidden"}`}
-        onMouseEnter={() => setSidebarOpen(true)}
-        onMouseLeave={() => setSidebarOpen(false)}
-      >
-        {/* Top section */}
-        <div className="mt-8">
-          <div className="flex items-center gap-3 mb-2">
-            <h2 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-[#23b5b5] bg-clip-text text-transparent">
-              AutoDeck AI
-            </h2>
-          </div>
-        </div>
-
-        {/* Bottom section */}
-        <div className="mb-8">
-          <Link to="https://explified.com/slideshow-maker-ai-tool/">
-            <button className="w-full bg-gradient-to-r from-[#23b5b5] to-[#1a9999] hover:from-[#1a9999] hover:to-[#23b5b5] text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-[#23b5b5]/25">
-              Learn More
-            </button>
-          </Link>
-        </div>
-      </div>
 
       <WorkFlowButton id={"presentation"} />
 

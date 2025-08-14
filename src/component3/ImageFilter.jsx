@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import WorkFlowButton from "../reusable_components/WorkFlowButton";
+import SidebarOnHover from "../reusable_components/SidebarOnHover";
 
 const AiImageTool = () => {
   const [aiPrompt, setAiPrompt] = useState("");
@@ -193,41 +194,10 @@ const AiImageTool = () => {
 
   return (
     <>
-      {/* Left-edge activator to open when collapsed (below navbar) */}
-      <div
-        className="fixed left-0 top-[70px] h-[calc(100vh-70px)] w-2 z-50"
-        onMouseEnter={() => setSidebarOpen(true)}
+      <SidebarOnHover
+        link={"https://explified.com/ai-image-styler/"}
+        toolName={"AI Image Styler"}
       />
-
-      {/* Sidebar (appears below navbar) */}
-      <div
-        className={`fixed top-[70px] left-0 h-[calc(100vh-70px)] bg-black/95 backdrop-blur-xl border-r border-[#23b5b5]/20 
-				flex flex-col justify-between transition-all duration-300 z-40
-				${sidebarOpen ? "w-56 px-6" : "w-0 px-0 overflow-hidden"}`}
-        onMouseEnter={() => setSidebarOpen(true)}
-        onMouseLeave={() => setSidebarOpen(false)}
-      >
-        {/* Top section */}
-        <div className="mt-8">
-          <div className="flex items-center gap-3 mb-2">
-            <h2 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-[#23b5b5] bg-clip-text text-transparent">
-              AI Image Styler
-            </h2>
-          </div>
-        </div>
-
-        {/* Bottom section */}
-        <div className="mb-8">
-          <button
-            onClick={() =>
-              window.location.assign("https://explified.com/ai-image-styler/")
-            }
-            className="w-full bg-gradient-to-r from-[#23b5b5] to-[#1a9999] hover:from-[#1a9999] hover:to-[#23b5b5] text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-[#23b5b5]/25"
-          >
-            Learn More
-          </button>
-        </div>
-      </div>
 
       <div className="min-h-screen relative flex bg-minimal-background text-minimal-heading font-poppins">
         <WorkFlowButton id={"styler"} />

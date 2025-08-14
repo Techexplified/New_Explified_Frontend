@@ -5,10 +5,11 @@ import { addVideo } from "../../../utils/subtitler_slice/SubtitlerSlice";
 import SubtitlerHeader from "./components/SubtitlerHeader";
 import WorkFlowButton from "../../../reusable_components/WorkFlowButton";
 import { FileVideo, Link2, Mic, Music, Sparkles, Upload } from "lucide-react";
+import SidebarOnHover from "../../../reusable_components/SidebarOnHover";
 
 export default function AISubtitler() {
   // const [uploadedFile, setUploadedFile] = useState(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   // const [vttURL, setVttURL] = useState();
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
@@ -71,39 +72,10 @@ export default function AISubtitler() {
         <div className="absolute bottom-1/4 left-1/2 w-96 h-96 bg-minimal-primary rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse delay-500"></div>
       </div>
 
-      {/* Sidebar hover trigger area */}
-      <div
-        className="absolute left-0 top-0 h-full w-6 cursor-pointer z-20 transition-colors"
-        onMouseEnter={() => setSidebarOpen(true)}
-        onMouseLeave={() => setSidebarOpen(false)}
+      <SidebarOnHover
+        link={"https://explified.com/subtitler-tool-landing-page/"}
+        toolName={"AI Subtitler"}
       />
-
-      {/* Sidebar */}
-      <div
-        className={`fixed top-0 left-0 h-full bg-black/95 backdrop-blur-xl border-r border-minimal-primary/20 
-        flex flex-col justify-between transition-all duration-300 z-10
-        ${sidebarOpen ? "w-56 px-6" : "w-0 px-0 overflow-hidden"}`}
-        onMouseEnter={() => setSidebarOpen(true)}
-        onMouseLeave={() => setSidebarOpen(false)}
-      >
-        {/* Top section */}
-        <div className="mt-8">
-          <div className="flex items-center gap-3 mb-2">
-            <h2 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-minimal-primary bg-clip-text text-transparent">
-              AI Subtitler
-            </h2>
-          </div>
-        </div>
-
-        {/* Bottom section */}
-        <div className="mb-8">
-          <Link to="https://explified.com/subtitler-tool-landing-page/">
-            <button className="w-full bg-gradient-to-r from-minimal-primary to-minimal-primary/80 hover:from-minimal-primary/80 hover:to-minimal-primary text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-minimal-primary/25">
-              Learn More
-            </button>
-          </Link>
-        </div>
-      </div>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-12 ml-0 relative z-0">
@@ -144,7 +116,10 @@ export default function AISubtitler() {
 
             {/* Upload Buttons */}
             <div className="flex flex-col sm:flex-row gap-6 mb-4">
-              <button className="group flex-1 bg-minimal-dark-100/80 hover:bg-minimal-dark-100 border-2 border-minimal-primary/30 hover:border-minimal-primary/60 text-white rounded-2xl py-2  transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-minimal-primary/20 relative overflow-hidden">
+              <button
+                onClick={handleFileUpload}
+                className="group flex-1 bg-minimal-dark-100/80 hover:bg-minimal-dark-100 border-2 border-minimal-primary/30 hover:border-minimal-primary/60 text-white rounded-2xl py-2  transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-minimal-primary/20 relative overflow-hidden"
+              >
                 <div className="absolute inset-0 bg-gradient-to-r from-minimal-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <div className="text-center relative z-10">
                   <Upload className="w-8 h-8 mx-auto mb-4 text-minimal-primary group-hover:scale-110 transition-transform" />
