@@ -162,9 +162,12 @@ export default function TaskManager() {
             
           </div>
         </div>
-        <button className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold border border-white/20 backdrop-blur-md shadow-lg transition-all duration-300">
-  Try it now
-</button>
+        <a href="https://explified.com/notes/" target="_blank" rel="noopener noreferrer">
+  <button className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold border border-white/20 backdrop-blur-md shadow-lg transition-all duration-300">
+    Know more
+  </button>
+</a>
+
 
       </aside>
 
