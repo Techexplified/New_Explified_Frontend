@@ -29,6 +29,7 @@ import {
   ArrowDownUp,
   Search,
   MessageCircleMore,
+  Database,
 } from "lucide-react";
 import logo from "../assets/logos/explified_logo.png";
 import UserModal from "./UserModal";
@@ -151,7 +152,7 @@ const UpdatedDashboard = () => {
   useEffect(() => {
     const handleMouseMove = (e) => {
       // If mouse is within first 50px of the screen height
-      if (e.clientY <= 300) {
+      if (e.clientY <= 450) {
         setShowNavbar(true);
       } else {
         setShowNavbar(false);
@@ -329,7 +330,7 @@ const UpdatedDashboard = () => {
                         </button>
                         <button
                           onClick={() => {
-                            navigate("/task-manager");
+                            navigate("/tasks");
                             setIsOpen(false);
                           }}
                           className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
@@ -350,12 +351,12 @@ const UpdatedDashboard = () => {
                       <div className="flex gap-3">
                         <button
                           onClick={() => {
-                            navigate("/flowboard");
+                            navigate("/memory");
                             setIsOpen(false);
                           }}
                           className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
                         >
-                          <ArrowDownUp className="w-5 h-5 text-white" />
+                          <Database className="w-5 h-5 text-white" />
                         </button>
 
                         <button
@@ -370,7 +371,7 @@ const UpdatedDashboard = () => {
 
                         <button
                           onClick={() => {
-                            navigate("/search");
+                            navigate("/discover");
                             setIsOpen(false);
                           }}
                           className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"

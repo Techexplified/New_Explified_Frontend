@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { MdOutlineFileDownload, MdOutlineFileUpload } from "react-icons/md";
 import WorkFlowButton from "../../../reusable_components/WorkFlowButton";
+import SidebarOnHover from "../../../reusable_components/SidebarOnHover";
 
 // Replace this with your real API key before deploying.
 const REMOVE_BG_API_KEY = import.meta.env.VITE_REMOVE_BG_API_KEY;
@@ -12,6 +14,8 @@ const RemoveBackground = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [limitExceeded, setLimitExceeded] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
@@ -94,103 +98,112 @@ const RemoveBackground = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-70px)] w-full flex items-center justify-center bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 p-6">
+    <>
       <WorkFlowButton id={"bgremover"} />
 
-      <div className="w-full max-w-3xl bg-minimal-card border border-minimal-border rounded-2xl p-6 shadow-lg">
-        <h1 className="text-xl font-semibold text-minimal-white mb-2">
-          Background Remover
-        </h1>
-        <p className="text-minimal-muted text-sm mb-5">
-          Upload an image and remove its background using the remove.bg API. The
-          output is a high-quality PNG with a transparent background. Note: this
-          tool requires active API credits.
-        </p>
+      <SidebarOnHover
+        link={"https://explified.com/background-remover-ai/"}
+        toolName={"Background Remover"}
+      />
 
-        {limitExceeded && (
-          <div className="mb-4 text-sm text-amber-300 bg-amber-900/20 border border-amber-900/40 rounded-md px-3 py-2">
-            You have exhausted the remove.bg API credits. Please top up your
-            credits and try again.
-          </div>
-        )}
+      <div className="min-h-[calc(100vh-70px)] w-full flex items-center justify-center bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 p-6">
+        <div className="w-full max-w-3xl bg-minimal-card border border-minimal-border rounded-2xl p-6 shadow-lg">
+          <h1 className="text-xl font-semibold text-minimal-white mb-2">
+            Background Remover
+          </h1>
+          <p className="text-minimal-muted text-sm mb-5">
+            Upload an image and remove its background using the remove.bg API.
+            The output is a high-quality PNG with a transparent background.
+            Note: this tool requires active API credits.
+          </p>
 
-        <form onSubmit={handleBgRemoval} className="flex flex-col gap-4">
-          <div>
-            <h2 className="text-minimal-white text-sm font-medium mb-2">
-              Upload
-            </h2>
-          </div>
-          <div className="flex gap-3 items-center">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="flex-1 px-3 py-2 rounded-md bg-minimal-dark-100/50 text-minimal-white placeholder-minimal-muted border border-minimal-border focus:outline-none"
-              required
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              className={`flex items-center justify-center gap-2 px-5 py-2 rounded-md border transition-all duration-200 ${
-                loading
-                  ? "bg-minimal-gray-800 text-minimal-muted border-minimal-border cursor-not-allowed"
-                  : "bg-minimal-primary/20 text-minimal-primary border-minimal-primary/30 hover:bg-minimal-primary/30"
-              }`}
-            >
-              <MdOutlineFileUpload className="size-5" />
-              {loading ? "Processing..." : "Upload & Remove"}
-            </button>
-          </div>
-
-          {error && (
-            <div className="text-sm text-red-400 bg-red-900/20 border border-red-900/40 rounded-md px-3 py-2">
-              {error}
+          {limitExceeded && (
+            <div className="mb-4 text-sm text-amber-300 bg-amber-900/20 border border-amber-900/40 rounded-md px-3 py-2">
+              You have exhausted the remove.bg API credits. Please top up your
+              credits and try again.
             </div>
           )}
 
-          {previewUrl && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-              <h2 className="md:col-span-2 text-minimal-white text-sm font-medium">
-                Preview
+          <form onSubmit={handleBgRemoval} className="flex flex-col gap-4">
+            <div>
+              <h2 className="text-minimal-white text-sm font-medium mb-2">
+                Upload
               </h2>
-              <div className="bg-minimal-dark-100/50 border border-minimal-border rounded-xl p-3">
-                <div className="text-minimal-muted text-sm mb-2">Original</div>
-                <img
-                  src={previewUrl}
-                  alt="Original"
-                  className="w-full h-auto rounded-md object-contain"
-                />
+            </div>
+            <div className="flex gap-3 items-center">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="flex-1 px-3 py-2 rounded-md bg-minimal-dark-100/50 text-minimal-white placeholder-minimal-muted border border-minimal-border focus:outline-none"
+                required
+              />
+              <button
+                type="submit"
+                disabled={loading}
+                className={`flex items-center justify-center gap-2 px-5 py-2 rounded-md border transition-all duration-200 ${
+                  loading
+                    ? "bg-minimal-gray-800 text-minimal-muted border-minimal-border cursor-not-allowed"
+                    : "bg-minimal-primary/20 text-minimal-primary border-minimal-primary/30 hover:bg-minimal-primary/30"
+                }`}
+              >
+                <MdOutlineFileUpload className="size-5" />
+                {loading ? "Processing..." : "Upload & Remove"}
+              </button>
+            </div>
+
+            {error && (
+              <div className="text-sm text-red-400 bg-red-900/20 border border-red-900/40 rounded-md px-3 py-2">
+                {error}
               </div>
-              {resultUrl && (
+            )}
+
+            {previewUrl && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                <h2 className="md:col-span-2 text-minimal-white text-sm font-medium">
+                  Preview
+                </h2>
                 <div className="bg-minimal-dark-100/50 border border-minimal-border rounded-xl p-3">
                   <div className="text-minimal-muted text-sm mb-2">
-                    No Background
+                    Original
                   </div>
                   <img
-                    src={resultUrl}
-                    alt="No Background"
+                    src={previewUrl}
+                    alt="Original"
                     className="w-full h-auto rounded-md object-contain"
                   />
                 </div>
-              )}
-            </div>
-          )}
+                {resultUrl && (
+                  <div className="bg-minimal-dark-100/50 border border-minimal-border rounded-xl p-3">
+                    <div className="text-minimal-muted text-sm mb-2">
+                      No Background
+                    </div>
+                    <img
+                      src={resultUrl}
+                      alt="No Background"
+                      className="w-full h-auto rounded-md object-contain"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
 
-          {resultUrl && (
-            <div className="mt-3">
-              <a href={resultUrl} download="no-bg.png">
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-2 rounded-md px-5 py-2 bg-minimal-primary/20 text-minimal-primary border border-minimal-primary/30 hover:bg-minimal-primary/30"
-                >
-                  <MdOutlineFileDownload className="size-5" /> Download PNG
-                </button>
-              </a>
-            </div>
-          )}
-        </form>
+            {resultUrl && (
+              <div className="mt-3">
+                <a href={resultUrl} download="no-bg.png">
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-2 rounded-md px-5 py-2 bg-minimal-primary/20 text-minimal-primary border border-minimal-primary/30 hover:bg-minimal-primary/30"
+                  >
+                    <MdOutlineFileDownload className="size-5" /> Download PNG
+                  </button>
+                </a>
+              </div>
+            )}
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

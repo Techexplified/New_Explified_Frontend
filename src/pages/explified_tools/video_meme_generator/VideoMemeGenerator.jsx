@@ -8,6 +8,8 @@ import {
 import Inspiration from "./Inspiration";
 import axiosInstance from "../../../network/axiosInstance";
 import WorkFlowButton from "../../../reusable_components/WorkFlowButton";
+import { Link } from "react-router-dom";
+import SidebarOnHover from "../../../reusable_components/SidebarOnHover";
 const speeds = [
   { label: "5 sec", value: 5 },
   { label: "10 sec", value: 10 },
@@ -25,7 +27,6 @@ export default function AIMemeGenerator() {
   const [isLoading, setIsLoading] = useState(false);
   const [uid, setUid] = useState("cmdrhmmv703yxzd0znr6bd33q");
   const [url, setUrl] = useState("");
-
   const [showModal, setShowModal] = useState(false);
   const [selectedTone, setSelectedTone] = useState("");
 
@@ -174,14 +175,19 @@ export default function AIMemeGenerator() {
   };
 
   return (
-    <div className="min-h-screen relative bg-gray-900 text-white flex flex-col p-6">
+    <div className="min-h-screen relative bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 text-white flex flex-col p-6">
+      <SidebarOnHover
+        link={"https://explified.com/video-meme-generator-ai/"}
+        toolName={"AI Meme Generator"}
+      />
+
       {/* Header */}
       <div className="text-center py-8">
         <h1 className="text-4xl font-bold tracking-tight">AI Meme Generator</h1>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 max-w-4xl mx-auto w-full px-4">
+      <div className="flex-1 max-w-3xl mx-auto w-full px-4">
         {/* Input Section */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold mb-4 text-gray-300">

@@ -11,6 +11,8 @@ import { useState } from "react";
 import PptxGenJS from "pptxgenjs";
 import WorkFlowButton from "../reusable_components/WorkFlowButton";
 import axiosInstance from "../network/axiosInstance";
+import { Link } from "react-router-dom";
+import SidebarOnHover from "../reusable_components/SidebarOnHover";
 
 // Reusable bordered box for the three‑step row
 const StepBox = ({ label }) => (
@@ -430,7 +432,12 @@ export default function LandingPage() {
   };
 
   return (
-    <section className="relative min-h-screen w-full bg-black text-white overflow-x-hidden font-sans">
+    <section className="relative min-h-screen w-full bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 text-white overflow-x-hidden font-sans">
+      <SidebarOnHover
+        link={"https://explified.com/slideshow-maker-ai-tool/"}
+        toolName={"AutoDeck AI"}
+      />
+
       <WorkFlowButton id={"presentation"} />
 
       {/* Brand header */}

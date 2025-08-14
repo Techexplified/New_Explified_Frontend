@@ -12,6 +12,8 @@ import {
 import axiosInstance from "../../../network/axiosInstance";
 import axios from "axios";
 import WorkFlowButton from "../../../reusable_components/WorkFlowButton";
+import { Link } from "react-router-dom";
+import SidebarOnHover from "../../../reusable_components/SidebarOnHover";
 
 export default function ImageToVideoConverter() {
   const [uploadedImage, setUploadedImage] = useState(null);
@@ -21,6 +23,7 @@ export default function ImageToVideoConverter() {
   const [processedVideo, setProcessedVideo] = useState(null);
   const [url, setUrl] = useState(null);
   const [progress, setProgress] = useState(0);
+
   const [settings, setSettings] = useState({
     duration: 3,
     fps: 24,
@@ -148,7 +151,12 @@ export default function ImageToVideoConverter() {
   };
 
   return (
-    <div className="min-h-screen bg-black p-6 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 p-6 flex items-center justify-center">
+      <SidebarOnHover
+        link={"https://explified.com/image-to-video-ai/"}
+        toolName={"Image To Video AI"}
+      />
+
       <WorkFlowButton id={"imgtovid"} />
 
       <div className="w-full max-w-4xl">
@@ -159,7 +167,7 @@ export default function ImageToVideoConverter() {
               <Zap className="w-8 h-8 text-black" />
             </div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-teal-300 bg-clip-text text-transparent">
-              AI Image to Video
+              Image to Video AI
             </h1>
           </div>
           <p className="text-gray-400 text-lg">
@@ -168,7 +176,7 @@ export default function ImageToVideoConverter() {
         </div>
 
         {/* Main Content */}
-        <div className="bg-gray-900 rounded-3xl border border-gray-800 overflow-hidden">
+        <div className="bg-black rounded-3xl border border-gray-800 overflow-hidden">
           {/* Settings Bar */}
           <div className="border-b border-gray-800 p-4">
             <div className="flex items-center justify-between">

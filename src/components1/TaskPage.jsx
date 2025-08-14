@@ -105,7 +105,7 @@ export default function TaskManager() {
   const selectedTask = tasks.find((task) => task.id === selectedTaskId);
 
   return (
-    <div className="flex h-screen bg-black pt-[40px]">
+    <div className="flex h-screen bg-black ">
       {/* Hover zone to trigger sidebar */}
       <div
         className="fixed left-0 top-0 h-full w-2 z-50 "
@@ -113,12 +113,12 @@ export default function TaskManager() {
       />
 
       {/* Sidebar */}
-       <aside
-  className={`fixed left-0 top-[0px] h-screen bg-black/30 backdrop-blur-xl border-r border-white/10 p-6 flex flex-col transform transition-transform duration-300 overflow-x-hidden ${
-    isSidebarOpen ? "translate-x-0 w-72" : "-translate-x-full w-72"
-  }`}
-  onMouseLeave={() => setIsSidebarOpen(false)}
->
+      <aside
+        className={`fixed left-0 top-[70px] h-[calc(100%-50px)] bg-black/30 backdrop-blur-xl border-r border-white/10 p-6 flex flex-col transform transition-transform duration-300 ${
+          isSidebarOpen ? "translate-x-0 w-72" : "-translate-x-full w-72"
+        }`}
+        onMouseLeave={() => setIsSidebarOpen(false)}
+      >
         <div className="mb-8">
           <h1 className="text-2xl font-bold bg-gradient-to-r from-[#23b5b5] to-cyan-400 bg-clip-text text-transparent">
             Notes
@@ -159,16 +159,8 @@ export default function TaskManager() {
                 </div>
               </div>
             ))}
-            
           </div>
         </div>
-        <a href="https://explified.com/notes/" target="_blank" rel="noopener noreferrer">
-  <button className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold border border-white/20 backdrop-blur-md shadow-lg transition-all duration-300">
-    Know more
-  </button>
-</a>
-
-
       </aside>
 
       {/* Main Content */}
