@@ -2,9 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { FiPlus, FiMic, FiSliders, FiX } from "react-icons/fi";
 import { BsSoundwave } from "react-icons/bs";
 import axios from "axios";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import SidebarOnHover from "../reusable_components/SidebarOnHover";
-
 function Trone({ onFirstPrompt }) {
   const [prompt, setPrompt] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
@@ -267,7 +266,6 @@ function Trone({ onFirstPrompt }) {
         link={"https://explified.com/expli/"}
         toolName={"Expli"}
       />
-
       <div className="flex-1 flex flex-col">
         {/* Chat history */}
         <div
@@ -348,6 +346,18 @@ function Trone({ onFirstPrompt }) {
               disabled={isTyping}
               maxLength={2000}
             />
+            {/* Input */}
+            {/* <input
+              type="text"
+              value={prompt}
+              onChange={handleInputChange}
+              onKeyDown={handleSubmit}
+              onPaste={handlePaste}
+              placeholder="Ask anything"
+              className="w-full bg-transparent outline-none text-gray-200 placeholder-gray-400 text-sm px-2 py-3"
+              disabled={isTyping}
+              maxLength={2000}
+            /> */}
 
             {/* Right icons */}
             <div className="flex items-center gap-4">
@@ -373,6 +383,16 @@ function Trone({ onFirstPrompt }) {
           </div>
         </div>
       </div>
+
+      {/* Drawer (if needed later) */}
+      {/* {isDrawerOpen && (
+        <div className="absolute top-0 right-0 w-64 h-full bg-[#1e1e1e] p-4 shadow-lg">
+          <div className="flex justify-between items-center">
+            <h2 className="text-lg font-semibold">Tools</h2>
+            <FiX className="cursor-pointer" onClick={() => {}} />
+          </div>
+        </div>
+      )} */}
 
       {/* Drawer (if needed later) */}
       {/* {isDrawerOpen && (
