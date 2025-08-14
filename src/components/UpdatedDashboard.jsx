@@ -30,6 +30,7 @@ import {
   Search,
   MessageCircleMore,
   Database,
+  TvMinimalPlay
 } from "lucide-react";
 import logo from "../assets/logos/explified_logo.png";
 import UserModal from "./UserModal";
@@ -366,7 +367,7 @@ const UpdatedDashboard = () => {
                           }}
                           className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
                         >
-                          <MessageCircleMore className="w-5 h-5 text-white" />
+                          <TvMinimalPlay className="w-5 h-5 text-white" />
                         </button>
 
                         <button
