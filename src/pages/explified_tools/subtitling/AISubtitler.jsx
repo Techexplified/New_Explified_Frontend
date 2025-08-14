@@ -1,19 +1,11 @@
-<<<<<<< HEAD
-import React, { useRef } from "react";
-import { useNavigate } from "react-router-dom";
-=======
 import React, { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
 import { useDispatch, useSelector } from "react-redux";
 import { addVideo } from "../../../utils/subtitler_slice/SubtitlerSlice";
 import SubtitlerHeader from "./components/SubtitlerHeader";
 import WorkFlowButton from "../../../reusable_components/WorkFlowButton";
-<<<<<<< HEAD
-=======
 import { FileVideo, Link2, Mic, Music, Sparkles, Upload } from "lucide-react";
 import SidebarOnHover from "../../../reusable_components/SidebarOnHover";
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
 
 export default function AISubtitler() {
   // const [uploadedFile, setUploadedFile] = useState(null);
@@ -72,55 +64,6 @@ export default function AISubtitler() {
   };
 
   return (
-<<<<<<< HEAD
-    <div className="min-h-screen relative bg-gradient-to-br from-slate-800 to-slate-900 text-white">
-      {/* Main Content */}
-      <WorkFlowButton id={"subtitler"} />
-      <div className="flex flex-col items-center justify-center px-4 py-12">
-        {/* Title Section */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold mb-6 tracking-wide">
-            AI SUBTITLE GENERATOR
-          </h1>
-          <p className="text-xl text-[#23b5b5] font-light">
-            Your Voice. Global Impact. One Subtitle at a Time.
-          </p>
-        </div>
-
-        {/* Upload Section */}
-        <div className="w-full max-w-4xl">
-          <div className="bg-[#111827] backdrop-blur-sm rounded-2xl p-12 border border-slate-600/50">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-medium text-white mb-2">
-                Drop your file here and let us subtitle it for you
-              </h2>
-            </div>
-
-            {/* Upload Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-8">
-              {/* Hidden file input */}
-              <input
-                type="file"
-                name="video"
-                ref={fileInputRef}
-                onChange={handleFileUpload}
-                accept=".mp4,.mp3,.wav,.avi,.mov,.mkv,.flv,.wmv,.m4a,.aac,.ogg,.flac"
-                className="hidden"
-              />
-
-              <button
-                onClick={handleUploadClick}
-                className="flex-1 bg-slate-800 hover:bg-slate-600 border border-slate-500 text-white rounded-xl py-4 px-6 transition-all duration-300 hover:scale-105"
-              >
-                <div className="text-center">
-                  <div className="text-lg font-medium mb-1">
-                    {uploadedFile ? uploadedFile.name : "Upload File"}
-                  </div>
-                  <div className="text-sm text-slate-300">
-                    {uploadedFile
-                      ? `${(uploadedFile.size / 1024 / 1024).toFixed(1)} MB`
-                      : "in MP4, MP3,WAV"}
-=======
     <div className="min-h-screen relative bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 text-white flex overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -187,49 +130,10 @@ export default function AISubtitler() {
                     <span>MP3</span>
                     <span>•</span>
                     <span>WAV</span>
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
                   </div>
                 </div>
               </button>
 
-<<<<<<< HEAD
-              <button className="flex-1 bg-slate-800 hover:bg-slate-600 border border-slate-500 text-white rounded-xl py-4 px-6 transition-all duration-300 hover:scale-105">
-                <div className="text-center">
-                  <div className="text-lg font-medium">Paste URL</div>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          <div className="flex flex-row-reverse mt-6">
-            <button
-              onClick={handleGenerate}
-              className="bg-slate-700 hover:bg-slate-600 border border-slate-500 text-white rounded-xl py-4 px-12 text-lg font-medium transition-all duration-300 hover:scale-105"
-            >
-              Generate
-            </button>
-          </div>
-        </div>
-
-        {/* Video Preview Section (when file is uploaded) */}
-        {/* {uploadedFile && (
-          <div className="w-full max-w-4xl mt-8">
-            <div className="bg-slate-700/50 backdrop-blur-sm rounded-2xl p-8 border border-slate-600/50">
-              <video
-                controls
-                className="w-full rounded-lg"
-                style={{ maxHeight: "400px" }}
-              >
-                <source
-                  src={URL.createObjectURL(uploadedFile)}
-                  type="video/mp4"
-                />
-                Your browser does not support the video tag.
-              </video>
-            </div>
-          </div>
-        )} */}
-=======
               <button className="group flex-1 bg-minimal-dark-100/80 hover:bg-minimal-dark-100 border-2 border-minimal-primary/30 hover:border-minimal-primary/60 text-white rounded-2xl py-2 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-minimal-primary/20 relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-r from-minimal-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <div className="text-center relative z-10">
@@ -272,7 +176,6 @@ export default function AISubtitler() {
             </button>
           </div>
         </div>
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
       </div>
     </div>
   );

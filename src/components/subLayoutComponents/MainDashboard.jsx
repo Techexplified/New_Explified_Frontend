@@ -17,12 +17,9 @@ import {
   PenOff,
   BoomBox,
   Zap,
-<<<<<<< HEAD
-=======
   Database,
   Search,
   MessageCircleMore,
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
 } from "lucide-react";
 import { PiSubtitles } from "react-icons/pi";
 import {
@@ -272,11 +269,7 @@ const MainDashboard = () => {
   return (
     <>
       <div className=" w-full h-full px-5 mb-10 flex flex-col items-center">
-<<<<<<< HEAD
-        <div className="w-full max-w-7xl">
-=======
         <div className="max-w-[1480px] w-full">
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
           <p className="p-4 w-full text-2xl text-minimal-white tracking-tighter">
             Start
           </p>
@@ -285,11 +278,7 @@ const MainDashboard = () => {
           {/* main dashboard */}
           <div className="flex flex-wrap gap-6 justify-start">
             <div
-<<<<<<< HEAD
-              className="group relative bg-minimal-dark-100 rounded-xl border border-minimal-border hover:border-minimal-primary/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-minimal-primary/20 cursor-pointer h-32 min-h-0 flex items-center justify-center flex-1 max-w-[390px] min-w-[280px]"
-=======
               className="group relative bg-minimal-dark-100 rounded-xl border border-minimal-border hover:border-minimal-primary/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-minimal-primary/20 cursor-pointer h-32 min-h-0 flex items-center justify-center flex-1 max-w-[350px] min-w-[280px]"
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
               onClick={() => navigate("/chat")}
             >
               <Plus className="w-8 h-8 text-white group-hover:text-minimal-primary transition-colors duration-300" />
@@ -298,13 +287,8 @@ const MainDashboard = () => {
             </div>
 
             <div
-<<<<<<< HEAD
-              className="group relative bg-minimal-dark-100 rounded-xl border border-minimal-border hover:border-minimal-primary/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-minimal-primary/20 cursor-pointer h-32 min-h-0 flex items-center justify-center flex-1 max-w-[390px] min-w-[280px]"
-              onClick={() => navigate("/task-manager")}
-=======
               className="group relative bg-minimal-dark-100 rounded-xl border border-minimal-border hover:border-minimal-primary/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-minimal-primary/20 cursor-pointer h-32 min-h-0 flex items-center justify-center flex-1 max-w-[350px] min-w-[280px]"
               onClick={() => navigate("/tasks")}
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
             >
               <h1 className="text-2xl font-bold text-minimal-white group-hover:text-minimal-primary transition-colors duration-300">
                 Note
@@ -312,12 +296,6 @@ const MainDashboard = () => {
               {/* Gradient background on hover */}
               <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
             </div>
-<<<<<<< HEAD
-          </div>
-        </div>
-
-        <div>
-=======
             <div
               className="group relative bg-minimal-dark-100 rounded-xl border border-minimal-border hover:border-minimal-primary/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-minimal-primary/20 cursor-pointer h-32 min-h-0 flex items-center justify-center flex-1 max-w-[350px] min-w-[280px]"
               onClick={() => navigate("/memory")}
@@ -346,20 +324,14 @@ const MainDashboard = () => {
         </div>
 
         <div className="max-w-[1480px] w-full">
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
           <p className="p-4 w-full text-2xl text-minimal-white tracking-tighter">
             Recent
           </p>
           <div className="border-t border-gray-600 w-full mb-6"></div>
 
           {/* main dashboard */}
-<<<<<<< HEAD
-          <div className=" flex gap-4">
-            <div className="bg-minimal-card rounded-2xl border border-minimal-border h-fit p-4 shadow-2xl">
-=======
           <div className="flex gap-4 w-full">
             <div className="bg-minimal-card rounded-2xl border border-minimal-border h-fit p-4 shadow-2xl w-full">
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
               {/* Tools Grid with Accordion Transition */}
               <div
                 style={{
@@ -370,11 +342,7 @@ const MainDashboard = () => {
               >
                 <div
                   ref={gridRef}
-<<<<<<< HEAD
-                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4"
-=======
                   className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 w-full"
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
                 >
                   {(isOpen ? tools : tools.slice(0, 6)).map((tool, index) => {
                     const IconComponent = tool.icon;
@@ -448,24 +416,15 @@ const MainDashboard = () => {
           </div>
         </div>
 
-<<<<<<< HEAD
-        <div>
-=======
         <div className="max-w-[1480px] w-full">
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
           <p className="p-4 w-full text-2xl text-minimal-white tracking-tighter">
             All Tools
           </p>
           <div className="border-t border-gray-600 w-full mb-6"></div>
 
           {/* main dashboard */}
-<<<<<<< HEAD
-          <div className=" flex gap-4">
-            <div className="bg-minimal-card rounded-2xl border border-minimal-border h-fit p-4 shadow-2xl">
-=======
           <div className="flex gap-4 w-full">
             <div className="bg-minimal-card rounded-2xl border border-minimal-border h-fit p-4 shadow-2xl w-full">
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
               {/* Tools Grid with Accordion Transition */}
               <div
                 style={{
@@ -476,11 +435,7 @@ const MainDashboard = () => {
               >
                 <div
                   ref={gridRef}
-<<<<<<< HEAD
-                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4"
-=======
                   className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 w-full"
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
                 >
                   {(isOpen ? allTools : allTools.slice(0, 3)).map(
                     (tool, index) => {

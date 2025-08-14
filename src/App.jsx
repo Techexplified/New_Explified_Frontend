@@ -123,6 +123,7 @@ import OAuthCallback from "./components1/OAuthCallback";
 import AutomatedVideoGenerator from "./components1/Zapier";
 import TaskManager from "./components1/TaskPage.jsx";
 import Notes from "./components1/Notes.jsx";
+import HistoryChat from "./components1/HistoryChat.jsx";
 
 function App() {
   const navigate = useNavigate();
@@ -350,6 +351,7 @@ function App() {
           <Route path="/zapier" element={<AutomatedVideoGenerator />} />
           <Route path="/*" element={<ComingSoon />} />
           <Route path="/notes" element={<Notes/>} />
+          <Route path="/memory" element={<HistoryChat/>}/>
         </Route>
 
         {/* Tools Page */}

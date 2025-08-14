@@ -1,50 +1,3 @@
-import { FiPlus, FiMic, FiSliders, FiX } from "react-icons/fi";
-import { BsSoundwave } from "react-icons/bs";
-import { useState } from "react";
-
-function Trone() {
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false); // controls sidebar visibility
-
-  return (
-    <div className="bg-black text-white flex h-screen">
-      {/* Main content */}
-      <div className="flex-1 flex flex-col">
-        <div className="flex flex-col items-center justify-center flex-grow px-4">
-          <h1 className="text-3xl md:text-4xl font-semibold mb-6 text-center">
-            Ready when you are.
-          </h1>
-
-          {/* Input + Icons */}
-          <div className="w-full max-w-2xl bg-[#1e1e1e] rounded-2xl shadow-md px-4 py-2">
-            <input
-              type="text"
-              placeholder="Ask anything"
-              className="w-full bg-transparent outline-none text-gray-200 placeholder-gray-400 text-sm px-2 py-3"
-            />
-
-            <div className="flex items-center justify-between mt-2 text-gray-400">
-              {/* Left icons */}
-              <div className="flex items-center gap-2">
-                <FiSliders className="text-lg" />
-                <span className="text-sm">Tools</span>
-              </div>
-
-              {/* Right icons */}
-              <div className="flex items-center gap-4">
-                <FiMic className="text-lg" />
-                <div className="w-8 h-8 rounded-full bg-[#2a2a2a] flex items-center justify-center">
-                  <BsSoundwave className="text-base" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default Trone;
 import React, { useState, useEffect, useRef } from "react";
 import { FiPlus, FiMic, FiSliders, FiX } from "react-icons/fi";
 import { BsSoundwave } from "react-icons/bs";
@@ -313,65 +266,77 @@ function Trone({ onFirstPrompt }) {
         link={"https://explified.com/expli/"}
         toolName={"Expli"}
       />
-      <div className="flex-1 flex flex-col">
+      <div
+  className="flex-1 flex flex-col items-center justify-center mt-12 w-screen"
+>
         {/* Chat history */}
         <div
-          ref={chatContainerRef}
-          className="flex flex-col items-center justify-center flex-grow px-4 overflow-y-auto scroll-smooth"
-          style={{ scrollBehavior: "smooth" }}
-        >
-          {chatHistory.length === 0 && (
-            <h1 className="text-3xl md:text-4xl font-semibold mb-6 text-center">
-              Ready when you are.
-            </h1>
-          )}
-          <div className="w-full max-w-2xl flex flex-col gap-4">
-            {chatHistory.map((msg, index) => (
-              <div
-                key={index}
-                className={`max-w-xl px-4 py-3 rounded-xl text-sm ${
-                  msg.sender === "user"
-                    ? "bg-[#2d2d2d] self-end text-right"
-                    : msg.isError
-                    ? "bg-red-900/30 self-start text-left border border-red-500/50"
-                    : "bg-[#1e1e1e] self-start text-left"
-                }`}
-              >
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html:
-                      msg.sender === "bot" ? formatText(msg.text) : msg.text,
-                  }}
-                  style={{
-                    lineHeight: "1.5",
-                    wordBreak: "break-word",
-                  }}
-                />
-              </div>
-            ))}
-            {isTyping && (
-              <div className="bg-[#1e1e1e] self-start px-4 py-3 rounded-xl text-sm text-gray-400">
-                <div className="flex items-center gap-2">
-                  <div className="flex space-x-1">
-                    <div
-                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                      style={{ animationDelay: "0ms" }}
-                    ></div>
-                    <div
-                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                      style={{ animationDelay: "150ms" }}
-                    ></div>
-                    <div
-                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                      style={{ animationDelay: "300ms" }}
-                    ></div>
-                  </div>
-                  <span>Thinking...</span>
-                </div>
-              </div>
-            )}
+  ref={chatContainerRef}
+  className="flex flex-col  px-4 overflow-y-auto scroll-smooth "
+  style={{
+    scrollBehavior: "smooth",
+    paddingTop: "1rem",
+    paddingBottom: "1rem",
+  }}
+>
+  {chatHistory.length === 0 && (
+    <h1 className="text-3xl md:text-4xl font-semibold mb-6 text-center">
+      Ready when you are.
+    </h1>
+  )}
+  <div className="w-full max-w-2xl flex flex-col gap-4 ">
+    {chatHistory.map((msg, index) => (
+      <div
+        key={index}
+        className={`px-4 py-3 rounded-xl text-sm break-words whitespace-pre-wrap`}
+        style={{
+          backgroundColor:
+            msg.sender === "user"
+              ? "#2d2d2d"
+              : msg.isError
+              ? "rgba(255, 0, 0, 0.1)"
+              : "#1e1e1e",
+          alignSelf: msg.sender === "user" ? "flex-end" : "flex-start",
+          border:
+            msg.isError && "1px solid rgba(255,0,0,0.5)",
+          maxWidth: "100%",
+          wordBreak: "break-word",
+        }}
+      >
+        <div
+          dangerouslySetInnerHTML={{
+            __html:
+              msg.sender === "bot" ? formatText(msg.text) : msg.text,
+          }}
+          style={{
+            lineHeight: "1.5",
+            whiteSpace: "pre-wrap",
+            wordWrap: "break-word",
+          }}
+        />
+      </div>
+    ))}
+    {isTyping && (
+      <div className="bg-[#1e1e1e] self-start px-4 py-3 rounded-xl text-sm text-gray-400">
+        <div className="flex items-center gap-2">
+          <div className="flex space-x-1">
+            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+            <div
+              className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+              style={{ animationDelay: "150ms" }}
+            ></div>
+            <div
+              className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+              style={{ animationDelay: "300ms" }}
+            ></div>
           </div>
+          <span>Thinking...</span>
         </div>
+      </div>
+    )}
+  </div>
+</div>
+
 
         {/* Input bar */}
         <div className="w-full mt-10 max-w-2xl mx-auto bg-[#1e1e1e] rounded-full shadow-md px-4 py-2 mb-6">

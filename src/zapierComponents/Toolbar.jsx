@@ -24,10 +24,7 @@ import {
   Image,
   ImagePlay,
 } from "lucide-react";
-<<<<<<< HEAD
 import { useNavigate } from 'react-router-dom';
-=======
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
 import { useParams } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 import { MdOutlineGifBox } from "react-icons/md";
@@ -74,14 +71,11 @@ const categorizedTools = {
 };
 
 const Toolbar = () => {
-<<<<<<< HEAD
   const [showApiInterface, setShowApiInterface] = useState(true);
   const [params] = useSearchParams();
   const toolId = params.get("id");
   const shouldShowApiInterface = toolId === "vidgen";
 
-=======
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
   const [selectedTool, setSelectedTool] = useState("square");
   const [boxes, setBoxes] = useState([]);
   const [activeBoxId, setActiveBoxId] = useState(null);
@@ -96,7 +90,6 @@ const Toolbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [hoveredBoxId, setHoveredBoxId] = useState(null);
   const [isAIChatbotOpen, setIsAIChatbotOpen] = useState(false);
-<<<<<<< HEAD
   const [isGenerating, setIsGenerating] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
@@ -157,48 +150,6 @@ const Toolbar = () => {
       setLoading(false);
     }
   };
-=======
-  const [showApiInterface, setShowApiInterface] = useState(true);
-  const [isApiPresent, setIsApiPresent] = useState(false);
-  const [params] = useSearchParams();
-
-  const toolId = params.get("id");
-  const shouldShowApiInterface = toolId === "vidgen";
-
-  // Flatten all tools for search
-  const allTools = Object.values(categorizedTools).flat();
-
-  const tool = allTools.find((t) => (t.toolId ?? t.id) === toolId);
-
-  // If and only if a tool exists, set the center box icon to tool.icon
-  useEffect(() => {
-    if (!tool) return;
-    // Create a centered box if none exists yet
-    if (boxes.length === 0) {
-      setBoxes([
-        {
-          id: Date.now(),
-          left: window.innerWidth / 2 - 60,
-          top: window.innerHeight / 2 - 50,
-          icon: tool.icon,
-        },
-      ]);
-      return;
-    }
-    // Update first (center) box icon if different
-    if (boxes[0]?.icon !== tool.icon) {
-      setBoxes((prev) =>
-        prev.map((box, idx) => (idx === 0 ? { ...box, icon: tool.icon } : box))
-      );
-    }
-  }, [tool]);
-
-  // Determine the current box: active one if set, otherwise the first (center) box
-  const currentBox = activeBoxId
-    ? boxes.find((b) => b.id === activeBoxId)
-    : boxes[0];
-
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
   const handleToolClick = (toolId) => {
     setSelectedTool(toolId);
     if (toolId === "ai-stars") {
@@ -207,11 +158,7 @@ const Toolbar = () => {
       setBoxes([
         {
           id: Date.now(),
-<<<<<<< HEAD
           left: window.innerWidth / 2 - 60,
-=======
-          left: window.innerWidth / 2 - 100,
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
           top: 160,
           icon: null,
         },
@@ -220,7 +167,6 @@ const Toolbar = () => {
   };
 
   const handleAddBox = () => {
-<<<<<<< HEAD
     setBoxes((prev) => {
       if (prev.length === 0) {
         return [
@@ -249,22 +195,6 @@ const Toolbar = () => {
   const handleSelectToolIcon = (boxId, tool) => {
     setBoxes((prev) =>
       prev.map((box) => (box.id === boxId ? { ...box, icon: tool.icon, name: tool.name } : box))
-=======
-    setBoxes((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        left: prev[prev.length - 1].left + 220,
-        top: 160,
-        icon: null,
-      },
-    ]);
-  };
-
-  const handleSelectToolIcon = (boxId, icon) => {
-    setBoxes((prev) =>
-      prev.map((box) => (box.id === boxId ? { ...box, icon } : box))
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
     );
     setActiveBoxId(null);
   };
@@ -316,10 +246,6 @@ const Toolbar = () => {
     const startBox = parentBox;
     const endBox = newBox;
     const startCenter = getBoxCenter(startBox);
-<<<<<<< HEAD
-=======
-    const endCenter = getBoxCenter(endBox);
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
     const endPoint = getArrowEndPoint(startBox, endBox);
 
     const newArrow = {
@@ -335,11 +261,7 @@ const Toolbar = () => {
     setArrows((prev) => [...prev, newArrow]);
   };
 
-<<<<<<< HEAD
   // Helper functions
-=======
-  // Helper function to find box at mouse position
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
   const findBoxAtPosition = (clientX, clientY) => {
     return boxes.find((box) => {
       return (
@@ -351,7 +273,6 @@ const Toolbar = () => {
     });
   };
 
-<<<<<<< HEAD
   const getBoxCenter = (box) => {
     return {
       x: box.left + 60,
@@ -359,48 +280,24 @@ const Toolbar = () => {
     };
   };
 
-=======
-  // Helper function to get center point of a box
-  const getBoxCenter = (box) => {
-    return {
-      x: box.left + 60, // 120px width / 2
-      y: box.top + 50, // 100px height / 2
-    };
-  };
-
-  // Helper function to calculate arrow end point at box border
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
   const getArrowEndPoint = (startBox, endBox) => {
     const startCenter = getBoxCenter(startBox);
     const endCenter = getBoxCenter(endBox);
 
-<<<<<<< HEAD
     const dx = endCenter.x - startCenter.x;
     const dy = endCenter.y - startCenter.y;
 
-=======
-    // Calculate direction vector
-    const dx = endCenter.x - startCenter.x;
-    const dy = endCenter.y - startCenter.y;
-
-    // Normalize the direction
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
     const length = Math.sqrt(dx * dx + dy * dy);
     if (length === 0) return endCenter;
 
     const unitX = dx / length;
     const unitY = dy / length;
 
-<<<<<<< HEAD
-=======
-    // Box dimensions
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
     const boxWidth = 120;
     const boxHeight = 100;
     const halfWidth = boxWidth / 2;
     const halfHeight = boxHeight / 2;
 
-<<<<<<< HEAD
     let intersectionX = endCenter.x;
     let intersectionY = endCenter.y;
 
@@ -426,36 +323,6 @@ const Toolbar = () => {
       } else {
         intersectionY = endBox.top + boxHeight;
         intersectionX = endCenter.x + (halfHeight * unitX) / (Math.abs(unitY) || 1);
-=======
-    // Calculate intersection with box border
-    let intersectionX, intersectionY;
-
-    // Check which side of the box the arrow will hit
-    const slope = Math.abs(dy / dx);
-    const boxSlope = boxHeight / boxWidth;
-
-    if (slope <= boxSlope) {
-      // Arrow hits left or right side
-      if (unitX > 0) {
-        // Hits right side
-        intersectionX = endBox.left;
-        intersectionY = endCenter.y - (halfWidth * unitY) / unitX;
-      } else {
-        // Hits left side
-        intersectionX = endBox.left + boxWidth;
-        intersectionY = endCenter.y + (halfWidth * unitY) / unitX;
-      }
-    } else {
-      // Arrow hits top or bottom side
-      if (unitY > 0) {
-        // Hits bottom side
-        intersectionY = endBox.top;
-        intersectionX = endCenter.x - (halfHeight * unitX) / unitY;
-      } else {
-        // Hits top side
-        intersectionY = endBox.top + boxHeight;
-        intersectionX = endCenter.x + (halfHeight * unitX) / unitY;
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
       }
     }
 
@@ -467,10 +334,6 @@ const Toolbar = () => {
     e.stopPropagation();
 
     if (selectedTool === "arrow") {
-<<<<<<< HEAD
-=======
-      // Start drawing arrow from center of clicked box
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
       const box = boxes.find((b) => b.id === boxId);
       if (box) {
         const center = getBoxCenter(box);
@@ -480,12 +343,7 @@ const Toolbar = () => {
         setCurrentMousePos(center);
       }
     } else {
-<<<<<<< HEAD
       const box = boxes.find((b) => b.id === boxId);
-=======
-      // Regular box dragging for square tool
-      const box = boxes.find((box) => box.id === boxId);
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
       if (box) {
         setDraggedBoxId(boxId);
         setHasDragged(false);
@@ -498,11 +356,7 @@ const Toolbar = () => {
   };
 
   const handleMouseMove = (e) => {
-<<<<<<< HEAD
     // Drag
-=======
-    // Handle box dragging (only for square tool)
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
     if (draggedBoxId && selectedTool !== "arrow") {
       setHasDragged(true);
       setBoxes((prev) =>
@@ -518,38 +372,22 @@ const Toolbar = () => {
       );
     }
 
-<<<<<<< HEAD
     // Arrow drawing
-=======
-    // Handle arrow drawing
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
     if (isDrawingArrow) {
       const hoveredBox = findBoxAtPosition(e.clientX, e.clientY);
 
       if (hoveredBox && hoveredBox.id !== arrowStartBoxId) {
-<<<<<<< HEAD
-=======
-        // Calculate arrow end point at box border instead of center
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
         const startBox = boxes.find((b) => b.id === arrowStartBoxId);
         const endPoint = getArrowEndPoint(startBox, hoveredBox);
         setCurrentMousePos(endPoint);
       } else {
-<<<<<<< HEAD
-=======
-        // Follow mouse cursor
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
         setCurrentMousePos({ x: e.clientX, y: e.clientY });
       }
     }
   };
 
   const handleMouseUp = (e) => {
-<<<<<<< HEAD
     // Finish arrow
-=======
-    // Handle arrow completion
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
     if (isDrawingArrow && selectedTool === "arrow") {
       const targetBox = findBoxAtPosition(e.clientX, e.clientY);
 
@@ -573,15 +411,10 @@ const Toolbar = () => {
       setArrowStartBoxId(null);
     }
 
-<<<<<<< HEAD
-=======
-    // Handle box dragging cleanup
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
     setDraggedBoxId(null);
   };
 
   const handleBoxClick = (e, boxId) => {
-<<<<<<< HEAD
     // Only set active if it wasn't a drag and not using arrow tool
     if (!hasDragged && selectedTool !== "arrow") {
       setActiveBoxId(boxId);
@@ -822,20 +655,6 @@ const handleGenerate = async (type = "video") => {
           setActiveBoxId(null);
         }
       }}
-=======
-    if (!hasDragged && selectedTool !== "arrow") {
-      setActiveBoxId(boxId);
-    }
-  };
-
-  return (
-    <div
-      className={`relative w-full h-screen ${
-        selectedTool === "arrow" ? "cursor-crosshair" : ""
-      }`}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
     >
       {/* Empty Canvas Placeholder */}
       {boxes.length === 0 && (
@@ -873,24 +692,15 @@ const handleGenerate = async (type = "video") => {
       )}
 
       {/* Render Boxes */}
-<<<<<<< HEAD
       {boxes.map((box) => (
-=======
-      {boxes.map((box, index) => (
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
         <div
           key={box.id}
           className="absolute"
           style={{
             left: `${box.left - 32}px`,
             top: `${(box.top || 160) - 32}px`,
-<<<<<<< HEAD
             width: "184px",
             height: "164px",
-=======
-            width: "184px", // 120px + 64px (32px on each side)
-            height: "164px", // 100px + 64px (32px on each side)
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
           }}
           onMouseEnter={() => setHoveredBoxId(box.id)}
           onMouseLeave={() => setHoveredBoxId(null)}
@@ -898,22 +708,13 @@ const handleGenerate = async (type = "video") => {
           <div
             data-box-id={box.id}
             className={`absolute w-[120px] h-[100px] bg-gradient-to-r from-minimal-dark-100 to-minimal-dark-200 border-2 border-minimal-primary rounded-md z-40 ${
-<<<<<<< HEAD
               selectedTool === "arrow" ? "cursor-crosshair" : draggedBoxId === box.id ? "cursor-grabbing" : "cursor-grab"
-=======
-              selectedTool === "arrow"
-                ? "cursor-crosshair"
-                : draggedBoxId === box.id
-                ? "cursor-grabbing"
-                : "cursor-grab"
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
             }`}
             style={{
               left: "32px",
               top: "32px",
             }}
             onMouseDown={(e) => handleBoxMouseDown(e, box.id)}
-<<<<<<< HEAD
             onClick={(e) => {
               // Stop the click from bubbling to canvas and handle box click
               e.stopPropagation();
@@ -940,29 +741,11 @@ const handleGenerate = async (type = "video") => {
                 <Square size={48} />
               </div>
             )}
-=======
-            onClick={(e) => handleBoxClick(e, box.id)}
-          >
-            <div className="w-full h-full flex items-center justify-center text-minimal-white">
-              {box.icon ? (
-                React.cloneElement(box.icon, {
-                  size: 40,
-                  className: "text-minimal-white",
-                })
-              ) : (
-                <Square size={40} className="text-minimal-white" />
-              )}
-            </div>
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
           </div>
 
           {/* Side Dots - Only show when hovering */}
           {hoveredBoxId === box.id && (
             <>
-<<<<<<< HEAD
-=======
-              {/* Top dot */}
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -971,10 +754,6 @@ const handleGenerate = async (type = "video") => {
                 className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-minimal-gray-300 opacity-15 rounded-full hover:bg-minimal-primary transition-colors duration-200 z-50"
               />
 
-<<<<<<< HEAD
-=======
-              {/* Bottom dot */}
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -983,10 +762,6 @@ const handleGenerate = async (type = "video") => {
                 className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-minimal-gray-300 opacity-15 rounded-full hover:bg-minimal-primary transition-colors duration-200 z-50"
               />
 
-<<<<<<< HEAD
-=======
-              {/* Left dot */}
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -995,10 +770,6 @@ const handleGenerate = async (type = "video") => {
                 className="absolute top-1/2 -translate-y-1/2 left-0 w-4 h-4 bg-minimal-gray-300 opacity-15 rounded-full hover:bg-minimal-primary transition-colors duration-200 z-50"
               />
 
-<<<<<<< HEAD
-=======
-              {/* Right dot */}
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -1013,7 +784,6 @@ const handleGenerate = async (type = "video") => {
 
       {/* Render Arrows */}
       {arrows.map((arrow) => (
-<<<<<<< HEAD
         <svg key={arrow.id} className="absolute inset-0 pointer-events-none z-30" style={{ width: "100%", height: "100%" }}>
           <defs>
             <marker id={`arrowhead-${arrow.id}`} markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
@@ -1021,44 +791,11 @@ const handleGenerate = async (type = "video") => {
             </marker>
           </defs>
           <line x1={arrow.startX} y1={arrow.startY} x2={arrow.endX} y2={arrow.endY} stroke="#23B5B5" strokeWidth="3" markerEnd={`url(#arrowhead-${arrow.id})`} />
-=======
-        <svg
-          key={arrow.id}
-          className="absolute inset-0 pointer-events-none z-30"
-          style={{ width: "100%", height: "100%" }}
-        >
-          <defs>
-            <marker
-              id={`arrowhead-${arrow.id}`}
-              markerWidth="10"
-              markerHeight="7"
-              refX="9"
-              refY="3.5"
-              orient="auto"
-            >
-              <polygon
-                points="0 0, 10 3.5, 0 7"
-                fill="#23B5B5"
-                stroke="#23B5B5"
-              />
-            </marker>
-          </defs>
-          <line
-            x1={arrow.startX}
-            y1={arrow.startY}
-            x2={arrow.endX}
-            y2={arrow.endY}
-            stroke="#23B5B5"
-            strokeWidth="3"
-            markerEnd={`url(#arrowhead-${arrow.id})`}
-          />
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
         </svg>
       ))}
 
       {/* Temporary arrow while drawing */}
       {isDrawingArrow && (
-<<<<<<< HEAD
         <svg className="absolute inset-0 pointer-events-none z-30" style={{ width: "100%", height: "100%" }}>
           <defs>
             <marker id="temp-arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
@@ -1076,50 +813,6 @@ const handleGenerate = async (type = "video") => {
           style={{
             left: `${activeBox.left + 120}px`,
             top: `${activeBox.top || 160}px`,
-=======
-        <svg
-          className="absolute inset-0 pointer-events-none z-30"
-          style={{ width: "100%", height: "100%" }}
-        >
-          <defs>
-            <marker
-              id="temp-arrowhead"
-              markerWidth="10"
-              markerHeight="7"
-              refX="9"
-              refY="3.5"
-              orient="auto"
-            >
-              <polygon
-                points="0 0, 10 3.5, 0 7"
-                fill="#23B5B5"
-                stroke="#23B5B5"
-              />
-            </marker>
-          </defs>
-          <line
-            x1={arrowStart.x}
-            y1={arrowStart.y}
-            x2={currentMousePos.x}
-            y2={currentMousePos.y}
-            stroke="#23B5B5"
-            strokeWidth="3"
-            markerEnd="url(#temp-arrowhead)"
-            strokeDasharray="5,5"
-          />
-        </svg>
-      )}
-
-      {/* Search Sidebar */}
-      {activeBoxId === boxes.find((box) => box.id === activeBoxId)?.id && (
-        <div
-          className="absolute left-full top-0 ml-4 w-64 max-h-[300px] p-3 bg-minimal-dark-100/90 backdrop-blur-sm rounded-xl shadow-xl border border-minimal-primary z-50"
-          style={{
-            left: `${
-              boxes.find((box) => box.id === activeBoxId)?.left + 120
-            }px`,
-            top: `${boxes.find((box) => box.id === activeBoxId)?.top || 160}px`,
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
           }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -1137,21 +830,11 @@ const handleGenerate = async (type = "video") => {
           />
           <div className="max-h-48 overflow-y-auto space-y-2 stylish-scrollbar">
             {allTools
-<<<<<<< HEAD
               .filter((tool) => tool.name.toLowerCase().includes(searchQuery.toLowerCase()))
               .map((tool) => (
                 <button
                   key={tool.name}
                   onClick={() => handleSelectToolIcon(activeBoxId, tool)}
-=======
-              .filter((tool) =>
-                tool.name.toLowerCase().includes(searchQuery.toLowerCase())
-              )
-              .map((tool) => (
-                <button
-                  key={tool.name}
-                  onClick={() => handleSelectToolIcon(activeBoxId, tool.icon)}
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
                   className="flex items-center gap-2 p-2 w-full rounded-md hover:bg-minimal-cardHover/50 text-minimal-white text-sm border border-minimal-border"
                 >
                   <span className="text-lg">{tool.icon}</span>
@@ -1169,7 +852,6 @@ const handleGenerate = async (type = "video") => {
             <button
               key={tool}
               onClick={() => handleToolClick(tool)}
-<<<<<<< HEAD
               className={`relative rounded-xl font-medium text-sm transition-all duration-300 ease-out w-12 h-12 flex items-center justify-center gap-2 group overflow-hidden ${
                 selectedTool === tool
                   ? "bg-gradient-to-r from-minimal-primary to-minimal-gray-600 text-minimal-white shadow-lg shadow-minimal-primary/25 scale-105"
@@ -1181,45 +863,15 @@ const handleGenerate = async (type = "video") => {
               </span>
 
               {selectedTool === tool && <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-minimal-primary to-minimal-gray-600 opacity-20 animate-pulse" />}
-=======
-              className={`
-                relative rounded-xl font-medium text-sm transition-all duration-300 ease-out w-12 h-12
-                flex items-center justify-center gap-2 group overflow-hidden
-                ${
-                  selectedTool === tool
-                    ? "bg-gradient-to-r from-minimal-primary to-minimal-gray-600 text-minimal-white shadow-lg shadow-minimal-primary/25 scale-105"
-                    : "text-minimal-muted hover:text-minimal-white hover:bg-minimal-cardHover/50"
-                }
-              `}
-            >
-              <span className="text-4xl relative z-10 p-1">
-                {tool === "square" ? (
-                  <Square />
-                ) : tool === "arrow" ? (
-                  <MoveUpRight />
-                ) : (
-                  <Sparkles />
-                )}
-              </span>
-
-              {selectedTool === tool && (
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-minimal-primary to-minimal-gray-600 opacity-20 animate-pulse" />
-              )}
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
             </button>
           ))}
         </div>
 
-<<<<<<< HEAD
-=======
-        {/* Glow Effect */}
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
         <div className="absolute inset-0 bg-gradient-to-r from-minimal-primary/10 to-minimal-gray-600/10 rounded-2xl blur-3xl -z-30 animate-pulse" />
       </div>
 
       {/* AI Chatbot Sidebar */}
       <div
-<<<<<<< HEAD
       className={`fixed top-30 right-0 h-[600px] w-80 bg-minimal-dark-100 border-y border-l rounded-l-lg border-minimal-primary/50 backdrop-blur-xl z-50 transform transition-transform duration-300 ease-in-out ${
         isAIChatbotOpen ? "translate-x-0" : "translate-x-full"
       }`}
@@ -1387,65 +1039,6 @@ const handleGenerate = async (type = "video") => {
       </div>
     
 
-=======
-        className={`fixed top-30 right-0 min-h-[600px] w-80 bg-minimal-dark-100 border-y border-l rounded-l-lg border-minimal-primary/50 backdrop-blur-xl z-50 transform transition-transform duration-300 ease-in-out ${
-          isAIChatbotOpen ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-minimal-primary/30">
-          <div className="flex items-center gap-2">
-            <Sparkles className="text-minimal-primary" size={20} />
-            <span className="text-minimal-white font-medium">AI Assistant</span>
-          </div>
-          <button
-            onClick={() => setIsAIChatbotOpen(false)}
-            className="text-minimal-muted hover:text-minimal-white transition-colors"
-          >
-            <MoveUpRight size={20} />
-          </button>
-        </div>
-
-        {/* Chat Content */}
-        <div className="p-4 min-h-[600px] flex flex-col">
-          <div className="flex-1">
-            <div className="mb-6">
-              <div className="text-minimal-white text-lg mb-2">Hi User 👋</div>
-              <div className="text-minimal-white/80 text-sm leading-relaxed">
-                I can answer most questions about building workflows in n8n.
-              </div>
-              <div className="text-minimal-white/80 text-sm leading-relaxed mt-2">
-                For specific tasks, you'll see the{" "}
-                <button className="inline-flex items-center gap-1 px-3 py-1 bg-minimal-dark-200 border border-minimal-primary rounded-md text-minimal-white text-sm hover:bg-minimal-dark-300 transition-colors">
-                  <Sparkles size={14} />
-                  Ask Assistant
-                </button>{" "}
-                button in the UI.
-              </div>
-            </div>
-
-            <div className="text-minimal-white text-lg font-medium">
-              How can I help?
-            </div>
-          </div>
-
-          {/* Input Area */}
-          <div className="mt-auto pt-4">
-            <div className="flex items-center gap-2 p-3 bg-minimal-dark-200 rounded-lg border border-minimal-primary/30">
-              <input
-                type="text"
-                placeholder="Type your message..."
-                className="flex-1 bg-transparent text-minimal-white placeholder-minimal-muted outline-none"
-              />
-              <button className="text-minimal-primary hover:text-minimal-white transition-colors">
-                <MoveUpRight size={18} />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
->>>>>>> fb4b60570db27d0b4c4841adb8c28c93450d8346
   );
 };
 
