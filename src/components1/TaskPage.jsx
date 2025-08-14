@@ -9,6 +9,7 @@ export default function TaskManager() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
+  const [isSidebarPinned1, setisSidebarPinned1] = useState(false);
   const navigate = useNavigate();
  const [selectedTask1, setSelectedTask] = useState(null);
   const genAI = new GoogleGenerativeAI("AIzaSyCjxEkSZKRdCohde0z5FKaZAO624gF3wms");
@@ -114,12 +115,42 @@ export default function TaskManager() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-[70px] h-[calc(100%-50px)] bg-black/30 backdrop-blur-xl border-r border-white/10 p-6 flex flex-col transform transition-transform duration-300 ${
-          isSidebarOpen ? "translate-x-0 w-72" : "-translate-x-full w-72"
-        }`}
-        onMouseLeave={() => setIsSidebarOpen(false)}
+        className={`fixed left-0 top-0 h-screen bg-black/30 backdrop-blur-xl border-r border-white/10 p-6 flex flex-col transform transition-all duration-300 ease-in-out overflow-x-hidden
+          ${isSidebarPinned1 || isSidebarOpen ? "translate-x-0 w-72" : "-translate-x-full w-72"}
+        `}
+        // Disable hover handlers when pinned
+        onMouseEnter={
+          isSidebarPinned1 ? undefined : () => setIsSidebarOpen(true)
+        }
+        onMouseLeave={
+          isSidebarPinned1 ? undefined : () => setIsSidebarOpen(false)
+        }
       >
-        <div className="mb-8">
+        {/* Pin Button */}
+        <div className="absolute top-3 right-3">
+          <button
+            onClick={() => {
+              setisSidebarPinned1((prev) => !prev);
+              // When pinning, keep it open; when unpinning, leave current open state as-is.
+              if (!isSidebarPinned1) setIsSidebarOpen(true);
+            }}
+            className={`p-2 rounded-full transition-all transform hover:scale-110 ${
+              isSidebarPinned1
+                ? "bg-cyan-500 text-white rotate-0"
+                : "bg-white/10 text-gray-400 hover:bg-white/20 hover:text-white rotate-12"
+            }`}
+            title={isSidebarPinned1 ? "Unpin Sidebar" : "Pin Sidebar"}
+          >
+            {isSidebarPinned1 ? (
+              <Pin className="w-4 h-4" />
+            ) : (
+              <PinOff className="w-4 h-4" />
+            )}
+          </button>
+        </div>
+
+        {/* Header */}
+        <div className="mb-8 mt-8">
           <h1 className="text-2xl font-bold bg-gradient-to-r from-[#23b5b5] to-cyan-400 bg-clip-text text-transparent">
             Notes
           </h1>
@@ -128,7 +159,7 @@ export default function TaskManager() {
 
         {/* Search */}
         <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
           <input
             type="text"
             placeholder="Search notes..."
@@ -139,7 +170,7 @@ export default function TaskManager() {
         </div>
 
         {/* Recent Notes */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden">
+        <div className="flex-1 overflow-y-auto">
           <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">
             Recent Notes
           </h3>
@@ -161,6 +192,18 @@ export default function TaskManager() {
             ))}
           </div>
         </div>
+
+        <div className="flex justify-center mt-[10px]">
+  <a
+    href="https://explified.com/notes/"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <button className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold border border-white/20 backdrop-blur-md shadow-lg transition-all duration-300">
+      Learn more
+    </button>
+  </a>
+</div>
       </aside>
 
       {/* Main Content */}

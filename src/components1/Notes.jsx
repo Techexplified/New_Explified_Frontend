@@ -11,7 +11,7 @@ export default function Notes() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isSidebarPinned, setIsSidebarPinned] = useState(false);
+  const [isSidebarPinned1, setisSidebarPinned1] = useState(false);
 
   const [tasks, setTasks] = useState([]);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
@@ -24,13 +24,13 @@ export default function Notes() {
   useEffect(() => {
     const savedPinned = localStorage.getItem("notes_sidebar_pinned");
     if (savedPinned === "true") {
-      setIsSidebarPinned(true);
+      setisSidebarPinned1(true);
       setIsSidebarOpen(true); // open on load if pinned
     }
   }, []);
   useEffect(() => {
-    localStorage.setItem("notes_sidebar_pinned", String(isSidebarPinned));
-  }, [isSidebarPinned]);
+    localStorage.setItem("notes_sidebar_pinned", String(isSidebarPinned1));
+  }, [isSidebarPinned1]);
 
   const handleEditClick = () => {
     setTempTitle(title);
@@ -123,13 +123,13 @@ export default function Notes() {
   return (
     <div
       className={`p-8 pt-[50px] bg-black min-h-screen text-white transition-all duration-300 ${
-        isSidebarPinned || isSidebarOpen
+        isSidebarPinned1 || isSidebarOpen
           ? `ml-[${SIDEBAR_W}px] w-[calc(100%-${SIDEBAR_W}px)]`
           : "ml-0 w-full"
       }`}
     >
       {/* Hover area ONLY when not pinned */}
-      {!isSidebarPinned && (
+      {!isSidebarPinned1 && (
         <div
           className="fixed left-0 top-0 h-full w-2 z-50"
           onMouseEnter={() => setIsSidebarOpen(true)}
@@ -139,32 +139,32 @@ export default function Notes() {
       {/* Sidebar */}
       <aside
         className={`fixed left-0 top-0 h-screen bg-black/30 backdrop-blur-xl border-r border-white/10 p-6 flex flex-col transform transition-all duration-300 ease-in-out overflow-x-hidden
-          ${isSidebarPinned || isSidebarOpen ? "translate-x-0 w-72" : "-translate-x-full w-72"}
+          ${isSidebarPinned1 || isSidebarOpen ? "translate-x-0 w-72" : "-translate-x-full w-72"}
         `}
         // Disable hover handlers when pinned
         onMouseEnter={
-          isSidebarPinned ? undefined : () => setIsSidebarOpen(true)
+          isSidebarPinned1 ? undefined : () => setIsSidebarOpen(true)
         }
         onMouseLeave={
-          isSidebarPinned ? undefined : () => setIsSidebarOpen(false)
+          isSidebarPinned1 ? undefined : () => setIsSidebarOpen(false)
         }
       >
         {/* Pin Button */}
         <div className="absolute top-3 right-3">
           <button
             onClick={() => {
-              setIsSidebarPinned((prev) => !prev);
+              setisSidebarPinned1((prev) => !prev);
               // When pinning, keep it open; when unpinning, leave current open state as-is.
-              if (!isSidebarPinned) setIsSidebarOpen(true);
+              if (!isSidebarPinned1) setIsSidebarOpen(true);
             }}
             className={`p-2 rounded-full transition-all transform hover:scale-110 ${
-              isSidebarPinned
+              isSidebarPinned1
                 ? "bg-cyan-500 text-white rotate-0"
                 : "bg-white/10 text-gray-400 hover:bg-white/20 hover:text-white rotate-12"
             }`}
-            title={isSidebarPinned ? "Unpin Sidebar" : "Pin Sidebar"}
+            title={isSidebarPinned1 ? "Unpin Sidebar" : "Pin Sidebar"}
           >
-            {isSidebarPinned ? (
+            {isSidebarPinned1 ? (
               <Pin className="w-4 h-4" />
             ) : (
               <PinOff className="w-4 h-4" />
