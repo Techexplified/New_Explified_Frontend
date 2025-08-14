@@ -124,9 +124,8 @@ import TaskPage from "./components1/TaskPage.jsx";
 import ProfilePage from "./components/ProfilePage.jsx";
 import DiscoverPage from "./components1/DiscoverPage.jsx";
 import Notes from "./components1/Notes.jsx";
-
 import HuggingFaceApiInterface from "./components/tools/HuggingFaceApiInterface.jsx";
-import IntegrationsPage from "./components1/Integrations copy.jsx";
+
 function App() {
   const navigate = useNavigate();
 
@@ -332,7 +331,6 @@ function App() {
           <Route path="/Meme" element={<Meme />} />
           <Route path="/influmark" element={<Influmark />} />
           <Route path="/integrations" element={<Integrations />} />
-          {/* <Route path="/integrations" element={<IntegrationsPage />} /> */}
           <Route path="/enhanced" element={<ZapEnhanced />} />
           <Route path="/ZapAuth" element={<ZapEnhanced />} />
 
