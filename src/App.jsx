@@ -126,7 +126,7 @@ import Notes from "./components1/Notes.jsx";
 import HuggingFaceApiInterface from "./components/tools/HuggingFaceApiInterface.jsx";
 import ScrollToTop from "./reusable_components/ScrollToTop.jsx";
 import HistoryChat from "./components1/HistoryChat.jsx";
-
+import UserPage from "./components/ProfilePage.jsx";
 function App() {
   const navigate = useNavigate();
 
@@ -313,7 +313,7 @@ function App() {
           <Route path="/image-styler/merger" element={<ImageMerger />} />
           <Route path="/image-styler/expander" element={<ImageExpander />} />
           <Route path="/image-styler/editor" element={<ImageEditor />} />
-
+           <Route path="/profile" element={<UserPage/>}/>
           <Route path="/bg-remover" element={<BGLayout />} />
 
           <Route path="/result" element={<Result />} />
