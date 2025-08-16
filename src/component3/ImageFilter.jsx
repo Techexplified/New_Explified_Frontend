@@ -12,6 +12,7 @@ import {
   Camera,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Pin, PinOff } from "lucide-react";
 import WorkFlowButton from "../reusable_components/WorkFlowButton";
 
 const AiImageTool = () => {
@@ -48,7 +49,7 @@ const AiImageTool = () => {
     },
     {
       id: "background",
-      name: "AI Background Generator",
+      name: "AI BG Generator",
       icon: Layers,
       link: "/image-styler/backChanger",
     },
@@ -66,7 +67,7 @@ const AiImageTool = () => {
     },
     {
       id: "mage",
-      name: "AI Image Mage",
+      name: "AI Image Merge",
       icon: Shuffle,
       link: "/image-styler/merger",
     },
@@ -190,51 +191,92 @@ const AiImageTool = () => {
     }
     throw new Error("Timed out waiting for generation");
   };
+  const [sidebarPinned, setSidebarPinned] = useState(false);
 
   return (
     <>
       {/* Left-edge activator to open when collapsed (below navbar) */}
-      <div
-        className="fixed left-0 top-[70px] h-[calc(100vh-70px)] w-2 z-50"
-        onMouseEnter={() => setSidebarOpen(true)}
-      />
-
-      {/* Sidebar (appears below navbar) */}
-      <div
-        className={`fixed top-[70px] left-0 h-[calc(100vh-70px)] bg-black/95 backdrop-blur-xl border-r border-[#23b5b5]/20 
-				flex flex-col justify-between transition-all duration-300 z-40
-				${sidebarOpen ? "w-56 px-6" : "w-0 px-0 overflow-hidden"}`}
-        onMouseEnter={() => setSidebarOpen(true)}
-        onMouseLeave={() => setSidebarOpen(false)}
-      >
-        {/* Top section */}
-        <div className="mt-8">
-          <div className="flex items-center gap-3 mb-2">
-            <h2 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-[#23b5b5] bg-clip-text text-transparent">
-              AI Image Styler
-            </h2>
-          </div>
-        </div>
-
-        {/* Bottom section */}
-        <div className="mb-8">
-          <button
-            onClick={() =>
-              window.location.assign("https://explified.com/ai-image-styler/")
-            }
-            className="w-full bg-gradient-to-r from-[#23b5b5] to-[#1a9999] hover:from-[#1a9999] hover:to-[#23b5b5] text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-[#23b5b5]/25"
-          >
-            Learn More
-          </button>
-        </div>
-      </div>
+            <div
+              className="fixed left-0 h-[calc(100vh-0px)] w-10 z-50"
+              onMouseEnter={() => setSidebarOpen(true)}
+            />
+      
+            {/* Sidebar (appears below navbar) */}
+            <div
+              className={`fixed left-0 h-[calc(100vh-0px)] bg-black/95 backdrop-blur-xl border-r border-[#23b5b5]/20 
+              flex flex-col justify-between transition-all duration-300 z-40
+              ${sidebarOpen ? "w-72 px-6" : "w-0 px-0 overflow-hidden"}`}
+              onMouseEnter={() => !sidebarPinned && setSidebarOpen(true)}
+                  onMouseLeave={() => !sidebarPinned && setSidebarOpen(false)}
+            >
+              {/* Top section */}
+              <div className="mt-8">
+                {/* <div className="flex items-center gap-3 mb-2">
+                  <h2 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-[#23b5b5] bg-clip-text text-transparent">
+                    AI Image Styler
+                  </h2>
+                  <button
+                    onClick={() => {
+                      setSidebarPinned(!sidebarPinned);
+                      setSidebarOpen(true);
+                    }}
+                  >
+                    {sidebarPinned ? <PinOff size={20} /> : <Pin size={20} />}
+                  </button>
+                </div> */}
+                <div className="grid pt-6 grid-cols-1 gap-4">
+                  <div className="flex items-center gap-3 mb-2">
+                  <h2 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-[#23b5b5] bg-clip-text text-transparent">
+                    AI Image Styler
+                  </h2>
+                  <button
+                    onClick={() => {
+                      setSidebarPinned(!sidebarPinned);
+                      setSidebarOpen(true);
+                    }}
+                  >
+                    {sidebarPinned ? <PinOff size={20} /> : <Pin size={20} />}
+                  </button>
+                </div>
+                  {tools.map((tool) => (
+                    <button
+                      key={tool.id}
+                      onClick={() => {
+                        setSelectedTool(tool.id);
+                        navigate(tool.link);
+                      }}
+                      className={`w-full p-5 rounded-xl bg-minimal-card hover:bg-minimal-cardHover border border-minimal-border/60 shadow-sm transition-all duration-200 flex items-center space-x-4 ${
+                        selectedTool === tool.id ? "ring-2 ring-minimal-primary" : ""
+                      }`}
+                    >
+                      <tool.icon className="w-7 h-7 text-minimal-primary" />
+                      <span className="text-base font-medium text-minimal-paragraph">
+                        {tool.name}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+      
+              {/* Bottom section */}
+              <div className="mb-8">
+                <button
+                  onClick={() =>
+                    window.location.assign("https://explified.com/ai-image-styler/ ")
+                  }
+                  className="w-full bg-gradient-to-r from-[#23b5b5] to-[#1a9999] hover:from-[#1a9999] hover:to-[#23b5b5] text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-[#23b5b5]/25"
+                >
+                  Learn More
+                </button>
+              </div>
+            </div>
 
       <div className="min-h-screen relative flex bg-minimal-background text-minimal-heading font-poppins">
         <WorkFlowButton id={"styler"} />
 
         {/* Sidebar */}
-        <div className="w-80 sticky top-0 h-screen overflow-y-auto border-r border-minimal-border bg-minimal-surface/70 backdrop-blur supports-[backdrop-filter]:bg-minimal-surface/80 p-6 space-y-6">
-          <div className="grid grid-cols-1 gap-4">
+        {/* <div className="w-80 sticky top-0 h-screen overflow-y-auto border-r border-minimal-border bg-minimal-surface/70 backdrop-blur supports-[backdrop-filter]:bg-minimal-surface/80 p-6 space-y-6">
+          <div className="grid pt-12 grid-cols-1 gap-4">
             {tools.map((tool) => (
               <button
                 key={tool.id}
@@ -253,10 +295,10 @@ const AiImageTool = () => {
               </button>
             ))}
           </div>
-        </div>
+        </div> */}
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 pt-12 flex flex-col">
           <div className="p-8 mx-6 my-6 text-center border rounded-2xl border-minimal-border bg-minimal-card shadow-md">
             <h1 className="text-3xl font-bold text-minimal-heading mb-2">
               Ready to see your photo transformed?

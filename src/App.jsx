@@ -262,7 +262,7 @@ function App() {
           <Route path="/socials/:id" element={<DetailedCard />}></Route>
           <Route path="/aitools" element={<AITools />}></Route>
           <Route path="/discover" element={<DiscoverPage />}></Route>
-          <Route path="/chat" element={<Trone />} />
+          <Route path="/expli" element={<Trone />} />
           <Route path="/Meme" element={<Meme />} />
           <Route path="/result" element={<Result />} />
           <Route path="/ageing_ai" element={<AgeingVideoMaker />} />

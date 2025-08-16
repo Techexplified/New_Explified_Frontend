@@ -47,99 +47,37 @@ const DiscoverPage = () => {
   const fetchNews = async () => {
     try {
       setNewsData((prev) => ({ ...prev, loading: true }));
+      const response = await fetch(`${import.meta.env.VITE_APP_URL}api/news`); // backend route
+      const data = await response.json();
 
-      // Helper to shuffle articles
-      const shuffleArray = (array) => {
-        return array
-          .map((item) => ({ item, sort: Math.random() }))
-          .sort((a, b) => a.sort - b.sort)
-          .map(({ item }) => item);
-      };
-
-      // Using NewsAPI
-      const response = await fetch(
-        `https://newsapi.org/v2/top-headlines?country=us&category=technology&apiKey=${API_KEYS.news}`
-      );
-
-      // Fallback logic
-      if (!response.ok) {
-        const fallbackResponse = await fetch(
-          "https://api.thenewsapi.com/v1/news/top?api_token=demo&language=en&limit=10"
-        );
-        const fallbackData = await fallbackResponse.json();
-
-        let articles = shuffleArray(fallbackData.data || []);
-
+      if (data.articles && data.articles.length > 0) {
+        let articles = data.articles;
         setNewsData({
-          featured: articles[0]
-            ? {
-                title: articles[0].title,
-                publishedTime: new Date(
-                  articles[0].published_at
-                ).toLocaleString(),
-                summary: articles[0].description || articles[0].snippet,
-                sources: Math.floor(Math.random() * 50) + 10,
-                url: articles[0].url,
-                image:
-                  articles[0].image_url ||
-                  `https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=400&fit=crop&crop=center`,
-              }
-            : null,
-          articles: articles.slice(1, 4).map((article, index) => ({
-            id: index + 1,
-            title: article.title,
+          featured: {
+            title: articles[0].title,
+            publishedTime: new Date(articles[0].publishedAt).toLocaleString(),
+            summary: articles[0].description,
+            url: articles[0].url,
+            image: articles[0].urlToImage,
             sources: Math.floor(Math.random() * 50) + 10,
-            image:
-              article.image_url ||
-              `https://images.unsplash.com/photo-${
-                1472099645785 + index
-              }?w=400&h=300&fit=crop&crop=center`,
-            category: article.categories?.[0] || "general",
-            url: article.url,
+          },
+          articles: articles.slice(1, 4).map((a, i) => ({
+            id: i + 1,
+            title: a.title,
+            sources: Math.floor(Math.random() * 50) + 10,
+            image: a.urlToImage,
+            category: "tech",
+            url: a.url,
           })),
           loading: false,
           error: null,
         });
-        return;
       }
-
-      const data = await response.json();
-      let articles = shuffleArray(data.articles || []);
-
-      setNewsData({
-        featured: articles[0]
-          ? {
-              title: articles[0].title,
-              publishedTime: new Date(articles[0].publishedAt).toLocaleString(),
-              summary: articles[0].description,
-              sources: Math.floor(Math.random() * 50) + 10,
-              url: articles[0].url,
-              image:
-                articles[0].urlToImage ||
-                `https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=400&fit=crop&crop=center`,
-            }
-          : null,
-        articles: articles.slice(1, 4).map((article, index) => ({
-          id: index + 1,
-          title: article.title,
-          sources: Math.floor(Math.random() * 50) + 10,
-          image:
-            article.urlToImage ||
-            `https://images.unsplash.com/photo-${
-              1472099645785 + index
-            }?w=400&h=300&fit=crop&crop=center`,
-          category: "tech",
-          url: article.url,
-        })),
-        loading: false,
-        error: null,
-      });
-    } catch (error) {
-      console.error("Error fetching news:", error);
+    } catch (err) {
       setNewsData((prev) => ({
         ...prev,
         loading: false,
-        error: error.message,
+        error: err.message,
       }));
     }
   };
@@ -344,70 +282,74 @@ const DiscoverPage = () => {
       <div className="flex pt-10">
         {/* Main Content */}
         <div>
-  {/* Hover zone */}
-  <div
-    className="absolute left-0 top-0 h-full w-6 z-30"
-    onMouseEnter={() => setSidebarOpen(true)}
-    onMouseLeave={() => setSidebarOpen(false)}
-  />
-  
-  {/* Sidebar */}
-  <div
-    className={`fixed top-0 left-0 h-full bg-black/95 backdrop-blur-xl border-r border-minimal-primary/20
+          {/* Hover zone */}
+          <div
+            className="absolute left-0 top-0 h-full w-6 z-30"
+            onMouseEnter={() => setSidebarOpen(true)}
+            onMouseLeave={() => setSidebarOpen(false)}
+          />
+
+          {/* Sidebar */}
+          <div
+            className={`fixed top-0 left-0 h-full bg-black/95 backdrop-blur-xl border-r border-minimal-primary/20
 flex flex-col justify-between z-50
 transition-[width,padding] duration-300 ease-in-out
 ${sidebarOpen ? "w-56 px-6" : "w-0 px-0"}`}
-    onMouseEnter={() => !sidebarPinned && setSidebarOpen(true)}
-    onMouseLeave={() => !sidebarPinned && setSidebarOpen(false)}
-  >
-    {/* Top */}
-    <div
-      className={`mt-8 transition-all duration-300 ${
-        sidebarOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2"
-      }`}
-    >
-      <div className="flex items-center gap-3 mb-2">
-        <button onClick={() => {
-          setSidebarPinned(!sidebarPinned);
-          setSidebarOpen(true);
-        }}>
-          {sidebarPinned ? <PinOff size={20} /> : <Pin size={20} />}
-        </button>
-        {sidebarOpen && (
-          <h2 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-minimal-primary bg-clip-text text-transparent">
-            {toolName}
-          </h2>
-        )}
-      </div>
+            onMouseEnter={() => !sidebarPinned && setSidebarOpen(true)}
+            onMouseLeave={() => !sidebarPinned && setSidebarOpen(false)}
+          >
+            {/* Top */}
+            <div
+              className={`mt-8 transition-all duration-300 ${
+                sidebarOpen
+                  ? "opacity-100 translate-x-0"
+                  : "opacity-0 -translate-x-2"
+              }`}
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <button
+                  onClick={() => {
+                    setSidebarPinned(!sidebarPinned);
+                    setSidebarOpen(true);
+                  }}
+                >
+                  {sidebarPinned ? <PinOff size={20} /> : <Pin size={20} />}
+                </button>
+                {sidebarOpen && (
+                  <h2 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-minimal-primary bg-clip-text text-transparent">
+                    {toolName}
+                  </h2>
+                )}
+              </div>
 
-      <nav className="flex flex-col space-y-6 mt-8">
-        <button className="flex items-center space-x-2 bg-black border border-[#23b5b5]/40 px-4 py-2 rounded-lg">
-          <span className="text-[#23b5b5]">⚡</span>
-          {sidebarOpen && <span>For You</span>}
-        </button>
-        <button className="flex items-center space-x-2 bg-black border border-[#23b5b5]/40 px-4 py-2 rounded-lg">
-          <span>⭐</span>
-          {sidebarOpen && <span>Top</span>}
-        </button>
-        <button className="flex items-center space-x-2 bg-black border border-[#23b5b5]/40 px-4 py-2 rounded-lg">
-          <span>📋</span>
-          {sidebarOpen && <span>Topics</span>}
-        </button>
-      </nav>
-    </div>
+              <nav className="flex flex-col space-y-6 mt-8">
+                <button className="flex items-center space-x-2 bg-black border border-[#23b5b5]/40 px-4 py-2 rounded-lg">
+                  <span className="text-[#23b5b5]">⚡</span>
+                  {sidebarOpen && <span>For You</span>}
+                </button>
+                <button className="flex items-center space-x-2 bg-black border border-[#23b5b5]/40 px-4 py-2 rounded-lg">
+                  <span>⭐</span>
+                  {sidebarOpen && <span>Top</span>}
+                </button>
+                <button className="flex items-center space-x-2 bg-black border border-[#23b5b5]/40 px-4 py-2 rounded-lg">
+                  <span>📋</span>
+                  {sidebarOpen && <span>Topics</span>}
+                </button>
+              </nav>
+            </div>
 
-    {/* Bottom */}
-    {sidebarOpen && (
-      <div className="mb-8 transition-all duration-300">
-        <Link to={link}>
-          <button className="w-full bg-gradient-to-r from-minimal-primary to-minimal-primary/80 hover:from-minimal-primary/80 hover:to-minimal-primary text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-minimal-primary/25">
-            Learn More
-          </button>
-        </Link>
-      </div>
-    )}
-  </div>
-</div>
+            {/* Bottom */}
+            {sidebarOpen && (
+              <div className="mb-8 transition-all duration-300">
+                <Link to={link}>
+                  <button className="w-full bg-gradient-to-r from-minimal-primary to-minimal-primary/80 hover:from-minimal-primary/80 hover:to-minimal-primary text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-minimal-primary/25">
+                    Learn More
+                  </button>
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
 
         <main className="flex-1 p-6">
           {/* Loading State */}
@@ -535,9 +477,12 @@ ${sidebarOpen ? "w-56 px-6" : "w-0 px-0"}`}
 
         {/* Right Sidebar */}
         <aside className="w-80 p-6 border-l border-[#23b5b5]/30">
-          
           <div className="mb-6">
-            <input className="w-full p-2 bg-[#1a1a1a] rounded-lg border border-[#23b5b5]/30" type="text" placeholder="Search" />
+            <input
+              className="w-full p-2 bg-[#1a1a1a] rounded-lg border border-[#23b5b5]/30"
+              type="text"
+              placeholder="Search"
+            />
           </div>
           {/* Interests Card */}
           <div className="bg-[#1a1a1a] rounded-xl p-4 mb-6 relative">

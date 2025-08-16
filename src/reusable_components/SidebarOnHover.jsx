@@ -24,6 +24,9 @@ function SidebarOnHover({ link, toolName }) {
         {/* Top section */}
         <div className="mt-8">
           <div className="flex items-center gap-3 mb-2">
+            <h2 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-minimal-primary bg-clip-text text-transparent">
+              {toolName}
+            </h2>
             <button
               onClick={() => {
                 setSidebarPinned(!sidebarPinned);
@@ -32,9 +35,7 @@ function SidebarOnHover({ link, toolName }) {
             >
               {sidebarPinned ? <PinOff size={20} /> : <Pin size={20} />}
             </button>
-            <h2 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-minimal-primary bg-clip-text text-transparent">
-              {toolName}
-            </h2>
+            
           </div>
         </div>
 
