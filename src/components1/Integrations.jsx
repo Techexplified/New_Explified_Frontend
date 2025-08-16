@@ -22,8 +22,52 @@ import {
   Star,
   Check,
 } from "lucide-react";
+import { FaGoogleDrive, FaSearch } from "react-icons/fa";
+import {
+  SiGooglecalendar,
+  SiGoogledocs,
+  SiGooglemeet,
+  SiGooglesheets,
+} from "react-icons/si";
 
 const categorizedTools = {
+  Google: [
+    {
+      name: "Google Drive",
+      icon: <FaGoogleDrive />,
+      description: "Cloud storage service for files.",
+      rating: 490,
+      reviews: 200,
+    },
+    {
+      name: "Google Docs",
+      icon: <SiGoogledocs />,
+      description: "Online word processor for documents.",
+      rating: 420,
+      reviews: 170,
+    },
+    {
+      name: "Google Meet",
+      icon: <SiGooglemeet />,
+      description: "Video conferencing platform.",
+      rating: 300,
+      reviews: 90,
+    },
+    {
+      name: "Google Sheets",
+      icon: <SiGooglesheets />,
+      description: "Online spreadsheet tool.",
+      rating: 360,
+      reviews: 100,
+    },
+    {
+      name: "Google Calendar",
+      icon: <SiGooglecalendar />,
+      description: "Calendar app for scheduling events.",
+      rating: 400,
+      reviews: 140,
+    },
+  ],
   Messaging: [
     {
       name: "WhatsApp by Twilio",
@@ -246,13 +290,17 @@ export default function IntegrationsPage() {
   // };
 
   const renderTools = (category) => {
-    let toolsToRender =
+    let toolsToRender = [];
+
+    toolsToRender =
       category === "All"
         ? categories.flatMap((cat) => categorizedTools[cat])
-        : categorizedTools[category] || [];
+        : categorizedTools[category];
 
     if (category === "BYOK") {
-      toolsToRender = toolsToRender.filter((t) => t.byok);
+      toolsToRender = Object.values(categorizedTools)
+        .flat()
+        .filter((tool) => tool.byok === true);
     }
 
     toolsToRender = filterTools(toolsToRender);
@@ -312,6 +360,13 @@ export default function IntegrationsPage() {
         lastSync: "2 hours ago",
       },
       {
+        name: "Google Docs",
+        icon: <SiGoogledocs />,
+        description: "AI chatbot by OpenAI",
+        connected: false,
+        lastSync: "5 minutes ago",
+      },
+      {
         name: "ChatGPT",
         icon: <Bot />,
         description: "AI chatbot by OpenAI",
@@ -350,9 +405,13 @@ export default function IntegrationsPage() {
             </p>
             <div className="flex items-center justify-between text-xs">
               <span className="text-gray-400">Last sync: {tool.lastSync}</span>
-              <div className="flex items-center gap-1 text-green-400">
+              <div
+                className={`flex items-center gap-1 ${
+                  tool.connected ? "text-green-400" : "text-gray-400"
+                } `}
+              >
                 <Check className="w-3 h-3" />
-                <span>Active</span>
+                <span>{tool.connected ? "Active" : "Inctive"}</span>
               </div>
             </div>
           </div>
@@ -426,13 +485,13 @@ export default function IntegrationsPage() {
         {/* Enhanced Search Bar */}
         <div className="relative max-w-2xl mx-auto mb-8">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5" />
             <input
               type="text"
               placeholder="Search integrations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-gray-800/50 border border-gray-600 rounded-2xl pl-12 pr-4 py-4 text-white placeholder-gray-400 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 backdrop-blur-sm transition-all duration-200"
+              className="w-full bg-gray-800/50 border border-gray-600 rounded-2xl pl-12 pr-4 py-4 text-white placeholder-gray-400 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20  transition-all duration-200"
             />
           </div>
         </div>

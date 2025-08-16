@@ -51,8 +51,10 @@ export default function LandingPage() {
 
       const data = response.data;
 
-      await buildPPT(data.pptData);
-      setGeneratedContent(data.content);
+      console.log(data);
+
+      await buildPPT(data?.pptData);
+      setGeneratedContent(data?.content);
     } catch (err) {
       console.error(err);
       setErrorMsg(

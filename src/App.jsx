@@ -123,6 +123,8 @@ import OAuthCallback from "./components1/OAuthCallback";
 import AutomatedVideoGenerator from "./components1/Zapier";
 import TaskManager from "./components1/TaskPage.jsx";
 import Notes from "./components1/Notes.jsx";
+import HuggingFaceApiInterface from "./components/tools/HuggingFaceApiInterface.jsx";
+import ScrollToTop from "./reusable_components/ScrollToTop.jsx";
 import HistoryChat from "./components1/HistoryChat.jsx";
 
 function App() {
@@ -138,6 +140,7 @@ function App() {
 
   return (
     <div>
+      <ScrollToTop />
       <Routes>
         <Route path="/web" element={<MainPage />} />
         <Route path="/result" element={<Result />} />
@@ -257,7 +260,7 @@ function App() {
           ></Route>
           <Route path="/socials/:id" element={<DetailedCard />}></Route>
           <Route path="/aitools" element={<AITools />}></Route>
-          <Route path="/lurphchat" element={<Trone />} />
+          <Route path="/chat" element={<Trone />} />
           <Route path="/Meme" element={<Meme />} />
           <Route path="/ai-gif-generator" element={<GIFGenerator />} />
           <Route path="/video-meme-generator" element={<AIMemeGenerator />} />
