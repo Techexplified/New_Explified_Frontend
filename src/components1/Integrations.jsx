@@ -303,8 +303,6 @@ export default function IntegrationsPage() {
         .filter((tool) => tool.byok === true);
     }
 
-    console.log(toolsToRender);
-
     toolsToRender = filterTools(toolsToRender);
 
     return (
