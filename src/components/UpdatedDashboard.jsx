@@ -44,7 +44,7 @@ const navItems = [
 ];
 
 const NavBarSection = ({ selectedTool, onNavClick }) => (
-  <div className="flex gap-4 items-center flex-nowrap w-auto pt-4 pb-2">
+  <div className="flex gap-4 items-center flex-nowrap w-auto pt-1 pb-1">
     {navItems.map((item) => (
       <div key={item.name} className="flex flex-col items-center relative">
         <button
@@ -52,12 +52,12 @@ const NavBarSection = ({ selectedTool, onNavClick }) => (
           onClick={() => onNavClick(item.name)}
           className={
             selectedTool === item.name || item.active
-              ? "flex items-center justify-center bg-[#7c8e91] text-white min-w-[100px] h-9 px-4 rounded-[22px] border border-[#7ce4de] text-base font-semibold"
-              : "flex items-center justify-center bg-transparent text-white min-w-[100px] h-9 px-4 rounded-[22px] border border-[#7ce4de] text-base hover:bg-[#7c8e91]/60"
+              ? "flex items-center justify-center bg-[#7c8e91] text-white min-w-[100px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base font-semibold"
+              : "flex items-center justify-center bg-transparent text-white min-w-[100px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base hover:bg-[#7c8e91]/60"
           }
         >
           {item.name === "Search" && item.icon ? (
-            <Search className="w-6 h-6" />
+            <Search className="w-5 h-5" />
           ) : (
             <span>{item.name}</span>
           )}
@@ -196,10 +196,10 @@ const UpdatedDashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 flex flex-col overflow-hidden">
       <header
-        className={`fixed bg-trnsparent border-minimal-border/50 px-6 transition-transform duration-300 z-50 top-0 left-0 w-full
+        className={`fixed border-minimal-border/50 px-6 transition-transform duration-300 z-50 top-0 left-0 w-full
           ${showNavbar ? "translate-y-0" : "-translate-y-full"}
         `}
-        style={{ minHeight: "82px" }}
+        style={{ minHeight: "56px", background: "transparent" }}
       >
         <div className="flex items-start justify-between w-full">
           {/* Navbar left */}
@@ -382,7 +382,7 @@ const UpdatedDashboard = () => {
         className={`${
           sidebarOpen ? "ml-80" : "ml-0"
         } w-full transition-all duration-300`}
-        style={{ marginTop: "115px" }}
+        style={{ marginTop: "56px" }}
       >
         <Outlet />
       </div>
