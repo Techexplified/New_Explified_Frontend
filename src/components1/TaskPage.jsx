@@ -1,44 +1,35 @@
 import { useState, useEffect } from "react";
-import { Plus, Edit3, Clock, Search } from "lucide-react";
+import { Plus, Edit3, Clock, Search, Pin, PinOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import Sidebar from "../reusable_components/SidebarOnHover2"; // your Sidebar.jsx
 
 export default function TaskManager() {
   const [tasks, setTasks] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarPinned, setIsSidebarPinned] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
-  const [isSidebarPinned1, setisSidebarPinned1] = useState(false);
-  const navigate = useNavigate();
- const [selectedTask1, setSelectedTask] = useState(null);
-  const genAI = new GoogleGenerativeAI("AIzaSyCjxEkSZKRdCohde0z5FKaZAO624gF3wms");
 
+  const navigate = useNavigate();
+  const genAI = new GoogleGenerativeAI(import.meta.env.GEMINI_API_KEY); // <-- put your key here
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-  // Load tasks and assign titles if missing
+  // Load tasks from localStorage
   useEffect(() => {
     try {
       const storedTasks = JSON.parse(localStorage.getItem("tasks") || "[]");
-      const normalizedTasks = storedTasks.map((t, index) => {
-        if (typeof t === "string") {
-          return {
-            id: Date.now() + index,
-            title: "",
-            content: t,
-            lastModified: new Date().toISOString(),
-          };
-        }
-        return {
-          id: t.id || Date.now() + index,
-          title: t.title || "",
-          content: t.content || "",
-          lastModified: t.lastModified || new Date().toISOString(),
-        };
-      });
+      const normalizedTasks = storedTasks.map((t, index) => ({
+        id: t.id || Date.now() + index,
+        title: t.title || "",
+        content: t.content || "",
+        lastModified: t.lastModified || new Date().toISOString(),
+      }));
+
       setTasks(normalizedTasks);
 
-      // Generate missing titles
+      // Generate titles for missing ones
       normalizedTasks.forEach(async (task) => {
         if (!task.title && task.content) {
           const title = await generateTitle(task.content);
@@ -53,12 +44,11 @@ export default function TaskManager() {
   // Gemini title generator
   const generateTitle = async (content) => {
     try {
-      const prompt = `From the following note, pick one short significant word or a concise 2-3 word phrase as its title. Avoid quotes or punctuation. Note: "${content}"`;
+      const prompt = `From the following note, pick one short significant word or concise 2-3 word phrase as its title. Avoid punctuation. Note: "${content}"`;
       const result = await model.generateContent(prompt);
       const text = result.response.text().trim();
       return text || "Untitled";
-    } catch (error) {
-      console.error("Gemini error:", error);
+    } catch {
       return "Untitled";
     }
   };
@@ -106,113 +96,27 @@ export default function TaskManager() {
   const selectedTask = tasks.find((task) => task.id === selectedTaskId);
 
   return (
-    <div className="flex h-screen bg-black ">
-      {/* Hover zone to trigger sidebar */}
-      <div
-        className="fixed left-0 top-0 h-full w-2 z-50 "
-        onMouseEnter={() => setIsSidebarOpen(true)}
-      />
-
+    <div className="flex h-screen bg-black">
       {/* Sidebar */}
-      <aside
-        className={`fixed left-0 top-0 h-screen bg-black/30 backdrop-blur-xl border-r border-white/10 p-6 flex flex-col transform transition-all duration-300 ease-in-out overflow-x-hidden
-          ${isSidebarPinned1 || isSidebarOpen ? "translate-x-0 w-72" : "-translate-x-full w-72"}
-        `}
-        // Disable hover handlers when pinned
-        onMouseEnter={
-          isSidebarPinned1 ? undefined : () => setIsSidebarOpen(true)
-        }
-        onMouseLeave={
-          isSidebarPinned1 ? undefined : () => setIsSidebarOpen(false)
-        }
-      >
-        {/* Pin Button */}
-        <div className="absolute top-3 right-3">
-          <button
-            onClick={() => {
-              setisSidebarPinned1((prev) => !prev);
-              // When pinning, keep it open; when unpinning, leave current open state as-is.
-              if (!isSidebarPinned1) setIsSidebarOpen(true);
-            }}
-            className={`p-2 rounded-full transition-all transform hover:scale-110 ${
-              isSidebarPinned1
-                ? "bg-cyan-500 text-white rotate-0"
-                : "bg-white/10 text-gray-400 hover:bg-white/20 hover:text-white rotate-12"
-            }`}
-            title={isSidebarPinned1 ? "Unpin Sidebar" : "Pin Sidebar"}
-          >
-            {isSidebarPinned1 ? (
-              <Pin className="w-4 h-4" />
-            ) : (
-              <PinOff className="w-4 h-4" />
-            )}
-          </button>
-        </div>
-
-        {/* Header */}
-        <div className="mb-8 mt-8">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-[#23b5b5] to-cyan-400 bg-clip-text text-transparent">
-            Notes
-          </h1>
-          <p className="text-sm text-gray-400 mt-1">{tasks.length} notes total</p>
-        </div>
-
-        {/* Search */}
-        <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-          <input
-            type="text"
-            placeholder="Search notes..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#23b5b5]/50"
-          />
-        </div>
-
-        {/* Recent Notes */}
-        <div className="flex-1 overflow-y-auto">
-          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">
-            Recent Notes
-          </h3>
-          <div className="space-y-2">
-            {filteredTasks.slice(0, 10).map((task) => (
-              <div
-                key={task.id}
-                onClick={() => setSelectedTaskId(task.id)}
-                className="group bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg p-3 cursor-pointer transition-all duration-200 hover:scale-[1.02]"
-              >
-                <div className="text-sm text-white/90 mb-2">
-                  {task.title || "Untitled"}
-                </div>
-                <div className="flex items-center text-xs text-gray-500">
-                  <Clock className="w-3 h-3 mr-1" />
-                  {formatDate(task.lastModified)}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex justify-center mt-[10px]">
-  <a
-    href="https://explified.com/notes/"
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    <button className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold border border-white/20 backdrop-blur-md shadow-lg transition-all duration-300">
-      Learn more
-    </button>
-  </a>
-</div>
-      </aside>
+      <Sidebar
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+        isSidebarPinned={isSidebarPinned}
+        setIsSidebarPinned={setIsSidebarPinned}
+        tasks={filteredTasks}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        setSelectedTaskId={setSelectedTaskId}
+        formatDate={formatDate}
+      />
 
       {/* Main Content */}
       <main
         className={`flex-1 p-8 overflow-y-auto transition-all duration-300 ${
-          isSidebarOpen ? "ml-72" : "ml-0"
+          isSidebarOpen || isSidebarPinned ? "ml-72" : "ml-0"
         }`}
       >
-        <div className="max-w-7xl mx-auto ">
+        <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-3xl font-bold text-white mb-2">Your Notes</h2>
             <p className="text-gray-400">Capture your thoughts and ideas</p>
@@ -257,10 +161,7 @@ export default function TaskManager() {
                 ) : (
                   <p
                     className="text-white/90 text-sm leading-relaxed cursor-pointer"
-                    onClick={() => {
-  setSelectedTaskId(task.id);
-  setSelectedTask(true);
-}}
+                    onClick={() => setSelectedTaskId(task.id)}
                   >
                     {task.content}
                   </p>
@@ -276,27 +177,23 @@ export default function TaskManager() {
             ))}
           </div>
 
-          {/* Focused selected note */}
-          {selectedTask && selectedTask1 && (
-  <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50">
-    <div className="relative w-full max-w-md p-6 bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-lg">
-      {/* Close icon */}
-      <button
-        onClick={() => setSelectedTask(null)}
-        className="absolute top-3 right-3 text-white hover:text-gray-300"
-      >
-        ✕
-      </button>
-
-      {/* Task content */}
-      <h3 className="text-xl font-bold text-white mb-4">
-        {selectedTask.title || "Untitled"}
-      </h3>
-      <p className="text-gray-300">{selectedTask.content}</p>
-    </div>
-  </div>
-)}
-
+          {/* Selected Note Modal */}
+          {selectedTask && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50">
+              <div className="relative w-full max-w-md p-6 bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-lg">
+                <button
+                  onClick={() => setSelectedTaskId(null)}
+                  className="absolute top-3 right-3 text-white hover:text-gray-300"
+                >
+                  ✕
+                </button>
+                <h3 className="text-xl font-bold text-white mb-4">
+                  {selectedTask.title || "Untitled"}
+                </h3>
+                <p className="text-gray-300">{selectedTask.content}</p>
+              </div>
+            </div>
+          )}
         </div>
       </main>
     </div>

@@ -23,6 +23,7 @@ function Trone({ onFirstPrompt }) {
   const chatContainerRef = useRef(null);
 
   useEffect(() => {
+    console.log(localStorage.getItem("tasks"))
     if (!prevDrawerState.current && isDrawerOpen) {
       setFirstPromptDone(false);
       localStorage.setItem("firstPromptDone", "false");
