@@ -7,12 +7,12 @@ import SidebarOnHover2 from "../reusable_components/SidebarOnHover2"; // your Si
 export default function TaskManager() {
   const [tasks, setTasks] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sidebarActive, setSidebarActive] = useState(false); // 🔑 new unified state
+  const [sidebarActive, setSidebarActive] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
 
   const navigate = useNavigate();
-  const genAI = new GoogleGenerativeAI(import.meta.env.GEMINI_API_KEY); // <-- put your key here
+  const genAI = new GoogleGenerativeAI("AIzaSyA3iqoMW6g81LMjWdyS24WHM32M0ie7AEs");
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
   // Load tasks from localStorage
@@ -28,7 +28,7 @@ export default function TaskManager() {
 
       setTasks(normalizedTasks);
 
-      // Generate titles for missing ones
+      // Generate titles only if missing
       normalizedTasks.forEach(async (task) => {
         if (!task.title && task.content) {
           const title = await generateTitle(task.content);
@@ -97,9 +97,7 @@ export default function TaskManager() {
   return (
     <div className="flex h-screen bg-black">
       {/* Sidebar */}
-      <SidebarOnHover2
-        onToggle={setSidebarActive} // 🔑 now TaskManager listens to sidebar state
-      />
+      <SidebarOnHover2 onToggle={setSidebarActive} />
 
       {/* Main Content */}
       <main
@@ -108,7 +106,7 @@ export default function TaskManager() {
         }`}
       >
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex flex-col mb-8">
             <h2 className="text-3xl font-bold text-white mb-2">Your Notes</h2>
             <p className="text-gray-400">Capture your thoughts and ideas</p>
           </div>
@@ -141,22 +139,31 @@ export default function TaskManager() {
                   </button>
                 </div>
 
-                {editingTaskId === task.id ? (
-                  <textarea
-                    value={task.content}
-                    onChange={(e) => updateTaskContent(task.id, e.target.value)}
-                    onBlur={() => setEditingTaskId(null)}
-                    className="w-full bg-transparent text-white/90 resize-none focus:outline-none text-sm leading-relaxed min-h-[120px]"
-                    autoFocus
-                  />
-                ) : (
-                  <p
-                    className="text-white/90 text-sm leading-relaxed cursor-pointer"
-                    onClick={() => setSelectedTaskId(task.id)}
-                  >
-                    {task.content}
-                  </p>
-                )}
+                {/* Title + Content */}
+                <div
+                  className="cursor-pointer"
+                  onClick={() => setSelectedTaskId(task.id)}
+                >
+                  <h4 className="text-lg font-semibold text-white mb-2">
+                    {task.title || "Untitled"}
+                  </h4>
+
+                  {editingTaskId === task.id ? (
+                    <textarea
+                      value={task.content}
+                      onChange={(e) =>
+                        updateTaskContent(task.id, e.target.value)
+                      }
+                      onBlur={() => setEditingTaskId(null)}
+                      className="w-full bg-transparent text-white/90 resize-none focus:outline-none text-sm leading-relaxed min-h-[120px]"
+                      autoFocus
+                    />
+                  ) : (
+                    <p className="text-white/70 text-sm leading-relaxed">
+                      {task.content}
+                    </p>
+                  )}
+                </div>
 
                 <div className="mt-4 pt-3 border-t border-white/10">
                   <p className="text-xs text-gray-500 flex items-center">

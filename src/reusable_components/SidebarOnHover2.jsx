@@ -60,6 +60,16 @@ function SidebarOnHover2({ toolName, onToggle }) {
         {/* Top Section */}
         <div className="mt-8 flex-shrink-0">
           <div className="flex items-center gap-3 mb-2">
+            
+            <p className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-minimal-primary bg-clip-text text-transparent">
+              Notes
+            </p>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
             <button
               onClick={() => {
                 setSidebarPinned(!sidebarPinned);
@@ -68,9 +78,6 @@ function SidebarOnHover2({ toolName, onToggle }) {
             >
               {sidebarPinned ? <PinOff size={20} /> : <Pin size={20} />}
             </button>
-            <p className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-minimal-primary bg-clip-text text-transparent">
-              Notes
-            </p>
           </div>
         </div>
 
@@ -99,13 +106,17 @@ function SidebarOnHover2({ toolName, onToggle }) {
         </div>
 
         {/* Bottom Section */}
+        <br/>
+        
+
         <div className="mb-8 flex-shrink-0">
-          <Link to={link} target="main">
-            <button className="w-full bg-gradient-to-r from-minimal-primary to-minimal-primary/80 hover:from-minimal-primary/80 hover:to-minimal-primary text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-minimal-primary/25">
-              Learn More
-            </button>
-          </Link>
-        </div>
+  <Link to={link} target="_self">   {/* ✅ force same tab */}
+    <button className="w-full bg-gradient-to-r from-minimal-primary to-minimal-primary/80 hover:from-minimal-primary/80 hover:to-minimal-primary text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-minimal-primary/25">
+      Learn More
+    </button>
+  </Link>
+</div>
+
       </div>
     </>
   );

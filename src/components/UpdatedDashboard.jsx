@@ -212,10 +212,14 @@ const UpdatedDashboard = () => {
               </h2>
             </Link>
           </div> */}
-          <div></div>
-
+          <div>
+            
+          </div>
+        
+           
           {/* Actions */}
           <div className="flex items-center gap-2 relative">
+            
             {/* 1 Dashboard Button */}
             {(() => {
               const tool = {
@@ -293,7 +297,7 @@ const UpdatedDashboard = () => {
                 </div>
               )} */}
             </div>
-
+            
             {/* 3 profile */}
             <div
               onMouseEnter={handleMouseEnter}
@@ -317,6 +321,7 @@ const UpdatedDashboard = () => {
                     >
                       View My Profile
                     </button>
+                    
                     <div className="flex gap-3 flex-col">
                       {/* Example buttons */}
                       <div className="flex gap-3">
@@ -382,7 +387,7 @@ const UpdatedDashboard = () => {
                       </div>
                     </div>
                   </div>
-
+                   
                   {/* Workflows */}
                   <div className="mb-4 flex flex-col justify-center items-center">
                     <h3 className="text-white text-sm font-semibold mb-2">
