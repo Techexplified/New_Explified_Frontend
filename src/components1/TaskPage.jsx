@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
-import { Plus, Edit3, Clock, Search, Pin, PinOff } from "lucide-react";
+import { Plus, Edit3, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import Sidebar from "../reusable_components/SidebarOnHover2"; // your Sidebar.jsx
+import SidebarOnHover2 from "../reusable_components/SidebarOnHover2"; // your Sidebar.jsx
 
 export default function TaskManager() {
   const [tasks, setTasks] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isSidebarPinned, setIsSidebarPinned] = useState(false);
+  const [sidebarActive, setSidebarActive] = useState(false); // 🔑 new unified state
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
 
@@ -98,22 +97,14 @@ export default function TaskManager() {
   return (
     <div className="flex h-screen bg-black">
       {/* Sidebar */}
-      <Sidebar
-        isSidebarOpen={isSidebarOpen}
-        setIsSidebarOpen={setIsSidebarOpen}
-        isSidebarPinned={isSidebarPinned}
-        setIsSidebarPinned={setIsSidebarPinned}
-        tasks={filteredTasks}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        setSelectedTaskId={setSelectedTaskId}
-        formatDate={formatDate}
+      <SidebarOnHover2
+        onToggle={setSidebarActive} // 🔑 now TaskManager listens to sidebar state
       />
 
       {/* Main Content */}
       <main
         className={`flex-1 p-8 overflow-y-auto transition-all duration-300 ${
-          isSidebarOpen || isSidebarPinned ? "ml-72" : "ml-0"
+          sidebarActive ? "ml-72" : "ml-0"
         }`}
       >
         <div className="max-w-7xl mx-auto">

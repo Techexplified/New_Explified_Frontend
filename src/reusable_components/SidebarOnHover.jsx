@@ -32,9 +32,9 @@ function SidebarOnHover({ link, toolName }) {
             >
               {sidebarPinned ? <PinOff size={20} /> : <Pin size={20} />}
             </button>
-            <p className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-minimal-primary bg-clip-text text-transparent">
+            <h2 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-minimal-primary bg-clip-text text-transparent">
               {toolName}
-            </p>
+            </h2>
           </div>
         </div>
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Edit3, X } from "lucide-react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import SidebarOnHover from "../reusable_components/SidebarOnHover2"; // ✅ import your sidebar
+import SidebarOnHover2 from "../reusable_components/SidebarOnHover2"; // ✅ import your sidebar
 
 export default function Notes() {
   const [newTask, setNewTask] = useState("");
@@ -10,14 +10,14 @@ export default function Notes() {
   const [isEditing, setIsEditing] = useState(false);
   const [tempTitle, setTempTitle] = useState(title);
   const [tasks, setTasks] = useState([]);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // 🔑 track sidebar state
 
   const navigate = useNavigate();
-  const genAI = new GoogleGenerativeAI("YOUR_API_KEY");
+  const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
   // Fetch tasks from localStorage
   useEffect(() => {
-    
     const stored = JSON.parse(localStorage.getItem("tasks") || "[]");
     const normalized = stored.map((t, i) =>
       typeof t === "string"
@@ -49,7 +49,10 @@ export default function Notes() {
     localStorage.setItem("tasks", JSON.stringify(updated));
     localStorage.setItem(
       "alltask",
-      JSON.stringify([...JSON.parse(localStorage.getItem("alltask") || "[]"), newNote])
+      JSON.stringify([
+        ...JSON.parse(localStorage.getItem("alltask") || "[]"),
+        newNote,
+      ])
     );
     setTasks(updated);
     setNewTask("");
@@ -58,11 +61,14 @@ export default function Notes() {
 
   return (
     <div className="flex bg-black min-h-screen text-white">
-      {/* ✅ Sidebar is now separate */}
-      <SidebarOnHover tasks={tasks} />
+      {/* ✅ Sidebar with toggle callback */}
+      <SidebarOnHover2 tasks={tasks} onToggle={setSidebarOpen} />
 
-      {/* Main Content */}
-      <div className="flex-1 p-8 pt-[50px]">
+      {/* ✅ Main Content shifts smoothly */}
+      <div
+        className={`flex-1 p-8 pt-[50px] transition-all duration-300`}
+        style={{ marginLeft: sidebarOpen ? "14rem" : "0rem" }} // shift right when sidebar opens
+      >
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div
@@ -126,3 +132,5 @@ export default function Notes() {
     </div>
   );
 }
+
+
