@@ -297,15 +297,6 @@ const UpdatedDashboard = () => {
                         >
                           <FileText className="w-5 h-5 text-white" />
                         </button>
-                        <button
-                          onClick={() => {
-                            navigate("/integrations");
-                            setIsOpen(false);
-                          }}
-                          className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
-                        >
-                          <Zap className="w-5 h-5 text-white" />
-                        </button>
                       </div>
                       <div className="flex gap-3">
                         <button
@@ -351,6 +342,15 @@ const UpdatedDashboard = () => {
                         className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
                       >
                         <Workflow className="w-5 h-5 text-white" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          navigate("/integrations");
+                          setIsOpen(false);
+                        }}
+                        className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
+                      >
+                        <Zap className="w-5 h-5 text-white" />
                       </button>
                     </div>
                   </div>

@@ -29,6 +29,7 @@ import {
   SiGooglemeet,
   SiGooglesheets,
 } from "react-icons/si";
+import SidebarOnHover from "../reusable_components/SidebarOnHover";
 
 const categorizedTools = {
   Google: [
@@ -465,6 +466,11 @@ export default function IntegrationsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 text-white">
+      <SidebarOnHover
+        link={"https://explified.com/integrations/"}
+        toolName={"Integrations"}
+      />
+
       {/* Animated background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-teal-500/5 rounded-full blur-3xl animate-pulse"></div>
