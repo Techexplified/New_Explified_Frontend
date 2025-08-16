@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Outlet, useNavigate, useLocation, Link } from "react-router-dom";
-
 import {
   Home,
   History,
@@ -35,10 +34,48 @@ import {
 import logo from "../assets/logos/explified_logo.png";
 import UserModal from "./UserModal";
 
+const navItems = [
+  { name: "Search", icon: Search, active: true, badge: null },
+  { name: "Recent", icon: null, active: false, badge: null },
+  { name: "Start", icon: null, active: false, badge: null },
+  { name: "All Apps", icon: null, active: false, badge: null },
+  { name: "Workflows", icon: null, active: false, badge: null },
+  { name: "Integrations", icon: null, active: false, badge: null }
+];
+
+const NavBarSection = ({ selectedTool, onNavClick }) => (
+  <div className="flex gap-4 items-center flex-nowrap w-auto pt-4 pb-2">
+    {navItems.map((item) => (
+      <div key={item.name} className="flex flex-col items-center relative">
+        <button
+          type="button"
+          onClick={() => onNavClick(item.name)}
+          className={
+            selectedTool === item.name || item.active
+              ? "flex items-center justify-center bg-[#7c8e91] text-white min-w-[100px] h-9 px-4 rounded-[22px] border border-[#7ce4de] text-base font-semibold"
+              : "flex items-center justify-center bg-transparent text-white min-w-[100px] h-9 px-4 rounded-[22px] border border-[#7ce4de] text-base hover:bg-[#7c8e91]/60"
+          }
+        >
+          {item.name === "Search" && item.icon ? (
+            <Search className="w-6 h-6" />
+          ) : (
+            <span>{item.name}</span>
+          )}
+        </button>
+        {item.badge && (
+          <span className="bg-[#7ce4de] text-[#263238] px-4 py-2 rounded-md text-base font-semibold mt-2 absolute top-[38px] left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+            {item.badge}
+          </span>
+        )}
+      </div>
+    ))}
+  </div>
+);
+
 const UpdatedDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeNav, setActiveNav] = useState("");
-  const [selectedTool, setSelectedTool] = useState(null);
+  const [selectedTool, setSelectedTool] = useState("");
   const [showContent, setShowContent] = useState(true);
   const [showNavbar, setShowNavbar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -58,55 +95,17 @@ const UpdatedDashboard = () => {
   };
   const creditsPercentage = (userCredits.remaining / userCredits.total) * 100;
 
-  // Tools & AI tools data
   const tools = [
-    {
-      name: "",
-      icon: LayoutDashboard,
-      description: "Shows key metrics",
-    },
-    {
-      name: "Workflows",
-      icon: Workflow,
-      description: "Automates task sequences",
-    },
+    { name: "", icon: LayoutDashboard, description: "Shows key metrics" },
+    { name: "Workflows", icon: Workflow, description: "Automates task sequences" },
   ];
-  const plusTools = [
-    {
-      name: "Files",
-      icon: File,
-      path: "/task-manager",
-    },
-  ];
-
+  const plusTools = [{ name: "Files", icon: File, path: "/task-manager" }];
   const aiTools = [
     { name: "Integrations", icon: Zap, path: "/integrations" },
-    {
-      name: "Workflows",
-      icon: Workflow,
-      path: "/workflows",
-    },
-    {
-      name: "Ai tools",
-      icon: PencilRuler,
-      path: "/aitools",
-    },
-
-    // { name: "Socials", icon: BoomBox, route: "/socials" },
-    // { name: "Youtube Summarizer", icon: Youtube, route: "/youtube-summarizer" },
-    // { name: "AI Subtitler", icon: Captions, route: "/ai-subtitler" },
-    // { name: "Linkedin Extension", icon: Linkedin, route: "/linkedin" },
-    // { name: "Meme Generator", icon: Video, route: "/video-meme-generator" },
-    // { name: "Bg Remover", icon: ImagePlay, route: "/bg-remover" },
-    // { name: "Influmark", icon: SquarePercent, route: "/influmark" },
-    // {
-    //   name: "Chats",
-    //   icon: SquarePercent,
-    //   description: "Lets you chat with others",
-    // },
+    { name: "Workflows", icon: Workflow, path: "/workflows" },
+    { name: "Ai tools", icon: PencilRuler, path: "/aitools" },
   ];
 
-  // Handlers
   function PlusClick() {
     setIsDrawerOpen((prev) => !prev);
     navigate("/chat");
@@ -116,7 +115,6 @@ const UpdatedDashboard = () => {
     setIsToolsOpen((prev) => !prev);
   }
 
-  // Outside click close for tools menu
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
@@ -130,7 +128,6 @@ const UpdatedDashboard = () => {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
-  // Sidebar open/close animation
   useEffect(() => {
     if (sidebarOpen) {
       const timer = setTimeout(() => setShowContent(true), 300);
@@ -140,31 +137,18 @@ const UpdatedDashboard = () => {
     }
   }, [sidebarOpen]);
 
-  // Navbar hide/show on scroll
-  // useEffect(() => {
-  //   const handleScroll = () => {
-  //     setShowNavbar(window.scrollY <= lastScrollY);
-  //     setLastScrollY(window.scrollY);
-  //   };
-  //   window.addEventListener("scroll", handleScroll);
-  //   return () => window.removeEventListener("scroll", handleScroll);
-  // }, [lastScrollY]);
-
   useEffect(() => {
     const handleMouseMove = (e) => {
-      // If mouse is within first 50px of the screen height
       if (e.clientY <= 450) {
         setShowNavbar(true);
       } else {
         setShowNavbar(false);
       }
     };
-
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  // Set selectedTool based on route
   useEffect(() => {
     const pathname = location.pathname;
     if (pathname === "/") {
@@ -175,52 +159,54 @@ const UpdatedDashboard = () => {
       setSelectedTool("Socials");
     } else if (pathname === "/favorites") {
       setSelectedTool("Favorites");
+    } else if (pathname === "/search") {
+      setSelectedTool("Search");
+    } else if (pathname === "/recent") {
+      setSelectedTool("Recent");
+    } else if (pathname === "/start") {
+      setSelectedTool("Start");
+    } else if (pathname === "/all-apps") {
+      setSelectedTool("All Apps");
+    } else if (pathname === "/integrations") {
+      setSelectedTool("Integrations");
     } else {
-      setSelectedTool(null);
+      setSelectedTool("");
     }
   }, [location.pathname]);
 
   let timeoutId;
-
   const handleMouseEnter = () => {
     clearTimeout(timeoutId);
     setIsOpen(true);
   };
-
   const handleMouseLeave = () => {
-    timeoutId = setTimeout(() => setIsOpen(false), 200); // 200ms delay
+    timeoutId = setTimeout(() => setIsOpen(false), 200);
+  };
+
+  const handleNavBarClick = (navName) => {
+    setSelectedTool(navName);
+    if (navName === "Start") navigate("/start");
+    else if (navName === "Search") navigate("/search");
+    else if (navName === "Recent") navigate("/recent");
+    else if (navName === "All Apps") navigate("/all-apps");
+    else if (navName === "Workflows") navigate("/workflows");
+    else if (navName === "Integrations") navigate("/integrations");
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 flex flex-col overflow-hidden">
-      {/* Header */}
       <header
-        className={`fixed bg-trnsparent h-[70px]  border-minimal-border/50 px-6 transition-transform duration-300 z-50 top-0 left-0 w-full
-    ${showNavbar ? "translate-y-0" : "-translate-y-full"}
-  `}
+        className={`fixed bg-trnsparent border-minimal-border/50 px-6 transition-transform duration-300 z-50 top-0 left-0 w-full
+          ${showNavbar ? "translate-y-0" : "-translate-y-full"}
+        `}
+        style={{ minHeight: "82px" }}
       >
-        <div className="flex items-center justify-between h-full">
-          {/* Logo */}
-          {/* <div className="flex items-center gap-2">
-            <Link
-              to="https://explified.com/"
-              className="flex items-center gap-1"
-            >
-              <img className="w-7" src={logo} alt="Explified" />
-              <h2 className="text-xl font-bold text-minimal-white">
-                Explified
-              </h2>
-            </Link>
-          </div> */}
-          <div>
-            
-          </div>
-        
-           
-          {/* Actions */}
-          <div className="flex items-center gap-2 relative">
-            
-            {/* 1 Dashboard Button */}
+        <div className="flex items-start justify-between w-full">
+          {/* Navbar left */}
+          <NavBarSection selectedTool={selectedTool} onNavClick={handleNavBarClick} />
+          {/* Action buttons right (original styling preserved) */}
+          <div className="flex items-center gap-2 pt-1">
+            {/* Grid Icon */}
             {(() => {
               const tool = {
                 name: "",
@@ -236,19 +222,17 @@ const UpdatedDashboard = () => {
                     navigate(`/${tool.name.toLowerCase()}`);
                   }}
                   className={`flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 transform
-          ${
-            location.pathname === `/${tool.name.toLowerCase()}`
-              ? "w-14 h-14 scale-110 text-[#23b5b5] bg-minimal-primary/20 border border-[#23b5b5]/30"
-              : "w-10 h-10 text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover"
-          }`}
+                  ${
+                    location.pathname === `/${tool.name.toLowerCase()}`
+                      ? "w-14 h-14 scale-110 text-[#23b5b5] bg-minimal-primary/20 border border-[#23b5b5]/30"
+                      : "w-10 h-10 text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover"
+                  }`}
                 >
                   <Icon className="w-6 h-6" />
                 </button>
               );
             })()}
-
-            {/* 2 Plus */}
-            {/* 2 Plus */}
+            {/* Plus Icon */}
             <div
               className="relative"
               onMouseEnter={() => setIsPlusOpen(true)}
@@ -257,11 +241,11 @@ const UpdatedDashboard = () => {
               <button
                 onClick={PlusClick}
                 className={`flex items-center justify-center rounded-xl transition-all duration-200 transform
-      ${
-        location.pathname === "/chat"
-          ? "w-14 h-14 scale-110 text-[#23b5b5] bg-minimal-primary/20 border border-[#23b5b5]/30"
-          : "w-10 h-10 text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover"
-      }`}
+                  ${
+                    location.pathname === "/chat"
+                      ? "w-14 h-14 scale-110 text-[#23b5b5] bg-minimal-primary/20 border border-[#23b5b5]/30"
+                      : "w-10 h-10 text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover"
+                  }`}
               >
                 <Plus
                   className={
@@ -269,36 +253,8 @@ const UpdatedDashboard = () => {
                   }
                 />
               </button>
-
-              {/* dropdown for plus */}
-              {/* {isPlusOpen && (
-                <div className="absolute left-[-4px] flex flex-col bg-minimal-card p-2 rounded-xl shadow-lg border border-gray-700 z-50">
-                  {plusTools.map((tool) => {
-                    const Icon = tool.icon;
-                    const isActive = location.pathname === tool.path;
-                    return (
-                      <button
-                        key={tool.name}
-                        type="button"
-                        onMouseDown={() => {
-                          navigate(tool.path);
-                          setIsPlusOpen(false);
-                        }}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-left transition-colors ${
-                          isActive
-                            ? "bg-[#23b5b5]/20 text-[#23b5b5]"
-                            : "text-white hover:bg-minimal-cardHover hover:text-[#23b5b5]"
-                        }`}
-                      >
-                        <Icon className="w-4 h-5" />
-                      </button>
-                    );
-                  })}
-                </div>
-              )} */}
             </div>
-            
-            {/* 3 profile */}
+            {/* Profile */}
             <div
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
@@ -310,10 +266,9 @@ const UpdatedDashboard = () => {
               >
                 <CircleUserRound className="w-5 h-5" />
               </button>
-
               {isOpen && (
                 <div className="absolute left-[-130px] top-14 bg-minimal-card p-4 rounded-xl shadow-lg border border-gray-700 z-5000000 min-w-[200px] flex flex-col items-center">
-                  {/* View My Profile */}
+                  {/* Dropdown content unchanged */}
                   <div className="mb-4">
                     <button
                       className="text-white text-sm font-semibold mb-2 border border-gray-700 rounded-lg px-4 py-2 hover:text-[#23b5b5]"
@@ -321,9 +276,8 @@ const UpdatedDashboard = () => {
                     >
                       View My Profile
                     </button>
-                    
                     <div className="flex gap-3 flex-col">
-                      {/* Example buttons */}
+                      {/* More profile controls */}
                       <div className="flex gap-3">
                         <button
                           onClick={() => {
@@ -353,7 +307,6 @@ const UpdatedDashboard = () => {
                           <Zap className="w-5 h-5 text-white" />
                         </button>
                       </div>
-
                       <div className="flex gap-3">
                         <button
                           onClick={() => {
@@ -364,7 +317,6 @@ const UpdatedDashboard = () => {
                         >
                           <Database className="w-5 h-5 text-white" />
                         </button>
-
                         <button
                           onClick={() => {
                             navigate("/socials");
@@ -374,7 +326,6 @@ const UpdatedDashboard = () => {
                         >
                           <TvMinimalPlay className="w-5 h-5 text-white" />
                         </button>
-
                         <button
                           onClick={() => {
                             navigate("/discover");
@@ -387,8 +338,6 @@ const UpdatedDashboard = () => {
                       </div>
                     </div>
                   </div>
-                   
-                  {/* Workflows */}
                   <div className="mb-4 flex flex-col justify-center items-center">
                     <h3 className="text-white text-sm font-semibold mb-2">
                       Workflows
@@ -405,8 +354,6 @@ const UpdatedDashboard = () => {
                       </button>
                     </div>
                   </div>
-
-                  {/* All Tools */}
                   <div className="mb-2 flex-col items-center justify-center">
                     <h3 className="text-white text-sm font-semibold mb-2">
                       All Tools
@@ -414,12 +361,11 @@ const UpdatedDashboard = () => {
                     <button
                       type="button"
                       className="flex items-center justify-center w-14 h-14 rounded-xl text-white hover:bg-minimal-primary"
-                      onClick={() => navigate("/aitools")} // optional: click to toggle
+                      onClick={() => navigate("/aitools")}
                     >
                       <Grip className="w-6 h-6" />
                     </button>
                   </div>
-
                   <Link
                     to="https://explified.com/"
                     className="text-white text-sm font-semibold mb-2 hover:text-[#23b5b5]"
@@ -429,62 +375,14 @@ const UpdatedDashboard = () => {
                 </div>
               )}
             </div>
-
-            {/* <button
-              onClick={() => navigate("/aitools")}
-              className={`flex items-center justify-center rounded-xl transition-all duration-200 transform
-    ${
-      location.pathname === "/aitools"
-        ? "w-14 h-14 scale-110 text-[#23b5b5] bg-minimal-primary/20 border border-[#23b5b5]/30"
-        : "w-10 h-10 text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover"
-    }`}
-            >
-              <BrainCircuit
-                className={
-                  location.pathname === "/aitools" ? "w-6 h-6" : "w-5 h-5"
-                }
-              />
-            </button> */}
-
-            {/* Tools */}
-            {/* {tools.map((tool, idx) => {
-              const Icon = tool.icon;
-              const isActive = selectedTool === tool.name;
-              return (
-                <button
-                  key={tool.name}
-                  onClick={() => {
-                    setSelectedTool(isActive ? null : tool.name);
-                    navigate(`/${tool.name.toLowerCase()}`);
-                  }}
-                  className={`flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 transform
-        ${
-          location.pathname === `/${tool.name.toLowerCase()}`
-            ? "w-14 h-14 scale-110 text-[#23b5b5] bg-minimal-primary/20 border border-[#23b5b5]/30"
-            : "w-10 h-10 text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover"
-        }`}
-                >
-                  <Icon className="w-6 h-6" />
-                </button>
-              );
-            })} */}
-
-            {/* <button
-              onClick={() => {}}
-              className="flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 text-minimal-white hover:text-minimal-primary hover:bg-minimal-cardHover"
-            >
-              <Settings className="w-5 h-5" />
-            </button> */}
           </div>
         </div>
       </header>
-
-      {/* Main content */}
       <div
         className={`${
           sidebarOpen ? "ml-80" : "ml-0"
         } w-full transition-all duration-300`}
-        style={{ marginTop: "0px" }}
+        style={{ marginTop: "115px" }}
       >
         <Outlet />
       </div>
