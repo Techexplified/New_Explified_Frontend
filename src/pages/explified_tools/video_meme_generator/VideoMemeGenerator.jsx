@@ -180,6 +180,7 @@ export default function AIMemeGenerator() {
         link={"https://explified.com/video-meme-generator-ai/"}
         toolName={"AI Meme Generator"}
       />
+      <WorkFlowButton id={"memegenerator"} />
 
       {/* Header */}
       <div className="text-center py-8">

@@ -23,6 +23,7 @@ import {
   Eraser,
   Image,
   ImagePlay,
+  Laugh,
 } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
@@ -49,6 +50,7 @@ const categorizedTools = {
     { name: "AI Subtitler", icon: <Captions />, toolId: "subtitler" },
     { name: "Text to Video", icon: <Video />, toolId: "vidgen" },
     { name: "Image To Video AI", icon: <Image />, toolId: "imgtovid" },
+    { name: "Video Meme Generator", icon: <Laugh />, toolId: "memegenerator" },
     {
       name: "AI GIF Generator",
       icon: <MdOutlineGifBox />,

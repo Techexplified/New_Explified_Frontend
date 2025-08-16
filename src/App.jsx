@@ -125,6 +125,7 @@ import ProfilePage from "./components/ProfilePage.jsx";
 import DiscoverPage from "./components1/DiscoverPage.jsx";
 import Notes from "./components1/Notes.jsx";
 import HuggingFaceApiInterface from "./components/tools/HuggingFaceApiInterface.jsx";
+import ScrollToTop from "./reusable_components/ScrollToTop.jsx";
 
 function App() {
   const navigate = useNavigate();
@@ -139,6 +140,7 @@ function App() {
 
   return (
     <div>
+      <ScrollToTop />
       <Routes>
         <Route path="/web" element={<MainPage />} />
         <Route path="influmark/:name" element={<InfluencerProfile />} />
