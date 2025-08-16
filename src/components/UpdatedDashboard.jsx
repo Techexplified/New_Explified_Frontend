@@ -318,7 +318,7 @@ const UpdatedDashboard = () => {
                     </button>
                     <div className="flex gap-3 flex-col">
                       {/* Example buttons */}
-                      <div className="flex gap-3">
+                      <div className="flex justify-center gap-3">
                         <button
                           onClick={() => {
                             navigate("/chat");
@@ -336,15 +336,6 @@ const UpdatedDashboard = () => {
                           className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
                         >
                           <FileText className="w-5 h-5 text-white" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            navigate("/integrations");
-                            setIsOpen(false);
-                          }}
-                          className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
-                        >
-                          <Zap className="w-5 h-5 text-white" />
                         </button>
                       </div>
 
@@ -396,6 +387,15 @@ const UpdatedDashboard = () => {
                         className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
                       >
                         <Workflow className="w-5 h-5 text-white" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          navigate("/integrations");
+                          setIsOpen(false);
+                        }}
+                        className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
+                      >
+                        <Zap className="w-5 h-5 text-white" />
                       </button>
                     </div>
                   </div>

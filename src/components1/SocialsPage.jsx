@@ -1,5 +1,12 @@
 import React from "react";
-import { Plus, TrendingUp, TrendingDown, Instagram, Linkedin, Youtube } from "lucide-react";
+import {
+  Plus,
+  TrendingUp,
+  TrendingDown,
+  Instagram,
+  Linkedin,
+  Youtube,
+} from "lucide-react";
 import SocialCard from "./SocialCard";
 
 export default function SocialsPage() {
@@ -14,14 +21,14 @@ export default function SocialsPage() {
       views: 41,
       likes: -2,
       chartData: [
-        { name: 'Mon', views: 120 },
-        { name: 'Tue', views: 190 },
-        { name: 'Wed', views: 300 },
-        { name: 'Thu', views: 250 },
-        { name: 'Fri', views: 390 },
-        { name: 'Sat', views: 480 },
-        { name: 'Sun', views: 520 }
-      ]
+        { name: "Mon", views: 120 },
+        { name: "Tue", views: 190 },
+        { name: "Wed", views: 300 },
+        { name: "Thu", views: 250 },
+        { name: "Fri", views: 390 },
+        { name: "Sat", views: 480 },
+        { name: "Sun", views: 520 },
+      ],
     },
     linkedin: {
       connections: 500,
@@ -32,14 +39,14 @@ export default function SocialsPage() {
       views: 41,
       likes: -2,
       chartData: [
-        { name: 'Mon', views: 80 },
-        { name: 'Tue', views: 120 },
-        { name: 'Wed', views: 180 },
-        { name: 'Thu', views: 220 },
-        { name: 'Fri', views: 280 },
-        { name: 'Sat', views: 350 },
-        { name: 'Sun', views: 400 }
-      ]
+        { name: "Mon", views: 80 },
+        { name: "Tue", views: 120 },
+        { name: "Wed", views: 180 },
+        { name: "Thu", views: 220 },
+        { name: "Fri", views: 280 },
+        { name: "Sat", views: 350 },
+        { name: "Sun", views: 400 },
+      ],
     },
     youtube: {
       subscribers: 500,
@@ -50,23 +57,24 @@ export default function SocialsPage() {
       views: 41,
       likes: -2,
       chartData: [
-        { name: 'Mon', views: 200 },
-        { name: 'Tue', views: 280 },
-        { name: 'Wed', views: 350 },
-        { name: 'Thu', views: 320 },
-        { name: 'Fri', views: 420 },
-        { name: 'Sat', views: 380 },
-        { name: 'Sun', views: 450 }
-      ]
-    }
-
+        { name: "Mon", views: 200 },
+        { name: "Tue", views: 280 },
+        { name: "Wed", views: 350 },
+        { name: "Thu", views: 320 },
+        { name: "Fri", views: 420 },
+        { name: "Sat", views: 380 },
+        { name: "Sun", views: 450 },
+      ],
+    },
   };
 
   return (
     <div className="max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-6xl font-bold text-white">Socials</h1>
+        <h1 className="text-6xl font-bold text-white">
+          Socials <span className="text-2xl">(Coming Soon)</span>
+        </h1>
         <button className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2">
           <Plus size={16} />
           <span>Add Profile</span>
@@ -75,7 +83,9 @@ export default function SocialsPage() {
 
       {/* Growth Update Section */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold text-white mb-4">Recent Growth Update</h2>
+        <h2 className="text-xl font-semibold text-white mb-4">
+          Recent Growth Update
+        </h2>
         <div className="flex justify-around space-x-4">
           <div className="bg-gray-900 border border-green-500 rounded-lg px-4 py-2 flex items-center space-x-2">
             <TrendingUp size={16} className="text-green-400" />
