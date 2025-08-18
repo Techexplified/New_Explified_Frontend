@@ -127,6 +127,7 @@ import HuggingFaceApiInterface from "./components/tools/HuggingFaceApiInterface.
 import ScrollToTop from "./reusable_components/ScrollToTop.jsx";
 import HistoryChat from "./components1/HistoryChat.jsx";
 import UserPage from "./components/ProfilePage.jsx";
+import DiscoverPage from "./components1/DiscoverPage.jsx";
 function App() {
   const navigate = useNavigate();
 
@@ -260,7 +261,8 @@ function App() {
           ></Route>
           <Route path="/socials/:id" element={<DetailedCard />}></Route>
           <Route path="/aitools" element={<AITools />}></Route>
-          <Route path="/chat" element={<Trone />} />
+          <Route path="/discover" element={<DiscoverPage />}></Route>
+          <Route path="/expli" element={<Trone />} />
           <Route path="/Meme" element={<Meme />} />
           <Route path="/ai-gif-generator" element={<GIFGenerator />} />
           <Route path="/video-meme-generator" element={<AIMemeGenerator />} />

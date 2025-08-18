@@ -23,7 +23,7 @@ function Trone({ onFirstPrompt }) {
   const chatContainerRef = useRef(null);
 
   useEffect(() => {
-    console.log(localStorage.getItem("tasks"))
+    console.log(localStorage.getItem("tasks"));
     if (!prevDrawerState.current && isDrawerOpen) {
       setFirstPromptDone(false);
       localStorage.setItem("firstPromptDone", "false");
@@ -267,80 +267,76 @@ function Trone({ onFirstPrompt }) {
         link={"https://explified.com/expli/"}
         toolName={"Expli"}
       />
-      <div
-  className="flex-1 flex flex-col items-center justify-center mt-12 w-screen"
->
+      <div className="flex-1 flex flex-col items-center justify-center mt-12 w-screen">
         {/* Chat history */}
         <div
-  ref={chatContainerRef}
-  className="flex flex-col  px-4 overflow-y-auto scroll-smooth "
-  style={{
-    scrollBehavior: "smooth",
-    paddingTop: "1rem",
-    paddingBottom: "1rem",
-  }}
->
-  {chatHistory.length === 0 && (
-    <h1 className="text-3xl md:text-4xl font-semibold mb-6 text-center">
-      Ready when you are.
-    </h1>
-  )}
-  <div className="w-full max-w-2xl flex flex-col gap-4 ">
-    {chatHistory.map((msg, index) => (
-      <div
-        key={index}
-        className={`px-4 py-3 rounded-xl text-sm break-words whitespace-pre-wrap`}
-        style={{
-          backgroundColor:
-            msg.sender === "user"
-              ? "#2d2d2d"
-              : msg.isError
-              ? "rgba(255, 0, 0, 0.1)"
-              : "#1e1e1e",
-          alignSelf: msg.sender === "user" ? "flex-end" : "flex-start",
-          border:
-            msg.isError && "1px solid rgba(255,0,0,0.5)",
-          maxWidth: "100%",
-          wordBreak: "break-word",
-        }}
-      >
-        <div
-          dangerouslySetInnerHTML={{
-            __html:
-              msg.sender === "bot" ? formatText(msg.text) : msg.text,
-          }}
+          ref={chatContainerRef}
+          className="flex flex-col px-4 overflow-y-auto scroll-smooth mb-24"
           style={{
-            lineHeight: "1.5",
-            whiteSpace: "pre-wrap",
-            wordWrap: "break-word",
+            scrollBehavior: "smooth",
+            paddingTop: "1rem",
+            paddingBottom: "1rem",
           }}
-        />
-      </div>
-    ))}
-    {isTyping && (
-      <div className="bg-[#1e1e1e] self-start px-4 py-3 rounded-xl text-sm text-gray-400">
-        <div className="flex items-center gap-2">
-          <div className="flex space-x-1">
-            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-            <div
-              className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-              style={{ animationDelay: "150ms" }}
-            ></div>
-            <div
-              className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-              style={{ animationDelay: "300ms" }}
-            ></div>
+        >
+          {chatHistory.length === 0 && (
+            <h1 className="text-3xl md:text-4xl font-semibold mb-6 text-center">
+              Ready when you are.
+            </h1>
+          )}
+          <div className="w-full max-w-2xl flex flex-col gap-4 ">
+            {chatHistory.map((msg, index) => (
+              <div
+                key={index}
+                className={`px-4 py-3 rounded-xl text-sm break-words whitespace-pre-wrap`}
+                style={{
+                  backgroundColor:
+                    msg.sender === "user"
+                      ? "#2d2d2d"
+                      : msg.isError
+                      ? "rgba(255, 0, 0, 0.1)"
+                      : "#1e1e1e",
+                  alignSelf: msg.sender === "user" ? "flex-end" : "flex-start",
+                  border: msg.isError && "1px solid rgba(255,0,0,0.5)",
+                  maxWidth: "100%",
+                  wordBreak: "break-word",
+                }}
+              >
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      msg.sender === "bot" ? formatText(msg.text) : msg.text,
+                  }}
+                  style={{
+                    lineHeight: "1.5",
+                    whiteSpace: "pre-wrap",
+                    wordWrap: "break-word",
+                  }}
+                />
+              </div>
+            ))}
+            {isTyping && (
+              <div className="bg-[#1e1e1e] self-start px-4 py-3 rounded-xl text-sm text-gray-400">
+                <div className="flex items-center gap-2">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div
+                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "150ms" }}
+                    ></div>
+                    <div
+                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "300ms" }}
+                    ></div>
+                  </div>
+                  <span>Thinking...</span>
+                </div>
+              </div>
+            )}
           </div>
-          <span>Thinking...</span>
         </div>
-      </div>
-    )}
-  </div>
-</div>
-
 
         {/* Input bar */}
-        <div className="w-full mt-10 max-w-2xl mx-auto bg-[#1e1e1e] rounded-full shadow-md px-4 py-2 mb-6">
+        <div className="fixed bottom-0 left-0 right-0 w-full mt-10 max-w-2xl mx-auto bg-[#1e1e1e] rounded-full shadow-md px-4 py-2 mb-6">
           <div className="flex items-center justify-between text-gray-400">
             {/* Left icons */}
             <div className="flex items-center gap-2">

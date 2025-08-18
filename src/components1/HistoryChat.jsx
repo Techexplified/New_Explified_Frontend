@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { Play, Presentation, Video } from "lucide-react";
 import History from "../components1/History";
+import SidebarOnHover2 from "../reusable_components/SidebarOnHover2";
+import SidebarOnHover from "../reusable_components/SidebarOnHover";
 
 export default function HistoryChat() {
   const [input, setInput] = useState("");
@@ -70,10 +72,11 @@ export default function HistoryChat() {
     setInput("");
     setLoading(false);
   }
-
+  
   return (
     <div className="min-h-screen text-white flex flex-col items-center p-6">
-      <div className="flex items-center justify-center text-3xl font-semibold mb-4">
+      <SidebarOnHover link={"/memory"} toolName={"Memory"} />
+      <div className="pt-8 flex items-center justify-center text-3xl font-semibold mb-4">
         Chat History
       </div>
 
@@ -93,9 +96,8 @@ export default function HistoryChat() {
           </div>
         ))}
       </div>
-
       {/* Input Box */}
-      <div className="w-full max-w-2xl flex mt-4">
+      <div className="fixed bottom-0 left-0 right-0 w-full max-w-2xl flex mb-6 mx-auto">
         <input
           type="text"
           value={input}

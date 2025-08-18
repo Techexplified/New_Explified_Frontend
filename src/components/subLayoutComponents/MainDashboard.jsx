@@ -20,6 +20,7 @@ import {
   Database,
   Search,
   MessageCircleMore,
+  Users
 } from "lucide-react";
 import { PiSubtitles } from "react-icons/pi";
 import {
@@ -275,7 +276,7 @@ const MainDashboard = () => {
   return (
     <>
       <div className=" w-full h-full px-5 mb-10 flex flex-col items-center">
-        <>
+        <div>
           {" "}
           <div
             className="absolute left-0 top-0 h-full w-6 z-30"
@@ -317,8 +318,10 @@ const MainDashboard = () => {
               </Link>
             </div>
           </div>
-        </>
-        <div className="max-w-[1480px] w-full">
+        </div>
+
+
+        <div className="max-w-[1480px] pt-12 w-full">
           <p className="p-4 w-full text-2xl text-minimal-white tracking-tighter">
             Start
           </p>
@@ -340,7 +343,7 @@ const MainDashboard = () => {
               onClick={() => navigate("/tasks")}
             >
               <h1 className="text-2xl font-bold text-minimal-white group-hover:text-minimal-primary transition-colors duration-300">
-                Note
+                Notes
               </h1>
               {/* Gradient background on hover */}
               <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
@@ -353,14 +356,7 @@ const MainDashboard = () => {
               {/* Gradient background on hover */}
               <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
             </div>
-            <div
-              className="group relative bg-minimal-dark-100 rounded-xl border border-minimal-border hover:border-minimal-primary/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-minimal-primary/20 cursor-pointer h-32 min-h-0 flex items-center justify-center flex-1 max-w-[350px] min-w-[280px]"
-              onClick={() => navigate("/search")}
-            >
-              <MessageCircleMore className="w-8 h-8 text-white group-hover:text-minimal-primary transition-colors duration-300" />
-              {/* Gradient background on hover */}
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-            </div>
+            
             <div
               className="group relative bg-minimal-dark-100 rounded-xl border border-minimal-border hover:border-minimal-primary/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-minimal-primary/20 cursor-pointer h-32 min-h-0 flex items-center justify-center flex-1 max-w-[350px] min-w-[280px]"
               onClick={() => navigate("/discover")}

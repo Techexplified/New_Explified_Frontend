@@ -76,14 +76,14 @@ export default function RecentActionsPage() {
   );
 
   return (
-    <div className="min-h-screen text-white">
+    <div className="text-white">
       {/* Header */}
-      <div className="w-full relative mt-2 flex items-center justify-end">
+      <div className="pt-6 w-full relative mt-2 flex items-center justify-end">
         <button
           onClick={() => setToolsDropdown(!toolsDropdown)}
           className="p-2 mt-[-10px]  rounded-lg transition-colors"
         >
-          <Grip size={24} color="white" />
+          {/* <Grip size={24} color="white" /> */}
         </button>
         {toolsDropdown && (
           <div className="absolute right-[-6px] top-12 bg-black rounded-lg shadow-xl border border-white p-3 w-16 z-50 flex flex-col items-center space-y-4">

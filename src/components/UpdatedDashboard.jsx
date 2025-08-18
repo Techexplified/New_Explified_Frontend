@@ -30,6 +30,7 @@ import {
   MessageCircleMore,
   Database,
   TvMinimalPlay,
+  Users
 } from "lucide-react";
 
 import logo from "../assets/logos/explified_logo.png";
@@ -106,7 +107,7 @@ const UpdatedDashboard = () => {
   // ---------------- Handlers ----------------
   function PlusClick() {
     setIsDrawerOpen((prev) => !prev);
-    navigate("/chat");
+    navigate("/expli");
   }
 
   function ToolsClick(e) {
@@ -213,10 +214,10 @@ const UpdatedDashboard = () => {
                     setSelectedTool(isActive ? null : tool.name);
                     navigate(`/${tool.name.toLowerCase()}`);
                   }}
-                  className={`flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 transform
+                  className={`flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-200 transform
                   ${
                     location.pathname === `/${tool.name.toLowerCase()}`
-                      ? "w-14 h-14 scale-110 text-[#23b5b5] bg-minimal-primary/20 border border-[#23b5b5]/30"
+                      ? "w-10 h-10 scale-110 text-[#23b5b5] bg-minimal-primary/20 border border-[#23b5b5]/30"
                       : "w-10 h-10 text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover"
                   }`}
                 >
@@ -235,14 +236,14 @@ const UpdatedDashboard = () => {
                 onClick={PlusClick}
                 className={`flex items-center justify-center rounded-xl transition-all duration-200 transform
                   ${
-                    location.pathname === "/chat"
-                      ? "w-14 h-14 scale-110 text-[#23b5b5] bg-minimal-primary/20 border border-[#23b5b5]/30"
+                    location.pathname === "/expli"
+                      ? "w-12 h-12 scale-110 text-[#23b5b5] bg-minimal-primary/20 border border-[#23b5b5]/30"
                       : "w-10 h-10 text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover"
                   }`}
               >
                 <Plus
                   className={
-                    location.pathname === "/chat" ? "w-6 h-6" : "w-5 h-5"
+                    location.pathname === "/expli" ? "w-6 h-6" : "w-5 h-5"
                   }
                 />
               </button>
@@ -277,6 +278,10 @@ const UpdatedDashboard = () => {
                     <div className="flex gap-3 flex-col">
                       <div className="flex gap-3">
                         <button
+                          onClick={() => {
+                            navigate("/expli");
+                            setIsOpen(false);
+                          }}
                           onClick={() => { navigate("/chat"); setIsOpen(false); }}
                           className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
                         >
@@ -307,7 +312,7 @@ const UpdatedDashboard = () => {
                           onClick={() => { navigate("/socials"); setIsOpen(false); }}
                           className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
                         >
-                          <TvMinimalPlay className="w-5 h-5 text-white" />
+                          <Users className="w-5 h-5 text-white" />
                         </button>
                         <button
                           onClick={() => { navigate("/discover"); setIsOpen(false); }}
