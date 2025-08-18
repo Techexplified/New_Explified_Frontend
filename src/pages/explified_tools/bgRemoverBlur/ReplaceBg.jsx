@@ -12,7 +12,7 @@ const App = () => {
     positionY: 50,
     brightness: 100,
     contrast: 100,
-    saturation: 100
+    saturation: 100,
   });
 
   const handleRemove = async () => {
@@ -41,8 +41,6 @@ const App = () => {
       setLoading(false);
     }
   };
-
-
 
   const handleMerge = async () => {
     if (!resultImg || !bgImage) {
@@ -99,14 +97,14 @@ const App = () => {
     const y = (canvas.height - fgHeight) * (mergeSettings.positionY / 100);
 
     // Set blend mode for better integration
-    ctx.globalCompositeOperation = 'source-over';
-    
+    ctx.globalCompositeOperation = "source-over";
+
     // Draw foreground with calculated dimensions and position
     ctx.drawImage(fg, x, y, fgWidth, fgHeight);
 
     // Reset filter and blend mode
-    ctx.filter = 'none';
-    ctx.globalCompositeOperation = 'source-over';
+    ctx.filter = "none";
+    ctx.globalCompositeOperation = "source-over";
 
     const merged = canvas.toDataURL("image/png", 0.95); // Higher quality
     setFinalMergedImage(merged);
@@ -119,12 +117,12 @@ const App = () => {
       positionY: 50,
       brightness: 100,
       contrast: 100,
-      saturation: 100
+      saturation: 100,
     });
   };
 
   return (
-    <div className="min-h-screen bg-black py-10 px-4 text-white">
+    <div className="min-h-screen py-10 px-4 text-white">
       <div className="max-w-6xl mx-auto bg-[#1e1e1e] rounded-2xl shadow-2xl p-8 space-y-8 border border-[#23b5b5]/40">
         <h2 className="text-3xl font-bold text-center text-[#23b5b5]">
           AI Background Replacement Tool
@@ -197,7 +195,12 @@ const App = () => {
                     max="2"
                     step="0.05"
                     value={mergeSettings.scale}
-                    onChange={(e) => setMergeSettings(prev => ({...prev, scale: parseFloat(e.target.value)}))}
+                    onChange={(e) =>
+                      setMergeSettings((prev) => ({
+                        ...prev,
+                        scale: parseFloat(e.target.value),
+                      }))
+                    }
                     className="w-full"
                   />
                 </div>
@@ -212,7 +215,12 @@ const App = () => {
                     min="0"
                     max="100"
                     value={mergeSettings.positionX}
-                    onChange={(e) => setMergeSettings(prev => ({...prev, positionX: parseInt(e.target.value)}))}
+                    onChange={(e) =>
+                      setMergeSettings((prev) => ({
+                        ...prev,
+                        positionX: parseInt(e.target.value),
+                      }))
+                    }
                     className="w-full"
                   />
                 </div>
@@ -227,7 +235,12 @@ const App = () => {
                     min="0"
                     max="100"
                     value={mergeSettings.positionY}
-                    onChange={(e) => setMergeSettings(prev => ({...prev, positionY: parseInt(e.target.value)}))}
+                    onChange={(e) =>
+                      setMergeSettings((prev) => ({
+                        ...prev,
+                        positionY: parseInt(e.target.value),
+                      }))
+                    }
                     className="w-full"
                   />
                 </div>
@@ -242,7 +255,12 @@ const App = () => {
                     min="50"
                     max="150"
                     value={mergeSettings.brightness}
-                    onChange={(e) => setMergeSettings(prev => ({...prev, brightness: parseInt(e.target.value)}))}
+                    onChange={(e) =>
+                      setMergeSettings((prev) => ({
+                        ...prev,
+                        brightness: parseInt(e.target.value),
+                      }))
+                    }
                     className="w-full"
                   />
                 </div>
@@ -257,7 +275,12 @@ const App = () => {
                     min="50"
                     max="150"
                     value={mergeSettings.contrast}
-                    onChange={(e) => setMergeSettings(prev => ({...prev, contrast: parseInt(e.target.value)}))}
+                    onChange={(e) =>
+                      setMergeSettings((prev) => ({
+                        ...prev,
+                        contrast: parseInt(e.target.value),
+                      }))
+                    }
                     className="w-full"
                   />
                 </div>
@@ -272,7 +295,12 @@ const App = () => {
                     min="50"
                     max="150"
                     value={mergeSettings.saturation}
-                    onChange={(e) => setMergeSettings(prev => ({...prev, saturation: parseInt(e.target.value)}))}
+                    onChange={(e) =>
+                      setMergeSettings((prev) => ({
+                        ...prev,
+                        saturation: parseInt(e.target.value),
+                      }))
+                    }
                     className="w-full"
                   />
                 </div>
@@ -289,7 +317,7 @@ const App = () => {
 
           {/* Right Column - Image Previews */}
           <div className="space-y-6">
-            { (
+            {
               <div className="bg-black border border-[#23b5b5]/40 rounded-xl p-4 shadow-lg">
                 <h3 className="text-lg font-semibold text-[#23b5b5] mb-3">
                   Foreground Image (Background Removed)
@@ -300,10 +328,8 @@ const App = () => {
                   className="rounded-lg w-full object-contain max-h-64"
                 />
               </div>
+            }
 
-              
-            )}
-            
             {bgImage && (
               <div className="bg-black border border-[#23b5b5]/40 rounded-xl p-4 shadow-lg">
                 <h3 className="text-lg font-semibold text-[#23b5b5] mb-3">
