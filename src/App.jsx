@@ -200,7 +200,7 @@ function App() {
 
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<Dashboard />} />
-          <Route path="/dashboard/discover" element={<Discover />} />
+          <Route path="/dashboard/search" element={<Discover />} />
           <Route path="/dashboard/trending" element={<Trending />} />
 
           {/* Updated Dashboard */}

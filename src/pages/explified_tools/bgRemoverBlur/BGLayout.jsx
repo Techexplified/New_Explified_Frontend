@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { SquareStack, Image as ImageIcon, Wand2 } from "lucide-react";
+import { SquareStack, Image as ImageIcon, Wand2, Sidebar } from "lucide-react";
 import RemoveBg from "./RemoveBg"; // Make sure these point to your new files
 import BlurBg from "./BlurBg";
 import WorkFlowButton from "../../../reusable_components/WorkFlowButton";
 import Aibackground from "./Aibackground";
 import FilterImage from "./FilterImage";
 import ReplaceBg from "./ReplaceBg";
+import SidebarOnHover from "../../../reusable_components/SidebarOnHover";
 
 /**
  * Main shell that houses both RemoveBg and BlurBg tools with a slick sidebar.
@@ -35,39 +36,12 @@ export default function BgToolsApp() {
       <WorkFlowButton />
 
       {/* ── Sidebar ── */}
-      <aside className="w-60 shrink-0 text-teal-300 border-r border-teal-800 bg-black p-6 flex flex-col gap-6">
-        <h1 className="flex items-center gap-2 text-xl font-semibold text-teal-400">
-          <SquareStack className="w-5 h-5" />
-          AI Image Tools
-        </h1>
-        <nav className="flex flex-col gap-2">
-          {navItem(
-            "remove",
-            <Wand2 className="w-4 h-4 stroke-current" />,
-            "Remove Background"
-          )}
-          {navItem(
-            "blur",
-            <ImageIcon className="w-4 h-4 stroke-current" />,
-            "Blur Background"
-          )}
-          {navItem(
-            "aiBg",
-            <ImageIcon className="w-4 h-4 stroke-current" />,
-            "Color Background"
-          )}
-          {navItem(
-            "imgfilter",
-            <ImageIcon className="w-4 h-4 stroke-current" />,
-            "filter image"
-          )}
-          {navItem(
-            "imgreplace",
-            <ImageIcon className="w-4 h-4 stroke-current" />,
-            "Replace BG"
-          )}
-        </nav>
-      </aside>
+      <SidebarOnHover
+        link={"https://explified.com/text-to-video-ai/"}
+        toolName={"AI Background Remover"}
+        id={"vidgen"}
+      />
+
 
       {/* ── Tool Panel ── */}
       <main className="flex-1 overflow-y-auto bg-black">
@@ -83,6 +57,42 @@ export default function BgToolsApp() {
           <ReplaceBg />
         )}
       </main>
+      <aside
+  className="w-60 fixed top-0 right-0 h-full text-teal-300 border-l border-teal-800 bg-black p-6 flex flex-col gap-6"
+  style={{ zIndex: 50 }} // Optional: keeps sidebar on top
+>
+  <h1 className="flex items-center gap-2 text-xl font-semibold text-teal-400">
+    <SquareStack className="w-5 h-5" />
+    AI Image Tools
+  </h1>
+  <nav className="flex flex-col gap-2">
+    {navItem(
+      "remove",
+      <Wand2 className="w-4 h-4 stroke-current" />,
+      "Remove Background"
+    )}
+    {navItem(
+      "blur",
+      <ImageIcon className="w-4 h-4 stroke-current" />,
+      "Blur Background"
+    )}
+    {navItem(
+      "aiBg",
+      <ImageIcon className="w-4 h-4 stroke-current" />,
+      "Color Background"
+    )}
+    {navItem(
+      "imgfilter",
+      <ImageIcon className="w-4 h-4 stroke-current" />,
+      "filter image"
+    )}
+    {navItem(
+      "imgreplace",
+      <ImageIcon className="w-4 h-4 stroke-current" />,
+      "Replace BG"
+    )}
+  </nav>
+</aside>
     </div>
   );
 }

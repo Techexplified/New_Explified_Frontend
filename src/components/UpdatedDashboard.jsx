@@ -376,12 +376,6 @@ const UpdatedDashboard = () => {
         {/* FILTER BAR */}
         
         {/* MAIN CONTENT SLOT */}
-        {["/"].includes(location.pathname) && (
-  <div className="flex justify-center w-full bg-transparent pt-[60px]">
-  <NavBarSection selectedTool={selectedTool} onNavClick={handleNavBarClick} />
-</div>
-
-)}
 
 
         <Outlet />
