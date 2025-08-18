@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { UploadCloud, Loader2 } from "lucide-react";
+import { UploadCloud, Loader2, Download } from "lucide-react";
 
 /**
  * Dark‑themed (black + teal) UI for the AI background‑blur tool.
@@ -58,84 +58,110 @@ export default function BlurBgApp() {
 
   // ───────────────────────── UI ───────────────────────────────
   return (
-    <div className=" w-full flex flex-col items-center justify-center bg-black text-teal-300 px-4 py-10 space-y-10">
-      <h1 className="text-3xl font-semibold tracking-wide">AI Background Blurrer</h1>
-
-      {/* ─── Upload Panel ─── */}
-      <div
-        onClick={pickFile}
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={handleDrop}
-        className="w-full max-w-md p-8 border-2 border-dashed border-teal-500 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-black/30 transition"
-      >
-        {selectedFile ? (
-          <img
-            src={URL.createObjectURL(selectedFile)}
-            alt="preview"
-            className="max-h-64 object-contain rounded-lg"
-          />
-        ) : (
-          <>
-            <UploadCloud className="w-16 h-16 mb-4 stroke-teal-400" />
-            <p className="text-center text-sm opacity-80">
-              Click or drag an image here to upload
+    <div className="bg-gray-950 w-full text-gray-200 px-4 py-6">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-6">
+          <div className="bg-gray-900/40 border border-gray-800 rounded-2xl px-6 py-4 shadow">
+            <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-r from-[#23b5b5] to-cyan-400 rounded-full mb-3">
+              <UploadCloud className="w-7 h-7 text-black" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-100 mb-2">
+              AI Background <span className="text-[#23b5b5]">Blurrer</span>
+            </h1>
+            <p className="text-gray-400 text-base max-w-2xl mx-auto">
+              Blur the background of your images with AI. Upload, adjust the
+              radius, and process in seconds.
             </p>
-          </>
-        )}
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          hidden
-          onChange={handleSelect}
-        />
-      </div>
-
-      {/* ─── Controls ─── */}
-      <div className="w-full max-w-md flex items-center gap-4">
-        <label htmlFor="radius" className="whitespace-nowrap text-sm opacity-80">
-          Blur radius:
-        </label>
-        <input
-          id="radius"
-          type="range"
-          min={1}
-          max={50}
-          value={radius}
-          onChange={(e) => setRadius(e.target.value)}
-          className="flex-1 accent-teal-500"
-        />
-        <span className="w-10 text-right font-mono">{radius}</span>
-      </div>
-
-      {/* ─── Action Button ─── */}
-      <button
-        onClick={handleBlur}
-        disabled={!selectedFile || loading}
-        className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-teal-600 text-black font-medium hover:bg-teal-500 disabled:opacity-50 transition"
-      >
-        {loading && <Loader2 className="animate-spin" />}
-        Blur Background
-      </button>
-
-      {/* ─── Result Preview ─── */}
-      {resultImg && (
-        <div className="w-full max-w-md">
-          <h2 className="text-xl mb-2 font-semibold">Result</h2>
-          <img src={resultImg} alt="result" className="rounded-lg shadow-xl" />
-          <div className="flex justify-center items-center mt-10">
-            <button className="bg-teal-600 hover:bg-teal-500 text-black font-medium py-2 px-4 rounded-full">
-              <a
-                href={resultImg}
-                download="blurred.png"
-                className="block text-center"
-              >
-                Download Image
-              </a>
-            </button>
           </div>
         </div>
-      )}
+
+        {/* Upload Panel */}
+        <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 mb-6 backdrop-blur">
+          <div
+            onClick={pickFile}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={handleDrop}
+            className="w-full p-10 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition text-center hover:bg-[#23b5b5]/5 hover:border-[#23b5b5]/50"
+          >
+            {selectedFile ? (
+              <img
+                src={URL.createObjectURL(selectedFile)}
+                alt="preview"
+                className="max-h-64 object-contain rounded-lg"
+              />
+            ) : (
+              <>
+                <UploadCloud className="w-16 h-16 mb-4 stroke-[#23b5b5]" />
+                <p className="text-sm text-gray-300">
+                  Click or drag an image here to upload
+                </p>
+              </>
+            )}
+            <input
+              ref={inputRef}
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={handleSelect}
+            />
+          </div>
+        </div>
+
+        {/* Controls */}
+        <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 mb-6 backdrop-blur">
+          <div className="w-full flex items-center gap-4">
+            <label
+              htmlFor="radius"
+              className="whitespace-nowrap text-sm text-gray-300"
+            >
+              Blur radius:
+            </label>
+            <input
+              id="radius"
+              type="range"
+              min={1}
+              max={50}
+              value={radius}
+              onChange={(e) => setRadius(e.target.value)}
+              className="flex-1 accent-[#23b5b5]"
+            />
+            <span className="w-10 text-right font-mono">{radius}</span>
+          </div>
+        </div>
+
+        {/* Action */}
+        <div className="text-center mb-6">
+          <button
+            onClick={handleBlur}
+            disabled={!selectedFile || loading}
+            className="inline-flex items-center gap-2 px-10 py-3 rounded-full bg-gradient-to-r from-[#23b5b5] to-cyan-400 text-black font-semibold hover:from-[#23b5b5]/90 hover:to-cyan-400/90 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-lg hover:shadow-[#23b5b5]/20"
+          >
+            {loading && <Loader2 className="w-5 h-5 animate-spin" />}
+            Blur Background
+          </button>
+        </div>
+
+        {/* Result Preview */}
+        {resultImg && (
+          <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 backdrop-blur">
+            <div className="w-full">
+              <h2 className="text-base font-semibold text-white mb-3 text-center">
+                Result
+              </h2>
+              <img src={resultImg} alt="result" className="rounded-xl shadow" />
+              <div className="flex justify-center items-center mt-6">
+                <a href={resultImg} download="blurred.png">
+                  <button className="inline-flex items-center gap-2 bg-gradient-to-r from-[#23b5b5] to-cyan-400 text-black font-semibold py-2 px-6 rounded-full">
+                    <Download className="w-5 h-5" />
+                    Download Image
+                  </button>
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

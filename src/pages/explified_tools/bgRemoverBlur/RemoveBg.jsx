@@ -4,7 +4,7 @@ import {
   Download,
   X,
   Loader2,
-  ImageIcon,
+  Image as ImageIcon,
   Trash2,
   RotateCcw,
   Zap,
@@ -124,31 +124,33 @@ const App = () => {
   };
 
   return (
-    <div className="bg-gray-900 py-8 px-4">
-      <div className="max-w-5xl mx-auto">
+    <div className="bg-gray-950 py-6 px-4">
+      <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-[#23b5b5] to-cyan-400 rounded-full mb-4">
-            <Zap className="w-8 h-8 text-black" />
+        <div className="text-center mb-6">
+          <div className="bg-gray-900/40 border border-gray-800 rounded-2xl px-6 py-4 shadow">
+            <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-r from-[#23b5b5] to-cyan-400 rounded-full mb-3">
+              <Zap className="w-7 h-7 text-black" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-100 mb-2">
+              AI Background <span className="text-[#23b5b5]">Remover</span>
+            </h1>
+            <p className="text-gray-400 text-base max-w-2xl mx-auto">
+              Transform your images with AI-powered background removal. Upload,
+              process, and download in seconds.
+            </p>
           </div>
-          <h1 className="text-5xl font-bold text-white mb-4">
-            AI Background <span className="text-[#23b5b5]">Remover</span>
-          </h1>
-          <p className="text-gray-400 text-xl max-w-2xl mx-auto">
-            Transform your images with AI-powered background removal. Upload,
-            process, and download in seconds.
-          </p>
         </div>
 
         {/* File Upload Area */}
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 mb-8 transition-all hover:border-gray-700">
+        <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 mb-8 backdrop-blur">
           <div
-            className={`border-2 border-dashed rounded-xl p-12 text-center transition-all cursor-pointer ${
+            className={`border-2 border-dashed rounded-xl p-10 text-center transition-all cursor-pointer ${
               dragActive
                 ? "border-[#23b5b5] bg-[#23b5b5]/10"
                 : selectedFile
-                ? "border-[#23b5b5]/50 bg-[#23b5b5]/5"
-                : "border-gray-600 hover:border-[#23b5b5]/50 hover:bg-[#23b5b5]/5"
+                ? "border-[#23b5b5]/40 bg-[#23b5b5]/5"
+                : "border-gray-700 hover:border-[#23b5b5]/50 hover:bg-[#23b5b5]/5"
             }`}
             onDragEnter={handleDragIn}
             onDragLeave={handleDragOut}
@@ -170,7 +172,7 @@ const App = () => {
                   <ImageIcon className="w-10 h-10 text-[#23b5b5]" />
                 </div>
                 <div>
-                  <p className="text-xl font-semibold text-white mb-2">
+                  <p className="text-xl font-semibold text-white mb-1">
                     {selectedFile.name}
                   </p>
                   <p className="text-gray-400">
@@ -182,7 +184,7 @@ const App = () => {
                     e.stopPropagation();
                     resetAll();
                   }}
-                  className="inline-flex items-center px-4 py-2 text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-all"
+                  className="inline-flex items-center px-4 py-2 text-red-300 hover:text-red-200 hover:bg-red-400/10 rounded-full border border-red-400/30 transition-all"
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
                   Remove File
@@ -194,13 +196,13 @@ const App = () => {
                   <Upload className="w-10 h-10 text-gray-400" />
                 </div>
                 <div>
-                  <p className="text-2xl font-semibold text-white mb-3">
+                  <p className="text-2xl font-semibold text-white mb-2">
                     Drag & drop your image here
                   </p>
-                  <p className="text-gray-400 text-lg mb-6">
+                  <p className="text-gray-400 text-lg mb-5">
                     or click to browse files
                   </p>
-                  <div className="inline-flex items-center px-6 py-3 bg-[#23b5b5] text-black font-medium rounded-lg hover:bg-[#23b5b5]/90 transition-all">
+                  <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#23b5b5] to-cyan-400 text-black font-medium rounded-full hover:from-[#23b5b5]/90 hover:to-cyan-400/90 transition-all">
                     <Upload className="w-5 h-5 mr-2" />
                     Choose File
                   </div>
@@ -229,16 +231,16 @@ const App = () => {
             <button
               onClick={handleUpload}
               disabled={loading}
-              className="inline-flex items-center px-12 py-4 bg-gradient-to-r from-[#23b5b5] to-cyan-400 text-black font-bold text-lg rounded-xl hover:from-[#23b5b5]/90 hover:to-cyan-400/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl hover:shadow-[#23b5b5]/20 transform hover:scale-105"
+              className="inline-flex items-center px-10 py-3 bg-gradient-to-r from-[#23b5b5] to-cyan-400 text-black font-semibold text-base rounded-full hover:from-[#23b5b5]/90 hover:to-cyan-400/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-[#23b5b5]/20"
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-6 h-6 mr-3 animate-spin" />
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                   Processing Magic...
                 </>
               ) : (
                 <>
-                  <Zap className="w-6 h-6 mr-3" />
+                  <Zap className="w-5 h-5 mr-2" />
                   Remove Background
                 </>
               )}
@@ -248,12 +250,12 @@ const App = () => {
 
         {/* Image Comparison */}
         {preview && (
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
-            <div className="grid lg:grid-cols-2 gap-8">
+          <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 backdrop-blur">
+            <div className="grid lg:grid-cols-2 gap-6">
               {/* Original Image */}
               <div className="space-y-4">
                 <div className="flex items-center justify-center">
-                  <h3 className="text-xl font-semibold text-white bg-gray-800 px-4 py-2 rounded-lg">
+                  <h3 className="text-base font-semibold text-white bg-gray-800 px-4 py-2 rounded-full border border-gray-700">
                     Original Image
                   </h3>
                 </div>
@@ -269,7 +271,7 @@ const App = () => {
               {/* Processed Image */}
               <div className="space-y-4">
                 <div className="flex items-center justify-center">
-                  <h3 className="text-xl font-semibold text-white bg-gradient-to-r from-[#23b5b5] to-cyan-400 bg-clip-text text-transparent bg-gray-800 px-4 py-2 rounded-lg">
+                  <h3 className="text-base font-semibold bg-gradient-to-r from-[#23b5b5] to-cyan-400 bg-clip-text text-transparent bg-gray-800 px-4 py-2 rounded-full border border-gray-700">
                     <span className="text-[#23b5b5]">Background Removed</span>
                   </h3>
                 </div>
@@ -286,14 +288,14 @@ const App = () => {
                       <div className="flex gap-3 mt-6">
                         <button
                           onClick={downloadImage}
-                          className="flex-1 inline-flex items-center justify-center px-6 py-3 bg-[#23b5b5] text-black font-semibold rounded-lg hover:bg-[#23b5b5]/90 transition-all"
+                          className="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#23b5b5] to-cyan-400 text-black font-semibold rounded-full transition-all"
                         >
                           <Download className="w-5 h-5 mr-2" />
                           Download PNG
                         </button>
                         <button
                           onClick={resetAll}
-                          className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-all"
+                          className="px-6 py-3 bg-gray-800 text-white rounded-full border border-gray-700 hover:bg-gray-700 transition-all"
                         >
                           <RotateCcw className="w-5 h-5" />
                         </button>
@@ -322,17 +324,17 @@ const App = () => {
             {processedImage && (
               <div className="mt-8 pt-6 border-t border-gray-800">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                  <div className="bg-gray-800 rounded-lg p-4">
+                  <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
                     <p className="text-[#23b5b5] font-semibold">File Format</p>
                     <p className="text-white">PNG with transparency</p>
                   </div>
-                  <div className="bg-gray-800 rounded-lg p-4">
+                  <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
                     <p className="text-[#23b5b5] font-semibold">
                       Processing Time
                     </p>
                     <p className="text-white">Lightning fast</p>
                   </div>
-                  <div className="bg-gray-800 rounded-lg p-4">
+                  <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
                     <p className="text-[#23b5b5] font-semibold">Quality</p>
                     <p className="text-white">AI-powered precision</p>
                   </div>
