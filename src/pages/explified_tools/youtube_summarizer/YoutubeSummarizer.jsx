@@ -20,11 +20,11 @@ import TranscriptCard from "./TranscriptCard";
 import SummaryCard from "./SummaryCard";
 import HistoryCard from "./HistoryCard";
 import WorkFlowButton from "../../../reusable_components/WorkFlowButton";
+import SidebarOnHover from "../../../reusable_components/SidebarOnHover";
 
 const YoutubeSummarizer = () => {
   const [videoUrl, setVideoUrl] = useState("");
   const [videoId, setVideoId] = useState("");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState([]);
   const [transcript, setTranscript] = useState([]);
@@ -216,38 +216,10 @@ const YoutubeSummarizer = () => {
 
   return (
     <div className="flex flex-col relative min-h-screen bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 ">
-      <div
-        className="absolute left-0 top-0 h-full w-6 z-30"
-        onMouseEnter={() => setSidebarOpen(true)}
-        onMouseLeave={() => setSidebarOpen(false)}
+      <SidebarOnHover
+        link={"https://explified.com/youtube-summariser/"}
+        toolName={"Youtube Summarizer"}
       />
-
-      {/* Sidebar */}
-      <div
-        className={`fixed top-0 left-0 h-full bg-black/95 backdrop-blur-xl border-r border-minimal-primary/20 
-        flex flex-col justify-between transition-all duration-300 z-50
-        ${sidebarOpen ? "w-56 px-6" : "w-0 px-0 overflow-hidden"}`}
-        onMouseEnter={() => setSidebarOpen(true)}
-        onMouseLeave={() => setSidebarOpen(false)}
-      >
-        {/* Top section */}
-        <div className="mt-8">
-          <div className="flex items-center gap-3 mb-2">
-            <h2 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-minimal-primary bg-clip-text text-transparent">
-              Youtube Summarizer
-            </h2>
-          </div>
-        </div>
-
-        {/* Bottom section */}
-        <div className="mb-8">
-          <Link to="https://explified.com/youtube-summariser/">
-            <button className="w-full bg-gradient-to-r from-minimal-primary to-minimal-primary/80 hover:from-minimal-primary/80 hover:to-minimal-primary text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-minimal-primary/25">
-              Learn More
-            </button>
-          </Link>
-        </div>
-      </div>
 
       <WorkFlowButton id={"ytsummarizer"} />
 

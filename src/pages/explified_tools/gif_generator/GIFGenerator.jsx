@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DownloadButtons from "./DownloadButtons";
 import WorkFlowButton from "../../../reusable_components/WorkFlowButton";
+import SidebarOnHover from "../../../reusable_components/SidebarOnHover";
 export default function AIGIFGenerator() {
   const [inputText, setInputText] = useState("");
   const [activeTab, setActiveTab] = useState("Humor");
@@ -93,41 +94,11 @@ export default function AIGIFGenerator() {
   return (
     <>
       <WorkFlowButton id={"gifgenerator"} />
-      {/* Left-edge activator to open when collapsed */}
-      <div
-        className="absolute left-0 top-0 h-full w-6 z-30"
-        onMouseEnter={() => setSidebarOpen(true)}
+
+      <SidebarOnHover
+        link={"https://explified.com/ai-gif-generator/"}
+        toolName={"AI GIF Generator"}
       />
-
-      {/* Replacement sidebar */}
-      <div
-        className={`fixed top-0 left-0 h-full bg-black/95 backdrop-blur-xl border-r border-minimal-primary/20 
-        flex flex-col justify-between transition-all duration-300 z-50
-        ${sidebarOpen ? "w-56 px-6" : "w-0 px-0 overflow-hidden"}`}
-        onMouseEnter={() => setSidebarOpen(true)}
-        onMouseLeave={() => setSidebarOpen(false)}
-      >
-        {/* Top section */}
-        <div className="mt-8">
-          <div className="flex items-center gap-3 mb-2">
-            <h2 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-[#23b5b5] bg-clip-text text-transparent">
-              AI GIF Generator
-            </h2>
-          </div>
-        </div>
-
-        {/* Bottom section */}
-        <div className="mb-8">
-          <button
-            onClick={() =>
-              window.location.assign("https://explified.com/ai-gif-generator/")
-            }
-            className="w-full bg-gradient-to-r from-[#23b5b5] to-[#1a9999] hover:from-[#1a9999] hover:to-[#23b5b5] text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-[#23b5b5]/25"
-          >
-            Learn More
-          </button>
-        </div>
-      </div>
 
       <div className="relative min-h-screen bg-black text-gray-100">
         <div className="pointer-events-none absolute inset-0 opacity-50">

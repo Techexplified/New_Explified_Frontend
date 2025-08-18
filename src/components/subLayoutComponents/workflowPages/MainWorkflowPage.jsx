@@ -1,5 +1,8 @@
 import { useEffect } from "react";
 import WorkflowEngine from "../WorkflowEngine";
+import { Link } from "react-router-dom";
+import { Pin, PinOff } from "lucide-react";
+import SidebarOnHover from "../../../reusable_components/SidebarOnHover";
 
 const MainWorkflowPage = () => {
   // Scroll to top when component mounts
@@ -9,6 +12,11 @@ const MainWorkflowPage = () => {
 
   return (
     <div className="w-full h-full flex flex-col items-center p-10">
+      <SidebarOnHover
+        link={"https://explified.com/8x-workflows/"}
+        toolName={"Workflows"}
+      />
+
       {/* Header */}
       <div className="text-center mb-12">
         <h1 className="text-6xl font-bold text-minimal-white mb-4">

@@ -477,13 +477,6 @@ ${sidebarOpen ? "w-56 px-6" : "w-0 px-0"}`}
 
         {/* Right Sidebar */}
         <aside className="w-80 p-6 border-l border-[#23b5b5]/30">
-          <div className="mb-6">
-            <input
-              className="w-full p-2 bg-[#1a1a1a] rounded-lg border border-[#23b5b5]/30"
-              type="text"
-              placeholder="Search"
-            />
-          </div>
           {/* Interests Card */}
           <div className="bg-[#1a1a1a] rounded-xl p-4 mb-6 relative">
             <button
