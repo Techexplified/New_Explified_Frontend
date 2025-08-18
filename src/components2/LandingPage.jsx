@@ -424,9 +424,17 @@ export default function LandingPage() {
 
   return (
     <section className="relative min-h-screen w-full bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 text-white overflow-x-hidden font-sans">
+      {/* Animated background elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[#23b5b5]/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#23b5b5]/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-radial from-[#23b5b5]/5 to-transparent rounded-full animate-spin-slow"></div>
+      </div>
+
       <SidebarOnHover
         link={"https://explified.com/slideshow-maker-ai-tool/"}
         toolName={"AutoDeck AI"}
+        id={"presentation"}
       />
 
       <WorkFlowButton id={"presentation"} />
@@ -446,7 +454,7 @@ export default function LandingPage() {
 
       {/* Prompt input */}
       <div className="flex justify-center items-center mt-14 px-4 gap-4">
-        <div className="flex items-center space-x-2 border border-[#23b5b5] rounded-3xl py-3 px-4  w-full max-w-lg">
+        <div className="flex items-center space-x-2 border border-[#23b5b5] rounded-3xl py-3 px-4 w-full max-w-lg group hover:shadow-lg hover:shadow-[#23b5b5]/20 transition-all duration-300">
           <input
             type="text"
             placeholder="Enter your topic and see the magic!"
@@ -455,8 +463,22 @@ export default function LandingPage() {
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
           />
-          <Mic className="w-4 h-4 cursor-pointer transition-transform duration-200 hover:scale-110" />
+          <Mic className="w-4 h-4 cursor-pointer transition-transform duration-200 hover:scale-110 hover:text-[#23b5b5]" />
         </div>
+
+        {/* Enhanced generate button */}
+        <button
+          onClick={handleGenerate}
+          disabled={loading || !topic}
+          className="flex items-center justify-center w-12 h-12 rounded-full border border-[#23b5b5] hover:text-[#23b5b5] hover:border-[#23b5b5] transition-transform duration-200 hover:scale-110 disabled:opacity-40 hover:shadow-lg hover:shadow-[#23b5b5]/30"
+          aria-label="Generate presentation content"
+        >
+          {loading ? (
+            <div className="w-6 h-6 border-2 border-gray-600 border-t-[#23b5b5] rounded-full animate-spin"></div>
+          ) : (
+            <ArrowRight className="w-6 h-6" />
+          )}
+        </button>
       </div>
 
       <div className="bg-black text-white p-6 rounded-xl max-w-md mx-auto shadow-lg shadow-[#23b5b580]">
@@ -503,7 +525,7 @@ export default function LandingPage() {
         </div>
       </div>
 
-      <div className="flex justify-end">
+      {/* <div className="flex justify-end">
         <div className=" flex  justify-center text-white rounded-xl w-20 h-20  mx-auto shadow-lg shadow-[#23b5b580]">
           <button
             onClick={handleGenerate}
@@ -514,7 +536,7 @@ export default function LandingPage() {
             <ArrowRight className="w-8 h-8 transition-transform duration-200 hover:scale-110 hover:text-[#23b5b5] border hover:border-[#23b5b5] rounded p-1" />
           </button>
         </div>
-      </div>
+      </div> */}
 
       {/* Test */}
       {loading && (

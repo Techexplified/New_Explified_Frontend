@@ -77,6 +77,7 @@ export default function AISubtitler() {
       <SidebarOnHover
         link={"https://explified.com/subtitler-tool-landing-page/"}
         toolName={"AI Subtitler"}
+        id={"subtitler"}
       />
 
       {/* Main Content */}

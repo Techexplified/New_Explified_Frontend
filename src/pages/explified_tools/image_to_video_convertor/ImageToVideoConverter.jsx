@@ -155,6 +155,7 @@ export default function ImageToVideoConverter() {
       <SidebarOnHover
         link={"https://explified.com/image-to-video-ai/"}
         toolName={"Image To Video AI"}
+        id={"imgtovid"}
       />
 
       <WorkFlowButton id={"imgtovid"} />

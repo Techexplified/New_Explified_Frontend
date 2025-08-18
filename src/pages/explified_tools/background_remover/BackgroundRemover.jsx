@@ -104,6 +104,7 @@ const RemoveBackground = () => {
       <SidebarOnHover
         link={"https://explified.com/background-remover-ai/"}
         toolName={"Background Remover"}
+        id={"bgremover"}
       />
 
       <div className="min-h-[calc(100vh-70px)] w-full flex items-center justify-center bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 p-6">

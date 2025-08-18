@@ -179,6 +179,7 @@ export default function AIMemeGenerator() {
       <SidebarOnHover
         link={"https://explified.com/video-meme-generator-ai/"}
         toolName={"AI Meme Generator"}
+        id={"memegenerator"}
       />
       <WorkFlowButton id={"memegenerator"} />
 

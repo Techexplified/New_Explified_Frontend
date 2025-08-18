@@ -98,6 +98,7 @@ export default function AIGIFGenerator() {
       <SidebarOnHover
         link={"https://explified.com/ai-gif-generator/"}
         toolName={"AI GIF Generator"}
+        id={"gifgenerator"}
       />
 
       <div className="relative min-h-screen bg-black text-gray-100">
