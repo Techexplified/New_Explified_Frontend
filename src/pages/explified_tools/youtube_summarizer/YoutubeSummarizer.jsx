@@ -243,8 +243,6 @@ const YoutubeSummarizer = () => {
         id={"ytsummarizer"}
       />
 
-      <WorkFlowButton id={"ytsummarizer"} />
-
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-minimal-primary/5 rounded-full blur-3xl animate-pulse"></div>
@@ -396,7 +394,6 @@ const YoutubeSummarizer = () => {
                 <option value="en">🇺🇸 English</option>
                 <option value="hi">🇮🇳 Hindi</option>
               </select>
-              <Globe className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-minimal-muted pointer-events-none" />
             </div>
           </div>
         </div>

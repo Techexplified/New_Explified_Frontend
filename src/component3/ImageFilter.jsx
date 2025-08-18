@@ -200,8 +200,6 @@ const AiImageTool = () => {
       />
 
       <div className="min-h-screen relative flex bg-minimal-background text-minimal-heading font-poppins">
-        <WorkFlowButton id={"styler"} />
-
         {/* Sidebar */}
         <div className="w-80 sticky top-0 h-screen overflow-y-auto border-r border-minimal-border bg-minimal-surface/70 backdrop-blur supports-[backdrop-filter]:bg-minimal-surface/80 p-6 space-y-6">
           <div className="grid grid-cols-1 gap-4">

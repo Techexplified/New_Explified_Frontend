@@ -181,7 +181,6 @@ export default function AIMemeGenerator() {
         toolName={"AI Meme Generator"}
         id={"memegenerator"}
       />
-      <WorkFlowButton id={"memegenerator"} />
 
       {/* Header */}
       <div className="text-center py-8">

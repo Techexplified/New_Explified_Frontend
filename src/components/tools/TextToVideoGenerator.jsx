@@ -179,7 +179,6 @@ const TextToVideoGenerator = () => {
       />
 
       <div className="min-h-screen relative bg-black text-gray-100 overflow-hidden">
-        <WorkFlowButton id={"vidgen"} />
         {/* Background effects */}
         <div className="fixed inset-0 opacity-20">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#23b5b5]/10 rounded-full blur-3xl"></div>

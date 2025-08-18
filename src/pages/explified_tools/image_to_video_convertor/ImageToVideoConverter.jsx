@@ -158,8 +158,6 @@ export default function ImageToVideoConverter() {
         id={"imgtovid"}
       />
 
-      <WorkFlowButton id={"imgtovid"} />
-
       <div className="w-full max-w-4xl">
         {/* Header */}
         <div className="text-center mb-8">
