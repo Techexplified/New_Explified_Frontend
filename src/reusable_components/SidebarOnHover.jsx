@@ -1,4 +1,4 @@
-import { Pin, PinOff } from "lucide-react";
+import { CirclePlus, Pin, PinOff } from "lucide-react";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import WorkFlowButton from "./WorkFlowButton";
@@ -42,7 +42,8 @@ function SidebarOnHover({ link, toolName, id }) {
 
           {id === "ytsummarizer" && (
             <Link to="https://chromewebstore.google.com/detail/vidsum-copilot-for-youtub/jmdecmahfbajaffljohfdlbdmkbngggj">
-              <button className="px-4 py-2 w-full rounded-full bg-white text-black mt-2">
+              <button className="w-full  flex items-center justify-between mb-4 bg-black border-2 border-minimal-primary hover:from-minimal-primary/80 hover:to-minimal-primary text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 hover:scale-105 ">
+                <CirclePlus />
                 Add Extension
               </button>
             </Link>

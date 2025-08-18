@@ -10,6 +10,8 @@ import {
   Sparkles,
   FileText,
   Video,
+  ArrowBigDown,
+  ArrowRight,
 } from "lucide-react";
 import axiosInstance from "../../../network/axiosInstance";
 // import axios from "axios";
@@ -209,6 +211,12 @@ const YoutubeSummarizer = () => {
     }
   };
 
+  function handleGenerate() {
+    if (!activeTab) return;
+
+    activeTab === "transcript" ? getTranscript(videoId) : getSummary(videoId);
+  }
+
   const handleLanguageChange = async (e) => {
     const language = e.target.value;
     setLang(language);
@@ -234,8 +242,6 @@ const YoutubeSummarizer = () => {
         toolName={"Youtube Summarizer"}
         id={"ytsummarizer"}
       />
-
-      <WorkFlowButton id={"ytsummarizer"} />
 
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -388,8 +394,20 @@ const YoutubeSummarizer = () => {
                 <option value="en">🇺🇸 English</option>
                 <option value="hi">🇮🇳 Hindi</option>
               </select>
-              <Globe className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-minimal-muted pointer-events-none" />
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Loading State */}
+      {loading && (
+        <div className="relative z-10 flex-1 flex items-center justify-center pb-32">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-minimal-gray-600 border-t-minimal-primary rounded-full animate-spin mb-4 mx-auto"></div>
+            <h2 className="text-xl font-semibold text-minimal-white mb-2">
+              Processing Video
+            </h2>
+            <p className="text-minimal-muted">Generating your summary...</p>
           </div>
         </div>
       )}
@@ -399,7 +417,8 @@ const YoutubeSummarizer = () => {
         transcript.length !== 0 ||
         summary.length !== 0 ||
         videoData ||
-        historyOpen
+        historyOpen ||
+        loading
       ) && (
         <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 pb-32">
           <div className="text-center mb-12">
@@ -483,19 +502,6 @@ const YoutubeSummarizer = () => {
         </div>
       )}
 
-      {/* Loading State */}
-      {loading && (
-        <div className="relative z-10 flex-1 flex items-center justify-center pb-32">
-          <div className="text-center">
-            <div className="w-16 h-16 border-4 border-minimal-gray-600 border-t-minimal-primary rounded-full animate-spin mb-4 mx-auto"></div>
-            <h2 className="text-xl font-semibold text-minimal-white mb-2">
-              Processing Video
-            </h2>
-            <p className="text-minimal-muted">Generating your summary...</p>
-          </div>
-        </div>
-      )}
-
       {/* Fixed Input Section */}
       <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/95 to-transparent backdrop-blur-sm z-20 border-t border-minimal-border/50">
         <div className="max-w-4xl mx-auto w-full p-6">
@@ -512,27 +518,38 @@ const YoutubeSummarizer = () => {
             </div>
 
             <button
-              onClick={() => getTranscript(videoId)}
-              disabled={loading || !videoId}
-              className={`flex items-center gap-2 px-6 py-4 rounded-xl font-semibold transition-all duration-300 border-2 ${
-                activeTab === "transcript"
-                  ? "bg-minimal-primary border-minimal-primary text-white shadow-lg shadow-minimal-primary/25"
-                  : "border-minimal-primary text-minimal-primary hover:bg-minimal-primary/10"
-              } ${
-                loading
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:transform hover:scale-105"
-              } disabled:hover:transform-none disabled:hover:scale-100`}
+              onClick={() => setActiveTab("transcript")}
+              disabled={loading}
+              className={`flex items-center gap-2 px-6 py-4 rounded-xl font-semibold transition-all duration-300 border-2 border-minimal-primary text-minimal-primary hover:bg-minimal-primary/10
+               ${
+                 loading
+                   ? "opacity-50 cursor-not-allowed"
+                   : "hover:transform hover:scale-105"
+               } disabled:hover:transform-none disabled:hover:scale-100`}
             >
               <FileText className="w-4 h-4" />
               Transcript
             </button>
 
             <button
-              onClick={() => getSummary(videoId)}
+              onClick={() => setActiveTab("summary")}
+              disabled={loading}
+              className={`flex items-center gap-2 px-6 py-4 rounded-xl font-semibold transition-all duration-300 border-2 border-minimal-primary text-minimal-primary hover:bg-minimal-primary/10
+               ${
+                 loading
+                   ? "opacity-50 cursor-not-allowed"
+                   : "hover:transform hover:scale-105"
+               } disabled:hover:transform-none disabled:hover:scale-100`}
+            >
+              <Sparkles className="w-4 h-4" />
+              Summarize
+            </button>
+
+            <button
+              onClick={handleGenerate}
               disabled={loading || !videoId}
               className={`flex items-center gap-2 px-6 py-4 rounded-xl font-semibold transition-all duration-300 border-2 ${
-                activeTab === "summary"
+                activeTab
                   ? "bg-minimal-primary border-minimal-primary text-white shadow-lg shadow-minimal-primary/25"
                   : "border-minimal-primary text-minimal-primary hover:bg-minimal-primary/10"
               } ${
@@ -541,8 +558,7 @@ const YoutubeSummarizer = () => {
                   : "hover:transform hover:scale-105"
               } disabled:hover:transform-none disabled:hover:scale-100`}
             >
-              <Sparkles className="w-4 h-4" />
-              Summarize
+              <ArrowRight />
             </button>
           </div>
         </div>

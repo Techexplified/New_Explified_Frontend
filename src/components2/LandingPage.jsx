@@ -437,8 +437,6 @@ export default function LandingPage() {
         id={"presentation"}
       />
 
-      <WorkFlowButton id={"presentation"} />
-
       {/* Brand header */}
       <header className="flex flex-col items-center pt-8 px-4 space-y-1 text-center">
         <h1 className="text-[2.8rem] font-extrabold tracking-wide mb-4 border border-gray-600 px-4 py-2">

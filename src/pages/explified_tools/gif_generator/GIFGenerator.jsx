@@ -93,8 +93,6 @@ export default function AIGIFGenerator() {
 
   return (
     <>
-      <WorkFlowButton id={"gifgenerator"} />
-
       <SidebarOnHover
         link={"https://explified.com/ai-gif-generator/"}
         toolName={"AI GIF Generator"}

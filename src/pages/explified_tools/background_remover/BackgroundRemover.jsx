@@ -99,8 +99,6 @@ const RemoveBackground = () => {
 
   return (
     <>
-      <WorkFlowButton id={"bgremover"} />
-
       <SidebarOnHover
         link={"https://explified.com/background-remover-ai/"}
         toolName={"Background Remover"}
