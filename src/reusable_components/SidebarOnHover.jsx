@@ -1,8 +1,10 @@
 import { Pin, PinOff } from "lucide-react";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import WorkFlowButton from "./WorkFlowButton";
+import WorkFlowButtonSidebar from "./WorkFlowButtonSidebar";
 
-function SidebarOnHover({ link, toolName }) {
+function SidebarOnHover({ link, toolName, id }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarPinned, setSidebarPinned] = useState(false);
   return (
@@ -24,6 +26,10 @@ function SidebarOnHover({ link, toolName }) {
         {/* Top section */}
         <div className="mt-8">
           <div className="flex items-center gap-3 mb-2">
+            <p className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-minimal-primary bg-clip-text text-transparent">
+              {toolName}
+            </p>
+
             <button
               onClick={() => {
                 setSidebarPinned(!sidebarPinned);
@@ -32,14 +38,20 @@ function SidebarOnHover({ link, toolName }) {
             >
               {sidebarPinned ? <PinOff size={20} /> : <Pin size={20} />}
             </button>
-            <p className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-minimal-primary bg-clip-text text-transparent">
-              {toolName}
-            </p>
           </div>
+
+          {id === "ytsummarizer" && (
+            <Link to="https://chromewebstore.google.com/detail/vidsum-copilot-for-youtub/jmdecmahfbajaffljohfdlbdmkbngggj">
+              <button className="px-4 py-2 w-full rounded-full bg-white text-black mt-2">
+                Add Extension
+              </button>
+            </Link>
+          )}
         </div>
 
         {/* Bottom section */}
         <div className="mb-8">
+          <WorkFlowButtonSidebar id={id} />
           <Link to={link}>
             <button className="w-full bg-gradient-to-r from-minimal-primary to-minimal-primary/80 hover:from-minimal-primary/80 hover:to-minimal-primary text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-minimal-primary/25">
               Learn More

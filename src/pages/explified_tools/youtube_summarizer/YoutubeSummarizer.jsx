@@ -86,11 +86,24 @@ const YoutubeSummarizer = () => {
   }, [videoIdYt]);
 
   function handleUrl(e) {
-    const Url = e.target.value;
-    const match = Url.match(/v=([^&]+)/);
-    const id = match[1];
-    setVideoUrl(e.target.value);
-    setVideoId(id);
+    const Url = e.target.value.trim();
+    setVideoUrl(Url);
+
+    let videoId = "";
+
+    // Case 1: Full YouTube URL (with ?v=)
+    const fullMatch = Url.match(/v=([^&]+)/);
+
+    // Case 2: Short youtu.be URL
+    const shortMatch = Url.match(/youtu\.be\/([^?&]+)/);
+
+    if (fullMatch) {
+      videoId = fullMatch[1];
+    } else if (shortMatch) {
+      videoId = shortMatch[1];
+    }
+
+    setVideoId(videoId); // either the ID or ""
   }
 
   const getSummary = async (videoId) => {
@@ -219,15 +232,11 @@ const YoutubeSummarizer = () => {
       <SidebarOnHover
         link={"https://explified.com/youtube-summariser/"}
         toolName={"Youtube Summarizer"}
+        id={"ytsummarizer"}
       />
 
       <WorkFlowButton id={"ytsummarizer"} />
 
-      <Link to="https://chromewebstore.google.com/detail/vidsum-copilot-for-youtub/jmdecmahfbajaffljohfdlbdmkbngggj">
-        <button className="fixed z-[100] top-24 right-4 px-4 py-2 rounded-full bg-white text-black">
-          Add Extension
-        </button>
-      </Link>
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-minimal-primary/5 rounded-full blur-3xl animate-pulse"></div>
@@ -504,7 +513,7 @@ const YoutubeSummarizer = () => {
 
             <button
               onClick={() => getTranscript(videoId)}
-              disabled={loading}
+              disabled={loading || !videoId}
               className={`flex items-center gap-2 px-6 py-4 rounded-xl font-semibold transition-all duration-300 border-2 ${
                 activeTab === "transcript"
                   ? "bg-minimal-primary border-minimal-primary text-white shadow-lg shadow-minimal-primary/25"
@@ -521,7 +530,7 @@ const YoutubeSummarizer = () => {
 
             <button
               onClick={() => getSummary(videoId)}
-              disabled={loading}
+              disabled={loading || !videoId}
               className={`flex items-center gap-2 px-6 py-4 rounded-xl font-semibold transition-all duration-300 border-2 ${
                 activeTab === "summary"
                   ? "bg-minimal-primary border-minimal-primary text-white shadow-lg shadow-minimal-primary/25"

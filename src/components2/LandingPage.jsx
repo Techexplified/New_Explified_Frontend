@@ -434,6 +434,7 @@ export default function LandingPage() {
       <SidebarOnHover
         link={"https://explified.com/slideshow-maker-ai-tool/"}
         toolName={"AutoDeck AI"}
+        id={"presentation"}
       />
 
       <WorkFlowButton id={"presentation"} />
