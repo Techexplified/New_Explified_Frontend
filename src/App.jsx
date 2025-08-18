@@ -236,31 +236,12 @@ function App() {
           <Route index element={<MainDashboard />}></Route>
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/socials" element={<SocialsPage />}></Route>
-          <Route path="/history" element={<History />}></Route>
           <Route path="/test" element={<HuggingFaceApiInterface />} />
           <Route path="/canvas" element={<Canvas />}></Route>
           <Route path=":tool/w" element={<CreateWorkflow />} />
           <Route path="/remove_bg" element={<RemoveBackground />} />
           <Route path="/text-to-video" element={<TextToVideoGenerator />} />
 
-          <Route path="/history" element={<History />}></Route>
-          {/* <Route path="/newlurph" element={<LurphLanding />}></Route> */}
-          <Route path="/favorites" element={<Favourites />}></Route>
-          <Route path="/workflows" element={<MainWorkflowPage />} />
-          <Route path="/workflows/new" element={<CreateNewPage />}></Route>
-          <Route
-            path="/workflows/recommended"
-            element={<RecommendedWorkflowsPage />}
-          ></Route>
-
-          <Route
-            path="/workflows/existing"
-            element={<ExistingWorkflowsPage />}
-          ></Route>
-          <Route
-            path="/workflows/unfinished"
-            element={<UnfinishedWorkflowsPage />}
-          ></Route>
           <Route path="/socials/:id" element={<DetailedCard />}></Route>
           <Route path="/aitools" element={<AITools />}></Route>
           <Route path="/discover" element={<DiscoverPage />}></Route>
