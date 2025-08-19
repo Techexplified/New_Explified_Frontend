@@ -160,7 +160,7 @@ const RenderMyIntegrations = () => {
 };
 
 const NavBarSection = ({ selectedTool, onNavClick }) => (
-  <div className="flex justify-between w-full bg-transparent pt-[50px] px-6">
+  <div className="flex justify-between w-full bg-transparent pt-[50px]">
     {/* Left side buttons including Search */}
     <div className="flex gap-4 items-center justify-between  w-full flex-nowrap">
       {/* Search input placed here */}
@@ -465,7 +465,7 @@ const MainDashboard = () => {
         </div>
 
         {/* FILTER BAR */}
-        <div className="bg-transparent pt-[30px] w-full">
+        <div className="bg-transparent pt-[30px] max-w-[1480px]  w-full">
           <NavBarSection
             selectedTools={selectedTools}
             selectedTool={selectedTool}
@@ -486,6 +486,9 @@ const MainDashboard = () => {
               className="flex flex-wrap gap-6 justify-start"
               ref={toolsGridRef}
             >
+              <div className="tool-card" onClick={() => navigate("/expli")}>
+                <Plus className="w-8 h-8 text-white group-hover:text-minimal-primary transition-colors duration-300" />
+              </div>
               <div className="tool-card" onClick={() => navigate("/tasks")}>
                 <h1 className="text-2xl font-bold text-minimal-white group-hover:text-minimal-primary transition-colors duration-300">
                   Notes
