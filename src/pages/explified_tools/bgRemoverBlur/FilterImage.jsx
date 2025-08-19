@@ -140,204 +140,232 @@ const App = () => {
   };
 
   return (
-    <div className="bg-black text-sm">
-  {/* Header */}
-  <div className="container mx-auto px-4 py-4">
-    <div className="text-center mb-8">
-      <div className="flex items-center justify-center gap-2 mb-3">
-        <div className="p-2 bg-[#23b5b5]/20 backdrop-blur-lg rounded-xl">
-          <Camera className="w-6 h-6 text-white" />
-        </div>
-        <h1 className="text-3xl font-bold text-white">Image Filter Studio</h1>
-        <div className="p-2 bg-[#23b5b5]/20 backdrop-blur-lg rounded-xl">
-          <Sparkles className="w-6 h-6 text-white" />
-        </div>
-      </div>
-      <p className="text-base text-gray-300">
-        Transform your photos with professional filters
-      </p>
-      <div className="flex items-center justify-center gap-2 mt-2">
-        <span className="px-2 py-1 bg-[#23b5b5]/30 text-[#23b5b5] rounded-full text-xs">30 Filters</span>
-        <span className="px-2 py-1 bg-[#23b5b5]/10 text-[#23b5b5] rounded-full text-xs">4 Categories</span>
-        <span className="px-2 py-1 bg-[#23b5b5]/10 text-[#23b5b5] rounded-full text-xs">No Database</span>
-      </div>
-    </div>
-
-    {/* Upload Section */}
-    <div className="max-w-3xl mx-auto mb-6">
-      <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-4 border border-white/10 shadow-xl">
-        <div className="text-center">
-          {!selectedFile ? (
-            <div className="border-2 border-dashed border-white/20 rounded-xl p-8 hover:border-[#23b5b5] transition-colors duration-300">
-              <Camera className="w-10 h-10 text-white/60 mx-auto mb-2" />
-              <h3 className="text-xl font-semibold text-white mb-1">Upload Your Image</h3>
-              <p className="text-gray-300 mb-4">Choose a photo to start applying filters</p>
-              <label className="inline-flex items-center gap-2 bg-[#23b5b5] hover:bg-[#1fa1a1] text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 cursor-pointer shadow-md hover:shadow-lg transform hover:scale-105">
-                <Upload className="w-4 h-4" />
-                Select Image
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                />
-              </label>
+    <div className=" text-sm">
+      {/* Header */}
+      <div className="container mx-auto px-4 py-4">
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <div className="p-2 bg-[#23b5b5]/20 backdrop-blur-lg rounded-xl">
+              <Camera className="w-6 h-6 text-white" />
             </div>
-          ) : (
-            <div className="flex items-center justify-between bg-white/10 rounded-xl p-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#23b5b5] rounded-lg flex items-center justify-center">
-                  <Camera className="w-5 h-5 text-white" />
-                </div>
-                <div className="text-left">
-                  <p className="text-white font-medium text-sm">{selectedFile.name}</p>
-                  <p className="text-gray-300 text-xs">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <label className="bg-[#23b5b5] hover:bg-[#1fa1a1] text-white px-3 py-1.5 rounded-md transition-colors duration-200 cursor-pointer flex items-center gap-1">
-                  <Upload className="w-4 h-4" />
-                  Change
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileSelect}
-                    className="hidden"
-                  />
-                </label>
-                <button
-                  onClick={clearImage}
-                  className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-md transition-colors duration-200 flex items-center gap-1"
-                >
-                  <X className="w-4 h-4" />
-                  Clear
-                </button>
-              </div>
+            <h1 className="text-3xl font-bold text-white">
+              Image Filter Studio
+            </h1>
+            <div className="p-2 bg-[#23b5b5]/20 backdrop-blur-lg rounded-xl">
+              <Sparkles className="w-6 h-6 text-white" />
             </div>
-          )}
-        </div>
-      </div>
-    </div>
-
-    {/* Filter Categories */}
-    {selectedFile && (
-      <div className="max-w-5xl mx-auto mb-6">
-        <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-4 border border-white/10 shadow-xl">
-          <div className="flex flex-wrap justify-center gap-2 mb-4">
-            {Object.entries(filterCategories).map(([key, category]) => (
-              <button
-                key={key}
-                onClick={() => setActiveCategory(key)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
-                  activeCategory === key
-                    ? "bg-[#23b5b5] text-white shadow-md scale-105"
-                    : "bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white"
-                }`}
-              >
-                <span className="text-lg">{category.icon}</span>
-                {category.name}
-                <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
-                  {category.filters.length}
-                </span>
-              </button>
-            ))}
           </div>
+          <p className="text-base text-gray-300">
+            Transform your photos with professional filters
+          </p>
+          <div className="flex items-center justify-center gap-2 mt-2">
+            <span className="px-2 py-1 bg-[#23b5b5]/30 text-[#23b5b5] rounded-full text-xs">
+              30 Filters
+            </span>
+            <span className="px-2 py-1 bg-[#23b5b5]/10 text-[#23b5b5] rounded-full text-xs">
+              4 Categories
+            </span>
+            <span className="px-2 py-1 bg-[#23b5b5]/10 text-[#23b5b5] rounded-full text-xs">
+              No Database
+            </span>
+          </div>
+        </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
-            {filterCategories[activeCategory].filters.map((filter) => (
-              <button
-                key={filter.id}
-                onClick={() => applyFilter(filter.id)}
-                disabled={loading}
-                className={`group p-3 rounded-lg border-2 transition-all duration-200 transform hover:scale-105 ${
-                  selectedFilter === filter.id
-                    ? "border-[#23b5b5] bg-[#23b5b5]/20 shadow-md"
-                    : "border-white/20 bg-white/10 hover:border-[#23b5b5] hover:bg-white/20"
-                } ${loading ? "opacity-50 cursor-not-allowed" : "hover:shadow-md"}`}
-              >
-                <div className="text-center">
-                  <h3 className="text-white font-semibold text-sm mb-1">
-                    {filter.name}
+        {/* Upload Section */}
+        <div className="max-w-3xl mx-auto mb-6">
+          <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-4 border border-white/10 shadow-xl">
+            <div className="text-center">
+              {!selectedFile ? (
+                <div className="border-2 border-dashed border-white/20 rounded-xl p-8 hover:border-[#23b5b5] transition-colors duration-300">
+                  <Camera className="w-10 h-10 text-white/60 mx-auto mb-2" />
+                  <h3 className="text-xl font-semibold text-white mb-1">
+                    Upload Your Image
                   </h3>
-                  <p className="text-gray-400 text-xs">{filter.description}</p>
-                  {selectedFilter === filter.id && loading && (
-                    <div className="mt-2">
-                      <Loader2 className="w-4 h-4 animate-spin mx-auto text-[#23b5b5]" />
-                    </div>
-                  )}
+                  <p className="text-gray-300 mb-4">
+                    Choose a photo to start applying filters
+                  </p>
+                  <label className="inline-flex items-center gap-2 bg-[#23b5b5] hover:bg-[#1fa1a1] text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 cursor-pointer shadow-md hover:shadow-lg transform hover:scale-105">
+                    <Upload className="w-4 h-4" />
+                    Select Image
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                    />
+                  </label>
                 </div>
-              </button>
-            ))}
+              ) : (
+                <div className="flex items-center justify-between bg-white/10 rounded-xl p-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-[#23b5b5] rounded-lg flex items-center justify-center">
+                      <Camera className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-white font-medium text-sm">
+                        {selectedFile.name}
+                      </p>
+                      <p className="text-gray-300 text-xs">
+                        {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <label className="bg-[#23b5b5] hover:bg-[#1fa1a1] text-white px-3 py-1.5 rounded-md transition-colors duration-200 cursor-pointer flex items-center gap-1">
+                      <Upload className="w-4 h-4" />
+                      Change
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileSelect}
+                        className="hidden"
+                      />
+                    </label>
+                    <button
+                      onClick={clearImage}
+                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-md transition-colors duration-200 flex items-center gap-1"
+                    >
+                      <X className="w-4 h-4" />
+                      Clear
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    )}
 
-    {/* Image Preview */}
-    {previewUrl && (
-      <div className="max-w-5xl mx-auto">
-        <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-4 border border-white/10 shadow-xl">
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-xl font-bold text-white">Original</h3>
-              </div>
-              <div className="bg-black/20 rounded-xl p-2 aspect-square">
-                <img
-                  src={previewUrl}
-                  alt="Original"
-                  className="w-full h-full object-contain rounded-lg"
-                />
-              </div>
-            </div>
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-xl font-bold text-white">
-                  {selectedFilter ? `${selectedFilter} Filter` : "Preview"}
-                </h3>
-                {filteredImage && (
+        {/* Filter Categories */}
+        {selectedFile && (
+          <div className="max-w-5xl mx-auto mb-6">
+            <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-4 border border-white/10 shadow-xl">
+              <div className="flex flex-wrap justify-center gap-2 mb-4">
+                {Object.entries(filterCategories).map(([key, category]) => (
                   <button
-                    onClick={downloadImage}
-                    className="flex items-center gap-1 bg-[#23b5b5] hover:bg-[#1fa1a1] text-white px-3 py-1.5 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg transform hover:scale-105 text-sm"
+                    key={key}
+                    onClick={() => setActiveCategory(key)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+                      activeCategory === key
+                        ? "bg-[#23b5b5] text-white shadow-md scale-105"
+                        : "bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white"
+                    }`}
                   >
-                    <Download className="w-4 h-4" />
-                    Download
+                    <span className="text-lg">{category.icon}</span>
+                    {category.name}
+                    <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
+                      {category.filters.length}
+                    </span>
                   </button>
-                )}
+                ))}
               </div>
-              <div className="bg-black/20 rounded-xl p-2 aspect-square flex items-center justify-center">
-                {loading ? (
-                  <div className="text-center text-white">
-                    <Loader2 className="w-10 h-10 animate-spin mx-auto mb-2 text-[#23b5b5]" />
-                    <p className="text-base">Applying {selectedFilter} filter...</p>
-                    <p className="text-gray-400 text-xs">This may take a moment</p>
-                  </div>
-                ) : filteredImage ? (
-                  <img
-                    src={filteredImage}
-                    alt="Filtered"
-                    className="w-full h-full object-contain rounded-lg"
-                  />
-                ) : (
-                  <div className="text-center text-gray-400">
-                    <Camera className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                    <p className="text-base">Select a filter to see the magic</p>
-                    <p className="text-xs">
-                      Choose from {filterCategories[activeCategory].filters.length}{" "}
-                      {filterCategories[activeCategory].name.toLowerCase()}
-                    </p>
-                  </div>
-                )}
+
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
+                {filterCategories[activeCategory].filters.map((filter) => (
+                  <button
+                    key={filter.id}
+                    onClick={() => applyFilter(filter.id)}
+                    disabled={loading}
+                    className={`group p-3 rounded-lg border-2 transition-all duration-200 transform hover:scale-105 ${
+                      selectedFilter === filter.id
+                        ? "border-[#23b5b5] bg-[#23b5b5]/20 shadow-md"
+                        : "border-white/20 bg-white/10 hover:border-[#23b5b5] hover:bg-white/20"
+                    } ${
+                      loading
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:shadow-md"
+                    }`}
+                  >
+                    <div className="text-center">
+                      <h3 className="text-white font-semibold text-sm mb-1">
+                        {filter.name}
+                      </h3>
+                      <p className="text-gray-400 text-xs">
+                        {filter.description}
+                      </p>
+                      {selectedFilter === filter.id && loading && (
+                        <div className="mt-2">
+                          <Loader2 className="w-4 h-4 animate-spin mx-auto text-[#23b5b5]" />
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                ))}
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    )}
-  </div>
-</div>
+        )}
 
+        {/* Image Preview */}
+        {previewUrl && (
+          <div className="max-w-5xl mx-auto">
+            <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-4 border border-white/10 shadow-xl">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-xl font-bold text-white">Original</h3>
+                  </div>
+                  <div className="bg-black/20 rounded-xl p-2 aspect-square">
+                    <img
+                      src={previewUrl}
+                      alt="Original"
+                      className="w-full h-full object-contain rounded-lg"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-xl font-bold text-white">
+                      {selectedFilter ? `${selectedFilter} Filter` : "Preview"}
+                    </h3>
+                    {filteredImage && (
+                      <button
+                        onClick={downloadImage}
+                        className="flex items-center gap-1 bg-[#23b5b5] hover:bg-[#1fa1a1] text-white px-3 py-1.5 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg transform hover:scale-105 text-sm"
+                      >
+                        <Download className="w-4 h-4" />
+                        Download
+                      </button>
+                    )}
+                  </div>
+                  <div className="bg-black/20 rounded-xl p-2 aspect-square flex items-center justify-center">
+                    {loading ? (
+                      <div className="text-center text-white">
+                        <Loader2 className="w-10 h-10 animate-spin mx-auto mb-2 text-[#23b5b5]" />
+                        <p className="text-base">
+                          Applying {selectedFilter} filter...
+                        </p>
+                        <p className="text-gray-400 text-xs">
+                          This may take a moment
+                        </p>
+                      </div>
+                    ) : filteredImage ? (
+                      <img
+                        src={filteredImage}
+                        alt="Filtered"
+                        className="w-full h-full object-contain rounded-lg"
+                      />
+                    ) : (
+                      <div className="text-center text-gray-400">
+                        <Camera className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                        <p className="text-base">
+                          Select a filter to see the magic
+                        </p>
+                        <p className="text-xs">
+                          Choose from{" "}
+                          {filterCategories[activeCategory].filters.length}{" "}
+                          {filterCategories[activeCategory].name.toLowerCase()}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

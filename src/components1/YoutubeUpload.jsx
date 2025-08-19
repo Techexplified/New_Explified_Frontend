@@ -28,35 +28,41 @@ const YouTubeUpload = () => {
   }, [videoUrl]);
 
   const handleUpload = async (isShort) => {
-    if (!videoBlob) return alert("Video not ready.");
+  if (!videoBlob) return alert("Video not ready.");
 
-    setUploading(true);
-    const formData = new FormData();
-    formData.append("video", videoBlob);
-    formData.append("isShort", isShort); // <-- distinguish short vs video
+  const accessToken = localStorage.getItem("yt_access_token");
+  if (!accessToken) return alert("User not authenticated with YouTube.");
 
-    try {
-      const res = await fetch("http://localhost:8000/api/youtube/upload", {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-      });
+  setUploading(true);
 
-      const result = await res.json();
+  const formData = new FormData();
+  formData.append("video", videoBlob);
+  formData.append("isShort", isShort); // <-- distinguish short vs video
+  formData.append("access_token", accessToken); // ✅ send token to backend
 
-      if (result.videoId) {
-        const youtubeUrl = `https://www.youtube.com/watch?v=${result.videoId}`;
-        window.open(youtubeUrl, "_blank");
-      } else {
-        alert("Upload succeeded but no video ID returned.");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Upload failed.");
-    } finally {
-      setUploading(false);
+  try {
+    const res = await fetch("http://localhost:8000/api/youtube/upload", {
+      method: "POST",
+      body: formData,
+      credentials: "include",
+    });
+
+    const result = await res.json();
+
+    if (result.videoId) {
+      const youtubeUrl = `https://www.youtube.com/watch?v=${result.videoId}`;
+      window.open(youtubeUrl, "_blank");
+    } else {
+      alert("Upload succeeded but no video ID returned.");
     }
-  };
+  } catch (err) {
+    console.error("❌ Upload failed:", err);
+    alert("Upload failed.");
+  } finally {
+    setUploading(false);
+  }
+};
+
 
   return (
     <div className="bg-black text-white flex items-center justify-center px-4 py-10">

@@ -23,6 +23,7 @@ function Trone({ onFirstPrompt }) {
   const chatContainerRef = useRef(null);
 
   useEffect(() => {
+    console.log(localStorage.getItem("tasks"));
     if (!prevDrawerState.current && isDrawerOpen) {
       setFirstPromptDone(false);
       localStorage.setItem("firstPromptDone", "false");
@@ -266,29 +267,39 @@ function Trone({ onFirstPrompt }) {
         link={"https://explified.com/expli/"}
         toolName={"Expli"}
       />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col items-center justify-center mt-12 w-screen">
         {/* Chat history */}
         <div
           ref={chatContainerRef}
-          className="flex flex-col items-center justify-center flex-grow px-4 overflow-y-auto scroll-smooth"
-          style={{ scrollBehavior: "smooth" }}
+          className="flex flex-col px-4 overflow-y-auto scroll-smooth mb-24"
+          style={{
+            scrollBehavior: "smooth",
+            paddingTop: "1rem",
+            paddingBottom: "1rem",
+          }}
         >
           {chatHistory.length === 0 && (
             <h1 className="text-3xl md:text-4xl font-semibold mb-6 text-center">
               Ready when you are.
             </h1>
           )}
-          <div className="w-full max-w-2xl flex flex-col gap-4">
+          <div className="w-full max-w-2xl flex flex-col gap-4 ">
             {chatHistory.map((msg, index) => (
               <div
                 key={index}
-                className={`max-w-xl px-4 py-3 rounded-xl text-sm ${
-                  msg.sender === "user"
-                    ? "bg-[#2d2d2d] self-end text-right"
-                    : msg.isError
-                    ? "bg-red-900/30 self-start text-left border border-red-500/50"
-                    : "bg-[#1e1e1e] self-start text-left"
-                }`}
+                className={`px-4 py-3 rounded-xl text-sm break-words whitespace-pre-wrap`}
+                style={{
+                  backgroundColor:
+                    msg.sender === "user"
+                      ? "#2d2d2d"
+                      : msg.isError
+                      ? "rgba(255, 0, 0, 0.1)"
+                      : "#1e1e1e",
+                  alignSelf: msg.sender === "user" ? "flex-end" : "flex-start",
+                  border: msg.isError && "1px solid rgba(255,0,0,0.5)",
+                  maxWidth: "100%",
+                  wordBreak: "break-word",
+                }}
               >
                 <div
                   dangerouslySetInnerHTML={{
@@ -297,7 +308,8 @@ function Trone({ onFirstPrompt }) {
                   }}
                   style={{
                     lineHeight: "1.5",
-                    wordBreak: "break-word",
+                    whiteSpace: "pre-wrap",
+                    wordWrap: "break-word",
                   }}
                 />
               </div>
@@ -306,10 +318,7 @@ function Trone({ onFirstPrompt }) {
               <div className="bg-[#1e1e1e] self-start px-4 py-3 rounded-xl text-sm text-gray-400">
                 <div className="flex items-center gap-2">
                   <div className="flex space-x-1">
-                    <div
-                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                      style={{ animationDelay: "0ms" }}
-                    ></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                     <div
                       className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
                       style={{ animationDelay: "150ms" }}
@@ -327,7 +336,7 @@ function Trone({ onFirstPrompt }) {
         </div>
 
         {/* Input bar */}
-        <div className="w-full mt-10 max-w-2xl mx-auto bg-[#1e1e1e] rounded-full shadow-md px-4 py-2 mb-6">
+        <div className="fixed bottom-0 left-0 right-0 w-full mt-10 max-w-2xl mx-auto bg-[#1e1e1e] rounded-full shadow-md px-4 py-2 mb-6">
           <div className="flex items-center justify-between text-gray-400">
             {/* Left icons */}
             <div className="flex items-center gap-2">
@@ -346,6 +355,18 @@ function Trone({ onFirstPrompt }) {
               disabled={isTyping}
               maxLength={2000}
             />
+            {/* Input */}
+            {/* <input
+              type="text"
+              value={prompt}
+              onChange={handleInputChange}
+              onKeyDown={handleSubmit}
+              onPaste={handlePaste}
+              placeholder="Ask anything"
+              className="w-full bg-transparent outline-none text-gray-200 placeholder-gray-400 text-sm px-2 py-3"
+              disabled={isTyping}
+              maxLength={2000}
+            /> */}
             {/* Input */}
             {/* <input
               type="text"
@@ -383,6 +404,16 @@ function Trone({ onFirstPrompt }) {
           </div>
         </div>
       </div>
+
+      {/* Drawer (if needed later) */}
+      {/* {isDrawerOpen && (
+        <div className="absolute top-0 right-0 w-64 h-full bg-[#1e1e1e] p-4 shadow-lg">
+          <div className="flex justify-between items-center">
+            <h2 className="text-lg font-semibold">Tools</h2>
+            <FiX className="cursor-pointer" onClick={() => {}} />
+          </div>
+        </div>
+      )} */}
 
       {/* Drawer (if needed later) */}
       {/* {isDrawerOpen && (

@@ -84,7 +84,7 @@ import ImageMerger from "./component3/ImageMerger";
 import ImageExpander from "./component3/ImageExpander";
 import ImageEditor from "./component3/ImageEditor";
 
-// import BGLayout from "./pages/explified_tools/bgRemoverBlur/BGLayout";
+import BGLayout from "./pages/explified_tools/bgRemoverBlur/BGLayout";
 
 // import Integrations from "./components1/Integrations";
 // import InfluencerProfile from "./components1/InfluencerProfile";
@@ -119,14 +119,15 @@ import TwitterPost from "./linkedin/TwitterPost.jsx";
 import LinkedinPost from "./linkedin/LinkedinPost";
 import WorkflowTwitter from "./linkedin/WorkflowTwitter.jsx";
 import Canvas from "./components/subLayoutComponents/workflowPages/Canvas";
-import ImageToVideoConverter from "./pages/explified_tools/image_to_video_convertor/ImageToVideoConverter.jsx";
-import TaskPage from "./components1/TaskPage.jsx";
-import ProfilePage from "./components/ProfilePage.jsx";
-import DiscoverPage from "./components1/DiscoverPage.jsx";
+import OAuthCallback from "./components1/OAuthCallback";
+import AutomatedVideoGenerator from "./components1/Zapier";
+import TaskManager from "./components1/TaskPage.jsx";
 import Notes from "./components1/Notes.jsx";
 import HuggingFaceApiInterface from "./components/tools/HuggingFaceApiInterface.jsx";
 import ScrollToTop from "./reusable_components/ScrollToTop.jsx";
-
+import HistoryChat from "./components1/HistoryChat.jsx";
+import UserPage from "./components/ProfilePage.jsx";
+import DiscoverPage from "./components1/DiscoverPage.jsx";
 function App() {
   const navigate = useNavigate();
 
@@ -143,6 +144,7 @@ function App() {
       <ScrollToTop />
       <Routes>
         <Route path="/web" element={<MainPage />} />
+        <Route path="/result" element={<Result />} />
         <Route path="influmark/:name" element={<InfluencerProfile />} />
         <Route path="/login" element={<LoginPage />} />
 
@@ -198,7 +200,7 @@ function App() {
 
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<Dashboard />} />
-          <Route path="/dashboard/discover" element={<Discover />} />
+          <Route path="/dashboard/search" element={<Discover />} />
           <Route path="/dashboard/trending" element={<Trending />} />
 
           {/* Updated Dashboard */}
@@ -209,7 +211,7 @@ function App() {
           <Route path="video-generator" element={<VideoFromLink />} />
           <Route path="gif-generator" element={<GIFGenerator />} />
           <Route path="scribble" element={<Scribbling />} />
-
+          <Route path="remove-bg" element={<RemoveBackground />} />
           <Route path="image-cartoonizer" element={<ImageCartoonizer />} />
           <Route path="image-to-video" element={<ImageToVideoConvertor />} />
           <Route path="text-to-video" element={<TextToVideo />} />
@@ -217,8 +219,9 @@ function App() {
           <Route path="ai-image-styler" element={<AIImageStyler />} />
           <Route path="slideshow" element={<AISlideshow />} />
           <Route path="ageing_ai" element={<AgeingVideoMaker />} />
+          
         </Route>
-
+        <Route path="/api/youtube/oauth2callback" element={<OAuthCallback />} />
         {/* <Route path="/" element={<NewDashBoardLayout />}>
             <Route index element={<NewDashboard />} />
             <Route path="/youtube-summarizer" element={<YoutubeSummarizer />} />
@@ -234,21 +237,33 @@ function App() {
 
         <Route path="/" element={<UpdatedDashboard />}>
           <Route index element={<MainDashboard />}></Route>
-          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/socials" element={<SocialsPage />}></Route>
-          <Route path="/test" element={<HuggingFaceApiInterface />} />
+          <Route path="/history" element={<History />}></Route>
           <Route path="/canvas" element={<Canvas />}></Route>
-          <Route path=":tool/w" element={<CreateWorkflow />} />
-          <Route path="/remove_bg" element={<RemoveBackground />} />
           <Route path="/text-to-video" element={<TextToVideoGenerator />} />
-
+          <Route path="/tasks" element={<TaskManager />} />
+          <Route path="/history" element={<History />}></Route>
+          {/* <Route path="/newlurph" element={<LurphLanding />}></Route> */}
+          <Route path="/favorites" element={<Favourites />}></Route>
+          <Route path="/workflows" element={<MainWorkflowPage />} />
+          <Route path="/workflows/new" element={<CreateNewPage />}></Route>
+          <Route
+            path="/workflows/recommended"
+            element={<RecommendedWorkflowsPage />}
+          ></Route>
+          <Route
+            path="/workflows/existing"
+            element={<ExistingWorkflowsPage />}
+          ></Route>
+          <Route
+            path="/workflows/unfinished"
+            element={<UnfinishedWorkflowsPage />}
+          ></Route>
           <Route path="/socials/:id" element={<DetailedCard />}></Route>
           <Route path="/aitools" element={<AITools />}></Route>
           <Route path="/discover" element={<DiscoverPage />}></Route>
-          <Route path="/chat" element={<Trone />} />
+          <Route path="/expli" element={<Trone />} />
           <Route path="/Meme" element={<Meme />} />
-          <Route path="/result" element={<Result />} />
-          <Route path="/ageing_ai" element={<AgeingVideoMaker />} />
           <Route path="/ai-gif-generator" element={<GIFGenerator />} />
           <Route path="/video-meme-generator" element={<AIMemeGenerator />} />
           <Route path="/history" element={<History />}></Route>
@@ -293,7 +308,6 @@ function App() {
 
           <Route path="/image-styler" element={<ImageFilter />} />
           <Route path="/image-styler/filter" element={<AiImageStyler />} />
-          {/* not working */}
           <Route
             path="/image-styler/backChanger"
             element={<BackgroundChanger />}
@@ -301,15 +315,15 @@ function App() {
           <Route path="/image-styler/merger" element={<ImageMerger />} />
           <Route path="/image-styler/expander" element={<ImageExpander />} />
           <Route path="/image-styler/editor" element={<ImageEditor />} />
+           <Route path="/profile" element={<UserPage/>}/>
+          <Route path="/bg-remover" element={<BGLayout />} />
 
-          <Route path="/bg-remover" element={<RemoveBackground />} />
-
-          {/* <Route path="/result" element={<Result />} /> */}
+          <Route path="/result" element={<Result />} />
           <Route path="/zeno" element={<NewZapier />} />
-          <Route path="/workflows/create/" element={<CreateWorkflow />} />
+          <Route path="/workflows/create" element={<CreateWorkflow />} />
           <Route path="/zenonew" element={<ZapierChat />} />
 
-          {/* <Route path="/result2" element={<ZapResult />} /> */}
+          <Route path="/result2" element={<ZapResult />} />
           <Route path="/influmark/:name" element={<InfluencerProfile />} />
           <Route path="/Meme" element={<Meme />} />
           <Route path="/influmark" element={<Influmark />} />
@@ -331,10 +345,6 @@ function App() {
           <Route path="/ai-subtitler" element={<AISubtitler />} />
           <Route path="/ai-subtitler-ui" element={<SubtitleToolUI />} />
           <Route
-            path="/image-to-video-ai"
-            element={<ImageToVideoConverter />}
-          />
-          <Route
             path="/youtube-summarizer/deep-search"
             element={<DeepSearch />}
           />
@@ -343,13 +353,19 @@ function App() {
             element={<PresentationLandingPage />}
           ></Route>
           <Route path="/presentation/create" element={<CreatePresentation />} />
-          <Route path="/tasks" element={<TaskPage />} />
-          <Route path="/notes" element={<Notes />} />
+          <Route path="/zapier" element={<AutomatedVideoGenerator />} />
           <Route path="/*" element={<ComingSoon />} />
+          <Route path="/notes" element={<Notes/>} />
+          <Route path="/memory" element={<HistoryChat/>}/>
         </Route>
 
+        {/* Tools Page */}
+
+        {/* Landing Page */}
         {/* <Route path="/clipper-landing" element={<ClipperLandingPage />} /> */}
+        
       </Routes>
+      
     </div>
   );
 }
