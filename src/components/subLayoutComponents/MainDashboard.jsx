@@ -233,9 +233,6 @@ const MainDashboard = () => {
   const toolsGridRef = useRef(null);
   const allToolsGridRef = useRef(null);
 
-  const [toolsGridMaxHeight, setToolsGridMaxHeight] = useState("500px");
-  const [allToolsGridMaxHeight, setAllToolsGridMaxHeight] = useState("500px");
-
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -404,22 +401,6 @@ const MainDashboard = () => {
     },
   ];
 
-  useEffect(() => {
-    if (isOpenTools && toolsGridRef.current) {
-      setToolsGridMaxHeight(toolsGridRef.current.scrollHeight + "px");
-    } else {
-      setToolsGridMaxHeight("500px");
-    }
-  }, [isOpenTools, tools.length]);
-
-  useEffect(() => {
-    if (isOpenAllTools && allToolsGridRef.current) {
-      setAllToolsGridMaxHeight(allToolsGridRef.current.scrollHeight + "px");
-    } else {
-      setAllToolsGridMaxHeight("500px");
-    }
-  }, [isOpenAllTools, allTools.length]);
-
   return (
     <>
       <div className="w-full h-full px-5 mb-10 flex flex-col items-center">
@@ -587,7 +568,6 @@ const MainDashboard = () => {
               <div className="bg-minimal-card rounded-2xl border border-minimal-border h-fit p-4 shadow-2xl w-full">
                 <div
                   style={{
-                    maxHeight: allToolsGridMaxHeight,
                     transition: "max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
                     overflow: "hidden",
                   }}
@@ -596,67 +576,55 @@ const MainDashboard = () => {
                     ref={allToolsGridRef}
                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 w-full"
                   >
-                    {(isOpenAllTools ? allTools : allTools.slice(0, 3)).map(
-                      (tool, index) => {
-                        const IconComponent = tool.icon;
-                        return (
-                          <div
-                            key={index}
-                            className="tool-card"
-                            onClick={() => navigate(tool.route)}
-                          >
-                            <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <div className="relative z-10 flex flex-col justify-between h-full">
-                              <div className="tool_description flex gap-3 items-start">
-                                <div
-                                  className={`h-8 w-8 flex items-center p-2 rounded-lg bg-gradient-to-r ${tool.color} mb-2 group-hover:scale-110 transition-transform duration-300`}
-                                >
-                                  <IconComponent className="w-5 h-5 text-minimal-white" />
-                                </div>
-                                <div>
-                                  <h3 className="text-base font-semibold text-minimal-white mb-1 group-hover:text-minimal-primary transition-colors duration-300">
-                                    {tool.title}
-                                  </h3>
-                                  <p className="text-minimal-muted text-xs leading-snug group-hover:text-minimal-gray-300 transition-colors duration-300">
-                                    {tool.description}
-                                  </p>
-                                </div>
+                    {allTools.map((tool, index) => {
+                      const IconComponent = tool.icon;
+                      return (
+                        <div
+                          key={index}
+                          className="tool-card"
+                          onClick={() => navigate(tool.route)}
+                        >
+                          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          <div className="relative z-10 flex flex-col justify-between h-full">
+                            <div className="tool_description flex gap-3 items-start">
+                              <div
+                                className={`h-8 w-8 flex items-center p-2 rounded-lg bg-gradient-to-r ${tool.color} mb-2 group-hover:scale-110 transition-transform duration-300`}
+                              >
+                                <IconComponent className="w-5 h-5 text-minimal-white" />
                               </div>
-                              <div className="mt-1 flex items-center text-minimal-primary opacity-100 transition-all duration-300 transform translate-x-2">
-                                <span className="text-xs font-medium">
-                                  Launch Tool
-                                </span>
-                                <svg
-                                  className="w-3 h-3 ml-1"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M9 5l7 7-7 7"
-                                  />
-                                </svg>
+                              <div>
+                                <h3 className="text-base font-semibold text-minimal-white mb-1 group-hover:text-minimal-primary transition-colors duration-300">
+                                  {tool.title}
+                                </h3>
+                                <p className="text-minimal-muted text-xs leading-snug group-hover:text-minimal-gray-300 transition-colors duration-300">
+                                  {tool.description}
+                                </p>
                               </div>
                             </div>
+                            <div className="mt-1 flex items-center text-minimal-primary opacity-100 transition-all duration-300 transform translate-x-2">
+                              <span className="text-xs font-medium">
+                                Launch Tool
+                              </span>
+                              <svg
+                                className="w-3 h-3 ml-1"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M9 5l7 7-7 7"
+                                />
+                              </svg>
+                            </div>
                           </div>
-                        );
-                      }
-                    )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
-                {allTools.length > 6 && (
-                  <div className="flex justify-center ">
-                    <button
-                      className="px-4 py-2 bg-minimal-primary text-minimal-white rounded-lg hover:bg-minimal-primary/80 transition-colors duration-200"
-                      onClick={() => setIsOpenAllTools((prev) => !prev)}
-                    >
-                      {isOpenAllTools ? "Show Less" : "Show More"}
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
           </div>
