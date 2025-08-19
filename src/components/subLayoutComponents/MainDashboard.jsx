@@ -160,9 +160,9 @@ const RenderMyIntegrations = () => {
 };
 
 const NavBarSection = ({ selectedTool, onNavClick }) => (
-  <div className="flex justify-between w-full bg-transparent pt-[50px]">
+  <div className="flex justify-between w-full bg-transparent pt-[50px] px-24">
     {/* Left side buttons including Search */}
-    <div className="flex gap-4 items-center justify-between  w-full flex-nowrap">
+    <div className="flex gap-8 items-center justify-center  w-full flex-nowrap">
       {/* Search input placed here */}
       {navItems
         .filter((item) => item.name === "Search")
