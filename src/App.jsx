@@ -219,7 +219,6 @@ function App() {
           <Route path="ai-image-styler" element={<AIImageStyler />} />
           <Route path="slideshow" element={<AISlideshow />} />
           <Route path="ageing_ai" element={<AgeingVideoMaker />} />
-          
         </Route>
         <Route path="/api/youtube/oauth2callback" element={<OAuthCallback />} />
         {/* <Route path="/" element={<NewDashBoardLayout />}>
@@ -315,7 +314,7 @@ function App() {
           <Route path="/image-styler/merger" element={<ImageMerger />} />
           <Route path="/image-styler/expander" element={<ImageExpander />} />
           <Route path="/image-styler/editor" element={<ImageEditor />} />
-           <Route path="/profile" element={<UserPage/>}/>
+          <Route path="/profile" element={<UserPage />} />
           <Route path="/bg-remover" element={<BGLayout />} />
 
           <Route path="/result" element={<Result />} />
@@ -355,17 +354,15 @@ function App() {
           <Route path="/presentation/create" element={<CreatePresentation />} />
           <Route path="/zapier" element={<AutomatedVideoGenerator />} />
           <Route path="/*" element={<ComingSoon />} />
-          <Route path="/notes" element={<Notes/>} />
-          <Route path="/memory" element={<HistoryChat/>}/>
+          <Route path="/notes" element={<Notes />} />
+          <Route path="/memory" element={<HistoryChat />} />
         </Route>
 
         {/* Tools Page */}
 
         {/* Landing Page */}
         {/* <Route path="/clipper-landing" element={<ClipperLandingPage />} /> */}
-        
       </Routes>
-      
     </div>
   );
 }

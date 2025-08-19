@@ -56,7 +56,7 @@ const NavBarSection = ({ selectedTool, onNavClick }) => (
           onClick={() => onNavClick(item.name)}
           className={
             selectedTool === item.name || item.active
-              ? "flex items-center justify-center bg-[#7c8e91] text-white min-w-[100px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base font-semibold"
+              ? "flex items-center justify-center bg-[#23b5b5] text-white min-w-[100px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base font-semibold"
               : "flex items-center justify-center bg-transparent text-white min-w-[100px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base hover:bg-[#7c8e91]/60"
           }
         >
