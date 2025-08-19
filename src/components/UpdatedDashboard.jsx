@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Outlet, useNavigate, useLocation, Link } from "react-router-dom";
-
 import {
   Home,
   History,
@@ -31,79 +30,77 @@ import {
   MessageCircleMore,
   Database,
 } from "lucide-react";
-import logo from "../assets/logos/explified_logo.png";
-import UserModal from "./UserModal";
 
 const UpdatedDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeNav, setActiveNav] = useState("");
+  // const [activeNav, setActiveNav] = useState("");
   const [selectedTool, setSelectedTool] = useState(null);
   const [showContent, setShowContent] = useState(true);
   const [showNavbar, setShowNavbar] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
-  const [showUserModal, setShowUserModal] = useState(false);
+  // const [lastScrollY, setLastScrollY] = useState(0);
+  // const [showUserModal, setShowUserModal] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  // const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isPlusOpen, setIsPlusOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
-  const userCredits = {
-    remaining: 245,
-    total: 500,
-    plan: "Pro Plan",
-  };
-  const creditsPercentage = (userCredits.remaining / userCredits.total) * 100;
+  // const userCredits = {
+  //   remaining: 245,
+  //   total: 500,
+  //   plan: "Pro Plan",
+  // };
+  // const creditsPercentage = (userCredits.remaining / userCredits.total) * 100;
 
   // Tools & AI tools data
-  const tools = [
-    {
-      name: "",
-      icon: LayoutDashboard,
-      description: "Shows key metrics",
-    },
-    {
-      name: "Workflows",
-      icon: Workflow,
-      description: "Automates task sequences",
-    },
-  ];
-  const plusTools = [
-    {
-      name: "Files",
-      icon: File,
-      path: "/task-manager",
-    },
-  ];
+  // const tools = [
+  //   {
+  //     name: "",
+  //     icon: LayoutDashboard,
+  //     description: "Shows key metrics",
+  //   },
+  //   {
+  //     name: "Workflows",
+  //     icon: Workflow,
+  //     description: "Automates task sequences",
+  //   },
+  // ];
+  // const plusTools = [
+  //   {
+  //     name: "Files",
+  //     icon: File,
+  //     path: "/task-manager",
+  //   },
+  // ];
 
-  const aiTools = [
-    { name: "Integrations", icon: Zap, path: "/integrations" },
-    {
-      name: "Workflows",
-      icon: Workflow,
-      path: "/workflows",
-    },
-    {
-      name: "Ai tools",
-      icon: PencilRuler,
-      path: "/aitools",
-    },
+  // const aiTools = [
+  //   { name: "Integrations", icon: Zap, path: "/integrations" },
+  //   {
+  //     name: "Workflows",
+  //     icon: Workflow,
+  //     path: "/workflows",
+  //   },
+  //   {
+  //     name: "Ai tools",
+  //     icon: PencilRuler,
+  //     path: "/aitools",
+  //   },
 
-    // { name: "Socials", icon: BoomBox, route: "/socials" },
-    // { name: "Youtube Summarizer", icon: Youtube, route: "/youtube-summarizer" },
-    // { name: "AI Subtitler", icon: Captions, route: "/ai-subtitler" },
-    // { name: "Linkedin Extension", icon: Linkedin, route: "/linkedin" },
-    // { name: "Meme Generator", icon: Video, route: "/video-meme-generator" },
-    // { name: "Bg Remover", icon: ImagePlay, route: "/bg-remover" },
-    // { name: "Influmark", icon: SquarePercent, route: "/influmark" },
-    // {
-    //   name: "Chats",
-    //   icon: SquarePercent,
-    //   description: "Lets you chat with others",
-    // },
-  ];
+  //   // { name: "Socials", icon: BoomBox, route: "/socials" },
+  //   // { name: "Youtube Summarizer", icon: Youtube, route: "/youtube-summarizer" },
+  //   // { name: "AI Subtitler", icon: Captions, route: "/ai-subtitler" },
+  //   // { name: "Linkedin Extension", icon: Linkedin, route: "/linkedin" },
+  //   // { name: "Meme Generator", icon: Video, route: "/video-meme-generator" },
+  //   // { name: "Bg Remover", icon: ImagePlay, route: "/bg-remover" },
+  //   // { name: "Influmark", icon: SquarePercent, route: "/influmark" },
+  //   // {
+  //   //   name: "Chats",
+  //   //   icon: SquarePercent,
+  //   //   description: "Lets you chat with others",
+  //   // },
+  // ];
 
   // Handlers
   function PlusClick() {
