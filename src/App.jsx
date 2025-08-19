@@ -259,7 +259,7 @@ function App() {
             element={<UnfinishedWorkflowsPage />}
           ></Route>
           <Route path="/socials/:id" element={<DetailedCard />}></Route>
-          <Route path="/aitools" element={<AITools />}></Route>
+          <Route path="/alltools" element={<AITools />}></Route>
           <Route path="/discover" element={<DiscoverPage />}></Route>
           <Route path="/expli" element={<Trone />} />
           <Route path="/Meme" element={<Meme />} />

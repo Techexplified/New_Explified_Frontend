@@ -281,14 +281,6 @@ const UpdatedDashboard = () => {
                             navigate("/expli");
                             setIsOpen(false);
                           }}
-                          onClick={() => {
-                            navigate("/expli");
-                            setIsOpen(false);
-                          }}
-                          onClick={() => {
-                            navigate("/chat");
-                            setIsOpen(false);
-                          }}
                           className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
                         >
                           <Plus className="w-5 h-5 text-white" />
@@ -380,18 +372,11 @@ const UpdatedDashboard = () => {
                     <button
                       type="button"
                       className="flex items-center justify-center w-14 h-14 rounded-xl text-white hover:bg-minimal-primary"
-                      onClick={() => navigate("/")}
+                      onClick={() => navigate("/alltools")}
                     >
                       <Grip className="w-6 h-6" />
                     </button>
                   </div>
-
-                  <Link
-                    to="https://explified.com/"
-                    className="text-white text-sm font-semibold mb-2 hover:text-[#23b5b5]"
-                  >
-                    To explified.com
-                  </Link>
                 </div>
               )}
             </div>
