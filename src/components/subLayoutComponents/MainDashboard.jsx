@@ -160,49 +160,44 @@ const RenderMyIntegrations = () => {
 };
 
 const NavBarSection = ({ selectedTool, onNavClick }) => (
-  <div className="flex justify-between w-full bg-transparent pt-[30px] px-6">
-    {/* Left side buttons */}
-    <div className="flex gap-4 items-center flex-nowrap">
-      {navItems
-        .filter((item) => item.name !== "Search")
-        .map((item) => (
-          <div key={item.name} className="flex flex-col items-center relative">
-            <button
-              type="button"
-              onClick={() => onNavClick(item.name)}
-              className={
-                selectedTool === item.name
-                  ? "flex items-center justify-center bg-[#23b5b5] text-white min-w-[100px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base font-semibold"
-                  : "flex items-center justify-center bg-transparent text-white min-w-[100px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base hover:bg-[#7c8e91]/60"
-              }
-            >
-              <span>{item.name}</span>
-            </button>
-          </div>
-        ))}
-    </div>
-
-    {/* Search input at rightmost */}
-    <div className="flex flex-col items-center">
+  <div className="flex justify-between w-full bg-transparent pt-[50px] px-6">
+    {/* Left side buttons including Search */}
+    <div className="flex gap-4 items-center justify-between  w-full flex-nowrap">
+      {/* Search input placed here */}
       {navItems
         .filter((item) => item.name === "Search")
         .map((item) => (
-          <div
+          <input
             key={item.name}
-            className="flex justify-between items-center w-full px-6"
-          >
-            {/* Other buttons/groups here on the left */}
-
-            <input
-              type="text"
-              placeholder="Search..."
-              // onFocus={() => onNavClick(item.name)}
-              className={`absolute top-[60px] right-[20px] flex items-center justify-center bg-transparent text-white min-w-[100px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base  focus:outline-none ${
-                selectedTool === item.name ? "bg-[#23b5b5] font-semibold" : ""
-              }`}
-            />
-          </div>
+            type="text"
+            placeholder="Search..."
+            className={`bg-transparent text-white min-w-[150px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base focus:outline-none ${
+              selectedTool === item.name ? "bg-[#23b5b5] font-semibold" : ""
+            }`}
+          />
         ))}
+      <div className="flex gap-4 ">
+        {navItems
+          .filter((item) => item.name !== "Search")
+          .map((item) => (
+            <div
+              key={item.name}
+              className="flex flex-col items-center relative"
+            >
+              <button
+                type="button"
+                onClick={() => onNavClick(item.name)}
+                className={
+                  selectedTool === item.name
+                    ? "flex items-center justify-center bg-[#23b5b5] text-white min-w-[100px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base font-semibold"
+                    : "flex items-center justify-center bg-transparent text-white min-w-[100px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base hover:bg-[#7c8e91]/60"
+                }
+              >
+                <span>{item.name}</span>
+              </button>
+            </div>
+          ))}
+      </div>
     </div>
   </div>
 );
@@ -470,7 +465,7 @@ const MainDashboard = () => {
         </div>
 
         {/* FILTER BAR */}
-        <div className="bg-transparent pt-[30px]">
+        <div className="bg-transparent pt-[30px] w-full">
           <NavBarSection
             selectedTools={selectedTools}
             selectedTool={selectedTool}
