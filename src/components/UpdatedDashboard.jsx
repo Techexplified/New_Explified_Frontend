@@ -282,7 +282,7 @@ const UpdatedDashboard = () => {
                             navigate("/expli");
                             setIsOpen(false);
                           }}
-                          onClick={() => { navigate("/chat"); setIsOpen(false); }}
+                          // onClick={() => { navigate("/chat"); setIsOpen(false); }}
                           className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
                         >
                           <Plus className="w-5 h-5 text-white" />

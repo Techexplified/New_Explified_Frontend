@@ -101,16 +101,16 @@ const Existing = () => {
   // }, []);
 
   return (
-    <div className="w-full bg-minimal-card rounded-2xl border border-minimal-border">
+    <div className="w-full bg-[#1a1a1a] rounded-2xl border border-teal-500/30">
       <div className="w-full pt-5 pb-10 px-5">
         {/* heading */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl md:text-2xl w-fit font-bold text-minimal-white">
+          <h2 className="text-xl md:text-2xl w-fit font-bold text-white">
             Existing Workflows
           </h2>
           <button
             onClick={() => navigate("/workflows/existing")}
-            className="text-sm font-semibold text-minimal-primary hover:text-minimal-primary/80 transition-colors duration-200"
+            className="text-sm font-semibold text-teal-400 hover:text-teal-300 transition-colors duration-200"
           >
             Show All
           </button>
@@ -124,10 +124,12 @@ const Existing = () => {
             return (
               <div
                 key={workflow.id}
-                className="group relative bg-minimal-dark-100 rounded-xl p-4 border border-minimal-border hover:border-minimal-primary/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-minimal-primary/20 cursor-pointer flex flex-col h-64"
+                className="group relative bg-[#23b5b5]/20 border border-teal-400 rounded-xl p-5 
+                       hover:bg-[#23b5b5]/40 transition-all duration-300 transform hover:-translate-y-2 
+                       hover:shadow-xl hover:shadow-teal-500/30 cursor-pointer flex flex-col h-64"
               >
                 {/* Hover gradient overlay */}
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-teal-500/10 to-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
                 <div className="relative z-10 flex flex-col h-full">
                   {/* Header - Tools Icons and Menu */}
@@ -138,7 +140,9 @@ const Existing = () => {
                         {workflow.tools.map((tool, index) => (
                           <div
                             key={index}
-                            className={`w-10 h-10 ${tool.bgColor} rounded-lg flex items-center justify-center text-minimal-white text-lg shadow-lg border-2 border-minimal-border group-hover:scale-110 transition-transform duration-300`}
+                            className={`w-10 h-10 ${tool.bgColor} rounded-lg flex items-center justify-center 
+                                   text-white text-lg shadow-lg border-2 border-teal-500/30 
+                                   group-hover:scale-110 transition-transform duration-300`}
                             title={tool.name}
                             style={{ zIndex: workflow.tools.length - index }}
                           >
@@ -149,7 +153,7 @@ const Existing = () => {
 
                       {/* Arrow connector */}
                       <svg
-                        className="w-6 h-6 text-minimal-muted group-hover:text-minimal-primary transition-colors duration-300"
+                        className="w-6 h-6 text-gray-300 group-hover:text-teal-400 transition-colors duration-300"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -167,15 +171,14 @@ const Existing = () => {
                     <div className="relative" ref={menuRef}>
                       <button
                         onClick={(e) => toggleMenu(workflow.id, e)}
-                        className="p-2 rounded-lg hover:bg-minimal-cardHover transition-colors duration-200 z-20 relative"
+                        className="p-2 rounded-lg hover:bg-black/20 transition-colors duration-200 z-20 relative"
                       >
-                        <MoreHorizontal className="w-5 h-5 text-minimal-muted hover:text-minimal-primary transition-colors duration-200" />
+                        <MoreHorizontal className="w-5 h-5 text-gray-300 hover:text-teal-400 transition-colors duration-200" />
                       </button>
 
                       {/* Dropdown Menu */}
                       {isMenuOpen && (
-                        <div className="absolute right-0 top-10 w-48 bg-minimal-dark-100 rounded-lg border border-minimal-border shadow-2xl z-30 overflow-hidden">
-                          <div className="absolute inset-0 bg-minimal-dark-100/95 backdrop-blur-sm"></div>
+                        <div className="absolute right-0 top-10 w-48 bg-[#1a1a1a] rounded-lg border border-teal-400 shadow-2xl z-30 overflow-hidden">
                           <div className="relative z-10 py-2">
                             {menuOptions.map((option, optionIndex) => {
                               const OptionIcon = option.icon;
@@ -188,7 +191,7 @@ const Existing = () => {
                                       workflow.title
                                     )
                                   }
-                                  className={`w-full flex items-center px-4 py-2 text-sm hover:bg-minimal-cardHover/50 transition-all duration-200 ${option.className}`}
+                                  className={`w-full flex items-center px-4 py-2 text-sm hover:bg-black/40 transition-all duration-200 ${option.className}`}
                                 >
                                   <OptionIcon className="w-4 h-4 mr-3" />
                                   <span>{option.label}</span>
@@ -196,7 +199,6 @@ const Existing = () => {
                               );
                             })}
                           </div>
-                          <div className="absolute inset-0 rounded-lg border border-minimal-primary/20 pointer-events-none"></div>
                         </div>
                       )}
                     </div>
@@ -204,19 +206,19 @@ const Existing = () => {
 
                   {/* Content - Workflow Description */}
                   <div className="flex-1 ">
-                    <div className="inline-block px-2 py-1 bg-minimal-gray-800 rounded-md text-xs text-minimal-primary mb-3">
+                    <div className="inline-block px-2 py-1 bg-black/40 rounded-md text-xs text-teal-400 mb-3">
                       {workflow.category}
                     </div>
 
-                    <h3 className="text-base font-semibold line-clamp-3 text-minimal-white group-hover:text-minimal-primary transition-colors duration-300 leading-tight">
+                    <h3 className="text-base font-semibold line-clamp-3 text-white group-hover:text-teal-300 transition-colors duration-300 leading-tight">
                       {workflow.title}
                     </h3>
                   </div>
 
                   {/* Footer - Recommended Badge */}
-                  <div className="flex items-center justify-between pt-2 border-t border-minimal-border/50">
+                  <div className="flex items-center justify-between pt-2 border-t border-gray-700">
                     {workflow.recommended && (
-                      <div className="flex items-center text-minimal-primary">
+                      <div className="flex items-center text-teal-400">
                         <Sparkles className="w-4 h-4 mr-2" />
                         <span className="text-xs font-medium">
                           Recommended for you
@@ -224,7 +226,7 @@ const Existing = () => {
                       </div>
                     )}
 
-                    <div className="flex items-center text-minimal-primary opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-0 group-hover:translate-x-1 ml-auto">
+                    <div className="flex items-center text-teal-400 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-0 group-hover:translate-x-1 ml-auto">
                       <span className="text-xs font-medium">Use Workflow</span>
                       <svg
                         className="w-4 h-4 ml-1"
