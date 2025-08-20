@@ -102,25 +102,18 @@ const [selectedTools, setSelectedTools] = useState(['Recent']);
 const onToggleTool = (toolName) => {
   setSelectedTools(prev => {
     if (toolName === 'Recent') {
-      // Don't allow unselecting 'Recent'
+      // 'Recent' is always selected and cannot be toggled
+      return prev.includes('Recent') ? prev : [...prev, 'Recent'];
+    }
+    // If the clicked tool is already selected, keep it selected (do nothing)
+    if (prev.includes(toolName)) {
       return prev;
     }
-    let newSelection = prev.includes(toolName)
-      ? prev.filter(t => t !== toolName)
-      : [...prev, toolName];
-
-    if (!newSelection.includes('Recent')) {
-      newSelection.push('Recent');
-    }
-
-    // If only 'Recent' remains, treat it as no filter applied
-    if (newSelection.length === 1 && newSelection[0] === 'Recent') {
-      return [];
-    }
-
-    return newSelection;
+    // Select only the clicked tool plus 'Recent'
+    return [toolName, 'Recent'];
   });
 };
+
 
   // Separate refs for measuring height of different grids
   const toolsGridRef = useRef(null);
