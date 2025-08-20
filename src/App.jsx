@@ -356,7 +356,7 @@ function App() {
           <Route path="/presentation/create" element={<CreatePresentation />} />
           <Route path="/zapier" element={<AutomatedVideoGenerator />} />
           <Route path="/*" element={<ComingSoon />} />
-          <Route path="/notes" element={<Notes />} />
+          <Route path="/notes" element={<LexicalEditor />} />
           <Route path="/memory" element={<HistoryChat />} />
         </Route>
 
