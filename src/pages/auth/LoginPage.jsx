@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
-import {jwtDecode} from "jwt-decode"; // fixed import (jwtDecode is default export)
+import { jwtDecode } from "jwt-decode"; // fixed import (jwtDecode is default export)
 import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../../utils/auth_slice/UserSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,6 +22,20 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (user) {
+      let attempts = 0;
+      const interval = setInterval(() => {
+        attempts++;
+        window.postMessage(
+          {
+            source: "explified-auth",
+            type: "store_token",
+            token: user?.email,
+          },
+          "*"
+        );
+        if (attempts > 5) clearInterval(interval);
+      }, 1000);
+
       navigate("/");
     }
   }, [user, navigate]);
@@ -46,7 +60,10 @@ export default function LoginPage() {
 
       navigate("/");
     } catch (error) {
-      console.error("Error during login:", error.response?.data || error.message);
+      console.error(
+        "Error during login:",
+        error.response?.data || error.message
+      );
       alert(error.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
@@ -148,6 +165,7 @@ export default function LoginPage() {
                       JSON.stringify({
                         isLoggedIn: "true",
                         given_name: decoded?.given_name,
+                        email: decoded?.email,
                       })
                     );
                     dispatch(loginUser(decoded));

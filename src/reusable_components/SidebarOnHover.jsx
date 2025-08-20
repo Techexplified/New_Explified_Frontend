@@ -44,7 +44,7 @@ function SidebarOnHover({ link, toolName, id }) {
             <Link to="https://chromewebstore.google.com/detail/vidsum-copilot-for-youtub/jmdecmahfbajaffljohfdlbdmkbngggj">
               <button className="w-full  flex items-center justify-between mb-4 bg-black border-2 border-minimal-primary hover:from-minimal-primary/80 hover:to-minimal-primary text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 hover:scale-105 ">
                 <CirclePlus />
-                Add Extension
+                View Extension
               </button>
             </Link>
           )}

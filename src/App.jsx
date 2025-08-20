@@ -261,7 +261,7 @@ function App() {
             element={<UnfinishedWorkflowsPage />}
           ></Route>
           <Route path="/socials/:id" element={<DetailedCard />}></Route>
-          <Route path="/aitools" element={<AITools />}></Route>
+          <Route path="/alltools" element={<AITools />}></Route>
           <Route path="/discover" element={<DiscoverPage />}></Route>
           <Route path="/expli" element={<Trone />} />
           <Route path="/Meme" element={<Meme />} />
@@ -316,6 +316,7 @@ function App() {
           <Route path="/image-styler/merger" element={<ImageMerger />} />
           <Route path="/image-styler/expander" element={<ImageExpander />} />
           <Route path="/image-styler/editor" element={<ImageEditor />} />
+          <Route path="/profile" element={<UserPage />} />
           <Route path="/profile" element={<UserPage />} />
           <Route path="/bg-remover" element={<BGLayout />} />
 
