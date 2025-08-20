@@ -129,6 +129,8 @@ import HistoryChat from "./components1/HistoryChat.jsx";
 import UserPage from "./components/ProfilePage.jsx";
 import DiscoverPage from "./components1/DiscoverPage.jsx";
 import LexicalEditor from "./components1/LexicalEditor.jsx";
+import LockedPage from "./reusable_components/Locked.jsx";
+
 function App() {
   const navigate = useNavigate();
 
@@ -271,6 +273,7 @@ function App() {
           <Route path="/favorites" element={<Favourites />}></Route>
           <Route path="/workflows" element={<MainWorkflowPage />} />
           <Route path="/workflows/new" element={<CreateNewPage />}></Route>
+          <Route path="/locked" element={<LockedPage />} />
           <Route
             path="/workflows/recommended"
             element={<RecommendedWorkflowsPage />}

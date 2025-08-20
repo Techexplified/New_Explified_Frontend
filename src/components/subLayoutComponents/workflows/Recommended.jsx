@@ -161,6 +161,7 @@ const Recommended = () => {
             return (
               <div
                 key={workflow.id}
+                onClick={()=> navigate("/locked")}
                 className="group relative bg-[#23b5b5]/20 border border-teal-400 rounded-xl p-5 
                        hover:bg-[#23b5b5]/40 transition-all duration-300 transform hover:-translate-y-2 
                        hover:shadow-xl hover:shadow-teal-500/30 cursor-pointer flex flex-col h-64"

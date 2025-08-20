@@ -136,6 +136,7 @@ const MostPopular = () => {
             return (
               <div
                 key={workflow.id}
+                onClick={()=> navigate("/locked")}
                 className="group relative bg-[#23b5b5]/20 border border-teal-400 rounded-xl p-5 
              hover:bg-[#23b5b5]/40 transition-all duration-300 transform hover:-translate-y-2 
              hover:shadow-xl hover:shadow-teal-500/30 cursor-pointer flex flex-col h-64"
@@ -152,6 +153,7 @@ const MostPopular = () => {
                         {workflow.tools.map((tool, index) => (
                           <div
                             key={index}
+                            
                             className={`w-10 h-10 ${tool.bgColor} rounded-lg flex items-center justify-center 
                          text-white text-lg shadow-lg border-2 border-teal-500/30 
                          group-hover:scale-110 transition-transform duration-300`}
