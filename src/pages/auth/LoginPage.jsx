@@ -22,6 +22,20 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (user) {
+      let attempts = 0;
+      const interval = setInterval(() => {
+        attempts++;
+        window.postMessage(
+          {
+            source: "explified-auth",
+            type: "store_token",
+            token: user?.email,
+          },
+          "*"
+        );
+        if (attempts > 5) clearInterval(interval);
+      }, 1000);
+
       navigate("/");
     }
   }, [user, navigate]);
@@ -151,6 +165,7 @@ export default function LoginPage() {
                       JSON.stringify({
                         isLoggedIn: "true",
                         given_name: decoded?.given_name,
+                        email: decoded?.email,
                       })
                     );
                     dispatch(loginUser(decoded));
