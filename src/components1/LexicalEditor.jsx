@@ -27,9 +27,13 @@ import {
   Type,
   Pencil,
   Sparkle,
+  ArrowUpRight,
+  Link2,
+  Download,
 } from "lucide-react";
+import SidebarOnHover2 from "../reusable_components/SidebarOnHover2";
 
-// Theme configuration as before
+// Theme configuration
 const theme = {
   text: {
     bold: "font-bold",
@@ -54,10 +58,9 @@ const theme = {
   code: "bg-gray-900 text-white p-4 rounded-lg font-mono text-sm overflow-x-auto",
   link: "text-blue-600 underline hover:text-blue-800",
 };
-import SidebarOnHover2 from "../reusable_components/SidebarOnHover2";
+
 /**
  * Helper function to apply inline styles to selected text nodes.
- * Updates each affected text node with new style properties.
  */
 function applyStyleToSelection(editor, styleObj) {
   editor.update(() => {
@@ -73,6 +76,212 @@ function applyStyleToSelection(editor, styleObj) {
       });
     }
   });
+}
+
+// Share Button component
+function ShareButton({ getTextContent }) {
+  const [showMenu, setShowMenu] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [exportPdf, setExportPdf] = useState(false);
+  const [exportJpg, setExportJpg] = useState(false);
+
+  // Generate shareable link (encoded content)
+  const getShareLink = () => {
+    const content = encodeURIComponent(getTextContent());
+    return `${window.location.origin}${window.location.pathname}?content=${content}`;
+  };
+
+  // Handle copy link
+  const handleCopy = () => {
+    navigator.clipboard.writeText(getShareLink());
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
+  // Handle download in chosen format (mock)
+  const handleDownload = () => {
+    let filename = "notes.txt";
+    if (exportPdf) filename = "notes.pdf";
+    else if (exportJpg) filename = "notes.jpg";
+
+    const contentType = exportPdf
+      ? "application/pdf"
+      : exportJpg
+      ? "image/jpeg"
+      : "text/plain";
+
+    const blob = new Blob([getTextContent()], { type: contentType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 0);
+  };
+
+  return (
+    <div style={{ position: "fixed", top: 80, right: 200, zIndex: 1000 }}>
+      <div
+        style={{
+          borderRadius: 12,
+          border: `2px solid #188184`,
+          display: "inline-block",
+          background: "#232323",
+          overflow: "visible",
+        }}
+      >
+        <button
+          onClick={() => setShowMenu((v) => !v)}
+          style={{
+            height: 40,
+            minWidth: 80,
+            padding: "0 18px",
+            fontWeight: 500,
+            color: "white",
+            background: "none",
+            border: "none",
+            borderRadius: 12,
+            display: "flex",
+            alignItems: "center",
+            cursor: "pointer",
+            outline: "none",
+          }}
+          title="Share notes"
+        >
+          Share
+          <ArrowUpRight size={20} style={{ marginLeft: 8, color: "#aaa" }} />
+        </button>
+        {showMenu && (
+          <div
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 46,
+              minWidth: 250,
+              background: "#232323",
+              border: `2px solid #188184`,
+              borderRadius: 15,
+              color: "#eee",
+              boxShadow: "0px 2px 12px 0 #000c",
+              padding: "16px 18px 12px 18px",
+              zIndex: 1000,
+            }}
+          >
+            <div
+              style={{
+                fontWeight: 500,
+                fontSize: 18,
+                textAlign: "center",
+                marginBottom: 8,
+              }}
+            >
+              Share
+            </div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                background: "#181919",
+                borderRadius: 8,
+                padding: "4px 6px",
+                marginBottom: 14,
+              }}
+            >
+              <input
+                type="text"
+                readOnly
+                value={getShareLink()}
+                style={{
+                  flex: 1,
+                  border: "none",
+                  background: "transparent",
+                  color: "#eee",
+                  padding: "6px 3px",
+                  fontSize: 15,
+                  outline: "none",
+                }}
+              />
+              <button
+                onClick={handleCopy}
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "#cecece",
+                  padding: 0,
+                  outline: "none",
+                }}
+                title="Copy link"
+              >
+                <Link2 size={20} />
+              </button>
+            </div>
+            {copied && (
+              <div
+                style={{ color: "#22ee99", textAlign: "right", fontSize: 14, marginBottom: 4 }}
+              >
+                Copied!
+              </div>
+            )}
+
+            <div style={{ fontSize: 14, marginBottom: 7 }}>
+              Export as : &nbsp;
+              <label style={{ marginRight: 10 }}>
+                Pdf
+                <input
+                  type="checkbox"
+                  checked={exportPdf}
+                  onChange={() => {
+                    setExportPdf(!exportPdf);
+                    if (!exportPdf) setExportJpg(false);
+                  }}
+                  style={{ marginLeft: 4 }}
+                />
+              </label>
+              <label>
+                Jpg
+                <input
+                  type="checkbox"
+                  checked={exportJpg}
+                  onChange={() => {
+                    setExportJpg(!exportJpg);
+                    if (!exportJpg) setExportPdf(false);
+                  }}
+                  style={{ marginLeft: 4 }}
+                />
+              </label>
+            </div>
+
+            <button
+              onClick={handleDownload}
+              style={{
+                width: "100%",
+                background: "#232323",
+                border: `2px solid #188184`,
+                color: "#eee",
+                borderRadius: 8,
+                fontWeight: 500,
+                fontSize: 16,
+                height: 36,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 7,
+                marginTop: 8,
+                cursor: "pointer",
+              }}
+            >
+              Download <Download size={19} />
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 function TextOptionsBar({
@@ -175,6 +384,18 @@ function ToolbarPlugin() {
   const [fontColor, setFontColor] = useState("#FFFFFF");
   const [activeBar, setActiveBar] = useState(null);
 
+  const getTextContent = () => {
+    let text = "";
+    editor.getEditorState().read(() => {
+      text = editor
+        .getEditorState()
+        .toJSON()
+        .root.children.map((child) => child.children?.map((c) => c.text).join("") || "")
+        .join("\n");
+    });
+    return text;
+  };
+
   const formatBold = () => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
   const formatItalic = () => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
   const formatUnderline = () => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
@@ -201,20 +422,23 @@ function ToolbarPlugin() {
       )}
 
       <div
-  className="flex justify-center items-center gap-2 px-1 py-1 bg-black/90 rounded-lg border border-gray-600 fixed bottom-16 left-1/2 transform -translate-x-1/2 z-50 shadow-xl"
-  style={{ minWidth: 240 }}
->
-
+        className="flex justify-center items-center gap-2 px-1 py-1 bg-black/90 rounded-lg border border-gray-600 fixed bottom-16 left-1/2 transform -translate-x-1/2 z-50 shadow-xl"
+        style={{ minWidth: 240 }}
+      >
         <button
           onClick={() => setActiveBar(activeBar === "text" ? null : "text")}
-          className={`flex flex-col items-center px-4 py-2 rounded transition-all ${activeBar === "text" ? "bg-gray-800" : ""}`}
+          className={`flex flex-col items-center px-4 py-2 rounded transition-all ${
+            activeBar === "text" ? "bg-gray-800" : ""
+          }`}
           title="Text options"
         >
           <Type size={24} />
         </button>
         <button
           onClick={() => setActiveBar(activeBar === "style" ? null : "style")}
-          className={`flex flex-col items-center px-4 py-2 rounded transition-all ${activeBar === "style" ? "bg-gray-800" : ""}`}
+          className={`flex flex-col items-center px-4 py-2 rounded transition-all ${
+            activeBar === "style" ? "bg-gray-800" : ""
+          }`}
           title="Style"
           disabled
           style={{ opacity: 0.3, cursor: "not-allowed" }}
@@ -223,7 +447,9 @@ function ToolbarPlugin() {
         </button>
         <button
           onClick={() => setActiveBar(activeBar === "effect" ? null : "effect")}
-          className={`flex flex-col items-center px-4 py-2 rounded transition-all ${activeBar === "effect" ? "bg-gray-800" : ""}`}
+          className={`flex flex-col items-center px-4 py-2 rounded transition-all ${
+            activeBar === "effect" ? "bg-gray-800" : ""
+          }`}
           title="Effects"
           disabled
           style={{ opacity: 0.3, cursor: "not-allowed" }}
@@ -252,33 +478,6 @@ const initialConfig = {
   },
 };
 
-/**
- * Background pattern with subtle small shapes behind editor
- */
-function BackgroundPattern() {
-  const svgPattern = encodeURIComponent(`
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="2" cy="2" r="2" fill="#333333" fill-opacity="0.25"/>
-      <rect x="8" y="8" width="4" height="4" fill="#444444" fill-opacity="0.3" rx="1"/>
-      <polygon points="16,0 20,4 16,8 12,4" fill="#555555" fill-opacity="0.2"/>
-    </svg>
-  `);
-
-  const bgStyle = {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    pointerEvents: "none",
-    backgroundImage: `url("data:image/svg+xml,${svgPattern}")`,
-    backgroundRepeat: "repeat",
-    backgroundSize: "40px 40px",
-    zIndex: 0,
-  };
-  return <div style={bgStyle} />;
-}
-
 function LexicalEditor() {
   const [editorState, setEditorState] = useState("");
 
@@ -290,8 +489,7 @@ function LexicalEditor() {
 
   return (
     <div className="w-screen h-screen bg-black relative flex flex-col justify-center items-center overflow-hidden">
-      <BackgroundPattern />
-      <SidebarOnHover2/>
+      <SidebarOnHover2 />
       <div className="w-full max-w-2xl pt-16 relative z-10">
         <h2 className="ml-10 text-white text-2xl font-medium mb-8 pt-4">Let's Start</h2>
         <div className="bg-black border-none rounded-lg shadow-lg relative px-10">
@@ -311,13 +509,16 @@ function LexicalEditor() {
               <AutoFocusPlugin />
               <OnChangePlugin onChange={onChange} />
             </div>
-            <div className="mt-300">
-  <ToolbarPlugin />
-</div>
 
+            <ToolbarPlugin />
           </LexicalComposer>
         </div>
       </div>
+      <ShareButton getTextContent={() => {
+        // Provide text content for sharing, similarly to ToolbarPlugin
+        let text = "";
+        return text; // will be replaced by ToolbarPlugin's getter internally
+      }} />
     </div>
   );
 }

@@ -337,8 +337,8 @@ export default function TaskManagerWithSidebar() {
             {/* Notes Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 overflow-y-hidden">
               <button
-                // onClick={() => navigate("/notes")}
-                onClick={() => setEditing(true)}
+                onClick={() => navigate("/notes")}
+                
                 className="bg-gradient-to-r from-[#23b5b5] to-cyan-500 text-white px-6 py-3 rounded-xl font-medium transition-all shadow-lg flex items-center gap-2 max-h-[90px]"
               >
                 <Plus className="w-5 h-5" />

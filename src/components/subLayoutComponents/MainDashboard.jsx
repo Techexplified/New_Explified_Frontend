@@ -632,7 +632,7 @@ const MainDashboard = () => {
 
         {/* Workflows Section */}
         {selectedTools === "Workflows" && (
-          <div ref={workflowsRef}>
+          <div ref={workflowsRef} onClick={() => navigate("/locked")}>
             <p className="p-4 w-full text-2xl text-minimal-white tracking-tighter">
               Workflows
             </p>
