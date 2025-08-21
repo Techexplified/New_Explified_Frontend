@@ -490,11 +490,14 @@ function LexicalEditor() {
   return (
     <div className="w-screen h-screen bg-black relative flex flex-col justify-center items-center overflow-hidden">
       <SidebarOnHover2 />
+      <h1>Notes Title</h1>
       <div className="w-full max-w-2xl pt-16 relative z-10">
+        
         <h2 className="ml-10 text-white text-2xl font-medium mb-8 pt-4">Let's Start</h2>
         <div className="bg-black border-none rounded-lg shadow-lg relative px-10">
           <LexicalComposer initialConfig={initialConfig}>
             <div className="relative">
+              
               <RichTextPlugin
                 contentEditable={
                   <ContentEditable

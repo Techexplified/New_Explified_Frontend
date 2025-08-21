@@ -64,6 +64,7 @@ export default function Notes() {
   return (
     <div className="flex bg-black min-h-screen text-white">
       {/* ✅ Sidebar with toggle callback */}
+      
       <SidebarOnHover2 tasks={tasks} onToggle={setSidebarOpen} />
 
       {/* ✅ Main Content Wrapper (centers the note area) */}
@@ -71,6 +72,7 @@ export default function Notes() {
         className="flex flex-1 justify-center items-start p-8 pt-[50px] transition-all duration-300"
         style={{ marginLeft: sidebarOpen ? "14rem" : "0rem" }}
       >
+        
         {/* ✅ Notes Card (centered) */}
         <div className="w-full max-w-3xl">
           {/* Notepad Header */}
@@ -121,6 +123,7 @@ export default function Notes() {
           {/* Notepad Area */}
           <div className="bg-white/5 rounded-xl border border-white/10 shadow-inner relative overflow-hidden">
             {/* Paper-like lines */}
+            
             <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[length:100%_2.5rem] pointer-events-none"></div>
 
             <textarea
