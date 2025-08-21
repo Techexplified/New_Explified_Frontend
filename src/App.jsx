@@ -76,7 +76,7 @@ import PresentationLandingPage from "./components2/LandingPage";
 import CreatePresentation from "./components2/CreatePresentation";
 import Integrations from "./components1/Integrations";
 import InfluencerProfile from "./components1/InfluencerProfile";
-
+import LockedPage from "./reusable_components/Locked.jsx";
 import ImageFilter from "./component3/ImageFilter";
 import AiImageStyler from "./component3/AiImageStyler";
 import BackgroundChanger from "./component3/BackgroundChanger";
