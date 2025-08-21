@@ -18,6 +18,8 @@ import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { ListItemNode, ListNode } from "@lexical/list";
 import { LinkNode } from "@lexical/link";
 import { CodeNode } from "@lexical/code";
+import { useRef } from "react";
+import { useEffect } from "react";
 import {
   Bold,
   Italic,
@@ -69,14 +71,27 @@ function applyStyleToSelection(editor, styleObj) {
       const nodes = selection.getNodes();
       nodes.forEach((node) => {
         if ($isTextNode(node)) {
-          const oldStyle = node.getStyle() || {};
-          const newStyle = { ...oldStyle, ...styleObj };
-          node.setStyle(newStyle);
+          // Merge styles as a CSS string
+          const existingStyle = node.getStyle() || "";
+          const styleMap = Object.fromEntries(
+            existingStyle
+              .split(";")
+              .filter(Boolean)
+              .map((s) => s.split(":").map((x) => x.trim()))
+          );
+
+          const newStyleMap = { ...styleMap, ...styleObj };
+          const newStyleString = Object.entries(newStyleMap)
+            .map(([k, v]) => `${k}:${v}`)
+            .join("; ");
+
+          node.setStyle(newStyleString);
         }
       });
     }
   });
 }
+
 
 // Share Button component
 function ShareButton({ getTextContent }) {
@@ -376,42 +391,171 @@ function TextOptionsBar({
     </div>
   );
 }
+function PenTool() {
+  const canvasRef = useRef(null);
+  const ctxRef = useRef(null);
+
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [tool, setTool] = useState("pen"); // pen | eraser | highlighter
+  const [color, setColor] = useState("#000000");
+  const [thickness, setThickness] = useState(3);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const ctx = canvas.getContext("2d");
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctxRef.current = ctx;
+  }, []);
+
+  const startDrawing = (e) => {
+    const ctx = ctxRef.current;
+    ctx.beginPath();
+    ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+    setIsDrawing(true);
+  };
+
+  const draw = (e) => {
+    if (!isDrawing) return;
+    const ctx = ctxRef.current;
+
+    if (tool === "pen") {
+      ctx.globalCompositeOperation = "source-over";
+      ctx.strokeStyle = color;
+      ctx.globalAlpha = 1.0;
+    } else if (tool === "highlighter") {
+      ctx.globalCompositeOperation = "multiply";
+      ctx.strokeStyle = color;
+      ctx.globalAlpha = 0.3;
+    } else if (tool === "eraser") {
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.strokeStyle = "rgba(0,0,0,1)";
+      ctx.globalAlpha = 1.0;
+    }
+
+    ctx.lineWidth = thickness;
+    ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+    ctx.stroke();
+  };
+
+  const stopDrawing = () => {
+    const ctx = ctxRef.current;
+    ctx.closePath();
+    setIsDrawing(false);
+  };
+
+  return (
+    <div>
+      {/* Controls */}
+      <div
+        style={{
+          position: "fixed",
+          top: "10px",
+          left: "10px",
+          background: "rgba(255,255,255,0.9)",
+          padding: "8px",
+          borderRadius: "8px",
+          display: "flex",
+          gap: "8px",
+          zIndex: 100,
+        }}
+      >
+        <button onClick={() => setTool("pen")}>✏️ Pen</button>
+        <button onClick={() => setTool("highlighter")}>🖍 Highlighter</button>
+        <button onClick={() => setTool("eraser")}>🧽 Eraser</button>
+        <input
+          type="color"
+          value={color}
+          onChange={(e) => setColor(e.target.value)}
+          disabled={tool === "eraser"}
+        />
+        <input
+          type="range"
+          min="1"
+          max="30"
+          value={thickness}
+          onChange={(e) => setThickness(e.target.value)}
+        />
+      </div>
+
+      {/* Canvas */}
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          height: "100vh",
+          cursor: tool === "eraser" ? "crosshair" : "pointer",
+          zIndex: 50,
+        }}
+        onMouseDown={startDrawing}
+        onMouseMove={draw}
+        onMouseUp={stopDrawing}
+        onMouseLeave={stopDrawing}
+      />
+    </div>
+  );
+}
 
 function ToolbarPlugin() {
+
   const [editor] = useLexicalComposerContext();
+  const getTextContent = () => {
+  let text = "";
+  editor.getEditorState().read(() => {
+    // Instead of toJSON traversal, use lexical root API:
+    const root = editor._editor.getRoot(); // or $getRoot() inside .read if you have access
+    if (root) {
+      text = root.getTextContent();
+    }
+  });
+  return text;
+};
+
   const [fontFamily, setFontFamily] = useState("Arial");
   const [fontSize, setFontSize] = useState("16");
   const [fontColor, setFontColor] = useState("#FFFFFF");
   const [activeBar, setActiveBar] = useState(null);
 
-  const getTextContent = () => {
-    let text = "";
-    editor.getEditorState().read(() => {
-      text = editor
-        .getEditorState()
-        .toJSON()
-        .root.children.map((child) => child.children?.map((c) => c.text).join("") || "")
-        .join("\n");
-    });
-    return text;
-  };
-
+  // formatting commands for bold/italic/underline
   const formatBold = () => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
-  const formatItalic = () => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
-  const formatUnderline = () => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
+  const formatItalic = () =>
+    editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
+  const formatUnderline = () =>
+    editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
   const undo = () => editor.dispatchCommand(UNDO_COMMAND, undefined);
   const redo = () => editor.dispatchCommand(REDO_COMMAND, undefined);
+
+  // Apply inline styles for font-family, font-size, color
+  const onFontFamilyChange = (value) => {
+    setFontFamily(value);
+    applyStyleToSelection(editor, { "font-family": value });
+  };
+  const onFontSizeChange = (value) => {
+    setFontSize(value);
+    applyStyleToSelection(editor, { "font-size": `${value}px` });
+  };
+  const onFontColorChange = (value) => {
+    setFontColor(value);
+    applyStyleToSelection(editor, { color: value });
+  };
+  const [showPenOptions, setShowPenOptions] = useState(false);
 
   return (
     <>
       {activeBar === "text" && (
         <TextOptionsBar
           fontFamily={fontFamily}
-          setFontFamily={setFontFamily}
+          setFontFamily={onFontFamilyChange}
           fontSize={fontSize}
-          setFontSize={setFontSize}
+          setFontSize={onFontSizeChange}
           fontColor={fontColor}
-          setFontColor={setFontColor}
+          setFontColor={onFontColorChange}
           formatBold={formatBold}
           formatItalic={formatItalic}
           formatUnderline={formatUnderline}
@@ -434,17 +578,27 @@ function ToolbarPlugin() {
         >
           <Type size={24} />
         </button>
-        <button
-          onClick={() => setActiveBar(activeBar === "style" ? null : "style")}
-          className={`flex flex-col items-center px-4 py-2 rounded transition-all ${
-            activeBar === "style" ? "bg-gray-800" : ""
-          }`}
-          title="Style"
-          disabled
-          style={{ opacity: 0.3, cursor: "not-allowed" }}
-        >
-          <Pencil size={24} />
-        </button>
+         <button
+        onClick={() => setShowPenOptions((prev) => !prev)}
+        className={`flex flex-col items-center px-4 py-2 rounded transition-all ${
+          showPenOptions ? "bg-gray-800" : ""
+        }`}
+        title="Style"
+        style={{ opacity: 1, cursor: "pointer" }}
+      >
+        <Pencil size={24} />
+      </button>
+
+      {/* Pen Options Menu */}
+      {showPenOptions && (
+        <div className="absolute top-5 left-0 bg-gray-900 text-white rounded-lg shadow-lg p-3 flex flex-row gap-2 w-40">
+          <button className="px-3 py-2 rounded hover:bg-gray-700">✏️ Pen</button>
+          <button className="px-3 py-2 rounded hover:bg-gray-700">🖌️ Highlighter</button>
+          <button className="px-3 py-2 rounded hover:bg-gray-700">🩸 Color Picker</button>
+          <button className="px-3 py-2 rounded hover:bg-gray-700">📏 Thickness</button>
+          <button className="px-3 py-2 rounded hover:bg-gray-700">🧽 Eraser</button>
+        </div>
+      )}
         <button
           onClick={() => setActiveBar(activeBar === "effect" ? null : "effect")}
           className={`flex flex-col items-center px-4 py-2 rounded transition-all ${
@@ -460,6 +614,7 @@ function ToolbarPlugin() {
     </>
   );
 }
+
 
 function AutoFocusPlugin() {
   const [editor] = useLexicalComposerContext();
@@ -480,17 +635,62 @@ const initialConfig = {
 
 function LexicalEditor() {
   const [editorState, setEditorState] = useState("");
-
+  const [title, setTitle] = useState("Title");
   const onChange = (editorState) => {
     editorState.read(() => {
       setEditorState(JSON.stringify(editorState.toJSON(), null, 2));
     });
   };
+  const h1Ref = useRef(null);
+
+  // Sync initial state with DOM only once
+  useEffect(() => {
+    if (h1Ref.current) {
+      h1Ref.current.textContent = title;
+    }
+  }, []);
+
+  const handleInput = (e) => {
+    setTitle(e.currentTarget.textContent);
+  };
 
   return (
     <div className="w-screen h-screen bg-black relative flex flex-col justify-center items-center overflow-hidden">
       <SidebarOnHover2 />
-      <h1>Notes Title</h1>
+      <p className="fixed top-8 left-20 text-white font-medium">{title}</p>
+
+
+      {/* Editable <h1> */}
+      <h1
+        ref={h1Ref}
+        contentEditable
+        suppressContentEditableWarning={true}
+        spellCheck={false}
+        onInput={handleInput} // update state but don’t overwrite DOM
+        style={{
+          position: "fixed",
+          top: "80px",
+          left: "310px",
+          zIndex: 50,
+          cursor: "text",
+          fontSize: "1.5rem",
+          fontWeight: "600",
+          fontFamily: "sans-serif",
+          color: "white",
+          backgroundColor: "rgba(0, 0, 0, 0.6)",
+          padding: "8px 16px",
+          borderRadius: "12px",
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          textOverflow: "ellipsis",
+          outline: "none",
+          userSelect: "text",
+        }}
+        aria-label="Notes Title"
+      />
+
+
       <div className="w-full max-w-2xl pt-16 relative z-10">
         
         <h2 className="ml-10 text-white text-2xl font-medium mb-8 pt-4">Let's Start</h2>
@@ -501,9 +701,10 @@ function LexicalEditor() {
               <RichTextPlugin
                 contentEditable={
                   <ContentEditable
-                    className="min-h-[350px] text-white text-xl font-normal outline-none resize-none px-1"
-                    style={{ caretColor: "white" }}
-                  />
+  className="min-h-[350px] text-xl font-normal outline-none resize-none px-1"
+  style={{ color: "white", caretColor: "white" }}
+/>
+
                 }
                 placeholder={<div className="absolute top-6 left-4 text-gray-500 pointer-events-none text-lg" />}
                 ErrorBoundary={LexicalErrorBoundary}
@@ -518,10 +719,9 @@ function LexicalEditor() {
         </div>
       </div>
       <ShareButton getTextContent={() => {
-        // Provide text content for sharing, similarly to ToolbarPlugin
-        let text = "";
-        return text; // will be replaced by ToolbarPlugin's getter internally
-      }} />
+  let text = "";
+  return text;
+}} />
     </div>
   );
 }
