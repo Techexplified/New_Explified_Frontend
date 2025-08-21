@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import WorkFlowButton from "./WorkFlowButton";
 import WorkFlowButtonSidebar from "./WorkFlowButtonSidebar";
 
-function SidebarOnHover({ link, toolName, id }) {
+function SidebarOnHover({ link, toolName, id, chatHistory = [] }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarPinned, setSidebarPinned] = useState(false);
   return (
@@ -25,28 +25,45 @@ function SidebarOnHover({ link, toolName, id }) {
       >
         {/* Top section */}
         <div className="mt-8">
-          <div className="flex items-center gap-3 mb-2">
-            <p className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-minimal-primary bg-clip-text text-transparent">
-              {toolName}
-            </p>
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <p className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-minimal-primary bg-clip-text text-transparent">
+                {toolName}
+              </p>
 
-            <button
-              onClick={() => {
-                setSidebarPinned(!sidebarPinned);
-                setSidebarOpen(true); // Ensure open when pinned
-              }}
-            >
-              {sidebarPinned ? <PinOff size={20} /> : <Pin size={20} />}
-            </button>
-          </div>
-
-          {id === "ytsummarizer" && (
-            <Link to="https://chromewebstore.google.com/detail/vidsum-copilot-for-youtub/jmdecmahfbajaffljohfdlbdmkbngggj">
-              <button className="w-full  flex items-center justify-between mb-4 bg-black border-2 border-minimal-primary hover:from-minimal-primary/80 hover:to-minimal-primary text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 hover:scale-105 ">
-                <CirclePlus />
-                View Extension
+              <button
+                onClick={() => {
+                  setSidebarPinned(!sidebarPinned);
+                  setSidebarOpen(true); // Ensure open when pinned
+                }}
+              >
+                {sidebarPinned ? <PinOff size={20} /> : <Pin size={20} />}
               </button>
-            </Link>
+            </div>
+
+            {id === "ytsummarizer" && (
+              <Link to="https://chromewebstore.google.com/detail/vidsum-copilot-for-youtub/jmdecmahfbajaffljohfdlbdmkbngggj">
+                <button className="w-full  flex items-center justify-between mb-4 bg-black border-2 border-minimal-primary hover:from-minimal-primary/80 hover:to-minimal-primary text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 hover:scale-105 ">
+                  <CirclePlus />
+                  View Extension
+                </button>
+              </Link>
+            )}
+          </div>
+          {/* chat history */}
+          {chatHistory && (
+            <div className="border-t border-minimal-primary/20 pt-4 flex flex-col gap-2">
+              {chatHistory
+                ?.filter((item) => item.sender === "user")
+                .map((item, index) => (
+                  <p
+                    className=" cursor-pointer w-[180px] bg-gray-900 text-gray-400 p-2 rounded-md "
+                    key={index}
+                  >
+                    {item.text}
+                  </p>
+                ))}
+            </div>
           )}
         </div>
 

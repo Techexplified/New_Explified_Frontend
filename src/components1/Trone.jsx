@@ -1,12 +1,14 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { FiPlus, FiMic, FiSliders, FiX } from "react-icons/fi";
 import { BsSoundwave } from "react-icons/bs";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import SidebarOnHover from "../reusable_components/SidebarOnHover";
+
 function Trone({ onFirstPrompt }) {
   const [prompt, setPrompt] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
+
   const [isTyping, setIsTyping] = useState(false);
   const [firstPromptDone, setFirstPromptDone] = useState(
     localStorage.getItem("firstPromptDone") === "true"
@@ -23,7 +25,6 @@ function Trone({ onFirstPrompt }) {
   const chatContainerRef = useRef(null);
 
   useEffect(() => {
-    console.log(localStorage.getItem("tasks"));
     if (!prevDrawerState.current && isDrawerOpen) {
       setFirstPromptDone(false);
       localStorage.setItem("firstPromptDone", "false");
@@ -42,6 +43,41 @@ function Trone({ onFirstPrompt }) {
   }, [chatHistory, isTyping]);
 
   const GEMINI_API_KEY = "AIzaSyCjxEkSZKRdCohde0z5FKaZAO624gF3wms";
+
+  // Sync chat history with localStorage.recentPrompts
+  const syncChatWithRecentPrompts = useCallback(() => {
+    try {
+      const storedPrompts =
+        JSON.parse(localStorage.getItem("recentPrompts")) || [];
+      if (Array.isArray(storedPrompts) && storedPrompts.length > 0) {
+        const userMessages = storedPrompts
+          .slice()
+          .reverse()
+          .map((p) => ({ sender: "user", text: String(p) }));
+        setChatHistory(userMessages);
+      } else {
+        setChatHistory([]);
+      }
+    } catch (error) {
+      console.error("Failed to load recentPrompts from localStorage", error);
+    }
+  }, []);
+
+  // Load on mount
+  useEffect(() => {
+    syncChatWithRecentPrompts();
+  }, [syncChatWithRecentPrompts]);
+
+  // Listen for localStorage changes from other tabs/windows
+  useEffect(() => {
+    const handleStorage = (e) => {
+      if (e.key === "recentPrompts") {
+        syncChatWithRecentPrompts();
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, [syncChatWithRecentPrompts]);
 
   useEffect(() => {
     if (reset) {
@@ -90,11 +126,17 @@ function Trone({ onFirstPrompt }) {
       setChatHistory((prev) => [...prev, userMessage]);
       setIsTyping(true);
 
+      // Persist to recentPrompts on every prompt (dedupe, keep latest 5)
+      const existing = JSON.parse(localStorage.getItem("recentPrompts")) || [];
+      const trimmed = prompt.trim();
+      const newSet = [trimmed, ...existing.filter((p) => p !== trimmed)].slice(
+        0,
+        5
+      );
+      localStorage.setItem("recentPrompts", JSON.stringify(newSet));
+      // Immediately reflect in chat history
+      syncChatWithRecentPrompts();
       if (!firstPromptDone) {
-        const existing =
-          JSON.parse(localStorage.getItem("recentPrompts")) || [];
-        const newSet = [prompt.trim(), ...existing.slice(0, 4)];
-        localStorage.setItem("recentPrompts", JSON.stringify(newSet));
         setFirstPromptDone(true);
         localStorage.setItem("firstPromptDone", "true");
       }
@@ -264,6 +306,8 @@ function Trone({ onFirstPrompt }) {
   return (
     <div className="bg-black text-white flex h-screen">
       <SidebarOnHover
+        er
+        chatHistory={chatHistory}
         link={"https://explified.com/expli/"}
         toolName={"Expli"}
       />

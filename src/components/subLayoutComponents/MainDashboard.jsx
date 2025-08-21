@@ -28,6 +28,7 @@ import {
   Trash2,
   MoreHorizontal,
   Sparkles,
+  Lock,
 } from "lucide-react";
 import { PiSubtitles } from "react-icons/pi";
 import {
@@ -110,7 +111,7 @@ const RenderMyIntegrations = () => {
 
   return (
     <>
-      <p className="p-4 w-full text-2xl text-minimal-white tracking-tighter">
+      <p className="p-4 w-full text-3xl font-bold text-minimal-white tracking-tighter">
         Integrations
       </p>
       <div className="border-t border-gray-600 w-full mb-6"></div>
@@ -160,44 +161,37 @@ const RenderMyIntegrations = () => {
 };
 
 const NavBarSection = ({ selectedTool, onNavClick }) => (
-  <div className="flex justify-between w-full bg-transparent pt-[50px] px-24">
-    {/* Left side buttons including Search */}
-    <div className="flex gap-8 items-center justify-center  w-full flex-nowrap">
-      {/* Search input placed here */}
+  <div className="w-full bg-transparent pt-[50px] px-24">
+    {/* Large search bar above filter options */}
+    <div className="w-full max-w-3xl mx-auto mb-4 relative">
+      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/60" />
+      <input
+        type="text"
+        placeholder="Search..."
+        className="w-full bg-transparent text-white h-12 pl-12 pr-4 rounded-[22px] border border-[#7ce4de] text-base focus:outline-none focus:ring-2 focus:ring-[#7ce4de]/40 transition"
+      />
+    </div>
+    {/* Filter buttons */}
+    <div className="flex gap-4 items-center justify-center w-full flex-wrap">
       {navItems
-        .filter((item) => item.name === "Search")
+        .filter((item) => item.name !== "Search")
         .map((item) => (
-          <input
-            key={item.name}
-            type="text"
-            placeholder="Search..."
-            className={`bg-transparent text-white min-w-[150px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base focus:outline-none ${
-              selectedTool === item.name ? "bg-[#23b5b5] font-semibold" : ""
-            }`}
-          />
-        ))}
-      <div className="flex gap-4 ">
-        {navItems
-          .filter((item) => item.name !== "Search")
-          .map((item) => (
-            <div
-              key={item.name}
-              className="flex flex-col items-center relative"
+          <div key={item.name} className="flex flex-col items-center relative">
+            <button
+              type="button"
+              title={item.name}
+              aria-pressed={selectedTool === item.name}
+              onClick={() => onNavClick(item.name)}
+              className={
+                selectedTool === item.name
+                  ? "flex items-center justify-center bg-[#23b5b5] text-white min-w-[100px] h-10 px-5 rounded-[22px] border border-[#7ce4de] text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#7ce4de]/40 transition"
+                  : "flex items-center justify-center bg-transparent text-white min-w-[100px] h-10 px-5 rounded-[22px] border border-[#7ce4de] text-sm hover:bg-[#7c8e91]/60 focus:outline-none focus:ring-2 focus:ring-[#7ce4de]/40 active:scale-[0.98] transition"
+              }
             >
-              <button
-                type="button"
-                onClick={() => onNavClick(item.name)}
-                className={
-                  selectedTool === item.name
-                    ? "flex items-center justify-center bg-[#23b5b5] text-white min-w-[100px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base font-semibold"
-                    : "flex items-center justify-center bg-transparent text-white min-w-[100px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base hover:bg-[#7c8e91]/60"
-                }
-              >
-                <span>{item.name}</span>
-              </button>
-            </div>
-          ))}
-      </div>
+              <span>{item.name}</span>
+            </button>
+          </div>
+        ))}
     </div>
   </div>
 );
@@ -454,12 +448,10 @@ const MainDashboard = () => {
           />
         </div>
 
-        <div className=" text-5xl">Hello new branch</div>
-
         {/* Start Section */}
         {selectedTools === "Start" && (
           <div className="max-w-[1480px]  w-full" ref={startRef}>
-            <p className="p-4 w-full text-2xl text-minimal-white tracking-tighter">
+            <p className="p-4 w-full text-3xl font-bold text-minimal-white tracking-tighter">
               Start
             </p>
             <div className="border-t border-gray-600 w-full mb-6"></div>
@@ -493,7 +485,7 @@ const MainDashboard = () => {
 
         {selectedTools === "Recent" && (
           <div className="max-w-[1480px]  w-full" ref={recentRef}>
-            <p className="p-4 w-full text-2xl text-minimal-white tracking-tighter">
+            <p className="p-4 w-full text-3xl text-minimal-white font-bold tracking-tighter">
               Recent
             </p>
             <div className="border-t border-gray-600 w-full mb-6"></div>
@@ -561,7 +553,7 @@ const MainDashboard = () => {
         {/* All Tools Section */}
         {selectedTools === "All Apps" && (
           <div className="max-w-[1480px] w-full" ref={allToolsRef}>
-            <p className="p-4 w-full text-2xl text-minimal-white tracking-tighter">
+            <p className="p-4 w-full text-3xl font-bold text-minimal-white tracking-tighter">
               All Apps
             </p>
             <div className="border-t border-gray-600 w-full mb-6"></div>
@@ -635,7 +627,7 @@ const MainDashboard = () => {
         {/* Workflows Section */}
         {selectedTools === "Workflows" && (
           <div ref={workflowsRef} onClick={() => navigate("/locked")}>
-            <p className="p-4 w-full text-2xl text-minimal-white tracking-tighter">
+            <p className="p-4 w-full text-3xl font-bold text-minimal-white tracking-tighter">
               Workflows
             </p>
             <div className="border-t border-gray-600 w-full mb-6"></div>
@@ -646,7 +638,7 @@ const MainDashboard = () => {
                 return (
                   <div
                     key={workflow.id}
-                    className="group relative bg-minimal-dark-100 rounded-xl p-4 border border-minimal-border hover:border-minimal-primary/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-minimal-primary/20 cursor-pointer flex flex-col h-64"
+                    className="group relative bg-[#23b5b5]/20 rounded-xl p-4 border  border-teal-400 hover:border-minimal-primary/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-minimal-primary/20 cursor-pointer flex flex-col h-64"
                   >
                     {/* Hover gradient overlay */}
                     <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -688,7 +680,14 @@ const MainDashboard = () => {
                         </div>
 
                         {/* Menu Button */}
-                        <div className="relative" ref={menuRef}>
+                        <div
+                          className="relative flex items-center gap-2"
+                          ref={menuRef}
+                        >
+                          <div>
+                            <Lock className="w-5 h-5 text-minimal-primary transition-colors duration-200" />
+                          </div>
+
                           <button
                             onClick={(e) => toggleMenu(workflow.id, e)}
                             className="p-2 rounded-lg hover:bg-minimal-cardHover transition-colors duration-200 z-20 relative"

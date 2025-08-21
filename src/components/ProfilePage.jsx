@@ -35,7 +35,7 @@ const UserPage = () => {
 
   return (
     <div className="w-full h-screen bg-black p-6 lg:p-8">
-      <div className="w-full h-full grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-0">
+      <div className="w-full h-full flex items-center justify-center gap-0">
         {/* Left Column */}
         <div className="flex flex-col items-center justify-center gap-4 p-6 lg:p-8 w-full max-w-sm mx-auto">
           {/* User Profile */}
@@ -119,10 +119,10 @@ const UserPage = () => {
         </div>
 
         {/* Divider */}
-        <div className="hidden lg:block w-px bg-[#23b5b5]/30 mx-4"></div>
+        {/* <div className="hidden lg:block w-px bg-[#23b5b5]/30 mx-4"></div> */}
 
         {/* Right Column */}
-        <div className="flex flex-col gap-6 items-center justify-center text-center px-6 lg:px-12">
+        {/* <div className="flex flex-col gap-6 items-center justify-center text-center px-6 lg:px-12">
           <p className="text-3xl text-gray-300">Time saved</p>
           <p className="text-3xl mb-4">
             Using{" "}
@@ -134,7 +134,7 @@ const UserPage = () => {
           <p className="mt-6 text-lg text-gray-400 cursor-pointer hover:underline">
             See how?
           </p>
-        </div>
+        </div> */}
       </div>
     </div>
   );
