@@ -605,7 +605,7 @@ export default function IntegrationsPage() {
             </div>
             <h3 className="text-xl font-semibold text-gray-300 mb-2">
               No integrations found
-            </h3>
+            </h3>             
             <p className="text-gray-500">
               Try adjusting your search or filter criteria
             </p>
