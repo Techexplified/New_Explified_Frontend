@@ -196,22 +196,22 @@ const AiImageTool = () => {
   return (
     <>
       {/* Left-edge activator to open when collapsed (below navbar) */}
-            <div
-              className="fixed left-0 h-[calc(100vh-0px)] w-10 z-50"
-              onMouseEnter={() => setSidebarOpen(true)}
-            />
-      
-            {/* Sidebar (appears below navbar) */}
-            <div
-              className={`fixed left-0 h-[calc(100vh-0px)] bg-black/95 backdrop-blur-xl border-r border-[#23b5b5]/20 
+      <div
+        className="fixed left-0 h-[calc(100vh-0px)] w-10 z-50"
+        onMouseEnter={() => setSidebarOpen(true)}
+      />
+
+      {/* Sidebar (appears below navbar) */}
+      <div
+        className={`fixed left-0 h-[calc(100vh-0px)] bg-black/95 backdrop-blur-xl border-r border-[#23b5b5]/20 
               flex flex-col justify-between transition-all duration-300 z-40
               ${sidebarOpen ? "w-72 px-6" : "w-0 px-0 overflow-hidden"}`}
-              onMouseEnter={() => !sidebarPinned && setSidebarOpen(true)}
-                  onMouseLeave={() => !sidebarPinned && setSidebarOpen(false)}
-            >
-              {/* Top section */}
-              <div className="mt-8">
-                {/* <div className="flex items-center gap-3 mb-2">
+        onMouseEnter={() => !sidebarPinned && setSidebarOpen(true)}
+        onMouseLeave={() => !sidebarPinned && setSidebarOpen(false)}
+      >
+        {/* Top section */}
+        <div className="mt-8">
+          {/* <div className="flex items-center gap-3 mb-2">
                   <h2 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-[#23b5b5] bg-clip-text text-transparent">
                     AI Image Styler
                   </h2>
@@ -224,52 +224,35 @@ const AiImageTool = () => {
                     {sidebarPinned ? <PinOff size={20} /> : <Pin size={20} />}
                   </button>
                 </div> */}
-                <div className="grid pt-6 grid-cols-1 gap-4">
-                  <div className="flex items-center gap-3 mb-2">
-                  <h2 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-[#23b5b5] bg-clip-text text-transparent">
-                    AI Image Styler
-                  </h2>
-                  <button
-                    onClick={() => {
-                      setSidebarPinned(!sidebarPinned);
-                      setSidebarOpen(true);
-                    }}
-                  >
-                    {sidebarPinned ? <PinOff size={20} /> : <Pin size={20} />}
-                  </button>
-                </div>
-                  {tools.map((tool) => (
-                    <button
-                      key={tool.id}
-                      onClick={() => {
-                        setSelectedTool(tool.id);
-                        navigate(tool.link);
-                      }}
-                      className={`w-full p-5 rounded-xl bg-minimal-card hover:bg-minimal-cardHover border border-minimal-border/60 shadow-sm transition-all duration-200 flex items-center space-x-4 ${
-                        selectedTool === tool.id ? "ring-2 ring-minimal-primary" : ""
-                      }`}
-                    >
-                      <tool.icon className="w-7 h-7 text-minimal-primary" />
-                      <span className="text-base font-medium text-minimal-paragraph">
-                        {tool.name}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-      
-              {/* Bottom section */}
-              <div className="mb-8">
-                <button
-                  onClick={() =>
-                    window.location.assign("https://explified.com/ai-image-styler/ ")
-                  }
-                  className="w-full bg-gradient-to-r from-[#23b5b5] to-[#1a9999] hover:from-[#1a9999] hover:to-[#23b5b5] text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-[#23b5b5]/25"
-                >
-                  Learn More
-                </button>
-              </div>
+          <div className="grid pt-6 grid-cols-1 gap-4">
+            <div className="flex items-center gap-3 mb-2">
+              <h2 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-[#23b5b5] bg-clip-text text-transparent">
+                AI Image Styler
+              </h2>
+              <button
+                onClick={() => {
+                  setSidebarPinned(!sidebarPinned);
+                  setSidebarOpen(true);
+                }}
+              >
+                {sidebarPinned ? <PinOff size={20} /> : <Pin size={20} />}
+              </button>
             </div>
+          </div>
+        </div>
+
+        {/* Bottom section */}
+        <div className="mb-8">
+          <button
+            onClick={() =>
+              window.location.assign("https://explified.com/ai-image-styler/ ")
+            }
+            className="w-full bg-gradient-to-r from-[#23b5b5] to-[#1a9999] hover:from-[#1a9999] hover:to-[#23b5b5] text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-[#23b5b5]/25"
+          >
+            Learn More
+          </button>
+        </div>
+      </div>
 
       <div className="min-h-screen relative flex bg-minimal-background text-minimal-heading font-poppins">
         {/* Sidebar */}
@@ -296,19 +279,51 @@ const AiImageTool = () => {
         </div> */}
 
         {/* Main Content */}
+
         <div className="flex-1 pt-12 flex flex-col">
-          <div className="p-8 mx-6 my-6 text-center border rounded-2xl border-minimal-border bg-minimal-card shadow-md">
+          {/* Tool Selector */}
+          <div className="flex flex-col items-center justify-center mb-10">
+            <h1 className="text-3xl font-semibold text-minimal-heading mb-2">
+              AI Image Styler
+            </h1>
+            <p className="text-lg text-white/60">
+              Faster, smarter and more creative image Generation
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-4 px-6 justify-center">
+            {tools.map((tool) => (
+              <button
+                key={tool.id}
+                onClick={() => {
+                  setSelectedTool(tool.id);
+                  navigate(tool.link);
+                }}
+                className={`p-5 rounded-xl bg-minimal-card hover:bg-minimal-cardHover border border-minimal-border/60 shadow-sm transition-all duration-200 flex items-center justify-start space-x-4 ${
+                  selectedTool === tool.id ? "ring-2 ring-minimal-primary" : ""
+                }`}
+              >
+                <tool.icon className="w-7 h-7 text-minimal-primary" />
+                <span className="text-base font-medium text-minimal-paragraph">
+                  {tool.name}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {/* Upload Section */}
+          <div className="max-w-7xl mx-auto p-10 mt-10 text-center border rounded-2xl border-minimal-border bg-minimal-card shadow-lg">
             <h1 className="text-3xl font-bold text-minimal-heading mb-2">
               Ready to see your photo transformed?
             </h1>
-            <p className="text-xl text-minimal-paragraph mb-8">
+            <p className="text-lg text-minimal-paragraph mb-8">
               Upload your image and watch the magic happen!
             </p>
 
             {/* Upload */}
-            <div className="max-w-md mx-auto">
-              <label className="flex items-center justify-center w-full h-14 rounded-xl cursor-pointer transition-all border-2 border-dashed border-minimal-border hover:border-minimal-primary bg-minimal-surface text-minimal-paragraph">
-                <Upload className="w-5 h-5 mr-2 text-minimal-primary" />
+            <div className="max-w-2xl mx-auto">
+              <label className="flex items-center justify-center w-[90%] mx-auto h-16 rounded-xl cursor-pointer transition-all border-2 border-dashed border-minimal-border hover:border-minimal-primary bg-minimal-surface text-minimal-paragraph">
+                <Upload className="w-6 h-6 mr-2 text-minimal-primary" />
                 <span className="font-medium">Upload Image</span>
                 <input
                   type="file"
@@ -319,15 +334,18 @@ const AiImageTool = () => {
               </label>
             </div>
 
+            {/* Uploaded Preview */}
             {uploadedImage && (
               <div className="mt-6 max-w-md mx-auto">
                 <img
                   src={uploadedImage}
                   alt="Uploaded"
-                  className="w-full object-cover rounded-xl border border-minimal-border"
+                  className="w-full object-cover rounded-xl border border-minimal-border shadow-sm"
                 />
               </div>
             )}
+
+            {/* Errors / Queue Info */}
             {errorMsg && (
               <div className="mt-6 max-w-md mx-auto text-sm text-red-400">
                 {errorMsg}
@@ -343,12 +361,10 @@ const AiImageTool = () => {
                 )}
               </div>
             )}
-          </div>
 
-          {/* Prompt & Clone Section */}
-          <div className="flex-1 px-6 pb-10 space-y-6">
+            {/* AI Prompt */}
             <div className="max-w-2xl mx-auto">
-              <div className="bg-minimal-card rounded-xl p-6 border border-minimal-border shadow-sm">
+              <div className="bg-minimal-card rounded-xl p-6   shadow-sm">
                 <div className="flex items-center mb-4">
                   <Sparkles className="w-5 h-5 text-minimal-primary mr-2" />
                   <h3 className="text-lg font-semibold">AI Prompt</h3>
@@ -356,7 +372,7 @@ const AiImageTool = () => {
                 <textarea
                   value={aiPrompt}
                   onChange={(e) => setAiPrompt(e.target.value)}
-                  placeholder="Tell us how you want to transform your photo—be as creative or specific as you like!"
+                  placeholder="Describe how you want to transform your photo..."
                   className="w-full h-28 bg-minimal-surface border border-minimal-border rounded-xl p-4 text-minimal-heading placeholder-minimal-muted resize-none focus:outline-none focus:ring-2 focus:ring-minimal-primary"
                 />
                 <div className="flex justify-end mt-4">
@@ -373,48 +389,7 @@ const AiImageTool = () => {
               </div>
             </div>
 
-            {/* Clone */}
-            {/* <div className="max-w-2xl mx-auto">
-            <div className="bg-minimal-card rounded-xl p-6 border border-minimal-border shadow-sm">
-              <div className="flex items-center mb-4">
-                <Copy className="w-5 h-5 text-minimal-primary mr-2" />
-                <h3 className="text-lg font-semibold">AI Image Clone</h3>
-              </div>
-              <p className="text-minimal-paragraph mb-4">
-                Upload a sample screenshot to set your desired style, and then
-                choose media from your device to generate your AI image clone
-              </p>
-              <div className="flex items-center justify-between">
-                <label className="flex items-center justify-center px-4 py-2 rounded-lg cursor-pointer transition-all border border-minimal-border hover:border-minimal-primary bg-minimal-surface text-minimal-paragraph">
-                  <Camera className="w-4 h-4 mr-2 text-minimal-primary" />
-                  <span className="text-sm font-medium">Upload Sample</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      const reader = new FileReader();
-                      reader.onload = (ev) => setSampleImage(ev.target?.result);
-                      reader.readAsDataURL(file);
-                    }}
-                  />
-                </label>
-                <button
-                  onClick={handleCloneGenerate}
-                  disabled={isGenerating}
-                  className={`px-6 py-2 bg-minimal-primary text-black rounded-lg font-semibold transition-all hover:brightness-110 ${
-                    isGenerating ? "opacity-60 cursor-not-allowed" : ""
-                  }`}
-                >
-                  {isGenerating ? "Generating..." : "Generate"}
-                </button>
-              </div>
-            </div>
-          </div> */}
-
-            {/* Quick Actions & Styles */}
+            {/* Result */}
             {resultImage && (
               <div className="max-w-3xl mx-auto">
                 <div className="bg-minimal-card rounded-xl p-6 border border-minimal-border shadow-sm">
@@ -422,13 +397,13 @@ const AiImageTool = () => {
                   <img
                     src={resultImage}
                     alt="Result"
-                    className="w-full rounded-xl border border-minimal-border"
+                    className="w-full rounded-xl border border-minimal-border shadow-sm"
                   />
                   <div className="flex justify-end mt-4">
                     <a
                       href={resultImage}
                       download="aihorde_result.png"
-                      className="px-4 py-2 bg-minimal-primary text-black rounded-lg font-semibold"
+                      className="px-5 py-2 bg-minimal-primary text-black rounded-lg font-semibold hover:brightness-110"
                     >
                       Download
                     </a>
@@ -437,6 +412,11 @@ const AiImageTool = () => {
               </div>
             )}
           </div>
+
+          {/* Prompt & Result Section
+          <div className="flex-1 px-6 pb-12 mt-10 space-y-8">
+            
+          </div> */}
         </div>
       </div>
     </>

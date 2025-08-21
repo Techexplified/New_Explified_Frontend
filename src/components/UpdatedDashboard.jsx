@@ -30,7 +30,7 @@ import {
   MessageCircleMore,
   Database,
   TvMinimalPlay,
-  Users
+  Users,
 } from "lucide-react";
 
 import logo from "../assets/logos/explified_logo.png";
@@ -56,7 +56,7 @@ const NavBarSection = ({ selectedTool, onNavClick }) => (
           onClick={() => onNavClick(item.name)}
           className={
             selectedTool === item.name || item.active
-              ? "flex items-center justify-center bg-[#7c8e91] text-white min-w-[100px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base font-semibold"
+              ? "flex items-center justify-center bg-[#23b5b5] text-white min-w-[100px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base font-semibold"
               : "flex items-center justify-center bg-transparent text-white min-w-[100px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base hover:bg-[#7c8e91]/60"
           }
         >
@@ -78,11 +78,11 @@ const UpdatedDashboard = () => {
   const [selectedTool, setSelectedTool] = useState("");
   const [showContent, setShowContent] = useState(true);
   const [showNavbar, setShowNavbar] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
-  const [showUserModal, setShowUserModal] = useState(false);
+  // const [lastScrollY, setLastScrollY] = useState(0);
+  // const [showUserModal, setShowUserModal] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  // const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isPlusOpen, setIsPlusOpen] = useState(false);
 
@@ -91,12 +91,14 @@ const UpdatedDashboard = () => {
 
   const tools = [
     { name: "", icon: LayoutDashboard, description: "Shows key metrics" },
-    { name: "Workflows", icon: Workflow, description: "Automates task sequences" },
+    {
+      name: "Workflows",
+      icon: Workflow,
+      description: "Automates task sequences",
+    },
   ];
 
-  const plusTools = [
-    { name: "Files", icon: File, path: "/task-manager" },
-  ];
+  const plusTools = [{ name: "Files", icon: File, path: "/task-manager" }];
 
   const aiTools = [
     { name: "Integrations", icon: Zap, path: "/integrations" },
@@ -188,7 +190,6 @@ const UpdatedDashboard = () => {
   // ---------------- JSX ----------------
   return (
     <div className="min-h-screen bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 flex flex-col overflow-hidden">
-      
       {/* Header / Navbar */}
       <header
         className={`fixed border-minimal-border/50 px-6 transition-transform duration-300 z-50 top-0 left-0 w-full
@@ -198,7 +199,6 @@ const UpdatedDashboard = () => {
       >
         <div className="flex items-start justify-between w-full">
           <div className="flex items-center gap-2 pt-1 ml-auto">
-
             {/* Grid Icon */}
             {(() => {
               const tool = {
@@ -264,7 +264,6 @@ const UpdatedDashboard = () => {
 
               {isOpen && (
                 <div className="absolute left-[-130px] top-14 bg-minimal-card p-4 rounded-xl shadow-lg border border-gray-700 z-5000000 min-w-[200px] flex flex-col items-center">
-                  
                   {/* Dropdown content */}
                   <div className="mb-4">
                     <button
@@ -273,7 +272,7 @@ const UpdatedDashboard = () => {
                     >
                       View My Profile
                     </button>
-                    
+
                     {/* Tools Quick Buttons */}
                     <div className="flex gap-3 flex-col">
                       <div className="flex gap-3">
@@ -282,19 +281,24 @@ const UpdatedDashboard = () => {
                             navigate("/expli");
                             setIsOpen(false);
                           }}
-                          // onClick={() => { navigate("/chat"); setIsOpen(false); }}
                           className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
                         >
                           <Plus className="w-5 h-5 text-white" />
                         </button>
                         <button
-                          onClick={() => { navigate("/tasks"); setIsOpen(false); }}
+                          onClick={() => {
+                            navigate("/tasks");
+                            setIsOpen(false);
+                          }}
                           className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
                         >
                           <FileText className="w-5 h-5 text-white" />
                         </button>
                         <button
-                          onClick={() => { navigate("/integrations"); setIsOpen(false); }}
+                          onClick={() => {
+                            navigate("/integrations");
+                            setIsOpen(false);
+                          }}
                           className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
                         >
                           <Zap className="w-5 h-5 text-white" />
@@ -303,19 +307,28 @@ const UpdatedDashboard = () => {
 
                       <div className="flex gap-3">
                         <button
-                          onClick={() => { navigate("/memory"); setIsOpen(false); }}
+                          onClick={() => {
+                            navigate("/memory");
+                            setIsOpen(false);
+                          }}
                           className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
                         >
                           <Database className="w-5 h-5 text-white" />
                         </button>
                         <button
-                          onClick={() => { navigate("/socials"); setIsOpen(false); }}
+                          onClick={() => {
+                            navigate("/socials");
+                            setIsOpen(false);
+                          }}
                           className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
                         >
                           <Users className="w-5 h-5 text-white" />
                         </button>
                         <button
-                          onClick={() => { navigate("/discover"); setIsOpen(false); }}
+                          onClick={() => {
+                            navigate("/discover");
+                            setIsOpen(false);
+                          }}
                           className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
                         >
                           <Search className="w-5 h-5 text-white" />
@@ -326,16 +339,24 @@ const UpdatedDashboard = () => {
 
                   {/* Workflows Section */}
                   <div className="mb-4 flex flex-col justify-center items-center">
-                    <h3 className="text-white text-sm font-semibold mb-2">Workflows</h3>
+                    <h3 className="text-white text-sm font-semibold mb-2">
+                      Workflows
+                    </h3>
                     <div className="flex gap-3">
                       <button
-                        onClick={() => { navigate("/workflows"); setIsOpen(false); }}
+                        onClick={() => {
+                          navigate("/workflows");
+                          setIsOpen(false);
+                        }}
                         className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
                       >
                         <Workflow className="w-5 h-5 text-white" />
                       </button>
                       <button
-                        onClick={() => { navigate("/integrations"); setIsOpen(false); }}
+                        onClick={() => {
+                          navigate("/integrations");
+                          setIsOpen(false);
+                        }}
                         className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
                       >
                         <Zap className="w-5 h-5 text-white" />
@@ -345,22 +366,17 @@ const UpdatedDashboard = () => {
 
                   {/* All Tools Section */}
                   <div className="mb-2 flex-col items-center justify-center">
-                    <h3 className="text-white text-sm font-semibold mb-2">All Tools</h3>
+                    <h3 className="text-white text-sm font-semibold mb-2">
+                      All Tools
+                    </h3>
                     <button
                       type="button"
                       className="flex items-center justify-center w-14 h-14 rounded-xl text-white hover:bg-minimal-primary"
-                      onClick={() => navigate("/")}
+                      onClick={() => navigate("/alltools")}
                     >
                       <Grip className="w-6 h-6" />
                     </button>
                   </div>
-
-                  <Link
-                    to="https://explified.com/"
-                    className="text-white text-sm font-semibold mb-2 hover:text-[#23b5b5]"
-                  >
-                    To explified.com
-                  </Link>
                 </div>
               )}
             </div>
@@ -370,17 +386,16 @@ const UpdatedDashboard = () => {
 
       {/* CONTENT */}
       <div
-        className={`${sidebarOpen ? "ml-80" : "ml-0"} w-full transition-all duration-300`}
-        
+        className={`${
+          sidebarOpen ? "ml-80" : "ml-0"
+        } w-full transition-all duration-300`}
       >
         {/* FILTER BAR */}
-        
-        {/* MAIN CONTENT SLOT */}
 
+        {/* MAIN CONTENT SLOT */}
 
         <Outlet />
       </div>
-      
     </div>
   );
 };
