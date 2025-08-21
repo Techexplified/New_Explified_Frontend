@@ -71,22 +71,20 @@ const NavBarSection = ({ selectedTool, onNavClick }) => (
         .filter((item) => item.name === "Search")
         .map((item) => (
           <div className="flex justify-between items-center w-full px-6">
-  {/* Other buttons/groups here on the left */}
-  
-  <button
-  key={item.name}
-  type="button"
-  onClick={() => onNavClick(item.name)}
-  className={`absolute top-[60px] right-[20px] flex items-center justify-center bg-transparent text-white min-w-[100px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base hover:bg-[#7c8e91]/60 ${
-    selectedTool === item.name ? "bg-[#7c8e91] font-semibold" : ""
-  }`}
-  title="Search"
->
-  {item.icon && <Search className="w-5 h-5" />}
-</button>
+            {/* Other buttons/groups here on the left */}
 
-</div>
-
+            <button
+              key={item.name}
+              type="button"
+              onClick={() => onNavClick(item.name)}
+              className={`absolute top-[60px] right-[20px] flex items-center justify-center bg-transparent text-white min-w-[100px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base hover:bg-[#7c8e91]/60 ${
+                selectedTool === item.name ? "bg-[#7c8e91] font-semibold" : ""
+              }`}
+              title="Search"
+            >
+              {item.icon && <Search className="w-5 h-5" />}
+            </button>
+          </div>
         ))}
     </div>
   </div>
@@ -95,25 +93,28 @@ const NavBarSection = ({ selectedTool, onNavClick }) => (
 const MainDashboard = () => {
   const [isOpenTools, setIsOpenTools] = useState(false);
   const [isOpenAllTools, setIsOpenAllTools] = useState(false);
- // Holds all selected filters; 'Recent' always included internally
-const [selectedTools, setSelectedTools] = useState(['Recent']);
+  // Holds all selected filters; 'Recent' always included internally
+  const [selectedTools, setSelectedTools] = useState(["Recent"]);
 
-// Toggle selection of filters; 'Recent' is always included and cannot be unselected
-const onToggleTool = (toolName) => {
-  setSelectedTools(prev => {
-    if (toolName === 'Recent') {
-      // 'Recent' is always selected and cannot be toggled
-      return prev.includes('Recent') ? prev : [...prev, 'Recent'];
+  const menuRef = useRef(null);
+  const onToggleTool = (toolName) => {
+    setSelectedTool(toolName);
+    if (selectedTool === toolName) {
+      setSelectedTools("Recent");
+    } else {
+      setSelectedTools(toolName);
     }
-    // If the clicked tool is already selected, keep it selected (do nothing)
-    if (prev.includes(toolName)) {
-      return prev;
-    }
-    // Select only the clicked tool plus 'Recent'
-    return [toolName, 'Recent'];
-  });
-};
+  };
 
+  const toggleMenu = (workflowId, e) => {
+    e.stopPropagation();
+    setOpenMenuId(openMenuId === workflowId ? null : workflowId);
+  };
+
+  const handleMenuAction = (action, workflowTitle) => {
+    console.log(`${action} action for: ${workflowTitle}`);
+    setOpenMenuId(null);
+  };
 
   // Separate refs for measuring height of different grids
   const toolsGridRef = useRef(null);
@@ -308,222 +309,401 @@ const onToggleTool = (toolName) => {
 
   return (
     <>
-  <div className="w-full h-full px-5 mb-10 flex flex-col items-center">
-    <div>
-      <div
-        className="absolute left-0 top-0 h-full w-6 z-30"
-        onMouseEnter={() => setSidebarOpen(true)}
-        onMouseLeave={() => setSidebarOpen(false)}
-      />
-      {/* Sidebar */}
-      <div
-        className={`fixed top-0 left-0 h-full bg-black/95 backdrop-blur-xl border-r border-minimal-primary/20 flex flex-col justify-between transition-all duration-300 z-50 ${
-          sidebarOpen ? "w-56 px-6" : "w-0 px-0 overflow-hidden"
-        }`}
-        onMouseEnter={() => !sidebarPinned && setSidebarOpen(true)}
-        onMouseLeave={() => !sidebarPinned && setSidebarOpen(false)}
-      >
-        {/* Top section */}
-        <div className="mt-8">
-          <div className="flex items-center gap-3 mb-2">
-            <h2 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-minimal-primary bg-clip-text text-transparent">
-              {toolName}
-            </h2>
-            <button
-              onClick={() => {
-                setSidebarPinned(!sidebarPinned);
-                setSidebarOpen(true); // Ensure open when pinned
-              }}
-            >
-              {sidebarPinned ? <PinOff size={20} /> : <Pin size={20} />}
-            </button>
-          </div>
-        </div>
-        {/* Bottom section */}
-        <div className="mb-8">
-          <Link to={link}>
-            <button className="w-full bg-gradient-to-r from-minimal-primary to-minimal-primary/80 hover:from-minimal-primary/80 hover:to-minimal-primary text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-minimal-primary/25">
-              Learn More
-            </button>
-          </Link>
-        </div>
-      </div>
-    </div>
-
-    {/* FILTER BAR */}
-    <div className="bg-transparent pt-[30px]">
-      <NavBarSection selectedTools={selectedTools} onNavClick={onToggleTool} />
-    </div>
-
-    {/* Start Section */}
-    {(selectedTools.length === 0 || selectedTools.includes("Start")) && (
-      <div className="max-w-[1480px] pt-12 w-full" ref={startRef}>
-        <p className="p-4 w-full text-2xl text-minimal-white tracking-tighter">Start</p>
-        <div className="border-t border-gray-600 w-full mb-6"></div>
-
-        {/* main dashboard */}
-        <div className="flex flex-wrap gap-6 justify-start" ref={toolsGridRef}>
+      <div className="w-full h-full px-5 mb-10 flex flex-col items-center">
+        <div>
           <div
-            className="group relative bg-minimal-dark-100 rounded-xl border border-minimal-border hover:border-minimal-primary/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-minimal-primary/20 cursor-pointer h-32 min-h-0 flex items-center justify-center flex-1 max-w-[350px] min-w-[280px]"
-            onClick={() => navigate("/chat")}
-          >
-            <Plus className="w-8 h-8 text-white group-hover:text-minimal-primary transition-colors duration-300" />
-            {/* Gradient background on hover */}
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-          </div>
-
+            className="absolute left-0 top-0 h-full w-6 z-30"
+            onMouseEnter={() => setSidebarOpen(true)}
+            onMouseLeave={() => setSidebarOpen(false)}
+          />
+          {/* Sidebar */}
           <div
-            className="group relative bg-minimal-dark-100 rounded-xl border border-minimal-border hover:border-minimal-primary/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-minimal-primary/20 cursor-pointer h-32 min-h-0 flex items-center justify-center flex-1 max-w-[350px] min-w-[280px]"
-            onClick={() => navigate("/tasks")}
+            className={`fixed top-0 left-0 h-full bg-black/95 backdrop-blur-xl border-r border-minimal-primary/20 flex flex-col justify-between transition-all duration-300 z-50 ${
+              sidebarOpen ? "w-56 px-6" : "w-0 px-0 overflow-hidden"
+            }`}
+            onMouseEnter={() => !sidebarPinned && setSidebarOpen(true)}
+            onMouseLeave={() => !sidebarPinned && setSidebarOpen(false)}
           >
-            <h1 className="text-2xl font-bold text-minimal-white group-hover:text-minimal-primary transition-colors duration-300">Notes</h1>
-            {/* Gradient background on hover */}
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-          </div>
-          <div
-            className="group relative bg-minimal-dark-100 rounded-xl border border-minimal-border hover:border-minimal-primary/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-minimal-primary/20 cursor-pointer h-32 min-h-0 flex items-center justify-center flex-1 max-w-[350px] min-w-[280px]"
-            onClick={() => navigate("/memory")}
-          >
-            <Database className="w-8 h-8 text-white group-hover:text-minimal-primary transition-colors duration-300" />
-            {/* Gradient background on hover */}
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-          </div>
-          <div
-            className="group relative bg-minimal-dark-100 rounded-xl border border-minimal-border hover:border-minimal-primary/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-minimal-primary/20 cursor-pointer h-32 min-h-0 flex items-center justify-center flex-1 max-w-[350px] min-w-[280px]"
-            onClick={() => navigate("/search")}
-          >
-            <Search className="w-8 h-8 text-white group-hover:text-minimal-primary transition-colors duration-300" />
-            {/* Gradient background on hover */}
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-          </div>
-        </div>
-      </div>
-    )}
-
-    {/* Recent Section - Always shown */}
-    <div className="max-w-[1480px] w-full" ref={recentRef}>
-      <p className="p-4 w-full text-2xl text-minimal-white tracking-tighter">Recent</p>
-      <div className="border-t border-gray-600 w-full mb-6"></div>
-
-      {/* main dashboard */}
-      <div className="flex gap-4 w-full">
-        <div className="bg-minimal-card rounded-2xl border border-minimal-border h-fit p-4 shadow-2xl w-full">
-          <div
-            style={{
-              maxHeight: toolsGridMaxHeight,
-              transition: "max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
-              overflow: "hidden",
-            }}
-          >
-            <div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 w-full"
-            >
-              {(isOpenTools ? tools : tools.slice(0, 6)).map((tool, index) => {
-                const IconComponent = tool.icon;
-                return (
-                  <div
-                    key={index}
-                    className="group relative bg-minimal-dark-100 rounded-xl px-4 pt-4 pb-2 border border-minimal-border hover:border-minimal-primary/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-minimal-primary/20 cursor-pointer h-32 min-h-0"
-                    onClick={() => navigate(tool.route)}
-                  >
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-                    <div className="relative z-10 flex flex-col justify-between h-full">
-                      <div className="tool_description flex gap-3 items-start">
-                        <div className={`h-8 w-8 flex items-center p-2 rounded-lg bg-gradient-to-r ${tool.color} mb-2 group-hover:scale-110 transition-transform duration-300`}>
-                          <IconComponent className="w-5 h-5 text-minimal-white" />
-                        </div>
-                        <div>
-                          <h3 className="text-base font-semibold text-minimal-white mb-1 group-hover:text-minimal-primary transition-colors duration-300">
-                            {tool.title}
-                          </h3>
-                          <p className="text-minimal-muted text-xs leading-snug group-hover:text-minimal-gray-300 transition-colors duration-300">
-                            {tool.description}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="mt-1 flex items-center text-minimal-primary opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-0 group-hover:translate-x-2">
-                        <span className="text-xs font-medium">Launch Tool</span>
-                        <svg
-                          className="w-3 h-3 ml-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 5l7 7-7 7"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+            {/* Top section */}
+            <div className="mt-8">
+              <div className="flex items-center gap-3 mb-2">
+                <h2 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-minimal-primary bg-clip-text text-transparent">
+                  {toolName}
+                </h2>
+                <button
+                  onClick={() => {
+                    setSidebarPinned(!sidebarPinned);
+                    setSidebarOpen(true); // Ensure open when pinned
+                  }}
+                >
+                  {sidebarPinned ? <PinOff size={20} /> : <Pin size={20} />}
+                </button>
+              </div>
+            </div>
+            {/* Bottom section */}
+            <div className="mb-8">
+              <Link to={link}>
+                <button className="w-full bg-gradient-to-r from-minimal-primary to-minimal-primary/80 hover:from-minimal-primary/80 hover:to-minimal-primary text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-minimal-primary/25">
+                  Learn More
+                </button>
+              </Link>
             </div>
           </div>
-          {tools.length > 6 && (
-            <div className="flex justify-center ">
-              <button
-                className="px-4 py-2 bg-minimal-primary text-minimal-white rounded-lg hover:bg-minimal-primary/80 transition-colors duration-200"
-                onClick={() => setIsOpenTools((prev) => !prev)}
-              >
-                {isOpenTools ? "Show Less" : "Show More"}
-              </button>
-            </div>
-          )}
         </div>
-      </div>
-    </div>
 
-    {/* All Tools Section */}
-    {(selectedTools.length === 0 || selectedTools.includes("All Apps")) && (
-      <div className="max-w-[1480px] w-full" ref={allToolsRef}>
-        <p className="p-4 w-full text-2xl text-minimal-white tracking-tighter">All Apps</p>
-        <div className="border-t border-gray-600 w-full mb-6"></div>
+        {/* FILTER BAR */}
+        <div className="bg-transparent pt-[30px]">
+          <NavBarSection
+            selectedTools={selectedTools}
+            onNavClick={onToggleTool}
+          />
+        </div>
 
-        <div className="flex gap-4 w-full">
-          <div className="bg-minimal-card rounded-2xl border border-minimal-border h-fit p-4 shadow-2xl w-full">
+        {/* Start Section */}
+        {(selectedTools.length === 0 || selectedTools.includes("Start")) && (
+          <div className="max-w-[1480px] pt-12 w-full" ref={startRef}>
+            <p className="p-4 w-full text-2xl text-minimal-white tracking-tighter">
+              Start
+            </p>
+            <div className="border-t border-gray-600 w-full mb-6"></div>
+
+            {/* main dashboard */}
             <div
-              style={{
-                maxHeight: allToolsGridMaxHeight,
-                transition: "max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
-                overflow: "hidden",
-              }}
+              className="flex flex-wrap gap-6 justify-start"
+              ref={toolsGridRef}
             >
               <div
-                ref={allToolsGridRef}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 w-full"
+                className="group relative bg-minimal-dark-100 rounded-xl border border-minimal-border hover:border-minimal-primary/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-minimal-primary/20 cursor-pointer h-32 min-h-0 flex items-center justify-center flex-1 max-w-[350px] min-w-[280px]"
+                onClick={() => navigate("/chat")}
               >
-                {(isOpenAllTools ? allTools : allTools.slice(0, 3)).map((tool, index) => {
-                  const IconComponent = tool.icon;
-                  return (
-                    <div
-                      key={index}
-                      className="group relative bg-minimal-dark-100 rounded-xl px-4 pt-4 pb-2 border border-minimal-border hover:border-minimal-primary/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-minimal-primary/20 cursor-pointer h-32 min-h-0"
-                      onClick={() => navigate(tool.route)}
-                    >
-                      <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      <div className="relative z-10 flex flex-col justify-between h-full">
-                        <div className="tool_description flex gap-3 items-start">
-                          <div className={`h-8 w-8 flex items-center p-2 rounded-lg bg-gradient-to-r ${tool.color} mb-2 group-hover:scale-110 transition-transform duration-300`}>
-                            <IconComponent className="w-5 h-5 text-minimal-white" />
-                          </div>
-                          <div>
-                            <h3 className="text-base font-semibold text-minimal-white mb-1 group-hover:text-minimal-primary transition-colors duration-300">
-                              {tool.title}
-                            </h3>
-                            <p className="text-minimal-muted text-xs leading-snug group-hover:text-minimal-gray-300 transition-colors duration-300">
-                              {tool.description}
-                            </p>
+                <Plus className="w-8 h-8 text-white group-hover:text-minimal-primary transition-colors duration-300" />
+                {/* Gradient background on hover */}
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+              </div>
+
+              <div
+                className="group relative bg-minimal-dark-100 rounded-xl border border-minimal-border hover:border-minimal-primary/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-minimal-primary/20 cursor-pointer h-32 min-h-0 flex items-center justify-center flex-1 max-w-[350px] min-w-[280px]"
+                onClick={() => navigate("/tasks")}
+              >
+                <h1 className="text-2xl font-bold text-minimal-white group-hover:text-minimal-primary transition-colors duration-300">
+                  Notes
+                </h1>
+                {/* Gradient background on hover */}
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+              </div>
+              <div
+                className="group relative bg-minimal-dark-100 rounded-xl border border-minimal-border hover:border-minimal-primary/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-minimal-primary/20 cursor-pointer h-32 min-h-0 flex items-center justify-center flex-1 max-w-[350px] min-w-[280px]"
+                onClick={() => navigate("/memory")}
+              >
+                <Database className="w-8 h-8 text-white group-hover:text-minimal-primary transition-colors duration-300" />
+                {/* Gradient background on hover */}
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+              </div>
+              <div
+                className="group relative bg-minimal-dark-100 rounded-xl border border-minimal-border hover:border-minimal-primary/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-minimal-primary/20 cursor-pointer h-32 min-h-0 flex items-center justify-center flex-1 max-w-[350px] min-w-[280px]"
+                onClick={() => navigate("/search")}
+              >
+                <Search className="w-8 h-8 text-white group-hover:text-minimal-primary transition-colors duration-300" />
+                {/* Gradient background on hover */}
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Recent Section - Always shown */}
+        <div className="max-w-[1480px] w-full" ref={recentRef}>
+          <p className="p-4 w-full text-2xl text-minimal-white tracking-tighter">
+            Recent
+          </p>
+          <div className="border-t border-gray-600 w-full mb-6"></div>
+
+          {/* main dashboard */}
+          <div className="flex gap-4 w-full">
+            <div className="bg-minimal-card rounded-2xl border border-minimal-border h-fit p-4 shadow-2xl w-full">
+              <div
+                style={{
+                  maxHeight: toolsGridMaxHeight,
+                  transition: "max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+                  overflow: "hidden",
+                }}
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 w-full">
+                  {(isOpenTools ? tools : tools.slice(0, 6)).map(
+                    (tool, index) => {
+                      const IconComponent = tool.icon;
+                      return (
+                        <div
+                          key={index}
+                          className="group relative bg-minimal-dark-100 rounded-xl px-4 pt-4 pb-2 border border-minimal-border hover:border-minimal-primary/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-minimal-primary/20 cursor-pointer h-32 min-h-0"
+                          onClick={() => navigate(tool.route)}
+                        >
+                          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                          <div className="relative z-10 flex flex-col justify-between h-full">
+                            <div className="tool_description flex gap-3 items-start">
+                              <div
+                                className={`h-8 w-8 flex items-center p-2 rounded-lg bg-gradient-to-r ${tool.color} mb-2 group-hover:scale-110 transition-transform duration-300`}
+                              >
+                                <IconComponent className="w-5 h-5 text-minimal-white" />
+                              </div>
+                              <div>
+                                <h3 className="text-base font-semibold text-minimal-white mb-1 group-hover:text-minimal-primary transition-colors duration-300">
+                                  {tool.title}
+                                </h3>
+                                <p className="text-minimal-muted text-xs leading-snug group-hover:text-minimal-gray-300 transition-colors duration-300">
+                                  {tool.description}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="mt-1 flex items-center text-minimal-primary opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-0 group-hover:translate-x-2">
+                              <span className="text-xs font-medium">
+                                Launch Tool
+                              </span>
+                              <svg
+                                className="w-3 h-3 ml-1"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M9 5l7 7-7 7"
+                                />
+                              </svg>
+                            </div>
                           </div>
                         </div>
-                        <div className="mt-1 flex items-center text-minimal-primary opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-0 group-hover:translate-x-2">
-                          <span className="text-xs font-medium">Launch Tool</span>
+                      );
+                    }
+                  )}
+                </div>
+              </div>
+              {tools.length > 6 && (
+                <div className="flex justify-center ">
+                  <button
+                    className="px-4 py-2 bg-minimal-primary text-minimal-white rounded-lg hover:bg-minimal-primary/80 transition-colors duration-200"
+                    onClick={() => setIsOpenTools((prev) => !prev)}
+                  >
+                    {isOpenTools ? "Show Less" : "Show More"}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* All Tools Section */}
+        {(selectedTools.length === 0 || selectedTools.includes("All Apps")) && (
+          <div className="max-w-[1480px] w-full" ref={allToolsRef}>
+            <p className="p-4 w-full text-2xl text-minimal-white tracking-tighter">
+              All Apps
+            </p>
+            <div className="border-t border-gray-600 w-full mb-6"></div>
+
+            <div className="flex gap-4 w-full">
+              <div className="bg-minimal-card rounded-2xl border border-minimal-border h-fit p-4 shadow-2xl w-full">
+                <div
+                  style={{
+                    maxHeight: allToolsGridMaxHeight,
+                    transition: "max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    ref={allToolsGridRef}
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 w-full"
+                  >
+                    {(isOpenAllTools ? allTools : allTools.slice(0, 3)).map(
+                      (tool, index) => {
+                        const IconComponent = tool.icon;
+                        return (
+                          <div
+                            key={index}
+                            className="group relative bg-minimal-dark-100 rounded-xl px-4 pt-4 pb-2 border border-minimal-border hover:border-minimal-primary/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-minimal-primary/20 cursor-pointer h-32 min-h-0"
+                            onClick={() => navigate(tool.route)}
+                          >
+                            <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            <div className="relative z-10 flex flex-col justify-between h-full">
+                              <div className="tool_description flex gap-3 items-start">
+                                <div
+                                  className={`h-8 w-8 flex items-center p-2 rounded-lg bg-gradient-to-r ${tool.color} mb-2 group-hover:scale-110 transition-transform duration-300`}
+                                >
+                                  <IconComponent className="w-5 h-5 text-minimal-white" />
+                                </div>
+                                <div>
+                                  <h3 className="text-base font-semibold text-minimal-white mb-1 group-hover:text-minimal-primary transition-colors duration-300">
+                                    {tool.title}
+                                  </h3>
+                                  <p className="text-minimal-muted text-xs leading-snug group-hover:text-minimal-gray-300 transition-colors duration-300">
+                                    {tool.description}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="mt-1 flex items-center text-minimal-primary opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-0 group-hover:translate-x-2">
+                                <span className="text-xs font-medium">
+                                  Launch Tool
+                                </span>
+                                <svg
+                                  className="w-3 h-3 ml-1"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 5l7 7-7 7"
+                                  />
+                                </svg>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+                    )}
+                  </div>
+                </div>
+                {allTools.length > 6 && (
+                  <div className="flex justify-center ">
+                    <button
+                      className="px-4 py-2 bg-minimal-primary text-minimal-white rounded-lg hover:bg-minimal-primary/80 transition-colors duration-200"
+                      onClick={() => setIsOpenAllTools((prev) => !prev)}
+                    >
+                      {isOpenAllTools ? "Show Less" : "Show More"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Workflows Section */}
+        {selectedTools === "Workflows" && (
+          <div ref={workflowsRef} onClick={() => navigate("/locked")}>
+            <p className="p-4 w-full text-2xl text-minimal-white tracking-tighter">
+              Workflows
+            </p>
+            <div className="border-t border-gray-600 w-full mb-6"></div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {sampleWorkflows.map((workflow) => {
+                const isMenuOpen = openMenuId === workflow.id;
+
+                return (
+                  <div
+                    key={workflow.id}
+                    className="group relative bg-minimal-dark-100 rounded-xl p-4 border border-minimal-border hover:border-minimal-primary/50 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-minimal-primary/20 cursor-pointer flex flex-col h-64"
+                  >
+                    {/* Hover gradient overlay */}
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                    <div className="relative z-10 flex flex-col h-full">
+                      {/* Header - Tools Icons and Menu */}
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center space-x-3">
+                          {/* Tool Icons */}
+                          <div className="flex -space-x-2">
+                            {workflow.tools.map((tool, index) => (
+                              <div
+                                key={index}
+                                className={`w-10 h-10 ${tool.bgColor} rounded-lg flex items-center justify-center text-minimal-white text-lg shadow-lg border-2 border-minimal-border group-hover:scale-110 transition-transform duration-300`}
+                                title={tool.name}
+                                style={{
+                                  zIndex: workflow.tools.length - index,
+                                }}
+                              >
+                                {tool.icon}
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Arrow connector */}
                           <svg
-                            className="w-3 h-3 ml-1"
+                            className="w-6 h-6 text-minimal-muted group-hover:text-minimal-primary transition-colors duration-300"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 5l7 7-7 7"
+                            />
+                          </svg>
+                        </div>
+
+                        {/* Menu Button */}
+                        <div className="relative" ref={menuRef}>
+                          <button
+                            onClick={(e) => toggleMenu(workflow.id, e)}
+                            className="p-2 rounded-lg hover:bg-minimal-cardHover transition-colors duration-200 z-20 relative"
+                          >
+                            <MoreHorizontal className="w-5 h-5 text-minimal-muted hover:text-minimal-primary transition-colors duration-200" />
+                          </button>
+
+                          {/* Dropdown Menu */}
+                          {isMenuOpen && (
+                            <div className="absolute right-0 top-10 w-48 bg-minimal-dark-100 rounded-lg border border-minimal-border shadow-2xl z-30 overflow-hidden">
+                              <div className="absolute inset-0 bg-minimal-dark-100/95 backdrop-blur-sm"></div>
+                              <div className="relative z-10 py-2">
+                                {menuOptions.map((option, optionIndex) => {
+                                  const OptionIcon = option.icon;
+                                  return (
+                                    <button
+                                      key={optionIndex}
+                                      onClick={() =>
+                                        handleMenuAction(
+                                          option.action,
+                                          workflow.title
+                                        )
+                                      }
+                                      className={`w-full flex items-center px-4 py-2 text-sm hover:bg-minimal-cardHover/50 transition-all duration-200 ${option.className}`}
+                                    >
+                                      <OptionIcon className="w-4 h-4 mr-3" />
+                                      <span>{option.label}</span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                              <div className="absolute inset-0 rounded-lg border border-minimal-primary/20 pointer-events-none"></div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Content - Workflow Description */}
+                      <div className="flex-1 ">
+                        <div className="inline-block px-2 py-1 bg-minimal-gray-800 rounded-md text-xs text-minimal-primary mb-3">
+                          {workflow.category}
+                        </div>
+
+                        <h3 className="text-base font-semibold line-clamp-3 text-minimal-white group-hover:text-minimal-primary transition-colors duration-300 leading-tight">
+                          {workflow.title}
+                        </h3>
+                      </div>
+
+                      {/* Footer - Recommended Badge */}
+                      <div className="flex items-center justify-between pt-2 border-t border-minimal-border/50">
+                        {workflow.recommended && (
+                          <div className="flex items-center text-minimal-primary">
+                            <Sparkles className="w-4 h-4 mr-2" />
+                            <span className="text-xs font-medium">
+                              Recommended for you
+                            </span>
+                          </div>
+                        )}
+
+                        <div className="flex items-center text-minimal-primary opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-0 group-hover:translate-x-1 ml-auto">
+                          <span className="text-xs font-medium">
+                            Use Workflow
+                          </span>
+                          <svg
+                            className="w-4 h-4 ml-1"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -538,41 +718,22 @@ const onToggleTool = (toolName) => {
                         </div>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
+                  </div>
+                );
+              })}
             </div>
-            {allTools.length > 6 && (
-              <div className="flex justify-center ">
-                <button
-                  className="px-4 py-2 bg-minimal-primary text-minimal-white rounded-lg hover:bg-minimal-primary/80 transition-colors duration-200"
-                  onClick={() => setIsOpenAllTools((prev) => !prev)}
-                >
-                  {isOpenAllTools ? "Show Less" : "Show More"}
-                </button>
-              </div>
-            )}
           </div>
-        </div>
-      </div>
-    )}
+        )}
 
-    {/* Workflows Section */}
-    {(selectedTools.length === 0 || selectedTools.includes("Workflows")) && (
-      <div ref={workflowsRef}>
-        <MainWorkflowPage />
+        {/* Integrations Section */}
+        {(selectedTools.length === 0 ||
+          selectedTools.includes("Integrations")) && (
+          <div ref={integrationsRef}>
+            <IntegrationsPage />
+          </div>
+        )}
       </div>
-    )}
-
-    {/* Integrations Section */}
-    {(selectedTools.length === 0 || selectedTools.includes("Integrations")) && (
-      <div ref={integrationsRef}>
-        <IntegrationsPage />
-      </div>
-    )}
-  </div>
-</>
-
+    </>
   );
 };
 

@@ -121,7 +121,7 @@ import WorkflowTwitter from "./linkedin/WorkflowTwitter.jsx";
 import Canvas from "./components/subLayoutComponents/workflowPages/Canvas";
 import OAuthCallback from "./components1/OAuthCallback";
 import AutomatedVideoGenerator from "./components1/Zapier";
-import TaskManager from "./components1/TaskPage.jsx";
+import TaskManagerWithSidebar from "./components1/TaskPage.jsx";
 import Notes from "./components1/Notes.jsx";
 import HuggingFaceApiInterface from "./components/tools/HuggingFaceApiInterface.jsx";
 import ScrollToTop from "./reusable_components/ScrollToTop.jsx";
@@ -129,8 +129,6 @@ import HistoryChat from "./components1/HistoryChat.jsx";
 import UserPage from "./components/ProfilePage.jsx";
 import DiscoverPage from "./components1/DiscoverPage.jsx";
 import LexicalEditor from "./components1/LexicalEditor.jsx";
-import LockedPage from "./reusable_components/Locked.jsx";
-
 function App() {
   const navigate = useNavigate();
 
@@ -243,7 +241,7 @@ function App() {
           <Route path="/history" element={<History />}></Route>
           <Route path="/canvas" element={<Canvas />}></Route>
           <Route path="/text-to-video" element={<TextToVideoGenerator />} />
-          <Route path="/tasks" element={<TaskManager />} />
+          <Route path="/tasks" element={<TaskManagerWithSidebar />} />
 
           <Route path="/history" element={<History />}></Route>
           {/* <Route path="/newlurph" element={<LurphLanding />}></Route> */}
@@ -320,6 +318,7 @@ function App() {
           <Route path="/image-styler/expander" element={<ImageExpander />} />
           <Route path="/image-styler/editor" element={<ImageEditor />} />
           <Route path="/profile" element={<UserPage />} />
+          <Route path="/profile" element={<UserPage />} />
           <Route path="/bg-remover" element={<BGLayout />} />
 
           <Route path="/result" element={<Result />} />
@@ -359,8 +358,9 @@ function App() {
           <Route path="/presentation/create" element={<CreatePresentation />} />
           <Route path="/zapier" element={<AutomatedVideoGenerator />} />
           <Route path="/*" element={<ComingSoon />} />
-          <Route path="/notes" element={<Notes />} />
+          <Route path="/notes" element={<LexicalEditor />} />
           <Route path="/memory" element={<HistoryChat />} />
+          <Route path="/locked" element={<LockedPage />} />
         </Route>
 
         {/* Tools Page */}

@@ -6,7 +6,7 @@ import {
   MoreHorizontal,
   Calendar,
   Tag,
-  Search
+  Search,
 } from "lucide-react";
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
@@ -95,14 +95,15 @@ function SidebarOnHover2({ toolName, onToggle }) {
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full bg-white border-r border-gray-200 flex flex-col transition-all duration-300 z-50
-        ${
-          sidebarOpen || sidebarPinned
-            ? "w-80 px-4"
-            : "w-0 px-0 overflow-hidden"
-        }`}
+        className={`fixed top-0 left-0 h-full bg-[#111] border-r-2 border-[#188184] flex flex-col transition-all duration-300 z-50
+          ${
+            sidebarOpen || sidebarPinned
+              ? "w-80 px-4"
+              : "w-0 px-0 overflow-hidden"
+          }`}
         onMouseEnter={() => !sidebarPinned && setSidebarOpen(true)}
         onMouseLeave={() => !sidebarPinned && setSidebarOpen(false)}
+        style={{ borderRadius: "0 18px 18px 0" }}
       >
         {/* Search */}
         <div className="relative mt-6 mb-6">
@@ -111,57 +112,59 @@ function SidebarOnHover2({ toolName, onToggle }) {
             placeholder="Search"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-gray-100 rounded-xl py-2 pl-3 pr-10 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#23b5b5]"
+            className="w-full bg-black border-2 border-[#188184] rounded-xl py-2 pl-3 pr-10 text-sm text-white placeholder-[#188184] focus:outline-none focus:ring-2 focus:ring-[#188184]"
           />
-          <Search className="absolute right-3 top-2 text-gray-400" />
+          <Search className="absolute right-3 top-2 text-[#188184]" />
         </div>
 
         {/* Floating + Button */}
         <button
           onClick={() => navigate("/notes")}
-          className="absolute right-10 top-20 w-10 h-10 bg-[#9b6b5f] text-white rounded-xl flex items-center justify-center shadow-lg hover:bg-[#805447] transition-all"
+          className="absolute right-10 top-20 w-10 h-10 bg-[#188184] text-white rounded-xl flex items-center justify-center shadow-lg hover:bg-[#145d5d] transition-all outline-2 outline-[#188184]"
+          title="Add Note"
         >
           <Plus className="w-5 h-5" />
         </button>
 
         {/* Header + Pin */}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-gray-800 flex items-center">
-            All Notes <span className="ml-1 text-gray-500">⌄</span>
+          <h2 className="text-lg font-bold text-white flex items-center">
+            All Notes <span className="ml-1 text-[#188184]">⌄</span>
           </h2>
           <button
             onClick={() => {
               setSidebarPinned(!sidebarPinned);
               setSidebarOpen(true);
             }}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-[#188184] hover:text-[#145d5d]"
+            title={sidebarPinned ? "Unpin sidebar" : "Pin sidebar"}
           >
             {sidebarPinned ? <PinOff size={18} /> : <Pin size={18} />}
           </button>
         </div>
 
         {/* Notes list */}
-        <div className="flex-1 overflow-y-auto pr-2 space-y-3 pb-6">
+        <div className="flex-1 overflow-y-auto pr-2 space-y-3 pb-6 scrollbar-thin scrollbar-thumb-[#188184]/60 scrollbar-track-black">
           {filteredTasks.map((task) => {
             const isSelected = String(task.id) === selectedId;
             return (
               <div
                 key={task.id}
-                className={`p-4 rounded-xl border transition-all cursor-pointer relative group
+                className={`p-4 rounded-xl border-1 bg-[#181919] transition-all cursor-pointer relative group
                   ${
                     isSelected
-                      ? "border-[#f4c7b7] bg-[#fdf2ef]"
-                      : "border-gray-200 hover:border-[#23b5b5] hover:bg-[#23b5b5]/5"
+                      ? "border-[#188184] bg-[#233a3a]"
+                      : "border-[#222] hover:border-[#188184] hover:bg-[#233a3a]/80"
                   }`}
+                style={{ color: "#fff" }}
               >
                 <div className="flex items-start justify-between mb-1">
                   <h3
                     onClick={() => navigate(`/notes/${task.id}`)}
-                    className="font-semibold text-gray-900 text-sm"
+                    className="font-semibold text-white text-sm"
                   >
                     {task.title || "Untitled Note"}
                   </h3>
-
                   {/* Dropdown Menu */}
                   <div className="relative" ref={menuRef}>
                     <button
@@ -169,20 +172,20 @@ function SidebarOnHover2({ toolName, onToggle }) {
                         e.stopPropagation();
                         setMenuOpenId(menuOpenId === task.id ? null : task.id);
                       }}
-                      className="text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100"
+                      className="text-[#b0b0b0] hover:text-[#188184] opacity-0 group-hover:opacity-100"
+                      title="More actions"
                     >
                       <MoreHorizontal className="w-4 h-4" />
                     </button>
-
                     {menuOpenId === task.id && (
-                      <div className="absolute right-0 mt-2 w-28 bg-white border border-gray-200 rounded-lg shadow-md z-50">
+                      <div className="absolute right-0 mt-2 w-28 bg-[#111] border border-[#188184] rounded-lg shadow-md z-50">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             handleEdit(task);
                             setMenuOpenId(null);
                           }}
-                          className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          className="block w-full text-left px-3 py-2 text-sm text-[#188184] hover:bg-[#145d5d]"
                         >
                           Edit
                         </button>
@@ -192,7 +195,7 @@ function SidebarOnHover2({ toolName, onToggle }) {
                             handleDelete(task.id);
                             setMenuOpenId(null);
                           }}
-                          className="block w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                          className="block w-full text-left px-3 py-2 text-sm text-red-500 hover:bg-red-700"
                         >
                           Delete
                         </button>
@@ -200,12 +203,10 @@ function SidebarOnHover2({ toolName, onToggle }) {
                     )}
                   </div>
                 </div>
-
-                <p className="text-gray-500 text-xs line-clamp-1 mb-2">
+                <p className="text-[#b0b0b0] text-xs line-clamp-1 mb-2">
                   {task.content || "No content"}
                 </p>
-
-                <div className="flex items-center gap-2 text-xs text-gray-400">
+                <div className="flex items-center gap-2 text-xs text-[#188184]">
                   <Calendar className="w-3 h-3" />
                   <span>
                     {task.lastModified
@@ -219,11 +220,10 @@ function SidebarOnHover2({ toolName, onToggle }) {
             );
           })}
         </div>
-
         {/* Bottom Section */}
         <div className="mb-8 flex-shrink-0">
           <Link to="https://explified.com/notes/" target="_self">
-            <button className="w-full bg-[#23b5b5] hover:bg-[#1f9e9e] text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg">
+            <button className="w-full bg-[#188184] hover:bg-[#145d5d] text-white font-semibold py-3 px-6 rounded-xl border-2 border-[#188184] transition-all duration-300 hover:scale-105 hover:shadow-lg">
               Learn More
             </button>
           </Link>
