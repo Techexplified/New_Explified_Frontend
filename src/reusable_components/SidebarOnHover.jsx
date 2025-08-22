@@ -1,13 +1,25 @@
 import { CirclePlus, Pin, PinOff } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import WorkFlowButton from "./WorkFlowButton";
 import WorkFlowButtonSidebar from "./WorkFlowButtonSidebar";
 
-function SidebarOnHover({ link, toolName, id, chatHistory = [] }) {
+function SidebarOnHover({
+  link,
+  toolName,
+  id,
+  chatHistory = [],
+  onOpenChange,
+}) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarPinned, setSidebarPinned] = useState(false);
   console.log("chatHistory from sidebar:", chatHistory);
+
+  useEffect(() => {
+    if (typeof onOpenChange === "function") {
+      onOpenChange(sidebarOpen || sidebarPinned);
+    }
+  }, [sidebarOpen, sidebarPinned, onOpenChange]);
   return (
     <>
       {" "}
