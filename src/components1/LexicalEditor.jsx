@@ -34,6 +34,8 @@ import {
   Download,
 } from "lucide-react";
 import SidebarOnHover2 from "../reusable_components/SidebarOnHover2";
+import { v4 as uuidv4 } from "uuid";
+import { $getRoot } from "lexical";
 
 // Theme configuration
 const theme = {
@@ -101,10 +103,34 @@ function ShareButton({ getTextContent }) {
   const [exportJpg, setExportJpg] = useState(false);
 
   // Generate shareable link (encoded content)
-  const getShareLink = () => {
-    const content = encodeURIComponent(getTextContent());
-    return `${window.location.origin}${window.location.pathname}?content=${content}`;
-  };
+const getShareLink = () => {
+  const content = getTextContent(); // your function that extracts editor content
+  const id = uuidv4(); // generate unique id
+
+  // Save the content in localStorage mapped to that id
+  localStorage.setItem(`shared_content_${id}`, content);
+
+  // Return sharable link
+  return `${window.location.origin}${window.location.pathname}?shareId=${id}`;
+};
+
+// Function to check for shared content on page load
+useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+  const shareId = params.get("shareId");
+
+  if (shareId) {
+    const storedContent = localStorage.getItem(`shared_content_${shareId}`);
+    if (storedContent) {
+      // Trigger download as .txt file
+      const blob = new Blob([storedContent], { type: "text/plain" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "shared_content.txt";
+      link.click();
+    }
+  }
+}, []);
 
   // Handle copy link
   const handleCopy = () => {
@@ -453,14 +479,14 @@ function PenTool() {
       <div
         style={{
           position: "fixed",
-          top: "10px",
-          left: "10px",
+          bottom: "10px",
+          right: "400px",
           background: "rgba(255,255,255,0.9)",
           padding: "8px",
           borderRadius: "8px",
           display: "flex",
           gap: "8px",
-          zIndex: 100,
+          zIndex: 6000,
         }}
       >
         <button onClick={() => setTool("pen")}>✏️ Pen</button>
@@ -491,7 +517,7 @@ function PenTool() {
           width: "100vw",
           height: "100vh",
           cursor: tool === "eraser" ? "crosshair" : "pointer",
-          zIndex: 50,
+          zIndex: 5000,
         }}
         onMouseDown={startDrawing}
         onMouseMove={draw}
@@ -502,8 +528,7 @@ function PenTool() {
   );
 }
 
-function ToolbarPlugin() {
-
+function ToolbarPlugin({ onTogglePenTool }) {
   const [editor] = useLexicalComposerContext();
   const getTextContent = () => {
   let text = "";
@@ -579,10 +604,8 @@ function ToolbarPlugin() {
           <Type size={24} />
         </button>
          <button
-        onClick={() => setShowPenOptions((prev) => !prev)}
-        className={`flex flex-col items-center px-4 py-2 rounded transition-all ${
-          showPenOptions ? "bg-gray-800" : ""
-        }`}
+        onClick={onTogglePenTool}
+        className="flex flex-col items-center px-4 py-2 rounded transition-all"
         title="Style"
         style={{ opacity: 1, cursor: "pointer" }}
       >
@@ -591,13 +614,7 @@ function ToolbarPlugin() {
 
       {/* Pen Options Menu */}
       {showPenOptions && (
-        <div className="absolute top-5 left-0 bg-gray-900 text-white rounded-lg shadow-lg p-3 flex flex-row gap-2 w-40">
-          <button className="px-3 py-2 rounded hover:bg-gray-700">✏️ Pen</button>
-          <button className="px-3 py-2 rounded hover:bg-gray-700">🖌️ Highlighter</button>
-          <button className="px-3 py-2 rounded hover:bg-gray-700">🩸 Color Picker</button>
-          <button className="px-3 py-2 rounded hover:bg-gray-700">📏 Thickness</button>
-          <button className="px-3 py-2 rounded hover:bg-gray-700">🧽 Eraser</button>
-        </div>
+        <PenTool/>
       )}
         <button
           onClick={() => setActiveBar(activeBar === "effect" ? null : "effect")}
@@ -636,14 +653,20 @@ const initialConfig = {
 function LexicalEditor() {
   const [editorState, setEditorState] = useState("");
   const [title, setTitle] = useState("Title");
+  const [ispenactive, setpenactive] = useState(true);
+  
+
+  // ✅ new state for PenTool visibility
+  const [showPenTool, setShowPenTool] = useState(false);
+
   const onChange = (editorState) => {
     editorState.read(() => {
       setEditorState(JSON.stringify(editorState.toJSON(), null, 2));
     });
   };
+
   const h1Ref = useRef(null);
 
-  // Sync initial state with DOM only once
   useEffect(() => {
     if (h1Ref.current) {
       h1Ref.current.textContent = title;
@@ -655,75 +678,94 @@ function LexicalEditor() {
   };
 
   return (
-    <div className="w-screen h-screen bg-black relative flex flex-col justify-center items-center overflow-hidden">
-      <SidebarOnHover2 />
-      <p className="fixed top-8 left-20 text-white font-medium">{title}</p>
+    <>
+      {/* Main editor wrapper */}
+      <div className="w-screen h-screen bg-black relative flex flex-col justify-center items-center overflow-hidden">
+        <SidebarOnHover2 />
+        <p className="fixed top-8 left-20 text-white font-medium">{title}</p>
 
+        {/* Editable <h1> */}
+        <h1
+          ref={h1Ref}
+          contentEditable
+          suppressContentEditableWarning={true}
+          spellCheck={false}
+          onInput={handleInput}
+          style={{
+            position: "fixed",
+            top: "80px",
+            left: "310px",
+            zIndex: 50,
+            cursor: "text",
+            fontSize: "1.5rem",
+            fontWeight: "600",
+            fontFamily: "sans-serif",
+            color: "white",
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
+            padding: "8px 16px",
+            borderRadius: "12px",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
+            overflow: "hidden",
+            whiteSpace: "nowrap",
+            textOverflow: "ellipsis",
+            outline: "none",
+            userSelect: "text",
+          }}
+          aria-label="Notes Title"
+        />
 
-      {/* Editable <h1> */}
-      <h1
-        ref={h1Ref}
-        contentEditable
-        suppressContentEditableWarning={true}
-        spellCheck={false}
-        onInput={handleInput} // update state but don’t overwrite DOM
-        style={{
-          position: "fixed",
-          top: "80px",
-          left: "310px",
-          zIndex: 50,
-          cursor: "text",
-          fontSize: "1.5rem",
-          fontWeight: "600",
-          fontFamily: "sans-serif",
-          color: "white",
-          backgroundColor: "rgba(0, 0, 0, 0.6)",
-          padding: "8px 16px",
-          borderRadius: "12px",
-          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
-          overflow: "hidden",
-          whiteSpace: "nowrap",
-          textOverflow: "ellipsis",
-          outline: "none",
-          userSelect: "text",
-        }}
-        aria-label="Notes Title"
-      />
-
-
-      <div className="w-full max-w-2xl pt-16 relative z-10">
-        
-        <h2 className="ml-10 text-white text-2xl font-medium mb-8 pt-4">Let's Start</h2>
-        <div className="bg-black border-none rounded-lg shadow-lg relative px-10">
-          <LexicalComposer initialConfig={initialConfig}>
-            <div className="relative">
-              
-              <RichTextPlugin
-                contentEditable={
-                  <ContentEditable
-  className="min-h-[350px] text-xl font-normal outline-none resize-none px-1"
-  style={{ color: "white", caretColor: "white" }}
-/>
-
-                }
-                placeholder={<div className="absolute top-6 left-4 text-gray-500 pointer-events-none text-lg" />}
-                ErrorBoundary={LexicalErrorBoundary}
-              />
-              <HistoryPlugin />
-              <AutoFocusPlugin />
-              <OnChangePlugin onChange={onChange} />
+        <div className="w-full max-w-2xl pt-16 relative z-10">
+          {ispenactive && (
+            <div className="bg-black border-none rounded-lg shadow-lg relative px-10">
+              <LexicalComposer initialConfig={initialConfig}>
+                <div className="relative">
+                  <RichTextPlugin
+                    contentEditable={
+                      <ContentEditable
+                        className="min-h-[350px] text-xl font-normal outline-none resize-none px-1"
+                        style={{ color: "white", caretColor: "white" }}
+                      />
+                    }
+                    placeholder={
+                      <h2 className="absolute top-0 left-4 text-white pointer-events-none text-lg">
+                        Let's Start
+                      </h2>
+                    }
+                    ErrorBoundary={LexicalErrorBoundary}
+                  />
+                  <HistoryPlugin />
+                  <AutoFocusPlugin />
+                  <OnChangePlugin onChange={onChange} />
+                  
+                  {/* ✅ Pass toggle down to ToolbarPlugin */}
+                  <ToolbarPlugin
+                    onTogglePenTool={() => setShowPenTool((prev) => !prev)}
+                  />
+                </div>
+              </LexicalComposer>
             </div>
-
-            <ToolbarPlugin />
-          </LexicalComposer>
+          )}
         </div>
+
+        <ShareButton
+    getTextContent={() => {
+      let text = "";
+      editor.getEditorState().read(() => {
+        text = $getRoot().getTextContent();
+      });
+      return text;
+    }}
+  />
+
       </div>
-      <ShareButton getTextContent={() => {
-  let text = "";
-  return text;
-}} />
-    </div>
+
+      {/* ✅ Only render PenTool if state is true */}
+      {showPenTool && <PenTool />}
+    </>
   );
 }
+
+
+
 
 export default LexicalEditor;
