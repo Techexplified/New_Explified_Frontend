@@ -7,6 +7,7 @@ import WorkFlowButtonSidebar from "./WorkFlowButtonSidebar";
 function SidebarOnHover({ link, toolName, id, chatHistory = [] }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarPinned, setSidebarPinned] = useState(false);
+  console.log("chatHistory from sidebar:", chatHistory);
   return (
     <>
       {" "}
@@ -19,7 +20,7 @@ function SidebarOnHover({ link, toolName, id, chatHistory = [] }) {
       <div
         className={`fixed top-0 left-0 h-full bg-black/95 backdrop-blur-xl border-r border-minimal-primary/20 
   flex flex-col justify-between transition-all duration-300 z-50
-  ${sidebarOpen ? "w-56 px-6" : "w-0 px-0 overflow-hidden"}`}
+  ${sidebarOpen ? "w-64 px-6" : "w-0 px-0 overflow-hidden"}`}
         onMouseEnter={() => !sidebarPinned && setSidebarOpen(true)}
         onMouseLeave={() => !sidebarPinned && setSidebarOpen(false)}
       >
@@ -53,16 +54,14 @@ function SidebarOnHover({ link, toolName, id, chatHistory = [] }) {
           {/* chat history */}
           {chatHistory && (
             <div className="border-t border-minimal-primary/20 pt-4 flex flex-col gap-2">
-              {chatHistory
-                ?.filter((item) => item.sender === "user")
-                .map((item, index) => (
-                  <p
-                    className=" cursor-pointer w-[180px] bg-gray-900 text-gray-400 p-2 rounded-md "
-                    key={index}
-                  >
-                    {item.text}
-                  </p>
-                ))}
+              {chatHistory.map((item, index) => (
+                <p
+                  className=" cursor-pointer w-[200px] line-clamp-2 bg-gray-900 text-gray-400 p-2 rounded-md "
+                  key={index}
+                >
+                  {item.messages[0].text}
+                </p>
+              ))}
             </div>
           )}
         </div>

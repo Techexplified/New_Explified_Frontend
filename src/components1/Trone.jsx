@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FiPlus, FiMic, FiSliders, FiX } from "react-icons/fi";
 import { BsSoundwave } from "react-icons/bs";
 import axios from "axios";
@@ -7,7 +7,20 @@ import SidebarOnHover from "../reusable_components/SidebarOnHover";
 
 function Trone({ onFirstPrompt }) {
   const [prompt, setPrompt] = useState("");
-  const [chatHistory, setChatHistory] = useState([]);
+  const [chatHistory, setChatHistory] = useState(() => {
+    try {
+      const raw = localStorage.getItem("trone_chat_sessions");
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  }); // stores ended sessions
+  const [currentMessages, setCurrentMessages] = useState([]); // active session messages
+  const [sessionId, setSessionId] = useState(
+    () =>
+      `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
+  );
+  const [sessionStartedAt, setSessionStartedAt] = useState(null);
 
   const [isTyping, setIsTyping] = useState(false);
   const [firstPromptDone, setFirstPromptDone] = useState(
@@ -28,11 +41,20 @@ function Trone({ onFirstPrompt }) {
     if (!prevDrawerState.current && isDrawerOpen) {
       setFirstPromptDone(false);
       localStorage.setItem("firstPromptDone", "false");
-      setChatHistory([]);
+      setCurrentMessages([]);
       setPrompt("");
     }
     prevDrawerState.current = isDrawerOpen;
   }, [isDrawerOpen]);
+
+  // Persist sessions to localStorage whenever they change
+  useEffect(() => {
+    try {
+      localStorage.setItem("trone_chat_sessions", JSON.stringify(chatHistory));
+    } catch (e) {
+      // ignore storage errors
+    }
+  }, [chatHistory]);
 
   // Auto-scroll to bottom when new messages are added
   useEffect(() => {
@@ -40,48 +62,15 @@ function Trone({ onFirstPrompt }) {
       chatContainerRef.current.scrollTop =
         chatContainerRef.current.scrollHeight;
     }
-  }, [chatHistory, isTyping]);
+  }, [currentMessages, isTyping]);
 
   const GEMINI_API_KEY = "AIzaSyCjxEkSZKRdCohde0z5FKaZAO624gF3wms";
 
-  // Sync chat history with localStorage.recentPrompts
-  const syncChatWithRecentPrompts = useCallback(() => {
-    try {
-      const storedPrompts =
-        JSON.parse(localStorage.getItem("recentPrompts")) || [];
-      if (Array.isArray(storedPrompts) && storedPrompts.length > 0) {
-        const userMessages = storedPrompts
-          .slice()
-          .reverse()
-          .map((p) => ({ sender: "user", text: String(p) }));
-        setChatHistory(userMessages);
-      } else {
-        setChatHistory([]);
-      }
-    } catch (error) {
-      console.error("Failed to load recentPrompts from localStorage", error);
-    }
-  }, []);
-
-  // Load on mount
-  useEffect(() => {
-    syncChatWithRecentPrompts();
-  }, [syncChatWithRecentPrompts]);
-
-  // Listen for localStorage changes from other tabs/windows
-  useEffect(() => {
-    const handleStorage = (e) => {
-      if (e.key === "recentPrompts") {
-        syncChatWithRecentPrompts();
-      }
-    };
-    window.addEventListener("storage", handleStorage);
-    return () => window.removeEventListener("storage", handleStorage);
-  }, [syncChatWithRecentPrompts]);
+  // Removed auto-syncing current messages from localStorage to prevent overwriting sessions
 
   useEffect(() => {
     if (reset) {
-      setChatHistory([]);
+      setCurrentMessages([]);
       setFirstPromptDone(false);
       setPrompt("");
     }
@@ -123,7 +112,10 @@ function Trone({ onFirstPrompt }) {
   const handleSubmit = async (e) => {
     if (e.key === "Enter" && prompt.trim() !== "") {
       const userMessage = { sender: "user", text: prompt.trim() };
-      setChatHistory((prev) => [...prev, userMessage]);
+      if (currentMessages.length === 0) {
+        setSessionStartedAt(Date.now());
+      }
+      setCurrentMessages((prev) => [...prev, userMessage]);
       setIsTyping(true);
 
       // Persist to recentPrompts on every prompt (dedupe, keep latest 5)
@@ -134,8 +126,7 @@ function Trone({ onFirstPrompt }) {
         5
       );
       localStorage.setItem("recentPrompts", JSON.stringify(newSet));
-      // Immediately reflect in chat history
-      syncChatWithRecentPrompts();
+      // Do not sync localStorage back into currentMessages; we maintain full conversation here
       if (!firstPromptDone) {
         setFirstPromptDone(true);
         localStorage.setItem("firstPromptDone", "true");
@@ -143,7 +134,7 @@ function Trone({ onFirstPrompt }) {
 
       try {
         // Build conversation context for better responses
-        const conversationHistory = chatHistory.slice(-10); // Last 10 messages for context
+        const conversationHistory = currentMessages.slice(-10); // Last 10 messages for context
         const contextPrompt =
           conversationHistory.length > 0
             ? `Previous conversation context:\n${conversationHistory
@@ -198,7 +189,7 @@ function Trone({ onFirstPrompt }) {
           timestamp: new Date().toISOString(),
         };
 
-        setChatHistory((prev) => [...prev, botMessage]);
+        setCurrentMessages((prev) => [...prev, botMessage]);
       } catch (err) {
         console.error("Error details:", err);
 
@@ -219,7 +210,7 @@ function Trone({ onFirstPrompt }) {
             "Your message was blocked by safety filters. Please rephrase your question.";
         }
 
-        setChatHistory((prev) => [
+        setCurrentMessages((prev) => [
           ...prev,
           {
             sender: "bot",
@@ -312,6 +303,8 @@ function Trone({ onFirstPrompt }) {
         toolName={"Expli"}
       />
       <div className="flex-1 flex flex-col items-center justify-center mt-12 w-screen">
+        {/* Session Controls */}
+
         {/* Chat history */}
         <div
           ref={chatContainerRef}
@@ -322,13 +315,13 @@ function Trone({ onFirstPrompt }) {
             paddingBottom: "1rem",
           }}
         >
-          {chatHistory.length === 0 && (
+          {currentMessages.length === 0 && (
             <h1 className="text-3xl md:text-4xl font-semibold mb-6 text-center">
               Ready when you are.
             </h1>
           )}
           <div className="w-full max-w-2xl flex flex-col gap-4 ">
-            {chatHistory.map((msg, index) => (
+            {currentMessages.map((msg, index) => (
               <div
                 key={index}
                 className={`px-4 py-3 rounded-xl text-sm break-words whitespace-pre-wrap`}
@@ -384,7 +377,31 @@ function Trone({ onFirstPrompt }) {
           <div className="flex items-center justify-between text-gray-400">
             {/* Left icons */}
             <div className="flex items-center gap-2">
-              <FiPlus className="text-lg cursor-pointer" />
+              <FiPlus
+                onClick={() => {
+                  if (currentMessages.length > 0) {
+                    const sessionRecord = {
+                      id: sessionId,
+                      startedAt: sessionStartedAt || Date.now(),
+                      endedAt: Date.now(),
+                      messages: currentMessages,
+                    };
+                    setChatHistory((prev) => {
+                      const next = [...prev, sessionRecord];
+
+                      return next;
+                    });
+                  }
+                  setCurrentMessages([]);
+                  setSessionStartedAt(null);
+                  setSessionId(
+                    `${Date.now().toString(36)}-${Math.random()
+                      .toString(36)
+                      .slice(2, 10)}`
+                  );
+                }}
+                className="text-lg cursor-pointer"
+              />
             </div>
 
             {/* Input */}
