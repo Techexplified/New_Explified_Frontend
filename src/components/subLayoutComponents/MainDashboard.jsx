@@ -40,6 +40,7 @@ import InstagramAnalytics from "./InstagramAnalytics";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import MainWorkflowPage from "./workflowPages/MainWorkflowPage";
 import IntegrationsPage from "../../components1/Integrations";
+import { addRecentTool, getRecentTools } from "../../utils/recentTools.js";
 
 const navItems = [
   { name: "Recent", icon: null, active: false, badge: null },
@@ -159,23 +160,73 @@ const RenderMyIntegrations = () => {
   );
 };
 
-const NavBarSection = ({ selectedTool, onNavClick }) => (
+const NavBarSection = ({ selectedTool, onNavClick,searchQuery, setSearchQuery,searchResults, setSearchResults,handleSearch,iconMap,setRecentTools,navigate }) => (
+  
   <div className="flex justify-between w-full bg-transparent pt-[50px] px-24">
     {/* Left side buttons including Search */}
-    <div className="flex gap-8 items-center justify-center  w-full flex-nowrap">
-      {/* Search input placed here */}
-      {navItems
-        .filter((item) => item.name === "Search")
-        .map((item) => (
-          <input
-            key={item.name}
-            type="text"
-            placeholder="Search..."
-            className={`bg-transparent text-white min-w-[150px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base focus:outline-none ${
-              selectedTool === item.name ? "bg-[#23b5b5] font-semibold" : ""
-            }`}
-          />
-        ))}
+    <div className="flex gap-8 items-center justify-center w-full flex-nowrap">
+      {/* Search input wrapper */}
+      <div className="relative">
+        {navItems
+          .filter((item) => item.name === "Search")
+          .map((item) => (
+            <input
+              key={item.name}
+              type="text"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={handleSearch}
+              className={`bg-transparent text-white min-w-[150px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base focus:outline-none ${
+                selectedTool === item.name ? "bg-[#23b5b5] font-semibold" : ""
+              }`}
+            />
+          ))}
+
+        {/* Results dropdown */}
+        {searchQuery.trim() !== "" && (
+          <div className="absolute left-0 top-full mt-2 w-72 bg-black border border-gray-700 rounded-xl shadow-lg max-h-60 overflow-y-auto z-50">
+            {searchResults.length > 0 ? (
+              searchResults.map((tool, index) => {
+                const IconComponent = iconMap[tool.icon] || FileText;
+                return (
+                  <div
+                    key={index}
+                    onClick={() => {
+                      addRecentTool(tool);
+                      setRecentTools(getRecentTools());
+                      navigate(tool.route);
+                      setSearchQuery("");
+                      setSearchResults([]);
+                    }}
+                    className="flex items-center gap-3 px-4 py-2 hover:bg-gray-800 cursor-pointer transition-colors"
+                  >
+                    <div
+                      className={`h-6 w-6 flex items-center justify-center rounded-lg bg-gradient-to-r ${tool.color}`}
+                    >
+                      <IconComponent className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-white">{tool.title}</p>
+                      <p className="text-xs text-gray-400 line-clamp-1">
+                        {tool.description}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="flex items-center gap-3 px-4 py-2 cursor-default">
+                <div className="h-6 w-6 flex items-center justify-center rounded-lg bg-gradient-to-r from-minimal-primary to-minimal-gray-400">
+                  <FileText className="w-4 h-4 text-white" />
+                </div>
+                <p className="text-sm text-gray-400">No results found</p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Nav buttons */}
       <div className="flex gap-4 ">
         {navItems
           .filter((item) => item.name !== "Search")
@@ -208,6 +259,50 @@ const MainDashboard = () => {
   // Holds all selected filters; 'Recent' always included internally
   const [selectedTools, setSelectedTools] = useState("Recent");
   const [openMenuId, setOpenMenuId] = useState(null);
+  
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+
+  const handleSearch = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+
+    if (query.trim() === "") {
+      setSearchResults([]);
+      return;
+    }
+
+    const filtered = allTools.filter(
+      (tool) =>
+        tool.title.toLowerCase().includes(query) ||
+        tool.description.toLowerCase().includes(query)
+    );
+    setSearchResults(filtered);
+  };
+  // recent tools feature
+  const [recentTools, setRecentTools] = useState([]);
+
+  useEffect(() => {
+    setRecentTools(getRecentTools());
+  }, []);
+
+  const iconMap = {
+    Youtube,
+    FileText,
+    Projector,
+    ImagePlay,
+    Images,
+    FileVideo2,
+    Laugh,
+    Zap,
+    BoomBox,
+    MdOutlineGifBox,
+    ScreenShare,
+    MdElderlyWoman,
+    PenOff,
+    Image,
+    Link,
+  };
 
   const menuRef = useRef(null);
   const onToggleTool = (toolName) => {
@@ -280,105 +375,105 @@ const MainDashboard = () => {
     {
       title: "Youtube Summarizer",
       description: "A YouTube Summarizer quickly turns long videos into short.",
-      icon: Youtube,
+      icon: "Youtube",
       color: "from-minimal-primary to-minimal-gray-400",
       route: "/youtube-summarizer",
     },
     {
       title: "AI Subtitler",
       description: "Centralized AI Subtitler for your videos",
-      icon: FileText,
+      icon: "FileText",
       color: "from-minimal-primary to-minimal-gray-500",
       route: "/ai-subtitler",
     },
     {
       title: "Text To Video Generator",
       description: "Generate videos using prompts.",
-      icon: FileVideo2,
+      icon: "FileVideo2",
       route: "/text-to-video",
       color: "from-minimal-primary to-minimal-gray-600",
     },
     {
       title: "Slideshow Maker",
       description: "Create stunning slideshows.",
-      icon: Projector,
+      icon: "Projector",
       route: "/presentation",
       color: "from-minimal-primary to-minimal-gray-600",
     },
     {
       title: "Bg Remover",
       description: "Remove background from images.",
-      icon: ImagePlay,
+      icon: "ImagePlay",
       route: "/bg-remover",
       color: "from-minimal-primary to-minimal-gray-600",
     },
     {
       title: "Image Styler",
       description: "Style your images.",
-      icon: Images,
+      icon: "Images",
       route: "/image-styler",
       color: "from-minimal-primary to-minimal-gray-600",
     },
     {
       title: "Video Meme Generator AI",
       description: "Style your images.",
-      icon: Laugh,
+      icon: "Laugh",
       route: "/video-meme-generator",
       color: "from-minimal-primary to-minimal-gray-600",
     },
     {
       title: "Integrations",
       description: "Style your images.",
-      icon: Zap,
+      icon: "Zap",
       route: "/integrations",
       color: "from-minimal-primary to-minimal-gray-600",
     },
     {
       title: "Socials",
       description: "Style your images.",
-      icon: BoomBox,
+      icon: "BoomBox",
       route: "/socials",
       color: "from-minimal-primary to-minimal-gray-600",
     },
     {
       title: "AI GIF Generator",
       description: "Style your images.",
-      icon: MdOutlineGifBox,
+      icon: "MdOutlineGifBox",
       route: "/ai-gif-generator",
       color: "from-minimal-primary to-minimal-gray-600",
     },
     {
       title: "AI Hugging Video Maker",
       description: "Style your images.",
-      icon: ScreenShare,
+      icon: "ScreenShare",
       route: "/ai-hugging-video-maker",
       color: "from-minimal-primary to-minimal-gray-600",
     },
     {
       title: "Ageing Video Maker AI",
       description: "Style your images.",
-      icon: MdElderlyWoman,
+      icon: "MdElderlyWoman",
       route: "/ageing-video-maker-ai",
       color: "from-minimal-primary to-minimal-gray-600",
     },
     {
       title: "AI Tattoo Art Generator",
       description: "Style your images.",
-      icon: PenOff,
+      icon: "PenOff",
       route: "/ai-tattoo-art-generator",
       color: "from-minimal-primary to-minimal-gray-600",
     },
     {
       title: "Image To Video AI",
       description: "Style your images.",
-      icon: Image,
+      icon: "Image",
       route: "/image-to-video-ai",
       color: "from-minimal-primary to-minimal-gray-600",
     },
     {
       title: "Link To Video AI",
       description: "Style your images.",
-      icon: Link,
+      icon: "Link",
       route: "/link-to-video-ai",
       color: "from-minimal-primary to-minimal-gray-600",
     },
@@ -451,6 +546,14 @@ const MainDashboard = () => {
             selectedTools={selectedTools}
             selectedTool={selectedTool}
             onNavClick={onToggleTool}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            searchResults={searchResults}
+            setSearchResults={setSearchResults}
+            handleSearch={handleSearch}
+            iconMap={iconMap}
+            setRecentTools={setRecentTools}
+            navigate={navigate}
           />
         </div>
 
@@ -489,69 +592,96 @@ const MainDashboard = () => {
           </div>
         )}
 
-        {selectedTools === "Recent" && (
-          <div className="max-w-[1480px]  w-full" ref={recentRef}>
+        {selectedTool === "Recent" && (
+          <div className="max-w-[1480px] w-full" ref={recentRef}>
+            {/* Section Header */}
             <p className="p-4 w-full text-2xl text-minimal-white tracking-tighter">
               Recent
             </p>
             <div className="border-t border-gray-600 w-full mb-6"></div>
 
-            {/* main dashboard */}
-            <div className="flex flex-wrap gap-6 justify-start">
-              <div className="tool-card" onClick={() => navigate("/expli")}>
+            {/* Grid of Recent Tools */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+              {/* Special Cards */}
+              <div
+                className="tool-card flex items-center justify-center"
+                onClick={() => navigate("/expli")}
+              >
                 <Plus className="w-8 h-8 text-white group-hover:text-minimal-primary transition-colors duration-300" />
               </div>
-              <div className="tool-card" onClick={() => navigate("/tasks")}>
+
+              <div
+                className="tool-card flex items-center justify-center"
+                onClick={() => navigate("/tasks")}
+              >
                 <h1 className="text-2xl font-bold text-minimal-white group-hover:text-minimal-primary transition-colors duration-300">
                   Notes
                 </h1>
               </div>
-              {tools.map((tool, i) => {
-                const IconComponent = tool.icon; // ✅ Insert here
-                return (
-                  <div
-                    key={i}
-                    className="tool-card"
-                    onClick={() => navigate(tool.route)}
-                  >
-                    {/* <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div> */}
-                    <div className="relative z-10 flex flex-col justify-between h-full">
-                      <div className="tool_description flex gap-3 items-start">
-                        <div
-                          className={`h-8 w-8 flex items-center p-2 rounded-lg bg-gradient-to-r ${tool.color} mb-2 group-hover:scale-110 transition-transform duration-300`}
-                        >
-                          {/* ✅ Render the icon here */}
-                          <IconComponent className="w-5 h-5 text-minimal-white" />
-                        </div>
-                        <div>
-                          <h3 className="text-base font-semibold text-minimal-white mb-1 group-hover:text-minimal-primary transition-colors duration-300">
-                            {tool.title}
-                          </h3>
-                          <p className="text-minimal-muted text-xs leading-snug group-hover:text-minimal-gray-300 transition-colors duration-300">
-                            {tool.description}
-                          </p>
+
+              {/* Dynamic Recent Tools */}
+              {recentTools.length === 0 ? (
+                <p className="text-gray-400 col-span-full text-center">
+                  No recent tools yet.
+                </p>
+              ) : (
+                recentTools
+                  .slice()
+                  .reverse()
+                  .map((tool, i) => {
+                    const IconComponent = iconMap[tool.icon] || FileText;
+                    return (
+                      <div
+                        key={i}
+                        className="tool-card cursor-pointer"
+                        onClick={() => {
+                          addRecentTool(tool);
+                          setRecentTools(getRecentTools());
+                          navigate(tool.route);
+                        }}
+                      >
+                        <div className="flex flex-col items-start justify-between h-full">
+                          {/* Icon */}
+                          <div
+                            className={`h-10 w-10 flex items-center justify-center rounded-lg bg-gradient-to-r ${tool.color} mb-3`}
+                          >
+                            <IconComponent className="w-6 h-6 text-minimal-white" />
+                          </div>
+
+                          {/* Title + Description */}
+                          <div className="flex-1">
+                            <h3 className="text-sm font-semibold text-minimal-white mb-1">
+                              {tool.title}
+                            </h3>
+                            <p className="text-minimal-muted text-xs leading-snug">
+                              {tool.description}
+                            </p>
+                          </div>
+
+                          {/* CTA */}
+                          <div className="mt-2 flex items-center text-minimal-primary">
+                            <span className="text-xs font-medium">
+                              Launch Tool
+                            </span>
+                            <svg
+                              className="w-3 h-3 ml-1"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 5l7 7-7 7"
+                              />
+                            </svg>
+                          </div>
                         </div>
                       </div>
-                      <div className="mt-1 flex items-center text-minimal-primary opacity-100  transition-all duration-300 transform translate-x-2">
-                        <span className="text-xs font-medium">Launch Tool</span>
-                        <svg
-                          className="w-3 h-3 ml-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 5l7 7-7 7"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+                    );
+                  })
+              )}
             </div>
           </div>
         )}
@@ -577,12 +707,19 @@ const MainDashboard = () => {
                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 w-full"
                   >
                     {allTools.map((tool, index) => {
-                      const IconComponent = tool.icon;
+                      const IconComponent = iconMap[tool.icon] || FileText;
                       return (
                         <div
                           key={index}
                           className="tool-card"
-                          onClick={() => navigate(tool.route)}
+                          onClick={() => {
+                            addRecentTool({
+                              ...tool,
+                              icon: tool.icon, // string, safe to save
+                            });
+                            setRecentTools(getRecentTools());
+                            navigate(tool.route);
+                          }}
                         >
                           <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                           <div className="relative z-10 flex flex-col justify-between h-full">
