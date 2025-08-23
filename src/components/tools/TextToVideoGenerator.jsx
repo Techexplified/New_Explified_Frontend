@@ -80,7 +80,7 @@ const TextToVideoGenerator = () => {
     setErrorMsg("");
 
     try {
-      const hfToken = import.meta.env.VITE_TEXT_TO_VIDEO;
+      const hfToken = import.meta.env.VITE_TEXT_TO_VIDEO_SARITA;
       if (!hfToken) {
         throw new Error(
           "Missing Hugging Face token. Please set VITE_HF_TOKEN in your .env file."
