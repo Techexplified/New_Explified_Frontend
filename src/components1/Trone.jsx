@@ -8,6 +8,12 @@ import {
   FiImage,
   FiPaperclip,
   FiSearch,
+  FiStar,
+  FiCpu,
+  FiZap,
+  FiLayers,
+  FiCloud,
+  FiGitBranch,
 } from "react-icons/fi";
 import { BsSoundwave } from "react-icons/bs";
 import axios from "axios";
@@ -16,12 +22,12 @@ import SidebarOnHover from "../reusable_components/SidebarOnHover";
 import { Sparkle } from "lucide-react";
 
 const INTEGRATION_PROVIDERS = [
-  { id: "gemini", name: "Gemini" },
-  { id: "openai", name: "OpenAI" },
-  { id: "grok", name: "Grok" },
-  { id: "anthropic", name: "Anthropic" },
-  { id: "mistral", name: "Mistral" },
-  { id: "cohere", name: "Cohere" },
+  { id: "gemini", name: "Gemini", icon: FiStar },
+  { id: "openai", name: "OpenAI", icon: FiCpu },
+  { id: "grok", name: "Grok", icon: FiZap },
+  { id: "anthropic", name: "Anthropic", icon: FiLayers },
+  { id: "mistral", name: "Mistral", icon: FiCloud },
+  { id: "cohere", name: "Cohere", icon: FiGitBranch },
 ];
 
 function Trone({ onFirstPrompt }) {
@@ -69,6 +75,39 @@ function Trone({ onFirstPrompt }) {
       return {};
     }
   });
+  const [selectedProviderId, setSelectedProviderId] = useState(null);
+  const [selectedProviderKey, setSelectedProviderKey] = useState("");
+
+  const PROVIDER_DOC_URL = {
+    gemini: "https://ai.google.dev/",
+    openai: "https://platform.openai.com/",
+    grok: "https://x.ai/",
+    anthropic: "https://console.anthropic.com/",
+    mistral: "https://console.mistral.ai/",
+    cohere: "https://dashboard.cohere.com/",
+  };
+
+  const handleOpenProvider = (providerId) => {
+    setSelectedProviderId(providerId);
+    const existing = providerKeys?.[providerId] || "";
+    setSelectedProviderKey(existing);
+  };
+
+  const handleSaveProviderKey = (providerId, useAfterSave = false) => {
+    const next = { ...(providerKeys || {}), [providerId]: selectedProviderKey };
+    try {
+      localStorage.setItem("provider_keys", JSON.stringify(next));
+    } catch (_) {}
+    setProviderKeys(next);
+    if (useAfterSave) {
+      // optionally you can set active provider here if used elsewhere
+      try {
+        localStorage.setItem("active_provider", providerId);
+      } catch (_) {}
+    }
+    setShowIntegrationsModal(false);
+    setSelectedProviderId(null);
+  };
 
   useEffect(() => {
     if (!prevDrawerState.current && isDrawerOpen) {
@@ -554,54 +593,149 @@ function Trone({ onFirstPrompt }) {
               Integrations
             </h3>
 
-            <div className="mt-4 flex items-center gap-2">
-              <button
-                onClick={() => setIntegrationTab("my")}
-                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                  integrationTab === "my"
-                    ? "bg-teal-700 text-white"
-                    : "bg-[#2a2a2a] text-gray-300 hover:bg-[#333]"
-                }`}
-              >
-                My key's
-              </button>
-              <button
-                onClick={() => setIntegrationTab("add")}
-                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                  integrationTab === "add"
-                    ? "bg-teal-700 text-white"
-                    : "bg-[#2a2a2a] text-gray-300 hover:bg-[#333]"
-                }`}
-              >
-                Add Key's
-              </button>
-            </div>
+            {!selectedProviderId && (
+              <div className="mt-4 flex items-center gap-2">
+                <button
+                  onClick={() => setIntegrationTab("my")}
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                    integrationTab === "my"
+                      ? "bg-teal-700 text-white"
+                      : "bg-[#2a2a2a] text-gray-300 hover:bg-[#333]"
+                  }`}
+                >
+                  My key's
+                </button>
+                <button
+                  onClick={() => setIntegrationTab("add")}
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                    integrationTab === "add"
+                      ? "bg-teal-700 text-white"
+                      : "bg-[#2a2a2a] text-gray-300 hover:bg-[#333]"
+                  }`}
+                >
+                  Add Key's
+                </button>
+              </div>
+            )}
 
-            <div className="mt-4 relative">
-              <input
-                type="text"
-                value={integrationSearch}
-                onChange={(e) => setIntegrationSearch(e.target.value)}
-                placeholder="Search ..."
-                className="w-full bg-black/30 border border-[#2a2a2a] rounded-lg pl-3 pr-9 py-2 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-teal-600"
-              />
-              <FiSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            </div>
+            {!selectedProviderId && (
+              <div className="mt-4 relative">
+                <input
+                  type="text"
+                  value={integrationSearch}
+                  onChange={(e) => setIntegrationSearch(e.target.value)}
+                  placeholder="Search ..."
+                  className="w-full bg-black/30 border border-[#2a2a2a] rounded-lg pl-3 pr-9 py-2 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-teal-600"
+                />
+                <FiSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              </div>
+            )}
 
-            <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-6">
-              {INTEGRATION_PROVIDERS.filter((p) => {
-                const matchesTab =
-                  integrationTab === "my" ? Boolean(providerKeys[p.id]) : true;
-                const q = integrationSearch.trim().toLowerCase();
-                const matchesQuery = p.name.toLowerCase().includes(q);
-                return matchesTab && matchesQuery;
-              }).map((p) => (
-                <div key={p.id} className="flex flex-col items-center gap-2">
-                  <div className="w-full h-20 bg-gray-300 rounded-md" />
-                  <span className="text-sm text-gray-200">{p.name}</span>
-                </div>
-              ))}
-            </div>
+            {!selectedProviderId && (
+              <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-6">
+                {INTEGRATION_PROVIDERS.filter((p) => {
+                  const matchesTab =
+                    integrationTab === "my"
+                      ? Boolean(providerKeys[p.id])
+                      : true;
+                  const q = integrationSearch.trim().toLowerCase();
+                  const matchesQuery = p.name.toLowerCase().includes(q);
+                  return matchesTab && matchesQuery;
+                }).map((p) => {
+                  const Icon = p.icon;
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => handleOpenProvider(p.id)}
+                      className="flex flex-col items-center gap-2 focus:outline-none"
+                    >
+                      <div
+                        className="w-full h-20 rounded-md"
+                        style={{ background: "#23b5b5" }}
+                      >
+                        <div className="h-full w-full flex items-center justify-center">
+                          {Icon && <Icon className="text-black/80" size={28} />}
+                        </div>
+                      </div>
+                      <span className="text-sm text-gray-200">{p.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {selectedProviderId && (
+              <div className="mt-6">
+                {(() => {
+                  const provider = INTEGRATION_PROVIDERS.find(
+                    (p) => p.id === selectedProviderId
+                  );
+                  const Icon = provider?.icon;
+                  return (
+                    <div>
+                      <button
+                        className="text-xs text-gray-300 hover:text-white mb-4"
+                        onClick={() => setSelectedProviderId(null)}
+                      >
+                        ← Back
+                      </button>
+                      <div className="flex items-center gap-2 mb-3">
+                        {Icon && (
+                          <div
+                            className="w-8 h-8 rounded-md flex items-center justify-center"
+                            style={{ background: "#23b5b5" }}
+                          >
+                            <Icon className="text-black/80" size={18} />
+                          </div>
+                        )}
+                        <h4 className="text-white text-base font-semibold">
+                          {provider?.name}
+                        </h4>
+                      </div>
+                      <label className="block text-xs text-gray-400 mb-1">
+                        API Key
+                      </label>
+                      <input
+                        type="text"
+                        value={selectedProviderKey}
+                        onChange={(e) => setSelectedProviderKey(e.target.value)}
+                        placeholder={`Enter ${provider?.name} API key`}
+                        className="w-full bg-black/30 border border-[#2a2a2a] rounded-lg px-3 py-2 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-teal-600"
+                      />
+                      <div className="mt-2">
+                        <a
+                          href={PROVIDER_DOC_URL[selectedProviderId]}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-xs text-teal-400 hover:text-teal-300"
+                        >
+                          Don't have a key?
+                        </a>
+                      </div>
+                      <div className="mt-4 flex justify-end gap-2">
+                        <button
+                          className="px-3 py-2 rounded-lg bg-[#191a1c] border border-[#2a2a2a] text-gray-200 hover:bg-[#1f2023]"
+                          onClick={() =>
+                            handleSaveProviderKey(selectedProviderId, false)
+                          }
+                        >
+                          Save
+                        </button>
+                        <button
+                          className="px-3 py-2 rounded-lg bg-teal-600 hover:bg-teal-500 text-white"
+                          onClick={() =>
+                            handleSaveProviderKey(selectedProviderId, true)
+                          }
+                        >
+                          Save & Use
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
           </div>
         </div>
       )}
