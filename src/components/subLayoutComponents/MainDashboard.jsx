@@ -40,7 +40,11 @@ import InstagramAnalytics from "./InstagramAnalytics";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import MainWorkflowPage from "./workflowPages/MainWorkflowPage";
 import IntegrationsPage from "../../components1/Integrations";
-import { addRecentTool, getRecentTools } from "../../utils/recentTools.js";
+import {
+  addRecentTool,
+  getRecentTools,
+  removeRecentTool,
+} from "../../utils/recentTools.js";
 
 const navItems = [
   { name: "Recent", icon: null, active: false, badge: null },
@@ -160,8 +164,19 @@ const RenderMyIntegrations = () => {
   );
 };
 
-const NavBarSection = ({ selectedTool, onNavClick,searchQuery, setSearchQuery,searchResults, setSearchResults,handleSearch,iconMap,setRecentTools,navigate }) => (
-  
+const NavBarSection = ({
+  selectedTool,
+  onNavClick,
+  searchQuery,
+  setSearchQuery,
+  searchResults,
+  setSearchResults,
+  handleSearch,
+  iconMap,
+  setRecentTools,
+  navigate,
+  highlightMatch,
+}) => (
   <div className="flex justify-between w-full bg-transparent pt-[50px] px-24">
     {/* Left side buttons including Search */}
     <div className="flex gap-8 items-center justify-center w-full flex-nowrap">
@@ -206,9 +221,13 @@ const NavBarSection = ({ selectedTool, onNavClick,searchQuery, setSearchQuery,se
                       <IconComponent className="w-4 h-4 text-white" />
                     </div>
                     <div>
-                      <p className="text-sm text-white">{tool.title}</p>
+                      {/* Highlight matches in title */}
+                      <p className="text-sm text-white">
+                        {highlightMatch(tool.title, searchQuery)}
+                      </p>
+                      {/* Highlight matches in description */}
                       <p className="text-xs text-gray-400 line-clamp-1">
-                        {tool.description}
+                        {highlightMatch(tool.description, searchQuery)}
                       </p>
                     </div>
                   </div>
@@ -259,7 +278,7 @@ const MainDashboard = () => {
   // Holds all selected filters; 'Recent' always included internally
   const [selectedTools, setSelectedTools] = useState("Recent");
   const [openMenuId, setOpenMenuId] = useState(null);
-  
+
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
 
@@ -272,19 +291,50 @@ const MainDashboard = () => {
       return;
     }
 
-    const filtered = allTools.filter(
-      (tool) =>
-        tool.title.toLowerCase().includes(query) ||
-        tool.description.toLowerCase().includes(query)
+    // Tools that match in title
+    const titleMatches = allTools.filter((tool) =>
+      tool.title.toLowerCase().includes(query)
     );
-    setSearchResults(filtered);
+
+    // Tools that match in description but not already in titleMatches
+    const descriptionMatches = allTools.filter(
+      (tool) =>
+        tool.description.toLowerCase().includes(query) &&
+        !titleMatches.includes(tool)
+    );
+
+    // Combine results with title matches first
+    const results = [...titleMatches, ...descriptionMatches];
+
+    setSearchResults(results);
   };
+  const highlightMatch = (text, query) => {
+    if (!query) return text;
+
+  const regex = new RegExp(`(${query})`, "gi");
+  const parts = text.split(regex);
+
+  return parts.map((part, i) =>
+    part.toLowerCase() === query.toLowerCase() ? (
+      <span key={i} className="text-yellow-500 font-semibold">
+        {part}
+      </span>
+    ) : (
+      part
+    )
+  );
+  };
+
   // recent tools feature
   const [recentTools, setRecentTools] = useState([]);
 
   useEffect(() => {
     setRecentTools(getRecentTools());
   }, []);
+  const handleRemove = (title) => {
+    removeRecentTool(title);
+    setRecentTools(getRecentTools()); // refresh list
+  };
 
   const iconMap = {
     Youtube,
@@ -554,6 +604,7 @@ const MainDashboard = () => {
             iconMap={iconMap}
             setRecentTools={setRecentTools}
             navigate={navigate}
+            highlightMatch={highlightMatch}
           />
         </div>
 
@@ -640,6 +691,16 @@ const MainDashboard = () => {
                           navigate(tool.route);
                         }}
                       >
+                        {/* Cross Button */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemove(tool.title);
+                          }}
+                          className="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors"
+                        >
+                          ✕
+                        </button>
                         <div className="flex flex-col items-start justify-between h-full">
                           {/* Icon */}
                           <div

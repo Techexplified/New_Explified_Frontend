@@ -19,3 +19,9 @@ export const addRecentTool = (tool) => {
 export const getRecentTools = () => {
   return JSON.parse(localStorage.getItem("recentTools")) || [];
 };
+
+export const removeRecentTool = (title) => {
+  let recent = JSON.parse(localStorage.getItem("recentTools")) || [];
+  recent = recent.filter((t) => t.title !== title);
+  localStorage.setItem("recentTools", JSON.stringify(recent));
+};
