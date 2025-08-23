@@ -101,57 +101,53 @@ function ShareButton({ getTextContent }) {
   const [copied, setCopied] = useState(false);
   const [exportPdf, setExportPdf] = useState(false);
   const [exportJpg, setExportJpg] = useState(false);
+  const [shareLink, setShareLink] = useState("");
+  
+  // Generate sharable link only once when menu opens
+  const generateLink = () => {
+  const content = getTextContent();
+  const id = uuidv4();
 
-  // Generate shareable link (encoded content)
-const getShareLink = () => {
-  const content = getTextContent(); // your function that extracts editor content
-  const id = uuidv4(); // generate unique id
-
-  // Save the content in localStorage mapped to that id
+  // Save note to localStorage
   localStorage.setItem(`shared_content_${id}`, content);
 
-  // Return sharable link
-  return `${window.location.origin}${window.location.pathname}?shareId=${id}`;
+  // Construct link
+  const link = `${window.location.origin}${window.location.pathname}?shareId=${id}`;
+  setShareLink(link);
 };
 
-// Function to check for shared content on page load
-useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
-  const shareId = params.get("shareId");
+  // Check if shared link is opened
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const shareId = params.get("shareId");
 
-  if (shareId) {
-    const storedContent = localStorage.getItem(`shared_content_${shareId}`);
-    if (storedContent) {
-      // Trigger download as .txt file
-      const blob = new Blob([storedContent], { type: "text/plain" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "shared_content.txt";
-      link.click();
+    if (shareId) {
+      const storedContent = localStorage.getItem(`shared_content_${shareId}`);
+      if (storedContent) {
+        // Instead of auto-download, you can render this content in a viewer page
+        console.log("Shared Note:", storedContent);
+      }
     }
-  }
-}, []);
+  }, []);
 
-  // Handle copy link
   const handleCopy = () => {
-    navigator.clipboard.writeText(getShareLink());
+    navigator.clipboard.writeText(shareLink);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
 
-  // Handle download in chosen format (mock)
   const handleDownload = () => {
     let filename = "notes.txt";
-    if (exportPdf) filename = "notes.pdf";
-    else if (exportJpg) filename = "notes.jpg";
+    let blob = new Blob([getTextContent()], { type: "text/plain" });
 
-    const contentType = exportPdf
-      ? "application/pdf"
-      : exportJpg
-      ? "image/jpeg"
-      : "text/plain";
+    if (exportPdf) {
+      filename = "notes.pdf";
+      // TODO: Use jsPDF to properly generate a PDF
+    } else if (exportJpg) {
+      filename = "notes.jpg";
+      // TODO: Use html-to-image or dom-to-image to generate JPG
+    }
 
-    const blob = new Blob([getTextContent()], { type: contentType });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -172,11 +168,13 @@ useEffect(() => {
           border: `2px solid #188184`,
           display: "inline-block",
           background: "#232323",
-          overflow: "visible",
         }}
       >
         <button
-          onClick={() => setShowMenu((v) => !v)}
+          onClick={() => {
+            setShowMenu((v) => !v);
+            if (!showMenu) generateLink();
+          }}
           style={{
             height: 40,
             minWidth: 80,
@@ -189,13 +187,12 @@ useEffect(() => {
             display: "flex",
             alignItems: "center",
             cursor: "pointer",
-            outline: "none",
           }}
-          title="Share notes"
         >
           Share
           <ArrowUpRight size={20} style={{ marginLeft: 8, color: "#aaa" }} />
         </button>
+
         {showMenu && (
           <div
             style={{
@@ -222,6 +219,7 @@ useEffect(() => {
             >
               Share
             </div>
+
             <div
               style={{
                 display: "flex",
@@ -235,7 +233,7 @@ useEffect(() => {
               <input
                 type="text"
                 readOnly
-                value={getShareLink()}
+                value={shareLink}
                 style={{
                   flex: 1,
                   border: "none",
@@ -254,16 +252,19 @@ useEffect(() => {
                   cursor: "pointer",
                   color: "#cecece",
                   padding: 0,
-                  outline: "none",
                 }}
-                title="Copy link"
               >
                 <Link2 size={20} />
               </button>
             </div>
             {copied && (
               <div
-                style={{ color: "#22ee99", textAlign: "right", fontSize: 14, marginBottom: 4 }}
+                style={{
+                  color: "#22ee99",
+                  textAlign: "right",
+                  fontSize: 14,
+                  marginBottom: 4,
+                }}
               >
                 Copied!
               </div>
@@ -301,7 +302,6 @@ useEffect(() => {
               onClick={handleDownload}
               style={{
                 width: "100%",
-                background: "#232323",
                 border: `2px solid #188184`,
                 color: "#eee",
                 borderRadius: 8,
@@ -323,6 +323,19 @@ useEffect(() => {
       </div>
     </div>
   );
+}
+function SharePlugin() {
+  const [editor] = useLexicalComposerContext();
+
+  const getTextContent = () => {
+    let text = "";
+    editor.getEditorState().read(() => {
+      text = $getRoot().getTextContent();
+    });
+    return text;
+  };
+
+  return <ShareButton getTextContent={getTextContent} />;
 }
 
 function TextOptionsBar({
@@ -357,7 +370,7 @@ function TextOptionsBar({
 
   return (
     <div
-      className="flex items-center gap-2 px-4 py-2 bg-black/80 rounded-lg border border-gray-700 absolute bottom-20 left-1/2 transform -translate-x-1/2 z-50 shadow-xl"
+      className="flex items-center gap-2 px-4 py-2 bg-black/80 rounded-lg border border-gray-700 absolute bottom-8 left-1/2 transform -translate-x-1/2 z-50 shadow-xl"
       style={{ minWidth: 460 }}
     >
       <select
@@ -481,7 +494,7 @@ function PenTool() {
           position: "fixed",
           bottom: "10px",
           right: "400px",
-          background: "rgba(255,255,255,0.9)",
+          background: "black",
           padding: "8px",
           borderRadius: "8px",
           display: "flex",
@@ -650,8 +663,27 @@ const initialConfig = {
   },
 };
 
+function SaveToLocalStoragePlugin() {
+  const [editor] = useLexicalComposerContext();
+
+  useEffect(() => {
+    return editor.registerUpdateListener(({ editorState }) => {
+      editorState.read(() => {
+        // Correct: use $getRoot() inside read()
+        const plainText = $getRoot().getTextContent();
+
+        // Save to localStorage
+        localStorage.setItem("editorContent", plainText);
+      });
+    });
+  }, [editor]);
+
+  return null;
+}
+
+
 function LexicalEditor() {
-  const [editorState, setEditorState] = useState("");
+  const [editor, setEditorState] = useState("");
   const [title, setTitle] = useState("Title");
   const [ispenactive, setpenactive] = useState(true);
   
@@ -682,6 +714,14 @@ function LexicalEditor() {
       {/* Main editor wrapper */}
       <div className="w-screen h-screen bg-black relative flex flex-col justify-center items-center overflow-hidden">
         <SidebarOnHover2 />
+        <a
+  href="/tasks"
+  className="absolute top-20 left-20 inline-flex items-center gap-2 px-5 py-2 border-2 border-teal-500 rounded-xl bg-neutral-900 text-white font-medium hover:bg-neutral-800 transition"
+>
+  Back
+</a>
+
+
         <p className="fixed top-8 left-20 text-white font-medium">{title}</p>
 
         {/* Editable <h1> */}
@@ -731,8 +771,10 @@ function LexicalEditor() {
                         Let's Start
                       </h2>
                     }
+                    
                     ErrorBoundary={LexicalErrorBoundary}
                   />
+                  <SaveToLocalStoragePlugin />
                   <HistoryPlugin />
                   <AutoFocusPlugin />
                   <OnChangePlugin onChange={onChange} />
@@ -742,20 +784,14 @@ function LexicalEditor() {
                     onTogglePenTool={() => setShowPenTool((prev) => !prev)}
                   />
                 </div>
+                <SharePlugin /> 
               </LexicalComposer>
             </div>
           )}
         </div>
 
-        <ShareButton
-    getTextContent={() => {
-      let text = "";
-      editor.getEditorState().read(() => {
-        text = $getRoot().getTextContent();
-      });
-      return text;
-    }}
-  />
+
+
 
       </div>
 
