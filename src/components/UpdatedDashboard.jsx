@@ -266,15 +266,15 @@ const UpdatedDashboard = () => {
                 <div className="absolute left-[-130px] top-14 bg-minimal-card p-4 rounded-xl shadow-lg border border-gray-700 z-5000000 min-w-[200px] flex flex-col items-center">
                   {/* Dropdown content */}
                   <div className="mb-4">
-                    <button
+                    <Link
                       className="text-white text-sm font-semibold mb-2 border border-gray-700 rounded-lg px-4 py-2 hover:text-[#23b5b5]"
-                      onClick={() => navigate("/profile")}
+                      to={"https://explified.com/explified-labs"}
                     >
-                      View My Profile
-                    </button>
+                      For Enterprises
+                    </Link>
 
                     {/* Tools Quick Buttons */}
-                    <div className="flex gap-3 flex-col">
+                    <div className="flex gap-3 mt-2 flex-col">
                       <div className="flex gap-3">
                         <button
                           onClick={() => {

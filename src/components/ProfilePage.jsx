@@ -9,7 +9,7 @@ import {
   Zap,
   History,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { auth } from "../firebase";
 import { signOut } from "firebase/auth";
@@ -113,7 +113,13 @@ const UserPage = () => {
             )}
 
             <button className="flex items-center justify-center w-full px-4 py-3 bg-green-500/10 border border-green-500/50 text-green-400 rounded-xl hover:bg-green-500/20 hover:border-green-500/70 transition-all">
-              <Mail className="w-5 h-5 mr-3" /> Contact Us
+              <Mail className="w-5 h-5 mr-3" />{" "}
+              <Link
+                className="text-white text-sm font-semibold hover:text-[#23b5b5]"
+                to={"https://explified.com/explified-labs"}
+              >
+                For Enterprises
+              </Link>
             </button>
           </div>
         </div>
