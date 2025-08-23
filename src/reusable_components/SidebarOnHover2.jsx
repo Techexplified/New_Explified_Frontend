@@ -116,16 +116,17 @@ function SidebarOnHover2({ toolName, onToggle }) {
           </div>
 
           {/* Search */}
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search notes..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-black border border-minimal-primary/20 rounded-lg py-2 pl-3 pr-10 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-minimal-primary/40"
-            />
-            <Search className="absolute right-3 top-2.5 w-4 h-4 text-minimal-primary" />
-          </div>
+          <div className="relative w-22 mr-4">
+  <input
+    type="text"
+    placeholder="Search notes..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    className="w-full bg-black border border-minimal-primary/20 rounded-lg py-2 pl-3 pr-10 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-minimal-primary/40"
+  />
+  <Search className="absolute right-3 top-2.5 w-3 h-4 text-minimal-primary" />
+</div>
+
 
           {/* Floating + Button */}
           <button

@@ -439,16 +439,64 @@ function PenTool() {
   const [color, setColor] = useState("#000000");
   const [thickness, setThickness] = useState(3);
 
+  const [history, setHistory] = useState([]); // undo/redo stack
+  const [redoStack, setRedoStack] = useState([]);
+
   useEffect(() => {
     const canvas = canvasRef.current;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
     const ctx = canvas.getContext("2d");
+
+    // ✅ Match canvas resolution to CSS size
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * window.devicePixelRatio;
+    canvas.height = rect.height * window.devicePixelRatio;
+    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     ctxRef.current = ctx;
   }, []);
+
+  const saveState = () => {
+    const canvas = canvasRef.current;
+    const data = canvas.toDataURL();
+    setHistory((prev) => [...prev, data]);
+    setRedoStack([]); // clear redo when new draw happens
+  };
+
+  const undo = () => {
+    if (history.length === 0) return;
+    const canvas = canvasRef.current;
+    const ctx = ctxRef.current;
+    const last = history[history.length - 1];
+
+    setRedoStack((prev) => [...prev, canvas.toDataURL()]);
+    setHistory((prev) => prev.slice(0, -1));
+
+    const img = new Image();
+    img.src = last;
+    img.onload = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width / window.devicePixelRatio, canvas.height / window.devicePixelRatio);
+    };
+  };
+
+  const redo = () => {
+    if (redoStack.length === 0) return;
+    const canvas = canvasRef.current;
+    const ctx = ctxRef.current;
+    const last = redoStack[redoStack.length - 1];
+
+    setHistory((prev) => [...prev, last]);
+    setRedoStack((prev) => prev.slice(0, -1));
+
+    const img = new Image();
+    img.src = last;
+    img.onload = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width / window.devicePixelRatio, canvas.height / window.devicePixelRatio);
+    };
+  };
 
   const startDrawing = (e) => {
     const ctx = ctxRef.current;
@@ -481,10 +529,20 @@ function PenTool() {
   };
 
   const stopDrawing = () => {
+    if (!isDrawing) return;
     const ctx = ctxRef.current;
     ctx.closePath();
     setIsDrawing(false);
+    saveState(); // ✅ save snapshot after finishing stroke
   };
+
+  // Cursor style per tool
+  const cursorStyle =
+    tool === "pen"
+      ? "url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22><text y=%2215%22 font-size=%2216%22>✏️</text></svg>') 0 16, auto"
+      : tool === "highlighter"
+      ? "url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22><text y=%2215%22 font-size=%2216%22>🖍</text></svg>') 0 16, auto"
+      : "url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22><text y=%2215%22 font-size=%2216%22>🧽</text></svg>') 0 16, auto";
 
   return (
     <div>
@@ -492,7 +550,7 @@ function PenTool() {
       <div
         style={{
           position: "fixed",
-          bottom: "10px",
+          bottom: "130px",
           right: "400px",
           background: "black",
           padding: "8px",
@@ -518,6 +576,8 @@ function PenTool() {
           value={thickness}
           onChange={(e) => setThickness(e.target.value)}
         />
+        <button onClick={undo}>↩️ Undo</button>
+        <button onClick={redo}>↪️ Redo</button>
       </div>
 
       {/* Canvas */}
@@ -525,12 +585,13 @@ function PenTool() {
         ref={canvasRef}
         style={{
           position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100vw",
-          height: "100vh",
-          cursor: tool === "eraser" ? "crosshair" : "pointer",
-          zIndex: 5000,
+          top: 150,
+          left: 290,
+          width: "50vw",
+          height: "50vh",
+          cursor: cursorStyle,
+          zIndex: 60,
+          background: "transparent",
         }}
         onMouseDown={startDrawing}
         onMouseMove={draw}
@@ -586,62 +647,68 @@ function ToolbarPlugin({ onTogglePenTool }) {
 
   return (
     <>
-      {activeBar === "text" && (
-        <TextOptionsBar
-          fontFamily={fontFamily}
-          setFontFamily={onFontFamilyChange}
-          fontSize={fontSize}
-          setFontSize={onFontSizeChange}
-          fontColor={fontColor}
-          setFontColor={onFontColorChange}
-          formatBold={formatBold}
-          formatItalic={formatItalic}
-          formatUnderline={formatUnderline}
-          undo={undo}
-          redo={redo}
-          editor={editor}
-        />
-      )}
+  {/* Text Options Bar */}
+  {activeBar === "text" && (
+    <TextOptionsBar
+      fontFamily={fontFamily}
+      setFontFamily={onFontFamilyChange}
+      fontSize={fontSize}
+      setFontSize={onFontSizeChange}
+      fontColor={fontColor}
+      setFontColor={onFontColorChange}
+      formatBold={formatBold}
+      formatItalic={formatItalic}
+      formatUnderline={formatUnderline}
+      undo={undo}
+      redo={redo}
+      editor={editor}
+    />
+  )}
 
-      <div
-        className="flex justify-center items-center gap-2 px-1 py-1 bg-black/90 rounded-lg border border-gray-600 fixed bottom-16 left-1/2 transform -translate-x-1/2 z-50 shadow-xl"
-        style={{ minWidth: 240 }}
-      >
-        <button
-          onClick={() => setActiveBar(activeBar === "text" ? null : "text")}
-          className={`flex flex-col items-center px-4 py-2 rounded transition-all ${
-            activeBar === "text" ? "bg-gray-800" : ""
-          }`}
-          title="Text options"
-        >
-          <Type size={24} />
-        </button>
-         <button
-        onClick={onTogglePenTool}
-        className="flex flex-col items-center px-4 py-2 rounded transition-all"
-        title="Style"
-        style={{ opacity: 1, cursor: "pointer" }}
-      >
-        <Pencil size={24} />
-      </button>
+  {/* Pen Tool Options */}
+  {activeBar === "pen" && <PenTool />}
 
-      {/* Pen Options Menu */}
-      {showPenOptions && (
-        <PenTool/>
-      )}
-        <button
-          onClick={() => setActiveBar(activeBar === "effect" ? null : "effect")}
-          className={`flex flex-col items-center px-4 py-2 rounded transition-all ${
-            activeBar === "effect" ? "bg-gray-800" : ""
-          }`}
-          title="Effects"
-          disabled
-          style={{ opacity: 0.3, cursor: "not-allowed" }}
-        >
-          <Sparkle size={24} />
-        </button>
-      </div>
-    </>
+  <div
+    className="flex justify-center items-center gap-2 px-1 py-1 bg-black/90 rounded-lg border border-gray-600 fixed bottom-16 left-1/2 transform -translate-x-1/2 z-50 shadow-xl"
+    style={{ minWidth: 240 }}
+  >
+    {/* Text Options Button */}
+    <button
+      onClick={() => setActiveBar(activeBar === "text" ? null : "text")}
+      className={`flex flex-col items-center px-4 py-2 rounded transition-all ${
+        activeBar === "text" ? "bg-gray-800" : ""
+      }`}
+      title="Text options"
+    >
+      <Type size={24} />
+    </button>
+
+    {/* Pen Tool Button */}
+    <button
+      onClick={() => setActiveBar(activeBar === "pen" ? null : "pen")}
+      className={`flex flex-col items-center px-4 py-2 rounded transition-all ${
+        activeBar === "pen" ? "bg-gray-800" : ""
+      }`}
+      title="Pen Tool"
+    >
+      <Pencil size={24} />
+    </button>
+
+    {/* Effects Button (Disabled) */}
+    <button
+      onClick={() => setActiveBar(activeBar === "effect" ? null : "effect")}
+      className={`flex flex-col items-center px-4 py-2 rounded transition-all ${
+        activeBar === "effect" ? "bg-gray-800" : ""
+      }`}
+      title="Effects"
+      disabled
+      style={{ opacity: 0.3, cursor: "not-allowed" }}
+    >
+      <Sparkle size={24} />
+    </button>
+  </div>
+</>
+
   );
 }
 
@@ -708,6 +775,20 @@ function LexicalEditor() {
   const handleInput = (e) => {
     setTitle(e.currentTarget.textContent);
   };
+  const params = new URLSearchParams(window.location.search);
+  const shareId = params.get("shareId");
+   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const shareId = params.get("shareId");
+
+    if (shareId) {
+      const storedContent = localStorage.getItem(`shared_content_${shareId}`);
+      if (storedContent) {
+        // Instead of auto-download, you can render this content in a viewer page
+        console.log("Shared Note:", storedContent);
+      }
+    }
+  }, []);
 
   return (
     <>
@@ -767,10 +848,12 @@ function LexicalEditor() {
                       />
                     }
                     placeholder={
-                      <h2 className="absolute top-0 left-4 text-white pointer-events-none text-lg">
-                        Let's Start
-                      </h2>
-                    }
+  <h2 className="absolute top-0 left-4 text-white pointer-events-none text-lg">
+    {localStorage.getItem(`shared_content_${shareId}`) || "Let's Start"}
+  </h2>
+}
+
+
                     
                     ErrorBoundary={LexicalErrorBoundary}
                   />
