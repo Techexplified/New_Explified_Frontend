@@ -177,99 +177,92 @@ const NavBarSection = ({
   navigate,
   highlightMatch,
 }) => (
-  <div className="flex justify-between w-full bg-transparent pt-[50px] px-24">
-    {/* Left side buttons including Search */}
-    <div className="flex gap-8 items-center justify-center w-full flex-nowrap">
-      {/* Search input wrapper */}
-      <div className="relative">
-        {navItems
-          .filter((item) => item.name === "Search")
-          .map((item) => (
-            <input
-              key={item.name}
-              type="text"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={handleSearch}
-              className={`bg-transparent text-white min-w-[150px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base focus:outline-none ${
-                selectedTool === item.name ? "bg-[#23b5b5] font-semibold" : ""
-              }`}
-            />
-          ))}
+  <div className="w-full bg-transparent pt-[50px] px-24 flex flex-col gap-6">
+  {/* Top Row - Search */}
+  <div className="flex justify-center">
+    {navItems
+      .filter((item) => item.name === "Search")
+      .map((item) => (
+        <div key={item.name} className="relative w-72">
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={handleSearch}
+            className={`w-full bg-transparent text-white h-9 px-4 rounded-[22px] border border-[#7ce4de] text-base focus:outline-none ${
+              selectedTool === item.name ? "bg-[#23b5b5] font-semibold" : ""
+            }`}
+          />
 
-        {/* Results dropdown */}
-        {searchQuery.trim() !== "" && (
-          <div className="absolute left-0 top-full mt-2 w-72 bg-black border border-gray-700 rounded-xl shadow-lg max-h-60 overflow-y-auto z-50">
-            {searchResults.length > 0 ? (
-              searchResults.map((tool, index) => {
-                const IconComponent = iconMap[tool.icon] || FileText;
-                return (
-                  <div
-                    key={index}
-                    onClick={() => {
-                      addRecentTool(tool);
-                      setRecentTools(getRecentTools());
-                      navigate(tool.route);
-                      setSearchQuery("");
-                      setSearchResults([]);
-                    }}
-                    className="flex items-center gap-3 px-4 py-2 hover:bg-gray-800 cursor-pointer transition-colors"
-                  >
+          {/* Results dropdown */}
+          {searchQuery.trim() !== "" && (
+            <div className="absolute left-0 top-full mt-2 w-full bg-black border border-gray-700 rounded-xl shadow-lg max-h-60 overflow-y-auto z-50">
+              {searchResults.length > 0 ? (
+                searchResults.map((tool, index) => {
+                  const IconComponent = iconMap[tool.icon] || FileText;
+                  return (
                     <div
-                      className={`h-6 w-6 flex items-center justify-center rounded-lg bg-gradient-to-r ${tool.color}`}
+                      key={index}
+                      onClick={() => {
+                        addRecentTool(tool);
+                        setRecentTools(getRecentTools());
+                        navigate(tool.route);
+                        setSearchQuery("");
+                        setSearchResults([]);
+                      }}
+                      className="flex items-center gap-3 px-4 py-2 hover:bg-gray-800 cursor-pointer transition-colors"
                     >
-                      <IconComponent className="w-4 h-4 text-white" />
+                      <div
+                        className={`h-6 w-6 flex items-center justify-center rounded-lg bg-gradient-to-r ${tool.color}`}
+                      >
+                        <IconComponent className="w-4 h-4 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-white">
+                          {highlightMatch(tool.title, searchQuery)}
+                        </p>
+                        <p className="text-xs text-gray-400 line-clamp-1">
+                          {highlightMatch(tool.description, searchQuery)}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      {/* Highlight matches in title */}
-                      <p className="text-sm text-white">
-                        {highlightMatch(tool.title, searchQuery)}
-                      </p>
-                      {/* Highlight matches in description */}
-                      <p className="text-xs text-gray-400 line-clamp-1">
-                        {highlightMatch(tool.description, searchQuery)}
-                      </p>
-                    </div>
+                  );
+                })
+              ) : (
+                <div className="flex items-center gap-3 px-4 py-2 cursor-default">
+                  <div className="h-6 w-6 flex items-center justify-center rounded-lg bg-gradient-to-r from-minimal-primary to-minimal-gray-400">
+                    <FileText className="w-4 h-4 text-white" />
                   </div>
-                );
-              })
-            ) : (
-              <div className="flex items-center gap-3 px-4 py-2 cursor-default">
-                <div className="h-6 w-6 flex items-center justify-center rounded-lg bg-gradient-to-r from-minimal-primary to-minimal-gray-400">
-                  <FileText className="w-4 h-4 text-white" />
+                  <p className="text-sm text-gray-400">No results found</p>
                 </div>
-                <p className="text-sm text-gray-400">No results found</p>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Nav buttons */}
-      <div className="flex gap-4 ">
-        {navItems
-          .filter((item) => item.name !== "Search")
-          .map((item) => (
-            <div
-              key={item.name}
-              className="flex flex-col items-center relative"
-            >
-              <button
-                type="button"
-                onClick={() => onNavClick(item.name)}
-                className={
-                  selectedTool === item.name
-                    ? "flex items-center justify-center bg-[#23b5b5] text-white min-w-[100px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base font-semibold"
-                    : "flex items-center justify-center bg-transparent text-white min-w-[100px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base hover:bg-[#7c8e91]/60"
-                }
-              >
-                <span>{item.name}</span>
-              </button>
+              )}
             </div>
-          ))}
-      </div>
-    </div>
+          )}
+        </div>
+      ))}
   </div>
+
+  {/* Bottom Row - Nav buttons */}
+  <div className="flex gap-4 justify-center flex-wrap">
+    {navItems
+      .filter((item) => item.name !== "Search")
+      .map((item) => (
+        <button
+          key={item.name}
+          type="button"
+          onClick={() => onNavClick(item.name)}
+          className={
+            selectedTool === item.name
+              ? "flex items-center justify-center bg-[#23b5b5] text-white min-w-[100px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base font-semibold"
+              : "flex items-center justify-center bg-transparent text-white min-w-[100px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base hover:bg-[#7c8e91]/60"
+          }
+        >
+          <span>{item.name}</span>
+        </button>
+      ))}
+  </div>
+</div>
+
 );
 
 const MainDashboard = () => {
@@ -581,7 +574,7 @@ const MainDashboard = () => {
             </div>
             {/* Bottom section */}
             <div className="mb-8">
-              <Link to={link}>
+              <Link to={"https://explified.com/explified-labs"}>
                 <button className="w-full bg-gradient-to-r from-minimal-primary to-minimal-primary/80 hover:from-minimal-primary/80 hover:to-minimal-primary text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-minimal-primary/25">
                   Learn More
                 </button>
