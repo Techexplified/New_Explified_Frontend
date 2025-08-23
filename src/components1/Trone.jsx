@@ -14,6 +14,7 @@ import {
   FiLayers,
   FiCloud,
   FiGitBranch,
+  FiChevronDown,
 } from "react-icons/fi";
 import { BsSoundwave } from "react-icons/bs";
 import axios from "axios";
@@ -22,12 +23,48 @@ import SidebarOnHover from "../reusable_components/SidebarOnHover";
 import { Sparkle } from "lucide-react";
 
 const INTEGRATION_PROVIDERS = [
-  { id: "gemini", name: "Gemini", icon: FiStar },
-  { id: "openai", name: "OpenAI", icon: FiCpu },
-  { id: "grok", name: "Grok", icon: FiZap },
-  { id: "anthropic", name: "Anthropic", icon: FiLayers },
-  { id: "mistral", name: "Mistral", icon: FiCloud },
-  { id: "cohere", name: "Cohere", icon: FiGitBranch },
+  {
+    id: "gemini",
+    name: "Gemini",
+    icon: FiStar,
+    byok: true,
+    description: "Google's Gemini models for text, chat and multimodal tasks.",
+  },
+  {
+    id: "openai",
+    name: "OpenAI",
+    icon: FiCpu,
+    byok: true,
+    description: "OpenAI GPT models for powerful text and chat experiences.",
+  },
+  {
+    id: "grok",
+    name: "Grok",
+    icon: FiZap,
+    byok: true,
+    description: "xAI Grok models for reasoning and fast responses.",
+  },
+  {
+    id: "anthropic",
+    name: "Anthropic",
+    icon: FiLayers,
+    byok: true,
+    description: "Claude models by Anthropic for safe, helpful outputs.",
+  },
+  {
+    id: "mistral",
+    name: "Mistral",
+    icon: FiCloud,
+    byok: true,
+    description: "Mistral small, medium and mixtral models.",
+  },
+  {
+    id: "cohere",
+    name: "Cohere",
+    icon: FiGitBranch,
+    byok: true,
+    description: "Cohere Command and Embed models for text and vectors.",
+  },
 ];
 
 function Trone({ onFirstPrompt }) {
@@ -77,6 +114,7 @@ function Trone({ onFirstPrompt }) {
   });
   const [selectedProviderId, setSelectedProviderId] = useState(null);
   const [selectedProviderKey, setSelectedProviderKey] = useState("");
+  const [showProviderHelp, setShowProviderHelp] = useState(false);
 
   const PROVIDER_DOC_URL = {
     gemini: "https://ai.google.dev/",
@@ -87,10 +125,50 @@ function Trone({ onFirstPrompt }) {
     cohere: "https://dashboard.cohere.com/",
   };
 
+  const PROVIDER_HELP_STEPS = {
+    gemini: [
+      "Go to Google AI Studio and sign in with your Google account.",
+      "Create or open a project.",
+      "Navigate to API keys from the left menu.",
+      "Click 'Create API key' and copy the generated key.",
+    ],
+    openai: [
+      "Go to OpenAI Platform and sign in.",
+      "Open the 'View API keys' page from your profile.",
+      "Click 'Create new secret key'.",
+      "Copy the key. You won’t be able to see it again.",
+    ],
+    grok: [
+      "Visit xAI (Grok) and sign in.",
+      "Open the API dashboard.",
+      "Create a new API key.",
+      "Copy and store your key securely.",
+    ],
+    anthropic: [
+      "Go to Anthropic Console and sign in.",
+      "Open 'API Keys' in the left navigation.",
+      "Click 'Create Key'.",
+      "Copy your new Claude API key.",
+    ],
+    mistral: [
+      "Open Mistral Console and log in.",
+      "Go to 'API Keys'.",
+      "Generate a new API key.",
+      "Copy your key for use here.",
+    ],
+    cohere: [
+      "Go to Cohere Dashboard and sign in.",
+      "Open 'API Keys'.",
+      "Create a new key if you don’t have one.",
+      "Copy the key to your clipboard.",
+    ],
+  };
+
   const handleOpenProvider = (providerId) => {
     setSelectedProviderId(providerId);
     const existing = providerKeys?.[providerId] || "";
     setSelectedProviderKey(existing);
+    setShowProviderHelp(false);
   };
 
   const handleSaveProviderKey = (providerId, useAfterSave = false) => {
@@ -581,7 +659,11 @@ function Trone({ onFirstPrompt }) {
             className="absolute inset-0 bg-black/60"
             onClick={() => setShowIntegrationsModal(false)}
           />
-          <div className="relative w-full max-w-2xl mx-4 bg-[#111213] border border-[#0f8b8d]/50 rounded-xl shadow-2xl p-5">
+          <div
+            className={`relative w-full ${
+              showProviderHelp ? "max-w-3xl" : "max-w-2xl"
+            } mx-4 bg-[#111213] border border-[#0f8b8d]/50 rounded-xl shadow-2xl p-5`}
+          >
             <button
               aria-label="Close"
               onClick={() => setShowIntegrationsModal(false)}
@@ -644,22 +726,40 @@ function Trone({ onFirstPrompt }) {
                 }).map((p) => {
                   const Icon = p.icon;
                   return (
-                    <button
+                    <div
                       key={p.id}
-                      type="button"
+                      className="bg-[#23b5b5] bg-opacity-20 border border-teal-400 rounded-xl p-5 hover:bg-opacity-40 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl hover:shadow-teal-500/30 relative group cursor-pointer"
                       onClick={() => handleOpenProvider(p.id)}
-                      className="flex flex-col items-center gap-2 focus:outline-none"
                     >
-                      <div
-                        className="w-full h-20 rounded-md"
-                        style={{ background: "#23b5b5" }}
-                      >
-                        <div className="h-full w-full flex items-center justify-center">
-                          {Icon && <Icon className="text-black/80" size={28} />}
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-700 rounded-lg flex items-center justify-center text-white text-xl shadow-lg group-hover:scale-110 transition-transform duration-200">
+                          {Icon && <Icon className="text-white" size={20} />}
                         </div>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenProvider(p.id);
+                          }}
+                          className="w-8 h-8 bg-gradient-to-r from-teal-500 to-teal-600 rounded-full flex items-center justify-center text-white transition-all duration-200 transform hover:scale-110 shadow-lg"
+                        >
+                          +
+                        </button>
                       </div>
-                      <span className="text-sm text-gray-200">{p.name}</span>
-                    </button>
+
+                      <h3 className="text-white font-semibold text-sm mb-2 group-hover:text-teal-300 transition-colors flex items-center gap-2">
+                        {p.name}
+                        {p.byok && (
+                          <span className="bg-black text-white text-[10px] px-2 py-[2px] rounded-md border border-gray-500">
+                            BYOK
+                          </span>
+                        )}
+                      </h3>
+
+                      <p className="text-gray-300 text-xs leading-relaxed mb-1">
+                        {p.description}
+                      </p>
+                    </div>
                   );
                 })}
               </div>
@@ -680,6 +780,7 @@ function Trone({ onFirstPrompt }) {
                       >
                         ← Back
                       </button>
+
                       <div className="flex items-center gap-2 mb-3">
                         {Icon && (
                           <div
@@ -693,6 +794,7 @@ function Trone({ onFirstPrompt }) {
                           {provider?.name}
                         </h4>
                       </div>
+
                       <label className="block text-xs text-gray-400 mb-1">
                         API Key
                       </label>
@@ -703,16 +805,66 @@ function Trone({ onFirstPrompt }) {
                         placeholder={`Enter ${provider?.name} API key`}
                         className="w-full bg-black/30 border border-[#2a2a2a] rounded-lg px-3 py-2 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-teal-600"
                       />
-                      <div className="mt-2">
-                        <a
-                          href={PROVIDER_DOC_URL[selectedProviderId]}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-xs text-teal-400 hover:text-teal-300"
+
+                      <div className="mt-2 flex items-center justify-between">
+                        <button
+                          type="button"
+                          className="flex items-center gap-1 text-xs text-teal-400 hover:text-teal-300"
+                          onClick={() => setShowProviderHelp((v) => !v)}
+                          aria-expanded={showProviderHelp}
                         >
-                          Don't have a key?
-                        </a>
+                          <span>Don't have a key?</span>
+                          <FiChevronDown
+                            className={`transition-transform ${
+                              showProviderHelp ? "rotate-180" : "rotate-0"
+                            }`}
+                            size={14}
+                          />
+                        </button>
                       </div>
+
+                      <div
+                        className={`mt-3 overflow-hidden transition-all duration-300 ease-in-out ${
+                          showProviderHelp
+                            ? "max-h-[500px] opacity-100"
+                            : "max-h-0 opacity-0"
+                        }`}
+                        aria-hidden={!showProviderHelp}
+                      >
+                        <div className="border border-[#2a2a2a] rounded-lg p-3 bg-black/20">
+                          <div className="flex items-center gap-2 mb-2">
+                            {Icon && (
+                              <div
+                                className="w-6 h-6 rounded-md flex items-center justify-center"
+                                style={{ background: "#23b5b5" }}
+                              >
+                                <Icon className="text-black/80" size={14} />
+                              </div>
+                            )}
+                            <h5 className="text-white text-sm font-medium">
+                              How to get a key for {provider?.name}
+                            </h5>
+                          </div>
+                          <ol className="list-decimal list-inside text-sm text-gray-200 space-y-2">
+                            {(
+                              PROVIDER_HELP_STEPS[selectedProviderId] || []
+                            ).map((step, idx) => (
+                              <li key={idx}>{step}</li>
+                            ))}
+                          </ol>
+                          <div className="mt-2">
+                            <a
+                              href={PROVIDER_DOC_URL[selectedProviderId]}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-xs text-teal-400 hover:text-teal-300"
+                            >
+                              Open official docs →
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+
                       <div className="mt-4 flex justify-end gap-2">
                         <button
                           className="px-3 py-2 rounded-lg bg-[#191a1c] border border-[#2a2a2a] text-gray-200 hover:bg-[#1f2023]"
