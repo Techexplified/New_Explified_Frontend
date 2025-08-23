@@ -190,7 +190,7 @@ const AiImageStyler = () => {
               {sidebarPinned ? <PinOff size={20} /> : <Pin size={20} />}
             </button>
           </div>
-            {tools.map((tool) => (
+            {/* {tools.map((tool) => (
               <button
                 key={tool.id}
                 onClick={() => {
@@ -206,7 +206,7 @@ const AiImageStyler = () => {
                   {tool.name}
                 </span>
               </button>
-            ))}
+            ))} */}
           </div>
         </div>
 
@@ -225,7 +225,7 @@ const AiImageStyler = () => {
 
       
       {/* Header */}
-      <div className="p-6 pt-12 border-b border-gray-800">
+      <div className="p-6 pt-12 border-b border-gray-800 flex justify-center">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-[#23b5b5] rounded-full flex items-center justify-center">

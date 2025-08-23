@@ -192,7 +192,7 @@ const AiImageStyler = () => {
                 {sidebarPinned ? <PinOff size={20} /> : <Pin size={20} />}
               </button>
             </div>
-            {tools.map((tool) => (
+            {/* {tools.map((tool) => (
               <button
                 key={tool.id}
                 onClick={() => {
@@ -208,7 +208,7 @@ const AiImageStyler = () => {
                   {tool.name}
                 </span>
               </button>
-            ))}
+            ))} */}
           </div>
         </div>
 

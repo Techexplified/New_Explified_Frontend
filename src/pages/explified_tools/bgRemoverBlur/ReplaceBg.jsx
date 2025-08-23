@@ -123,7 +123,7 @@ const App = () => {
 
   return (
     <div className="min-h-screen py-10 px-4 text-white">
-      <div className="max-w-6xl mx-auto bg-[#1e1e1e] rounded-2xl shadow-2xl p-8 space-y-8 border border-[#23b5b5]/40">
+      <div className="max-w-6xl mx-auto bg-black rounded-2xl shadow-2xl p-8 space-y-8 border border-[#23b5b5]/40">
         <h2 className="text-3xl font-bold text-center text-[#23b5b5]">
           AI Background Replacement Tool
         </h2>
@@ -178,7 +178,7 @@ const App = () => {
                   </h3>
                   <button
                     onClick={resetSettings}
-                    className="text-sm bg-gray-600 hover:bg-gray-500 px-3 py-1 rounded transition"
+                    className="text-sm bg-black hover:bg-gray-500 px-3 py-1 rounded transition"
                   >
                     Reset
                   </button>
