@@ -78,6 +78,52 @@ const INTEGRATION_PROVIDERS = [
     docs: "https://docs.cohere.com/docs",
   },
 ];
+const PROVIDER_DOC_URL = {
+  gemini: "https://ai.google.dev/",
+  openai: "https://platform.openai.com/",
+  grok: "https://x.ai/",
+  anthropic: "https://console.anthropic.com/",
+  mistral: "https://console.mistral.ai/",
+  cohere: "https://dashboard.cohere.com/",
+};
+const PROVIDER_HELP_STEPS = {
+  gemini: [
+    "Go to Google AI Studio and sign in with your Google account.",
+    "Create or open a project.",
+    "Navigate to API keys from the left menu.",
+    "Click 'Create API key' and copy the generated key.",
+  ],
+  openai: [
+    "Go to OpenAI Platform and sign in.",
+    "Open the 'View API keys' page from your profile.",
+    "Click 'Create new secret key'.",
+    "Copy the key. You won’t be able to see it again.",
+  ],
+  grok: [
+    "Visit xAI (Grok) and sign in.",
+    "Open the API dashboard.",
+    "Create a new API key.",
+    "Copy and store your key securely.",
+  ],
+  anthropic: [
+    "Go to Anthropic Console and sign in.",
+    "Open 'API Keys' in the left navigation.",
+    "Click 'Create Key'.",
+    "Copy your new Claude API key.",
+  ],
+  mistral: [
+    "Open Mistral Console and log in.",
+    "Go to 'API Keys'.",
+    "Generate a new API key.",
+    "Copy your key for use here.",
+  ],
+  cohere: [
+    "Go to Cohere Dashboard and sign in.",
+    "Open 'API Keys'.",
+    "Create a new key if you don’t have one.",
+    "Copy the key to your clipboard.",
+  ],
+};
 
 
 function Trone({ onFirstPrompt }) {
@@ -128,54 +174,6 @@ function Trone({ onFirstPrompt }) {
   const [selectedProviderId, setSelectedProviderId] = useState(null);
   const [selectedProviderKey, setSelectedProviderKey] = useState("");
   const [showProviderHelp, setShowProviderHelp] = useState(false);
-
-  const PROVIDER_DOC_URL = {
-    gemini: "https://ai.google.dev/",
-    openai: "https://platform.openai.com/",
-    grok: "https://x.ai/",
-    anthropic: "https://console.anthropic.com/",
-    mistral: "https://console.mistral.ai/",
-    cohere: "https://dashboard.cohere.com/",
-  };
-
-  const PROVIDER_HELP_STEPS = {
-    gemini: [
-      "Go to Google AI Studio and sign in with your Google account.",
-      "Create or open a project.",
-      "Navigate to API keys from the left menu.",
-      "Click 'Create API key' and copy the generated key.",
-    ],
-    openai: [
-      "Go to OpenAI Platform and sign in.",
-      "Open the 'View API keys' page from your profile.",
-      "Click 'Create new secret key'.",
-      "Copy the key. You won’t be able to see it again.",
-    ],
-    grok: [
-      "Visit xAI (Grok) and sign in.",
-      "Open the API dashboard.",
-      "Create a new API key.",
-      "Copy and store your key securely.",
-    ],
-    anthropic: [
-      "Go to Anthropic Console and sign in.",
-      "Open 'API Keys' in the left navigation.",
-      "Click 'Create Key'.",
-      "Copy your new Claude API key.",
-    ],
-    mistral: [
-      "Open Mistral Console and log in.",
-      "Go to 'API Keys'.",
-      "Generate a new API key.",
-      "Copy your key for use here.",
-    ],
-    cohere: [
-      "Go to Cohere Dashboard and sign in.",
-      "Open 'API Keys'.",
-      "Create a new key if you don’t have one.",
-      "Copy the key to your clipboard.",
-    ],
-  };
 
   const handleOpenProvider = (providerId) => {
     setSelectedProviderId(providerId);
@@ -358,6 +356,17 @@ function Trone({ onFirstPrompt }) {
         };
 
         setCurrentMessages((prev) => [...prev, botMessage]);
+
+        const sessionRecord = {
+          id: sessionId,
+          startedAt: sessionStartedAt || Date.now(),
+          endedAt: Date.now(),
+          messages: [userMessage, botMessage],
+        };
+        setChatHistory((prev) => {
+          const next = [...prev, sessionRecord];
+          return next;
+        });
       } catch (err) {
         console.error("Error details:", err);
 
@@ -463,18 +472,20 @@ function Trone({ onFirstPrompt }) {
   };
 
   const newChat = () => {
-    if (currentMessages.length > 0) {
-      const sessionRecord = {
-        id: sessionId,
-        startedAt: sessionStartedAt || Date.now(),
-        endedAt: Date.now(),
-        messages: currentMessages,
-      };
-      setChatHistory((prev) => {
-        const next = [...prev, sessionRecord];
-        return next;
-      });
-    }
+    console.log("newChat");
+
+    // if (currentMessages.length > 0) {
+    //   const sessionRecord = {
+    //     id: sessionId,
+    //     startedAt: sessionStartedAt || Date.now(),
+    //     endedAt: Date.now(),
+    //     messages: currentMessages,
+    //   };
+    //   setChatHistory((prev) => {
+    //     const next = [...prev, sessionRecord];
+    //     return next;
+    //   });
+    // }
     setCurrentMessages([]);
     setSessionStartedAt(null);
     setSessionId(
@@ -487,6 +498,7 @@ function Trone({ onFirstPrompt }) {
       <SidebarOnHover
         onAddClick={newChat}
         chatHistory={chatHistory}
+        setCurrentMessages={setCurrentMessages}
         onOpenChange={(open) => setIsSidebarOpen(open)}
         link={"https://explified.com/expli/"}
         toolName={"Expli"}
