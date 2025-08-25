@@ -72,7 +72,7 @@ export default function HistoryChat() {
     setInput("");
     setLoading(false);
   }
-
+  
   return (
     <div className="min-h-screen text-white flex flex-col items-center p-6">
       <SidebarOnHover link={"/memory"} toolName={"Memory"} />
@@ -116,3 +116,4 @@ export default function HistoryChat() {
     </div>
   );
 }
+

@@ -133,7 +133,7 @@ const AiImageMerge = () => {
                     {sidebarPinned ? <PinOff size={20} /> : <Pin size={20} />}
                   </button>
                 </div>
-                  {tools.map((tool) => (
+                  {/* {tools.map((tool) => (
                     <button
                       key={tool.id}
                       onClick={() => {
@@ -149,7 +149,7 @@ const AiImageMerge = () => {
                         {tool.name}
                       </span>
                     </button>
-                  ))}
+                  ))} */}
                 </div>
               </div>
       
@@ -167,7 +167,7 @@ const AiImageMerge = () => {
             </div>
 
       <div className="p-6 pt-12">
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3 justify-center">
           <SquaresUnite className="w-8 h-8 text-white" />
           <h1 className="text-2xl font-bold text-white">AI Image Merge</h1>
         </div>

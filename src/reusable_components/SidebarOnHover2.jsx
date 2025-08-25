@@ -16,12 +16,12 @@ function SidebarOnHover2({ toolName, onToggle }) {
   const [sidebarPinned, setSidebarPinned] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [menuOpenId, setMenuOpenId] = useState(null); // track which note’s menu is open
+  const [menuOpenId, setMenuOpenId] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
   const menuRef = useRef(null);
 
-  // Fetch tasks from localStorage
+  // Load tasks
   useEffect(() => {
     const storedTasks = JSON.parse(localStorage.getItem("tasks") || "[]");
     const sortedTasks = storedTasks.sort(
@@ -30,7 +30,7 @@ function SidebarOnHover2({ toolName, onToggle }) {
     setTasks(sortedTasks);
   }, []);
 
-  // Close dropdown when clicking outside
+  // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e) {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -41,14 +41,13 @@ function SidebarOnHover2({ toolName, onToggle }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Notify parent about sidebar state
+  // Notify parent about state
   useEffect(() => {
     if (onToggle) {
       onToggle(sidebarOpen || sidebarPinned);
     }
   }, [sidebarOpen, sidebarPinned, onToggle]);
 
-  // Filter notes by title/content
   const filteredTasks = tasks.filter((task) => {
     const title = task.title || "";
     const content = task.content || "";
@@ -58,10 +57,8 @@ function SidebarOnHover2({ toolName, onToggle }) {
     );
   });
 
-  // Determine selected note from URL
   const selectedId = location.pathname.split("/").pop();
 
-  // Edit a note
   const handleEdit = (task) => {
     const newTitle = prompt("Edit note title:", task.title);
     if (newTitle !== null) {
@@ -73,7 +70,6 @@ function SidebarOnHover2({ toolName, onToggle }) {
     }
   };
 
-  // Delete a note
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this note?")) {
       const updatedTasks = tasks.filter((t) => t.id !== id);
@@ -84,7 +80,7 @@ function SidebarOnHover2({ toolName, onToggle }) {
 
   return (
     <>
-      {/* Hover trigger area (only active when not pinned) */}
+      {/* Hover trigger area */}
       {!sidebarPinned && (
         <div
           className="absolute left-0 top-0 h-full w-6 z-30"
@@ -95,135 +91,133 @@ function SidebarOnHover2({ toolName, onToggle }) {
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full bg-[#111] border-r-2 border-[#188184] flex flex-col transition-all duration-300 z-50
-          ${
-            sidebarOpen || sidebarPinned
-              ? "w-80 px-4"
-              : "w-0 px-0 overflow-hidden"
-          }`}
+        className={`fixed top-0 left-0 h-full bg-black/95 backdrop-blur-xl border-r border-minimal-primary/20
+        flex flex-col justify-between transition-all duration-300 z-50
+        ${sidebarOpen || sidebarPinned ? "w-72 px-6" : "w-0 px-0 overflow-hidden"}`}
         onMouseEnter={() => !sidebarPinned && setSidebarOpen(true)}
         onMouseLeave={() => !sidebarPinned && setSidebarOpen(false)}
-        style={{ borderRadius: "0 18px 18px 0" }}
       >
-        {/* Search */}
-        <div className="relative mt-6 mb-6">
-          <input
-            type="text"
-            placeholder="Search"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-black border-2 border-[#188184] rounded-xl py-2 pl-3 pr-10 text-sm text-white placeholder-[#188184] focus:outline-none focus:ring-2 focus:ring-[#188184]"
-          />
-          <Search className="absolute right-3 top-2 text-[#188184]" />
-        </div>
+        {/* Top Section */}
+        <div className="mt-8 flex flex-col gap-6">
+          {/* Header + Pin */}
+          <div className="flex items-center justify-between">
+            <p className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-minimal-primary bg-clip-text text-transparent">
+              {toolName || "Notes"}
+            </p>
+            <button
+              onClick={() => {
+                setSidebarPinned(!sidebarPinned);
+                setSidebarOpen(true);
+              }}
+              className="text-minimal-primary"
+            >
+              {sidebarPinned ? <PinOff size={20} /> : <Pin size={20} />}
+            </button>
+          </div>
 
-        {/* Floating + Button */}
-        <button
-          onClick={() => navigate("/notes")}
-          className="absolute right-10 top-20 w-10 h-10 bg-[#188184] text-white rounded-xl flex items-center justify-center shadow-lg hover:bg-[#145d5d] transition-all outline-2 outline-[#188184]"
-          title="Add Note"
-        >
-          <Plus className="w-5 h-5" />
-        </button>
+          {/* Search */}
+          <div className="relative w-22 mr-4">
+  <input
+    type="text"
+    placeholder="Search notes..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    className="w-full bg-black border border-minimal-primary/20 rounded-lg py-2 pl-3 pr-10 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-minimal-primary/40"
+  />
+  <Search className="absolute right-3 top-2.5 w-3 h-4 text-minimal-primary" />
+</div>
 
-        {/* Header + Pin */}
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-white flex items-center">
-            All Notes <span className="ml-1 text-[#188184]">⌄</span>
-          </h2>
+
+          {/* Floating + Button */}
           <button
-            onClick={() => {
-              setSidebarPinned(!sidebarPinned);
-              setSidebarOpen(true);
-            }}
-            className="text-[#188184] hover:text-[#145d5d]"
-            title={sidebarPinned ? "Unpin sidebar" : "Pin sidebar"}
+            onClick={() => navigate("/notes")}
+            className="absolute right-10 top-24 w-10 h-10 bg-minimal-primary text-white rounded-xl flex items-center justify-center shadow-lg hover:bg-minimal-primary/80 transition-all"
+            title="Add Note"
           >
-            {sidebarPinned ? <PinOff size={18} /> : <Pin size={18} />}
+            <Plus className="w-5 h-5" />
           </button>
-        </div>
 
-        {/* Notes list */}
-        <div className="flex-1 overflow-y-auto pr-2 space-y-3 pb-6 scrollbar-thin scrollbar-thumb-[#188184]/60 scrollbar-track-black">
-          {filteredTasks.map((task) => {
-            const isSelected = String(task.id) === selectedId;
-            return (
-              <div
-                key={task.id}
-                className={`p-4 rounded-xl border-1 bg-[#181919] transition-all cursor-pointer relative group
-                  ${
-                    isSelected
-                      ? "border-[#188184] bg-[#233a3a]"
-                      : "border-[#222] hover:border-[#188184] hover:bg-[#233a3a]/80"
-                  }`}
-                style={{ color: "#fff" }}
-              >
-                <div className="flex items-start justify-between mb-1">
-                  <h3
-                    onClick={() => navigate(`/notes/${task.id}`)}
-                    className="font-semibold text-white text-sm"
-                  >
-                    {task.title || "Untitled Note"}
-                  </h3>
-                  {/* Dropdown Menu */}
-                  <div className="relative" ref={menuRef}>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setMenuOpenId(menuOpenId === task.id ? null : task.id);
-                      }}
-                      className="text-[#b0b0b0] hover:text-[#188184] opacity-0 group-hover:opacity-100"
-                      title="More actions"
+          {/* Notes list */}
+          <div className="flex-1 overflow-y-auto space-y-3 pr-2 pb-6 scrollbar-thin scrollbar-thumb-minimal-primary/40 scrollbar-track-black">
+            {filteredTasks.map((task) => {
+              const isSelected = String(task.id) === selectedId;
+              return (
+                <div
+                  key={task.id}
+                  className={`p-4 rounded-xl transition-all cursor-pointer relative group
+                    ${
+                      isSelected
+                        ? "border border-minimal-primary bg-gray-900/70"
+                        : "border border-transparent hover:border-minimal-primary/40 hover:bg-gray-900/40"
+                    }`}
+                >
+                  <div className="flex items-start justify-between mb-1">
+                    <h3
+                      onClick={() => navigate(`/notes/${task.id}`)}
+                      className="font-semibold text-white text-sm"
                     >
-                      <MoreHorizontal className="w-4 h-4" />
-                    </button>
-                    {menuOpenId === task.id && (
-                      <div className="absolute right-0 mt-2 w-28 bg-[#111] border border-[#188184] rounded-lg shadow-md z-50">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEdit(task);
-                            setMenuOpenId(null);
-                          }}
-                          className="block w-full text-left px-3 py-2 text-sm text-[#188184] hover:bg-[#145d5d]"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(task.id);
-                            setMenuOpenId(null);
-                          }}
-                          className="block w-full text-left px-3 py-2 text-sm text-red-500 hover:bg-red-700"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    )}
+                      {task.title || "Untitled Note"}
+                    </h3>
+                    <div className="relative" ref={menuRef}>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setMenuOpenId(menuOpenId === task.id ? null : task.id);
+                        }}
+                        className="text-gray-400 hover:text-minimal-primary opacity-0 group-hover:opacity-100"
+                        title="More actions"
+                      >
+                        <MoreHorizontal className="w-4 h-4" />
+                      </button>
+                      {menuOpenId === task.id && (
+                        <div className="absolute right-0 mt-2 w-28 bg-black border border-minimal-primary/20 rounded-lg shadow-md z-50">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEdit(task);
+                              setMenuOpenId(null);
+                            }}
+                            className="block w-full text-left px-3 py-2 text-sm text-minimal-primary hover:bg-gray-800"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(task.id);
+                              setMenuOpenId(null);
+                            }}
+                            className="block w-full text-left px-3 py-2 text-sm text-red-500 hover:bg-red-800"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-gray-400 text-xs line-clamp-1 mb-2">
+                    {task.content || "No content"}
+                  </p>
+                  <div className="flex items-center gap-2 text-xs text-minimal-primary">
+                    <Calendar className="w-3 h-3" />
+                    <span>
+                      {task.lastModified
+                        ? new Date(task.lastModified).toLocaleString()
+                        : "No date"}
+                    </span>
+                    <Tag className="w-3 h-3 ml-2" />
+                    <span>{task.tag || "General"}</span>
                   </div>
                 </div>
-                <p className="text-[#b0b0b0] text-xs line-clamp-1 mb-2">
-                  {task.content || "No content"}
-                </p>
-                <div className="flex items-center gap-2 text-xs text-[#188184]">
-                  <Calendar className="w-3 h-3" />
-                  <span>
-                    {task.lastModified
-                      ? new Date(task.lastModified).toLocaleString()
-                      : "No date"}
-                  </span>
-                  <Tag className="w-3 h-3 ml-2" />
-                  <span>{task.tag || "General"}</span>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
+
         {/* Bottom Section */}
-        <div className="mb-8 flex-shrink-0">
+        <div className="mb-8">
           <Link to="https://explified.com/notes/" target="_self">
-            <button className="w-full bg-[#188184] hover:bg-[#145d5d] text-white font-semibold py-3 px-6 rounded-xl border-2 border-[#188184] transition-all duration-300 hover:scale-105 hover:shadow-lg">
+            <button className="w-full bg-gradient-to-r from-minimal-primary to-minimal-primary/80 hover:from-minimal-primary/80 hover:to-minimal-primary text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-minimal-primary/25">
               Learn More
             </button>
           </Link>

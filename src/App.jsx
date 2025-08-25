@@ -272,6 +272,7 @@ function App() {
           <Route path="/favorites" element={<Favourites />}></Route>
           <Route path="/workflows" element={<MainWorkflowPage />} />
           <Route path="/workflows/new" element={<CreateNewPage />}></Route>
+          <Route path="/locked" element={<LockedPage />} />
           <Route
             path="/workflows/recommended"
             element={<RecommendedWorkflowsPage />}

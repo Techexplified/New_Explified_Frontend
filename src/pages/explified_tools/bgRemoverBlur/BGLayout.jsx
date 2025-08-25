@@ -22,7 +22,7 @@ export default function BgToolsApp() {
       className={`group inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-[#23b5b5]/40 border ${
         activeTool === id
           ? "bg-gradient-to-r from-[#23b5b5] to-cyan-400 text-black border-transparent shadow"
-          : "bg-gray-900/60 text-gray-200 border-gray-700 hover:bg-gray-900"
+          : "bg-gray-900/60 text-gray-200 border-gray-700 hover:bg-black"
       }`}
     >
       {icon}
@@ -31,7 +31,7 @@ export default function BgToolsApp() {
   );
 
   return (
-    <div className="h-full min-h-screen flex flex-col bg-gray-950">
+    <div className="h-full min-h-screen flex flex-col bg-black">
       <SidebarOnHover
         link={"https://explified.com/bg-remover/"}
         toolName={"RemoveBg"}
@@ -41,7 +41,7 @@ export default function BgToolsApp() {
 
       {/* ── Top Toolbar ── */}
       <header className="shrink-0 mt-20 px-4">
-        <div className="w-fit mx-auto bg-gray-900/60 border border-gray-800 rounded-3xl shadow-lg backdrop-blur">
+        <div className="w-fit mx-auto bg-black border border-[#000] rounded-3xl shadow-lg backdrop-blur">
           <div className="px-4 py-3 flex items-center justify-center">
             <nav className=" flex flex-wrap items-center justify-center gap-2">
               {navItem(
@@ -75,7 +75,7 @@ export default function BgToolsApp() {
       </header>
 
       {/* ── Tool Panel ── */}
-      <main className="flex-1 overflow-y-auto bg-gray-950">
+      <main className="flex-1 overflow-y-auto bg-black">
         {activeTool === "remove" ? (
           <RemoveBg />
         ) : activeTool === "blur" ? (
@@ -88,7 +88,7 @@ export default function BgToolsApp() {
           <ReplaceBg />
         )}
       </main>
-      <aside
+      {/* <aside
   className="w-60 fixed top-0 right-0 h-full text-teal-300 border-l border-teal-800 bg-black p-6 flex flex-col gap-6"
   style={{ zIndex: 50 }} // Optional: keeps sidebar on top
 >
@@ -123,7 +123,7 @@ export default function BgToolsApp() {
       "Replace BG"
     )}
   </nav>
-</aside>
+</aside> */}
     </div>
   );
 }

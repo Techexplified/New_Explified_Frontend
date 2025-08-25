@@ -313,7 +313,7 @@ export default function IntegrationsPage() {
         {toolsToRender.map((tool, index) => (
           <div
             key={index}
-            onClick={() => navigate("/locked")}
+            onClick={()=> navigate("/locked")}
             className="bg-[#23b5b5] bg-opacity-20 border border-teal-400 rounded-xl p-5 hover:bg-opacity-40 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl hover:shadow-teal-500/30 relative group cursor-pointer"
           >
             <div className="flex items-center justify-between mb-4">
@@ -340,6 +340,13 @@ export default function IntegrationsPage() {
             <p className="text-gray-300 text-xs leading-relaxed mb-3">
               {tool.description}
             </p>
+
+            {/* <div className="flex items-center justify-between">
+              {renderStars(tool.rating)}
+              <span className="text-xs text-gray-400">
+                {tool.reviews} reviews
+              </span>
+            </div> */}
           </div>
         ))}
       </div>
@@ -377,7 +384,7 @@ export default function IntegrationsPage() {
         {myIntegrations.map((tool, index) => (
           <div
             key={index}
-            onClick={() => navigate("/locked")}
+            onClick={()=> navigate("/locked")}
             className="bg-teal-800 bg-opacity-30 border border-teal-600 rounded-xl p-5 hover:bg-opacity-50 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg hover:shadow-teal-500/20 relative group"
           >
             {/* Connected status indicator */}
@@ -598,7 +605,7 @@ export default function IntegrationsPage() {
             </div>
             <h3 className="text-xl font-semibold text-gray-300 mb-2">
               No integrations found
-            </h3>
+            </h3>             
             <p className="text-gray-500">
               Try adjusting your search or filter criteria
             </p>
