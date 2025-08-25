@@ -668,7 +668,7 @@ function PenTool() {
       : "url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22><text y=%2215%22 font-size=%2216%22>🧽</text></svg>') 0 16, auto";
 
   return (
-    <div className="transform translate-x-[400px] translate-y-[180px]">
+    <div className="">
       {/* Controls */}
       <div
         style={{
