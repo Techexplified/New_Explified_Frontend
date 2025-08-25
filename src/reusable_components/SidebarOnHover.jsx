@@ -9,6 +9,7 @@ function SidebarOnHover({
   toolName,
   id,
   chatHistory = [],
+  setCurrentMessages,
   onOpenChange,
   onAddClick,
 }) {
@@ -82,6 +83,7 @@ function SidebarOnHover({
                     <div className="  pt-2 flex flex-col gap-2">
                       {chatHistory.map((item, index) => (
                         <p
+                          onClick={() => setCurrentMessages(item.messages)}
                           className=" cursor-pointer w-[200px] line-clamp-2 bg-gray-900 text-gray-400 p-2 rounded-md "
                           key={index}
                         >
