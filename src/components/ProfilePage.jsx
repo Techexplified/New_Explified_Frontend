@@ -9,7 +9,7 @@ import {
   Zap,
   History,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { auth } from "../firebase";
 import { signOut } from "firebase/auth";
@@ -34,8 +34,8 @@ const UserPage = () => {
   };
 
   return (
-    <div className="w-full h-screen bg-black p-6 lg:p-8">
-      <div className="w-full h-full grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-0">
+    <div className="w-full h-screen bg-black p-6 lg:p-8 flex justify-center items-center">
+      <div className="w-full h-full flex justify-center items-center lg:grid-cols-[1fr_auto_1fr] gap-0">
         {/* Left Column */}
         <div className="flex flex-col items-center justify-center gap-4 p-6 lg:p-8 w-full max-w-sm mx-auto">
           {/* User Profile */}
@@ -113,16 +113,22 @@ const UserPage = () => {
             )}
 
             <button className="flex items-center justify-center w-full px-4 py-3 bg-green-500/10 border border-green-500/50 text-green-400 rounded-xl hover:bg-green-500/20 hover:border-green-500/70 transition-all">
-              <Mail className="w-5 h-5 mr-3" /> Contact Us
+              <Mail className="w-5 h-5 mr-3" />{" "}
+              <Link
+                className="text-white text-sm font-semibold hover:text-[#23b5b5]"
+                to={"https://explified.com/explified-labs"}
+              >
+                For Enterprises
+              </Link>
             </button>
           </div>
         </div>
 
         {/* Divider */}
-        <div className="hidden lg:block w-px bg-[#23b5b5]/30 mx-4"></div>
+        
 
         {/* Right Column */}
-        <div className="flex flex-col gap-6 items-center justify-center text-center px-6 lg:px-12">
+        {/* <div className="flex flex-col gap-6 items-center justify-center text-center px-6 lg:px-12">
           <p className="text-3xl text-gray-300">Time saved</p>
           <p className="text-3xl mb-4">
             Using{" "}
@@ -134,7 +140,7 @@ const UserPage = () => {
           <p className="mt-6 text-lg text-gray-400 cursor-pointer hover:underline">
             See how?
           </p>
-        </div>
+        </div> */}
       </div>
     </div>
   );
