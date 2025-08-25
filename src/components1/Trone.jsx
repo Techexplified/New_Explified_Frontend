@@ -29,6 +29,8 @@ const INTEGRATION_PROVIDERS = [
     icon: FiStar,
     byok: true,
     description: "Google's Gemini models for text, chat and multimodal tasks.",
+    apiUrl: "https://generativelanguage.googleapis.com/v1beta/", // Google AI Studio API
+    docs: "https://ai.google.dev/gemini-api/docs",
   },
   {
     id: "openai",
@@ -36,6 +38,8 @@ const INTEGRATION_PROVIDERS = [
     icon: FiCpu,
     byok: true,
     description: "OpenAI GPT models for powerful text and chat experiences.",
+    apiUrl: "https://api.openai.com/v1/",
+    docs: "https://platform.openai.com/docs/api-reference",
   },
   {
     id: "grok",
@@ -43,6 +47,8 @@ const INTEGRATION_PROVIDERS = [
     icon: FiZap,
     byok: true,
     description: "xAI Grok models for reasoning and fast responses.",
+    apiUrl: "https://api.x.ai/v1/", // xAI Grok API
+    docs: "https://docs.x.ai/api",
   },
   {
     id: "anthropic",
@@ -50,6 +56,8 @@ const INTEGRATION_PROVIDERS = [
     icon: FiLayers,
     byok: true,
     description: "Claude models by Anthropic for safe, helpful outputs.",
+    apiUrl: "https://api.anthropic.com/v1/",
+    docs: "https://docs.anthropic.com/claude/reference",
   },
   {
     id: "mistral",
@@ -57,6 +65,8 @@ const INTEGRATION_PROVIDERS = [
     icon: FiCloud,
     byok: true,
     description: "Mistral small, medium and mixtral models.",
+    apiUrl: "https://api.mistral.ai/v1/",
+    docs: "https://docs.mistral.ai/",
   },
   {
     id: "cohere",
@@ -64,8 +74,11 @@ const INTEGRATION_PROVIDERS = [
     icon: FiGitBranch,
     byok: true,
     description: "Cohere Command and Embed models for text and vectors.",
+    apiUrl: "https://api.cohere.ai/v1/",
+    docs: "https://docs.cohere.com/docs",
   },
 ];
+
 
 function Trone({ onFirstPrompt }) {
   const [prompt, setPrompt] = useState("");
