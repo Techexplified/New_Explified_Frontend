@@ -9,11 +9,16 @@ function SidebarOnHover({
   toolName,
   id,
   chatHistory = [],
+  setCurrentMessages,
   onOpenChange,
+  onAddClick,
+  tools = [],
+  setCurrentTool= ()=>{}
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarPinned, setSidebarPinned] = useState(false);
   console.log("chatHistory from sidebar:", chatHistory);
+  
 
   useEffect(() => {
     if (typeof onOpenChange === "function") {
@@ -38,8 +43,8 @@ function SidebarOnHover({
       >
         {/* Top section */}
         <div className="mt-8">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
+          <div className="border-b border-minimal-primary/20">
+            <div className="flex items-center justify-between gap-3 mb-2">
               <p className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-minimal-primary bg-clip-text text-transparent">
                 {toolName}
               </p>
@@ -63,18 +68,60 @@ function SidebarOnHover({
               </Link>
             )}
           </div>
-          {/* chat history */}
-          {chatHistory && (
-            <div className="border-t border-minimal-primary/20 pt-4 flex flex-col gap-2">
-              {chatHistory.map((item, index) => (
-                <p
-                  className=" cursor-pointer w-[200px] line-clamp-2 bg-gray-900 text-gray-400 p-2 rounded-md "
-                  key={index}
-                >
-                  {item.messages[0].text}
-                </p>
-              ))}
-            </div>
+          {/* new chat button */}
+          {toolName === "Expli" && (
+            <>
+              <button
+                onClick={onAddClick}
+                className=" w-full bg-gray-800 p-2 rounded-md mt-2"
+              >
+                New Chat
+              </button>
+              <div className="border-b border-minimal-primary/20 mt-2" />
+              <div className="h-full">
+                {/* chat history */}
+                <div className=" h-[250px] ">
+                  <p className="text-gray-500 text-sm mt-2">Chat History</p>
+                  {chatHistory && (
+                    <div className="  pt-2 flex flex-col gap-2">
+                      {chatHistory.map((item, index) => (
+                        <p
+                          onClick={() => setCurrentMessages(item.messages)}
+                          className=" cursor-pointer w-[200px] line-clamp-2 bg-gray-900 text-gray-400 p-2 rounded-md "
+                          key={index}
+                        >
+                          {item.messages[0].text}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {/* available models */}
+                <div className="h-[250px] border-t border-minimal-primary/20 pt-2 overflow-y-auto">
+                  <h1 className="text-sm text-gray-500">Available Keys</h1>
+                  <div className="flex flex-col gap-2 mt-2">
+                    {/* <button className="w-full bg-[#23b5b5] text-gray-300 p-2 rounded-md hover:bg-[#23b5b5]/80 transition-colors text-sm">
+                      OpenAI
+                    </button>
+                    <button className="w-full bg-[#23b5b5] text-gray-300 p-2 rounded-md hover:bg-[#23b5b5]/80 transition-colors text-sm">
+                      Gemini
+                    </button>
+                    <button className="w-full bg-[#23b5b5]   text-gray-300 p-2 rounded-md hover:bg-[#23b5b5]/80 transition-colors text-sm">
+                      Grok
+                    </button> */}
+                    {Object.entries(tools).map(([name, key], index) => (
+                      <button
+                        key={index}
+                        onClick={()=> setCurrentTool(name)}
+                        className="w-full bg-[#23b5b5] text-gray-300 p-2 rounded-md hover:bg-[#23b5b5]/80 transition-colors text-sm"
+                      >
+                        {name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </>
           )}
         </div>
 
