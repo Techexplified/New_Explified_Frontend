@@ -31,6 +31,8 @@ const INTEGRATION_PROVIDERS = [
     description: "Google's Gemini models for text, chat and multimodal tasks.",
     apiUrl: "https://generativelanguage.googleapis.com/v1beta/", // Google AI Studio API
     docs: "https://ai.google.dev/gemini-api/docs",
+    apiUrl: "https://generativelanguage.googleapis.com/v1beta/", // Google AI Studio API
+    docs: "https://ai.google.dev/gemini-api/docs",
   },
   {
     id: "openai",
@@ -38,6 +40,8 @@ const INTEGRATION_PROVIDERS = [
     icon: FiCpu,
     byok: true,
     description: "OpenAI GPT models for powerful text and chat experiences.",
+    apiUrl: "https://api.openai.com/v1/",
+    docs: "https://platform.openai.com/docs/api-reference",
     apiUrl: "https://api.openai.com/v1/",
     docs: "https://platform.openai.com/docs/api-reference",
   },
@@ -49,6 +53,8 @@ const INTEGRATION_PROVIDERS = [
     description: "xAI Grok models for reasoning and fast responses.",
     apiUrl: "https://api.x.ai/v1/", // xAI Grok API
     docs: "https://docs.x.ai/api",
+    apiUrl: "https://api.x.ai/v1/", // xAI Grok API
+    docs: "https://docs.x.ai/api",
   },
   {
     id: "anthropic",
@@ -56,6 +62,8 @@ const INTEGRATION_PROVIDERS = [
     icon: FiLayers,
     byok: true,
     description: "Claude models by Anthropic for safe, helpful outputs.",
+    apiUrl: "https://api.anthropic.com/v1/",
+    docs: "https://docs.anthropic.com/claude/reference",
     apiUrl: "https://api.anthropic.com/v1/",
     docs: "https://docs.anthropic.com/claude/reference",
   },
@@ -67,6 +75,8 @@ const INTEGRATION_PROVIDERS = [
     description: "Mistral small, medium and mixtral models.",
     apiUrl: "https://api.mistral.ai/v1/",
     docs: "https://docs.mistral.ai/",
+    apiUrl: "https://api.mistral.ai/v1/",
+    docs: "https://docs.mistral.ai/",
   },
   {
     id: "cohere",
@@ -74,6 +84,8 @@ const INTEGRATION_PROVIDERS = [
     icon: FiGitBranch,
     byok: true,
     description: "Cohere Command and Embed models for text and vectors.",
+    apiUrl: "https://api.cohere.ai/v1/",
+    docs: "https://docs.cohere.com/docs",
     apiUrl: "https://api.cohere.ai/v1/",
     docs: "https://docs.cohere.com/docs",
   },
@@ -297,6 +309,7 @@ function Trone({ onFirstPrompt }) {
       setIsTyping(true);
 
       // Persist to recentPrompts
+      // Persist to recentPrompts
       const existing = JSON.parse(localStorage.getItem("recentPrompts")) || [];
       const trimmed = prompt.trim();
       const newSet = [trimmed, ...existing.filter((p) => p !== trimmed)].slice(
@@ -310,6 +323,8 @@ function Trone({ onFirstPrompt }) {
       }
 
       try {
+        // Conversation context
+        const conversationHistory = currentMessages.slice(-10);
         // Conversation context
         const conversationHistory = currentMessages.slice(-10);
         const contextPrompt =
@@ -420,12 +435,73 @@ function Trone({ onFirstPrompt }) {
 
         const botText = parseResponse(res.data);
 
+          };
+          parseResponse = (data) =>
+            data.candidates?.[0]?.content?.parts?.[0]?.text ||
+            "No response received.";
+        } else if (tool === "openai") {
+          apiUrl = "https://api.openai.com/v1/chat/completions";
+          headers["Authorization"] = `Bearer ${apiKey}`;
+          payload = {
+            model: "gpt-4o-mini",
+            messages: [{ role: "user", content: contextPrompt }],
+          };
+          parseResponse = (data) =>
+            data.choices?.[0]?.message?.content || "No response received.";
+        } else if (tool === "grok") {
+          apiUrl = "https://api.x.ai/v1/chat/completions";
+          headers["Authorization"] = `Bearer ${apiKey}`;
+          payload = {
+            model: "grok-beta",
+            messages: [{ role: "user", content: contextPrompt }],
+          };
+          parseResponse = (data) =>
+            data.choices?.[0]?.message?.content || "No response received.";
+        } else if (tool === "anthropic") {
+          apiUrl = "https://api.anthropic.com/v1/messages";
+          headers["x-api-key"] = apiKey;
+          headers["anthropic-version"] = "2023-06-01";
+          payload = {
+            model: "claude-3-opus-20240229",
+            max_tokens: 500,
+            messages: [{ role: "user", content: contextPrompt }],
+          };
+          parseResponse = (data) =>
+            data.content?.[0]?.text || "No response received.";
+        } else if (tool === "cohere") {
+          apiUrl = "https://api.cohere.ai/v1/chat";
+          headers["Authorization"] = `Bearer ${apiKey}`;
+          payload = {
+            model: "command-r-plus",
+            messages: [{ role: "user", content: contextPrompt }],
+          };
+          parseResponse = (data) =>
+            data.text || data.message?.content || "No response received.";
+        } else if (tool === "mistral") {
+          apiUrl = "https://api.mistral.ai/v1/chat/completions";
+          headers["Authorization"] = `Bearer ${apiKey}`;
+          payload = {
+            model: "mistral-medium",
+            messages: [{ role: "user", content: contextPrompt }],
+          };
+          parseResponse = (data) =>
+            data.choices?.[0]?.message?.content || "No response received.";
+        }
+
+        const res = await axios.post(apiUrl, payload, {
+          timeout: 30000,
+          headers,
+        });
+
+        const botText = parseResponse(res.data);
+
         if (res.data.candidates?.[0]?.finishReason === "SAFETY") {
           throw new Error("Response was blocked due to safety filters.");
         }
 
         const botMessage = {
           sender: "bot",
+          text: botText,
           text: botText,
           timestamp: new Date().toISOString(),
         };
@@ -1081,6 +1157,10 @@ function Trone({ onFirstPrompt }) {
                         </button>
                         <button
                           className="px-3 py-2 rounded-lg bg-teal-600 hover:bg-teal-500 text-white"
+                          onClick={() => {
+                            handleSaveProviderKey(selectedProviderId, true);
+                            setCurrentTool(selectedProviderId);
+                          }}
                           onClick={() => {
                             handleSaveProviderKey(selectedProviderId, true);
                             setCurrentTool(selectedProviderId);
