@@ -347,8 +347,7 @@ function Trone({ onFirstPrompt }) {
           };
           parseResponse = (data) =>
             data.choices?.[0]?.message?.content || "No response received.";
-        } 
-        else if (tool === "grok") {
+        } else if (tool === "grok") {
           apiUrl = "https://api.x.ai/v1/chat/completions";
           headers["Authorization"] = `Bearer ${apiKey}`;
           payload = {
@@ -357,37 +356,36 @@ function Trone({ onFirstPrompt }) {
           };
           parseResponse = (data) =>
             data.choices?.[0]?.message?.content || "No response received.";
+        } else if (tool === "anthropic") {
+          apiUrl = "https://api.anthropic.com/v1/messages";
+          headers["x-api-key"] = apiKey;
+          headers["anthropic-version"] = "2023-06-01";
+          payload = {
+            model: "claude-3-opus-20240229",
+            max_tokens: 500,
+            messages: [{ role: "user", content: contextPrompt }],
+          };
+          parseResponse = (data) =>
+            data.content?.[0]?.text || "No response received.";
+        } else if (tool === "cohere") {
+          apiUrl = "https://api.cohere.ai/v1/chat";
+          headers["Authorization"] = `Bearer ${apiKey}`;
+          payload = {
+            model: "command-r-plus",
+            messages: [{ role: "user", content: contextPrompt }],
+          };
+          parseResponse = (data) =>
+            data.text || data.message?.content || "No response received.";
+        } else if (tool === "mistral") {
+          apiUrl = "https://api.mistral.ai/v1/chat/completions";
+          headers["Authorization"] = `Bearer ${apiKey}`;
+          payload = {
+            model: "mistral-medium",
+            messages: [{ role: "user", content: contextPrompt }],
+          };
+          parseResponse = (data) =>
+            data.choices?.[0]?.message?.content || "No response received.";
         }
-        else if (tool === "anthropic") {
-        apiUrl = "https://api.anthropic.com/v1/messages";
-        headers["x-api-key"] = apiKey;
-        headers["anthropic-version"] = "2023-06-01";
-        payload = {
-          model: "claude-3-opus-20240229",
-          max_tokens: 500,
-          messages: [{ role: "user", content: contextPrompt }],
-        };
-        parseResponse = (data) =>
-          data.content?.[0]?.text || "No response received.";
-      } else if (tool === "cohere") {
-        apiUrl = "https://api.cohere.ai/v1/chat";
-        headers["Authorization"] = `Bearer ${apiKey}`;
-        payload = {
-          model: "command-r-plus",
-          messages: [{ role: "user", content: contextPrompt }],
-        };
-        parseResponse = (data) =>
-          data.text || data.message?.content || "No response received.";
-      } else if (tool === "mistral") {
-        apiUrl = "https://api.mistral.ai/v1/chat/completions";
-        headers["Authorization"] = `Bearer ${apiKey}`;
-        payload = {
-          model: "mistral-medium",
-          messages: [{ role: "user", content: contextPrompt }],
-        };
-        parseResponse = (data) =>
-          data.choices?.[0]?.message?.content || "No response received.";
-      }
 
         const res = await axios.post(apiUrl, payload, {
           timeout: 30000,
