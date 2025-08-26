@@ -25,6 +25,7 @@ import {
   Italic,
   Underline,
   Undo,
+  ArrowLeft,
   Redo,
   Type,
   Pencil,
@@ -419,7 +420,7 @@ function TextOptionsBar({
 
   return (
     <div
-      className="flex items-center gap-3 px-4 py-2 bg-black/90 rounded-xl border border-gray-700 absolute bottom-[-50px] left-1/2 transform -translate-x-1/2 z-50 shadow-2xl"
+      className="flex items-center gap-3 px-4 py-2 bg-black/90 rounded-xl border border-gray-700 absolute bottom-[-75px] left-1/2 transform -translate-x-1/2 z-50 shadow-2xl"
       style={{ minWidth: 520 }}
     >
       <div className="flex items-center gap-2 bg-gray-900/70 border border-gray-700 rounded-lg px-2 py-1">
@@ -671,10 +672,8 @@ function PenTool() {
     <div className="">
       {/* Controls */}
       <div
+        className="absolute left-[130px] bottom-[-75px] w-fit"
         style={{
-          position: "fixed",
-          bottom: "130px",
-          right: "400px",
           background: "#0b0b0b",
           padding: "10px 12px",
           borderRadius: "12px",
@@ -1091,17 +1090,16 @@ function LexicalEditor() {
       {/* Main editor wrapper */}
       <div className="w-screen h-screen bg-black relative flex flex-col justify-center items-center overflow-hidden">
         <SidebarOnHover2 />
-        <a
-          href="/tasks"
-          className="absolute top-20 left-20 inline-flex items-center gap-2 px-5 py-2 border-2 border-teal-500 rounded-xl bg-neutral-900 text-white font-medium hover:bg-neutral-800 transition"
-        >
-          Back
-        </a>
+        <div className="absolute gap-2 top-20 left-10 flex items-center">
+          <a href="/tasks" className="    text-white font-medium">
+            <ArrowLeft size={18} />
+          </a>
 
-        <p className="fixed top-8 left-20 text-white font-medium">{title}</p>
-
+          <p className=" text-white font-medium">{title}</p>
+        </div>
         {/* Editable <h1> */}
         <h1
+          className="editable-title"
           ref={h1Ref}
           contentEditable
           suppressContentEditableWarning={true}
@@ -1130,7 +1128,7 @@ function LexicalEditor() {
           aria-label="Notes Title"
         />
 
-        <div className="w-full max-w-2xl pt-16 relative z-10">
+        <div className="w-full border border-cyan-900 rounded-md max-w-4xl pt-10 relative z-10">
           {ispenactive && (
             <div className="bg-black border-none rounded-lg shadow-lg relative px-10">
               <LexicalComposer initialConfig={editorInitialConfig}>
@@ -1172,8 +1170,4 @@ function LexicalEditor() {
   );
 }
 
-<<<<<<< HEAD
 export default LexicalEditor;
-=======
-export default LexicalEditor;
->>>>>>> 3a9df80e6ab8369adc992ff38f1f1949c3d419d7
