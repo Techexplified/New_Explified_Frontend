@@ -459,20 +459,6 @@ function Trone({ onFirstPrompt }) {
   };
 
   const newChat = () => {
-    console.log("newChat");
-
-    // if (currentMessages.length > 0) {
-    //   const sessionRecord = {
-    //     id: sessionId,
-    //     startedAt: sessionStartedAt || Date.now(),
-    //     endedAt: Date.now(),
-    //     messages: currentMessages,
-    //   };
-    //   setChatHistory((prev) => {
-    //     const next = [...prev, sessionRecord];
-    //     return next;
-    //   });
-    // }
     setCurrentMessages([]);
     setSessionStartedAt(null);
     setSessionId(
