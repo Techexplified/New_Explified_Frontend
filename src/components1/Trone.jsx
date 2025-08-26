@@ -15,12 +15,13 @@ import {
   FiCloud,
   FiGitBranch,
   FiChevronDown,
+  
 } from "react-icons/fi";
 import { BsSoundwave } from "react-icons/bs";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import SidebarOnHover from "../reusable_components/SidebarOnHover";
-import { Sparkle } from "lucide-react";
+import { Sparkle,Lock } from "lucide-react";
 
 const INTEGRATION_PROVIDERS = [
   {
@@ -199,7 +200,16 @@ function Trone({ onFirstPrompt }) {
     setSelectedProviderId(null);
   };
 
-  const [currentTool, setCurrentTool] = useState("gemini");
+  const [currentTool, setCurrentTool] = useState("default");
+  const tools = [
+    "default",
+    "gemini",
+    "openai",
+    "grok",
+    "anthropic",
+    "mistral",
+    "cohere",
+  ];
 
   useEffect(() => {
     if (!prevDrawerState.current && isDrawerOpen) {
@@ -228,7 +238,7 @@ function Trone({ onFirstPrompt }) {
     }
   }, [currentMessages, isTyping]);
 
-  // const GEMINI_API_KEY = "AIzaSyCjxEkSZKRdCohde0z5FKaZAO624gF3wms";
+  const GEMINI_API_KEY = "AIzaSyDpCjw13DKuj-KDH8VWegWh0BzVgdoJmjU";
 
   // Removed auto-syncing current messages from localStorage to prevent overwriting sessions
 
@@ -317,14 +327,31 @@ function Trone({ onFirstPrompt }) {
 
         const tool = currentTool;
         const apiKey = providerKeys[tool] || "";
-        if (!apiKey) throw new Error(`No API key found for ${tool}.`);
+
+        if (!apiKey && tool !== "default")
+          throw new Error(`No API key found for ${tool}.`);
 
         let apiUrl = "";
+
         let payload = {};
         let headers = { "Content-Type": "application/json" };
         let parseResponse = () => "No response received.";
 
-        if (tool === "gemini") {
+        if (tool === "default") {
+          apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+          payload = {
+            contents: [{ parts: [{ text: contextPrompt }] }],
+            generationConfig: {
+              temperature: 0.7,
+              topK: 40,
+              topP: 0.95,
+              maxOutputTokens: 2048,
+            },
+          };
+          parseResponse = (data) =>
+            data.candidates?.[0]?.content?.parts?.[0]?.text ||
+            "No response received.";
+        } else if (tool === "gemini") {
           apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
           payload = {
             contents: [{ parts: [{ text: contextPrompt }] }],
@@ -347,8 +374,7 @@ function Trone({ onFirstPrompt }) {
           };
           parseResponse = (data) =>
             data.choices?.[0]?.message?.content || "No response received.";
-        } 
-        else if (tool === "grok") {
+        } else if (tool === "grok") {
           apiUrl = "https://api.x.ai/v1/chat/completions";
           headers["Authorization"] = `Bearer ${apiKey}`;
           payload = {
@@ -357,37 +383,36 @@ function Trone({ onFirstPrompt }) {
           };
           parseResponse = (data) =>
             data.choices?.[0]?.message?.content || "No response received.";
+        } else if (tool === "anthropic") {
+          apiUrl = "https://api.anthropic.com/v1/messages";
+          headers["x-api-key"] = apiKey;
+          headers["anthropic-version"] = "2023-06-01";
+          payload = {
+            model: "claude-3-opus-20240229",
+            max_tokens: 500,
+            messages: [{ role: "user", content: contextPrompt }],
+          };
+          parseResponse = (data) =>
+            data.content?.[0]?.text || "No response received.";
+        } else if (tool === "cohere") {
+          apiUrl = "https://api.cohere.ai/v1/chat";
+          headers["Authorization"] = `Bearer ${apiKey}`;
+          payload = {
+            model: "command-r-plus",
+            messages: [{ role: "user", content: contextPrompt }],
+          };
+          parseResponse = (data) =>
+            data.text || data.message?.content || "No response received.";
+        } else if (tool === "mistral") {
+          apiUrl = "https://api.mistral.ai/v1/chat/completions";
+          headers["Authorization"] = `Bearer ${apiKey}`;
+          payload = {
+            model: "mistral-medium",
+            messages: [{ role: "user", content: contextPrompt }],
+          };
+          parseResponse = (data) =>
+            data.choices?.[0]?.message?.content || "No response received.";
         }
-        else if (tool === "anthropic") {
-        apiUrl = "https://api.anthropic.com/v1/messages";
-        headers["x-api-key"] = apiKey;
-        headers["anthropic-version"] = "2023-06-01";
-        payload = {
-          model: "claude-3-opus-20240229",
-          max_tokens: 500,
-          messages: [{ role: "user", content: contextPrompt }],
-        };
-        parseResponse = (data) =>
-          data.content?.[0]?.text || "No response received.";
-      } else if (tool === "cohere") {
-        apiUrl = "https://api.cohere.ai/v1/chat";
-        headers["Authorization"] = `Bearer ${apiKey}`;
-        payload = {
-          model: "command-r-plus",
-          messages: [{ role: "user", content: contextPrompt }],
-        };
-        parseResponse = (data) =>
-          data.text || data.message?.content || "No response received.";
-      } else if (tool === "mistral") {
-        apiUrl = "https://api.mistral.ai/v1/chat/completions";
-        headers["Authorization"] = `Bearer ${apiKey}`;
-        payload = {
-          model: "mistral-medium",
-          messages: [{ role: "user", content: contextPrompt }],
-        };
-        parseResponse = (data) =>
-          data.choices?.[0]?.message?.content || "No response received.";
-      }
 
         const res = await axios.post(apiUrl, payload, {
           timeout: 30000,
@@ -684,10 +709,43 @@ function Trone({ onFirstPrompt }) {
                 <span>Attach Files</span>
               </button>
 
-              <div className="">
-                <h1 className="py-1.5 px-3 border rounded-full border-cyan-900/80 text-xs sm:text-sm text-gray-200 bg-slate-600/80 backdrop-blur">
-                  Powered by {currentTool}
-                </h1>
+              <div>
+                <select
+                  value={currentTool}
+                  onChange={(e) => setCurrentTool(e.target.value)}
+                  className="bg-black py-1.5 px-3 border rounded-lg border-cyan-900/80 text-xs sm:text-sm text-gray-200 backdrop-blur focus:outline-none"
+                >
+                  <option
+                    value="default"
+                    className=" text-gray-200 rounded-lg"
+                  >
+                    default
+                  </option>
+                  <option value="gemini" className=" text-gray-200">
+                    gemini
+                  </option>
+                  <option value="openai" className=" text-gray-200">
+                    openai
+                  </option>
+                  <option value="grok" className=" text-gray-200">
+                    grok
+                  </option>
+                  <option
+                    value="anthropic"
+                    className=" text-gray-200"
+                  >
+                    anthropic
+                  </option>
+                  <option
+                    value="mistral"
+                    className=" text-gray-200"
+                  >
+                    mistral
+                  </option>
+                  <option value="cohere" className=" text-gray-200">
+                    cohere
+                  </option>
+                </select>
               </div>
             </div>
           </div>
@@ -803,6 +861,16 @@ function Trone({ onFirstPrompt }) {
                         <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-700 rounded-lg flex items-center justify-center text-white text-xl shadow-lg group-hover:scale-110 transition-transform duration-200">
                           {Icon && <Icon className="text-white" size={20} />}
                         </div>
+                        <div className="flex">
+                          {
+                          !(p.id==="openai" || p.id==="gemini") && (<button
+                          type="button"
+                          
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-white transition-all duration-200 transform hover:scale-110 shadow-lg"
+                        >
+                          <Lock className="text-yellow-400" size={20} />
+                        </button>)
+                        }
                         <button
                           type="button"
                           onClick={(e) => {
@@ -814,6 +882,7 @@ function Trone({ onFirstPrompt }) {
                         >
                           +
                         </button>
+                        </div>
                       </div>
 
                       <h3 className="text-white font-semibold text-sm mb-2 group-hover:text-teal-300 transition-colors flex items-center gap-2">
