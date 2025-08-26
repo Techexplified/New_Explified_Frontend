@@ -1172,4 +1172,8 @@ function LexicalEditor() {
   );
 }
 
+<<<<<<< HEAD
 export default LexicalEditor;
+=======
+export default LexicalEditor;
+>>>>>>> 3a9df80e6ab8369adc992ff38f1f1949c3d419d7
