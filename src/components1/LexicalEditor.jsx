@@ -548,7 +548,7 @@ function PenTool() {
 
   const [isDrawing, setIsDrawing] = useState(false);
   const [tool, setTool] = useState("pen"); // pen | eraser | highlighter
-  const [color, setColor] = useState("#000000");
+  const [color, setColor] = useState("#ffffff");
   const [thickness, setThickness] = useState(3);
 
   const [history, setHistory] = useState([]); // undo/redo stack
@@ -672,7 +672,7 @@ function PenTool() {
     <div className="">
       {/* Controls */}
       <div
-        className="absolute left-[130px] bottom-[-75px] w-fit"
+        className="absolute left-[130px] bottom-[-80px] w-fit"
         style={{
           background: "#0b0b0b",
           padding: "10px 12px",
@@ -840,15 +840,11 @@ function PenTool() {
         </div>
       </div>
 
-      {/* Canvas */}
+      {/* Canvas main */}
       <canvas
+        className=" absolute max-w-4xl bottom-[-10px] left-[-40px] h-[400px] w-[900px]"
         ref={canvasRef}
         style={{
-          position: "fixed",
-          top: 150,
-          left: 290,
-          width: "50vw",
-          height: "50vh",
           cursor: cursorStyle,
           zIndex: 60,
           background: "transparent",
@@ -1086,7 +1082,7 @@ function LexicalEditor() {
   }, []);
 
   return (
-    <>
+    <div className="flex">
       {/* Main editor wrapper */}
       <div className="w-screen h-screen bg-black relative flex flex-col justify-center items-center overflow-hidden">
         <SidebarOnHover2 />
@@ -1128,7 +1124,7 @@ function LexicalEditor() {
           aria-label="Notes Title"
         />
 
-        <div className="w-full border border-cyan-900 rounded-md max-w-4xl pt-10 relative z-10">
+        <div className=" h-[400px] w-[900px]  border border-cyan-900 rounded-md  pt-10 relative z-10">
           {ispenactive && (
             <div className="bg-black border-none rounded-lg shadow-lg relative px-10">
               <LexicalComposer initialConfig={editorInitialConfig}>
@@ -1165,8 +1161,8 @@ function LexicalEditor() {
       </div>
 
       {/* ✅ Only render PenTool if state is true */}
-      {showPenTool && <PenTool />}
-    </>
+      <div>{showPenTool && <PenTool />}</div>
+    </div>
   );
 }
 
