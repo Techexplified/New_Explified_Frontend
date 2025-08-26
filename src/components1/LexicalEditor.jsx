@@ -101,7 +101,7 @@ function applyStyleToSelection(editor, styleObj) {
 }
 
 // Share Button component
-function ShareButton({ getTextContent }) {
+function ShareButton({ getTextContent,noteTitle }) {
   const [showMenu, setShowMenu] = useState(false);
   const [copied, setCopied] = useState(false);
   const [exportPdf, setExportPdf] = useState(false);
@@ -111,6 +111,7 @@ function ShareButton({ getTextContent }) {
   // Generate sharable link only once when menu opens
   const generateLink = () => {
     const content = getTextContent();
+    saveNoteToTasks(content);
     const id = uuidv4();
 
     // Try to capture current pen drawing (if any) by querying tagged canvas
@@ -155,6 +156,7 @@ function ShareButton({ getTextContent }) {
     if (shareId) {
       // Prefer combined payload if available
       const combined = localStorage.getItem(`shared_note_${shareId}`);
+      console.log(localStorage.getItem("tasks"))
       if (combined) {
         try {
           const parsed = JSON.parse(combined);
@@ -178,6 +180,38 @@ function ShareButton({ getTextContent }) {
       }
     }
   }, []);
+ function saveNoteToTasks(content) {
+  // Assume first line = title, rest = text
+  const lines = content.split("\n");
+  const title = lines[0] || "Untitled";
+  const text = lines.slice(1).join("\n") || lines[0];
+
+  // Build task object
+  const newTask = {
+  id: Date.now(), // or uuidv4()
+  title: noteTitle,
+  content: text,
+  lastModified: new Date().toISOString(),
+  tag: "General",
+  favorite: false,
+};
+
+
+  // Load existing tasks
+  let tasks = [];
+  try {
+    const stored = localStorage.getItem("tasks");
+    if (stored) {
+      tasks = JSON.parse(stored);
+    }
+  } catch (e) {
+    console.warn("Failed to parse tasks:", e);
+  }
+
+  // Push and save back
+  tasks.push(newTask);
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}
 
   const handleCopy = () => {
     navigator.clipboard.writeText(shareLink);
@@ -373,7 +407,7 @@ function ShareButton({ getTextContent }) {
     </div>
   );
 }
-function SharePlugin() {
+function SharePlugin({title}) {
   const [editor] = useLexicalComposerContext();
 
   const getTextContent = () => {
@@ -384,7 +418,7 @@ function SharePlugin() {
     return text;
   };
 
-  return <ShareButton getTextContent={getTextContent} />;
+  return <ShareButton getTextContent={getTextContent} noteTitle={title}/>;
 }
 
 function TextOptionsBar({
@@ -1090,7 +1124,7 @@ function LexicalEditor() {
     <>
       {/* Main editor wrapper */}
       <div className="w-screen h-screen bg-black relative flex flex-col justify-center items-center overflow-hidden">
-        <SidebarOnHover2 />
+        <SidebarOnHover2 noteTitle={title} />
         <a
           href="/tasks"
           className="absolute top-20 left-20 inline-flex items-center gap-2 px-5 py-2 border-2 border-teal-500 rounded-xl bg-neutral-900 text-white font-medium hover:bg-neutral-800 transition"
@@ -1159,7 +1193,7 @@ function LexicalEditor() {
                     onTogglePenTool={() => setShowPenTool((prev) => !prev)}
                   />
                 </div>
-                <SharePlugin />
+                <SharePlugin  title={title}/>
               </LexicalComposer>
             </div>
           )}
