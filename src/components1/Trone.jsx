@@ -440,7 +440,7 @@ function Trone({ onFirstPrompt }) {
         };
         setChatHistory((prev) => {
           const next = [...prev, sessionRecord];
-          return next;
+          return next.slice(-3);
         });
       } catch (err) {
         console.error("Error details:", err);
@@ -555,6 +555,7 @@ function Trone({ onFirstPrompt }) {
 
   return (
     <div className="bg-black text-white flex h-screen">
+      <div className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
       <SidebarOnHover
         onAddClick={newChat}
         chatHistory={chatHistory}
@@ -570,10 +571,12 @@ function Trone({ onFirstPrompt }) {
           }`}
         ></div>
         {/* Session Controls */}
-
+        <h1 className="text-2xl font-bold text-left w-full max-w-3xl mx-auto px-2 bg-gradient-to-r from-teal-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent mb-4">
+          Expli
+        </h1>
         <div className="w-full max-w-3xl mx-auto rounded-xl border border-cyan-900/60 shadow-[0_0_0_1px_rgba(0,255,255,0.06),0_0_24px_rgba(0,255,255,0.07)] bg-transparent p-4 sm:p-5 flex flex-col min-h-[80vh] relative">
           {/* Background Pattern */}
-          <div className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
+          <div className="absolute inset-0 rounded-xl opacity-50 pointer-events-none bg-gradient-to-br from-black  to-black"></div>
 
           {/* Chat Container */}
           <div
