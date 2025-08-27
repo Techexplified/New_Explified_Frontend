@@ -35,7 +35,7 @@ function SidebarOnHover({
       />
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full bg-black/95 backdrop-blur-xl border-r border-minimal-primary/20 
+        className={`fixed top-0 left-0 h-full bg-gradient-to-br from-transparent to-transparent backdrop-blur-xl border-r border-minimal-primary/20 
   flex flex-col justify-between transition-all duration-300 z-50
   ${sidebarOpen ? "w-64 px-6" : "w-0 px-0 overflow-hidden"}`}
         onMouseEnter={() => !sidebarPinned && setSidebarOpen(true)}

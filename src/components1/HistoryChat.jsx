@@ -75,6 +75,7 @@ export default function HistoryChat() {
   
   return (
     <div className="min-h-screen text-white flex flex-col items-center p-6">
+      <div className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
       <SidebarOnHover link={"/memory"} toolName={"Memory"} />
       <div className="pt-8 flex items-center justify-center text-3xl font-semibold mb-4">
         Chat History
@@ -103,7 +104,7 @@ export default function HistoryChat() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Know about history..."
-          className="flex-1 p-3 rounded-l-lg bg-black border border-gray-700 focus:outline-none"
+          className="flex-1 p-3 rounded-l-lg bg-black/40 border border-gray-700 focus:outline-none"
         />
         <button
           onClick={handleSend}
@@ -116,4 +117,3 @@ export default function HistoryChat() {
     </div>
   );
 }
-
