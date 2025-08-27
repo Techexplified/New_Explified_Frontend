@@ -43,7 +43,7 @@ import SidebarOnHover2 from "../reusable_components/SidebarOnHover2";
 import { v4 as uuidv4 } from "uuid";
 import { $getRoot } from "lexical";
 import { $createParagraphNode, $createTextNode } from "lexical";
-
+import SimpleChatbot from "../reusable_components/SimpleChatbot";
 // Theme configuration
 const theme = {
   text: {
@@ -921,7 +921,7 @@ function PenTool() {
   );
 }
 
-function ToolbarPlugin({ onTogglePenTool }) {
+function ToolbarPlugin({ onTogglePenTool, onToggleChatbot }) {
   const [editor] = useLexicalComposerContext();
   const getTextContent = () => {
     let text = "";
@@ -1026,13 +1026,12 @@ function ToolbarPlugin({ onTogglePenTool }) {
 
   {/* Effects Button (Disabled) */}
   <button
-    onClick={() => setActiveBar(activeBar === "effect" ? null : "effect")}
+    onClick={() => onToggleChatbot && onToggleChatbot() && setActiveBar(activeBar === "effect" ? null : "effect")}
     className="flex flex-col items-center px-4 py-2 rounded transition-all"
     title="Effects"
-    disabled
+    
     style={{
       opacity: 0.3,
-      cursor: "not-allowed",
       color: "#20e3d7",
       backgroundColor: "transparent",
       border: "none",
@@ -1085,7 +1084,7 @@ function LexicalEditor() {
   const [editor, setEditorState] = useState("");
   const [title, setTitle] = useState("Title");
   const [ispenactive, setpenactive] = useState(true);
-
+  const [showChatbot, setShowChatbot] = useState(false);
   // ✅ new state for PenTool visibility
   const [showPenTool, setShowPenTool] = useState(false);
 
@@ -1270,6 +1269,7 @@ function LexicalEditor() {
               <OnChangePlugin onChange={onChange} />
               <ToolbarPlugin
                 onTogglePenTool={() => setShowPenTool((prev) => !prev)}
+                    onToggleChatbot={() => setShowChatbot((prev) => !prev)}
               />
             </div>
             <SharePlugin title={title} />
@@ -1281,6 +1281,7 @@ function LexicalEditor() {
 
   {/* Only render PenTool if state is true */}
   <div>{showPenTool && <PenTool />}</div>
+  <SimpleChatbot open={showChatbot} onClose={() => setShowChatbot(false)} />
 </div>
 
 
