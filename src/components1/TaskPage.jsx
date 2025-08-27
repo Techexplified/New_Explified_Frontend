@@ -96,7 +96,7 @@ export default function TaskManager() {
   const selectedTask = tasks.find((task) => task.id === selectedTaskId);
 
   return (
-    <div className="flex h-screen bg-black">
+    <div className="flex h-screen opacity-80 bg-gradient-to-br from-transparent via-cyan-900 to-transparent">
       {/* Sidebar */}
       <Sidebar
         isSidebarOpen={isSidebarOpen}
@@ -119,14 +119,14 @@ export default function TaskManager() {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-3xl font-bold text-white mb-2">Your Notes</h2>
-            <p className="text-gray-400">Capture your thoughts and ideas</p>
+            <p className="text-teal-200">Capture your thoughts and ideas</p>
           </div>
 
           {/* Notes Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 overflow-y-hidden">
             <button
               onClick={() => navigate("/notes")}
-              className="bg-gradient-to-r from-[#23b5b5] to-cyan-500 text-white px-6 py-3 rounded-xl font-medium transition-all shadow-lg flex items-center gap-2 max-h-[90px]"
+              className="bg-gradient-to-r from-teal-600 to-teal-400 text-white px-6 py-3 rounded-xl font-medium transition-all shadow-lg flex items-center gap-2 max-h-[90px] hover:from-teal-700 hover:to-teal-500"
             >
               <Plus className="w-5 h-5" />
               New Note
@@ -135,11 +135,11 @@ export default function TaskManager() {
             {filteredTasks.map((task) => (
               <div
                 key={task.id}
-                className="group bg-white/5 border border-white/10 rounded-2xl p-5 hover:border-white/20 transition-all duration-300 overflow-y-hidden"
+                className="group bg-slate-800/40 border border-teal-600/20 rounded-2xl p-5 hover:border-teal-400/40 hover:bg-slate-800/60 transition-all duration-300 overflow-y-hidden backdrop-blur-sm"
               >
                 <div className="flex items-start justify-between mb-3">
                   <Edit3
-                    className="w-4 h-4 text-[#23b5b5] mt-1 cursor-pointer"
+                    className="w-4 h-4 text-teal-400 mt-1 cursor-pointer hover:text-teal-300"
                     onClick={() => setEditingTaskId(task.id)}
                   />
                   <button
@@ -155,20 +155,20 @@ export default function TaskManager() {
                     value={task.content}
                     onChange={(e) => updateTaskContent(task.id, e.target.value)}
                     onBlur={() => setEditingTaskId(null)}
-                    className="w-full bg-transparent text-white/90 resize-none focus:outline-none text-sm leading-relaxed min-h-[120px]"
+                    className="w-full bg-transparent text-teal-50 resize-none focus:outline-none text-sm leading-relaxed min-h-[120px] placeholder-teal-300"
                     autoFocus
                   />
                 ) : (
                   <p
-                    className="text-white/90 text-sm leading-relaxed cursor-pointer"
+                    className="text-teal-50 text-sm leading-relaxed cursor-pointer"
                     onClick={() => setSelectedTaskId(task.id)}
                   >
                     {task.content}
                   </p>
                 )}
 
-                <div className="mt-4 pt-3 border-t border-white/10">
-                  <p className="text-xs text-gray-500 flex items-center">
+                <div className="mt-4 pt-3 border-t border-teal-600/20">
+                  <p className="text-xs text-teal-300 flex items-center">
                     <Clock className="w-3 h-3 mr-1" />
                     Modified {formatDate(task.lastModified)}
                   </p>
@@ -179,18 +179,18 @@ export default function TaskManager() {
 
           {/* Selected Note Modal */}
           {selectedTask && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50">
-              <div className="relative w-full max-w-md p-6 bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-lg">
+            <div className="fixed inset-0 flex items-center justify-center bg-slate-900/80 z-50 backdrop-blur-sm">
+              <div className="relative w-full max-w-md p-6 bg-slate-800/90 backdrop-blur-lg border border-teal-600/30 rounded-2xl shadow-2xl">
                 <button
                   onClick={() => setSelectedTaskId(null)}
-                  className="absolute top-3 right-3 text-white hover:text-gray-300"
+                  className="absolute top-3 right-3 text-teal-200 hover:text-white transition-colors"
                 >
                   ✕
                 </button>
                 <h3 className="text-xl font-bold text-white mb-4">
                   {selectedTask.title || "Untitled"}
                 </h3>
-                <p className="text-gray-300">{selectedTask.content}</p>
+                <p className="text-teal-100">{selectedTask.content}</p>
               </div>
             </div>
           )}

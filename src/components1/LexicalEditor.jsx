@@ -246,166 +246,180 @@ function ShareButton({ getTextContent,noteTitle }) {
 
   return (
     <div style={{ position: "fixed", top: 80, right: 200, zIndex: 1000 }}>
+  <div
+    style={{
+      borderRadius: 12,
+      border: `2px solid #20e3d7`, // bright cyan border
+      display: "inline-block",
+      background: "#0c2e32", // dark teal background
+       // subtle cyan glow
+    }}
+  >
+    <button
+      onClick={() => {
+        setShowMenu((v) => !v);
+        if (!showMenu) generateLink();
+      }}
+      style={{
+        height: 40,
+        minWidth: 80,
+        padding: "0 18px",
+        fontWeight: 500,
+        color: "#a5f1ea", // lighter cyan text
+        background: "transparent",
+        border: "none",
+        borderRadius: 12,
+        display: "flex",
+        alignItems: "center",
+        cursor: "pointer",
+        transition: "color 0.3s ease",
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.color = "#00fff7")}
+      onMouseLeave={(e) => (e.currentTarget.style.color = "#a5f1ea")}
+    >
+      Share
+      <ArrowUpRight size={20} style={{ marginLeft: 8, color: "#63e3db" }} />
+    </button>
+
+    {showMenu && (
       <div
         style={{
-          borderRadius: 12,
-          border: `2px solid #188184`,
-          display: "inline-block",
-          background: "#232323",
+          position: "absolute",
+          left: 0,
+          top: 46,
+          minWidth: 250,
+          background: "#0c2e32", // consistent dark teal
+          border: `2px solid #20e3d7`,
+          borderRadius: 15,
+          color: "#e0f7f6", // pale cyan text
+          
+          padding: "16px 18px 12px 18px",
+          zIndex: 1000,
         }}
       >
-        <button
-          onClick={() => {
-            setShowMenu((v) => !v);
-            if (!showMenu) generateLink();
-          }}
+        <div
           style={{
-            height: 40,
-            minWidth: 80,
-            padding: "0 18px",
             fontWeight: 500,
-            color: "white",
-            background: "none",
-            border: "none",
-            borderRadius: 12,
-            display: "flex",
-            alignItems: "center",
-            cursor: "pointer",
+            fontSize: 18,
+            textAlign: "center",
+            marginBottom: 8,
           }}
         >
           Share
-          <ArrowUpRight size={20} style={{ marginLeft: 8, color: "#aaa" }} />
-        </button>
+        </div>
 
-        {showMenu && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            background: "#043138", // darker teal input bg
+            borderRadius: 8,
+            padding: "4px 6px",
+            marginBottom: 14,
+          }}
+        >
+          <input
+            type="text"
+            readOnly
+            value={shareLink}
+            style={{
+              flex: 1,
+              border: "none",
+              background: "transparent",
+              color: "#c5f9ee", // light cyan text input
+              padding: "6px 3px",
+              fontSize: 15,
+              outline: "none",
+            }}
+          />
+          <button
+            onClick={handleCopy}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "#63e3db",
+              padding: 0,
+              transition: "color 0.3s ease",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#00fff7")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "#63e3db")}
+          >
+            <Link2 size={20} />
+          </button>
+        </div>
+        {copied && (
           <div
             style={{
-              position: "absolute",
-              left: 0,
-              top: 46,
-              minWidth: 250,
-              background: "#232323",
-              border: `2px solid #188184`,
-              borderRadius: 15,
-              color: "#eee",
-              boxShadow: "0px 2px 12px 0 #000c",
-              padding: "16px 18px 12px 18px",
-              zIndex: 1000,
+              color: "#22ee99",
+              textAlign: "right",
+              fontSize: 14,
+              marginBottom: 4,
             }}
           >
-            <div
-              style={{
-                fontWeight: 500,
-                fontSize: 18,
-                textAlign: "center",
-                marginBottom: 8,
-              }}
-            >
-              Share
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                background: "#181919",
-                borderRadius: 8,
-                padding: "4px 6px",
-                marginBottom: 14,
-              }}
-            >
-              <input
-                type="text"
-                readOnly
-                value={shareLink}
-                style={{
-                  flex: 1,
-                  border: "none",
-                  background: "transparent",
-                  color: "#eee",
-                  padding: "6px 3px",
-                  fontSize: 15,
-                  outline: "none",
-                }}
-              />
-              <button
-                onClick={handleCopy}
-                style={{
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  color: "#cecece",
-                  padding: 0,
-                }}
-              >
-                <Link2 size={20} />
-              </button>
-            </div>
-            {copied && (
-              <div
-                style={{
-                  color: "#22ee99",
-                  textAlign: "right",
-                  fontSize: 14,
-                  marginBottom: 4,
-                }}
-              >
-                Copied!
-              </div>
-            )}
-
-            <div style={{ fontSize: 14, marginBottom: 7 }}>
-              Export as : &nbsp;
-              <label style={{ marginRight: 10 }}>
-                Pdf
-                <input
-                  type="checkbox"
-                  checked={exportPdf}
-                  onChange={() => {
-                    setExportPdf(!exportPdf);
-                    if (!exportPdf) setExportJpg(false);
-                  }}
-                  style={{ marginLeft: 4 }}
-                />
-              </label>
-              <label>
-                Jpg
-                <input
-                  type="checkbox"
-                  checked={exportJpg}
-                  onChange={() => {
-                    setExportJpg(!exportJpg);
-                    if (!exportJpg) setExportPdf(false);
-                  }}
-                  style={{ marginLeft: 4 }}
-                />
-              </label>
-            </div>
-
-            <button
-              onClick={handleDownload}
-              style={{
-                width: "100%",
-                border: `2px solid #188184`,
-                color: "#eee",
-                borderRadius: 8,
-                fontWeight: 500,
-                fontSize: 16,
-                height: 36,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 7,
-                marginTop: 8,
-                cursor: "pointer",
-              }}
-            >
-              Download <Download size={19} />
-            </button>
+            Copied!
           </div>
         )}
+
+        <div style={{ fontSize: 14, marginBottom: 7, color: "#a5f1ea" }}>
+          Export as : &nbsp;
+          <label style={{ marginRight: 10 }}>
+            Pdf
+            <input
+              type="checkbox"
+              checked={exportPdf}
+              onChange={() => {
+                setExportPdf(!exportPdf);
+                if (!exportPdf) setExportJpg(false);
+              }}
+              style={{ marginLeft: 4 }}
+            />
+          </label>
+          <label>
+            Jpg
+            <input
+              type="checkbox"
+              checked={exportJpg}
+              onChange={() => {
+                setExportJpg(!exportJpg);
+                if (!exportJpg) setExportPdf(false);
+              }}
+              style={{ marginLeft: 4 }}
+            />
+          </label>
+        </div>
+
+        <button
+          onClick={handleDownload}
+          style={{
+            width: "100%",
+            border: `2px solid #20e3d7`,
+            color: "#c5f9ee",
+            borderRadius: 8,
+            fontWeight: 500,
+            fontSize: 16,
+            height: 36,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 7,
+            marginTop: 8,
+            cursor: "pointer",
+            backgroundColor: "transparent",
+            transition: "background-color 0.3s ease",
+          }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.backgroundColor = "rgba(15, 249, 204, 0.15)")
+          }
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+        >
+          Download <Download size={19} />
+        </button>
       </div>
-    </div>
+    )}
+  </div>
+</div>
+
   );
 }
 function SharePlugin({title}) {
@@ -454,126 +468,151 @@ function TextOptionsBar({
 
   return (
     <div
-      className="flex items-center gap-3 px-4 py-2 bg-black/90 rounded-xl border border-gray-700 absolute bottom-[-75px] left-1/2 transform -translate-x-1/2 z-50 shadow-2xl"
-      style={{ minWidth: 520 }}
+  className="flex items-center gap-3 px-4 py-2 rounded-xl border absolute bottom-[-85px] left-1/2 transform -translate-x-1/2 z-50 shadow-2xl"
+  style={{
+    minWidth: 520,
+    backgroundColor: "rgba(12, 46, 50, 0.9)", // dark teal translucent background
+    borderColor: "#20e3d7", // bright cyan border
+     // subtle cyan glow shadow
+  }}
+>
+  <div
+    className="flex items-center gap-2 rounded-lg px-2 py-1"
+    style={{
+      backgroundColor: "rgba(4, 49, 56, 0.7)", // slightly lighter dark teal bg
+      border: "1px solid #20e3d7", // bright cyan border
+    }}
+  >
+    <select
+      value={fontFamily}
+      onChange={onChangeFont}
+      className="bg-transparent border-none rounded px-2 py-1 focus:outline-none"
+      title="Font family"
+      style={{
+        color: "#a5f1ea", // light cyan text
+      }}
     >
-      <div className="flex items-center gap-2 bg-gray-900/70 border border-gray-700 rounded-lg px-2 py-1">
-        <select
-          value={fontFamily}
-          onChange={onChangeFont}
-          className="bg-transparent text-white border-none rounded px-2 py-1 focus:outline-none"
-          title="Font family"
-        >
-          <option className="bg-gray-900" value="Arial">
-            Arial
-          </option>
-          <option className="bg-gray-900" value="Georgia">
-            Georgia
-          </option>
-          <option className="bg-gray-900" value="Times New Roman">
-            Times New Roman
-          </option>
-          <option className="bg-gray-900" value="Courier New">
-            Courier New
-          </option>
-          <option className="bg-gray-900" value="Monospace">
-            Monospace
-          </option>
-          <option className="bg-gray-900" value="sans-serif">
-            Sans Serif
-          </option>
-          <option className="bg-gray-900" value="serif">
-            Serif
-          </option>
-        </select>
-        <div className="w-px h-6 bg-gray-700" />
-        <select
-          value={fontSize}
-          onChange={onChangeFontSize}
-          className="bg-transparent text-white border-none rounded px-2 py-1 focus:outline-none"
-          title="Font size"
-        >
-          <option className="bg-gray-900" value="12">
-            12
-          </option>
-          <option className="bg-gray-900" value="14">
-            14
-          </option>
-          <option className="bg-gray-900" value="16">
-            16
-          </option>
-          <option className="bg-gray-900" value="18">
-            18
-          </option>
-          <option className="bg-gray-900" value="20">
-            20
-          </option>
-          <option className="bg-gray-900" value="24">
-            24
-          </option>
-          <option className="bg-gray-900" value="28">
-            28
-          </option>
-          <option className="bg-gray-900" value="32">
-            32
-          </option>
-        </select>
-        <div className="w-px h-6 bg-gray-700" />
-        <input
-          type="color"
-          title="Font color"
-          value={fontColor}
-          onChange={onChangeFontColor}
-          className="w-8 h-8 p-0 border-none rounded cursor-pointer bg-transparent"
-          aria-label="Font color picker"
-        />
-      </div>
+      {["Arial", "Georgia", "Times New Roman", "Courier New", "Monospace", "sans-serif", "serif"].map((font) => (
+        <option key={font} className="bg-[#043138]" value={font}>
+          {font}
+        </option>
+      ))}
+    </select>
+    <div style={{ width: 1, height: 24, backgroundColor: "#20e3d7" }} />
 
-      <div className="w-px h-8 bg-gray-700" />
+    <select
+      value={fontSize}
+      onChange={onChangeFontSize}
+      className="bg-transparent border-none rounded px-2 py-1 focus:outline-none"
+      title="Font size"
+      style={{
+        color: "#a5f1ea",
+      }}
+    >
+      {[12, 14, 16, 18, 20, 24, 28, 32].map((size) => (
+        <option key={size} className="bg-[#043138]" value={size}>
+          {size}
+        </option>
+      ))}
+    </select>
+    <div style={{ width: 1, height: 24, backgroundColor: "#20e3d7" }} />
 
-      <div className="flex items-center gap-1 bg-gray-900/70 border border-gray-700 rounded-lg p-1">
-        <button
-          onClick={undo}
-          className="p-2 hover:bg-gray-800 rounded-lg text-white"
-          title="Undo"
-        >
-          <Undo size={18} />
-        </button>
-        <button
-          onClick={redo}
-          className="p-2 hover:bg-gray-800 rounded-lg text-white"
-          title="Redo"
-        >
-          <Redo size={18} />
-        </button>
-      </div>
+    <input
+      type="color"
+      title="Font color"
+      value={fontColor}
+      onChange={onChangeFontColor}
+      aria-label="Font color picker"
+      className="w-8 h-8 p-0 border-none rounded cursor-pointer bg-transparent"
+      style={{
+        border: "1px solid #20e3d7",
+        cursor: "pointer",
+      }}
+    />
+  </div>
 
-      <div className="w-px h-8 bg-gray-700" />
+  <div style={{ width: 1, height: 32, backgroundColor: "#20e3d7" }} />
 
-      <div className="flex items-center gap-1 bg-gray-900/70 border border-gray-700 rounded-lg p-1">
-        <button
-          onClick={formatBold}
-          className="px-3 py-2 hover:bg-gray-800 rounded-lg text-white font-semibold"
-          title="Bold"
-        >
-          B
-        </button>
-        <button
-          onClick={formatItalic}
-          className="px-3 py-2 hover:bg-gray-800 rounded-lg text-white italic"
-          title="Italic"
-        >
-          I
-        </button>
-        <button
-          onClick={formatUnderline}
-          className="px-3 py-2 hover:bg-gray-800 rounded-lg text-white underline"
-          title="Underline"
-        >
-          U
-        </button>
-      </div>
-    </div>
+  <div
+    className="flex items-center gap-1 rounded-lg p-1"
+    style={{
+      backgroundColor: "rgba(4, 49, 56, 0.7)",
+      border: "1px solid #20e3d7",
+    }}
+  >
+    <button
+      onClick={undo}
+      className="p-2 rounded-lg text-white"
+      title="Undo"
+      style={{ backgroundColor: "transparent", color: "#a5f1ea" }}
+      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0ff9cc33")}
+      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+    >
+      <Undo size={18} />
+    </button>
+    <button
+      onClick={redo}
+      className="p-2 rounded-lg text-white"
+      title="Redo"
+      style={{ backgroundColor: "transparent", color: "#a5f1ea" }}
+      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0ff9cc33")}
+      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+    >
+      <Redo size={18} />
+    </button>
+  </div>
+
+  <div style={{ width: 1, height: 32, backgroundColor: "#20e3d7" }} />
+
+  <div
+    className="flex items-center gap-1 rounded-lg p-1"
+    style={{
+      backgroundColor: "rgba(4, 49, 56, 0.7)",
+      border: "1px solid #20e3d7",
+    }}
+  >
+    <button
+      onClick={formatBold}
+      className="px-3 py-2 rounded-lg font-semibold text-white"
+      title="Bold"
+      style={{
+        backgroundColor: "transparent",
+        color: "#a5f1ea",
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0ff9cc33")}
+      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+    >
+      B
+    </button>
+    <button
+      onClick={formatItalic}
+      className="px-3 py-2 rounded-lg italic text-white"
+      title="Italic"
+      style={{
+        backgroundColor: "transparent",
+        color: "#a5f1ea",
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0ff9cc33")}
+      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+    >
+      I
+    </button>
+    <button
+      onClick={formatUnderline}
+      className="px-3 py-2 rounded-lg underline text-white"
+      title="Underline"
+      style={{
+        backgroundColor: "transparent",
+        color: "#a5f1ea",
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0ff9cc33")}
+      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+    >
+      U
+    </button>
+  </div>
+</div>
+
   );
 }
 function PenTool() {
@@ -706,189 +745,178 @@ function PenTool() {
     <div className="">
       {/* Controls */}
       <div
-        className="absolute left-[130px] bottom-[-80px] w-fit"
-        style={{
-          background: "#0b0b0b",
-          padding: "10px 12px",
-          borderRadius: "12px",
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-          border: "1px solid #2a2a2a",
-          boxShadow: "0 6px 22px rgba(0,0,0,0.5)",
-          zIndex: 6000,
-        }}
-      >
-        <div
+  className=""
+  style={{
+    position: "absolute",
+    left: "130px",
+    bottom: "-85px",
+    background: "rgba(12, 46, 50, 0.95)", // deep dark teal bg
+    padding: "10px 12px",
+    borderRadius: "12px",
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    border: "1px solid #20e3d7", // bright cyan border
+     // cyan glow shadow
+    zIndex: 6000,
+  }}
+>
+  <div
+    style={{
+      display: "flex",
+      gap: 6,
+      background: "#043138", // darker teal for button group bg
+      padding: "6px",
+      borderRadius: 10,
+    }}
+  >
+    {["pen", "highlighter", "eraser"].map((toolType) => {
+      const iconMap = {
+        pen: <Brush size={18} color="#a5f1ea" />,
+        highlighter: <Highlighter size={18} color="#a5f1ea" />,
+        eraser: <Eraser size={18} color="#a5f1ea" />,
+      };
+      const isActive = tool === toolType;
+      return (
+        <button
+          key={toolType}
+          onClick={() => setTool(toolType)}
+          title={toolType[0].toUpperCase() + toolType.slice(1)}
           style={{
-            display: "flex",
-            gap: 6,
-            background: "#121212",
-            padding: "6px",
-            borderRadius: 10,
-          }}
-        >
-          <button
-            onClick={() => setTool("pen")}
-            title="Pen"
-            style={{
-              padding: 8,
-              borderRadius: 8,
-              background: tool === "pen" ? "#1f2937" : "transparent",
-              border: `1px solid ${tool === "pen" ? "#374151" : "transparent"}`,
-              color: "#e5e7eb",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
-          >
-            <Brush size={18} />
-          </button>
-          <button
-            onClick={() => setTool("highlighter")}
-            title="Highlighter"
-            style={{
-              padding: 8,
-              borderRadius: 8,
-              background: tool === "highlighter" ? "#1f2937" : "transparent",
-              border: `1px solid ${
-                tool === "highlighter" ? "#374151" : "transparent"
-              }`,
-              color: "#e5e7eb",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
-          >
-            <Highlighter size={18} />
-          </button>
-          <button
-            onClick={() => setTool("eraser")}
-            title="Eraser"
-            style={{
-              padding: 8,
-              borderRadius: 8,
-              background: tool === "eraser" ? "#1f2937" : "transparent",
-              border: `1px solid ${
-                tool === "eraser" ? "#374151" : "transparent"
-              }`,
-              color: "#e5e7eb",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
-          >
-            <Eraser size={18} />
-          </button>
-        </div>
-
-        <div style={{ width: 1, height: 28, background: "#2a2a2a" }} />
-
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Droplet size={16} color="#9ca3af" />
-          <input
-            type="color"
-            value={color}
-            onChange={(e) => setColor(e.target.value)}
-            disabled={tool === "eraser"}
-            style={{
-              width: 28,
-              height: 28,
-              border: "none",
-              background: "transparent",
-            }}
-            title="Color"
-          />
-        </div>
-
-        <div
-          style={{
+            padding: 8,
+            borderRadius: 8,
+            backgroundColor: isActive ? "#0ff9cc" : "transparent",
+            border: isActive ? "1px solid #0cc8b0" : "1px solid transparent",
+            color: "#e5e7eb",
             display: "flex",
             alignItems: "center",
-            gap: 10,
-            minWidth: 160,
+            gap: 6,
+            transition: "background-color 0.3s, border-color 0.3s",
+            cursor: "pointer",
           }}
         >
-          <span style={{ color: "#9ca3af", fontSize: 12, width: 50 }}>
-            Size {thickness}
-          </span>
-          <input
-            type="range"
-            min="1"
-            max="30"
-            value={thickness}
-            onChange={(e) => setThickness(e.target.value)}
-            title="Brush size"
-          />
-        </div>
+          {iconMap[toolType]}
+        </button>
+      );
+    })}
+  </div>
 
-        <div style={{ width: 1, height: 28, background: "#2a2a2a" }} />
+  <div style={{ width: 1, height: 28, background: "#20e3d7" }} />
 
-        <div style={{ display: "flex", gap: 6 }}>
-          <button
-            onClick={undo}
-            title="Undo"
-            style={{
-              padding: 8,
-              borderRadius: 8,
-              color: "#e5e7eb",
-              background: "#121212",
-              border: "1px solid #2a2a2a",
-            }}
-          >
-            ↩️
-          </button>
-          <button
-            onClick={redo}
-            title="Redo"
-            style={{
-              padding: 8,
-              borderRadius: 8,
-              color: "#e5e7eb",
-              background: "#121212",
-              border: "1px solid #2a2a2a",
-            }}
-          >
-            ↪️
-          </button>
-          <button
-            title="Clear canvas"
-            onClick={() => {
-              const canvas = canvasRef.current;
-              const ctx = ctxRef.current;
-              if (!canvas || !ctx) return;
-              ctx.clearRect(0, 0, canvas.width, canvas.height);
-              setHistory([]);
-              setRedoStack([]);
-            }}
-            style={{
-              padding: 8,
-              borderRadius: 8,
-              color: "#fca5a5",
-              background: "#121212",
-              border: "1px solid #7f1d1d",
-            }}
-          >
-            <Trash2 size={18} />
-          </button>
-        </div>
-      </div>
+  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+    <Droplet size={16} color="#20e3d7" />
+    <input
+      type="color"
+      value={color}
+      onChange={(e) => setColor(e.target.value)}
+      disabled={tool === "eraser"}
+      style={{
+        width: 28,
+        height: 28,
+        border: "none",
+        background: "transparent",
+        cursor: tool === "eraser" ? "not-allowed" : "pointer",
+      }}
+      title="Color"
+    />
+  </div>
 
-      {/* Canvas main */}
-      <canvas
-        className=" absolute max-w-4xl bottom-[-10px] left-[-40px] h-[400px] w-[900px]"
-        ref={canvasRef}
-        style={{
-          cursor: cursorStyle,
-          zIndex: 60,
-          background: "transparent",
-        }}
-        data-pen-canvas="true"
-        onMouseDown={startDrawing}
-        onMouseMove={draw}
-        onMouseUp={stopDrawing}
-        onMouseLeave={stopDrawing}
-      />
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      gap: 10,
+      minWidth: 160,
+    }}
+  >
+    <span style={{ color: "#20e3d7", fontSize: 12, width: 50 }}>
+      Size {thickness}
+    </span>
+    <input
+      type="range"
+      min="1"
+      max="30"
+      value={thickness}
+      onChange={(e) => setThickness(e.target.value)}
+      title="Brush size"
+      style={{
+        cursor: "pointer",
+        accentColor: "#0ff9cc",
+      }}
+    />
+  </div>
+
+  <div style={{ width: 1, height: 28, background: "#20e3d7" }} />
+
+  <div style={{ display: "flex", gap: 6 }}>
+    <button
+      onClick={undo}
+      title="Undo"
+      style={{
+        padding: 8,
+        borderRadius: 8,
+        color: "#a5f1ea",
+        background: "#043138",
+        border: "1px solid #0cc8b0",
+        cursor: "pointer",
+      }}
+    >
+      ↩️
+    </button>
+    <button
+      onClick={redo}
+      title="Redo"
+      style={{
+        padding: 8,
+        borderRadius: 8,
+        color: "#a5f1ea",
+        background: "#043138",
+        border: "1px solid #0cc8b0",
+        cursor: "pointer",
+      }}
+    >
+      ↪️
+    </button>
+    <button
+      title="Clear canvas"
+      onClick={() => {
+        const canvas = canvasRef.current;
+        const ctx = ctxRef.current;
+        if (!canvas || !ctx) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        setHistory([]);
+        setRedoStack([]);
+      }}
+      style={{
+        padding: 8,
+        borderRadius: 8,
+        color: "#fca5a5",
+        background: "#2a1b1b",
+        border: "1px solid #7f1d1d",
+        cursor: "pointer",
+      }}
+    >
+      <Trash2 size={18} />
+    </button>
+  </div>
+</div>
+
+{/* Canvas main */}
+<canvas
+  className="absolute max-w-4xl bottom-[-10px] left-[-40px] h-[400px] w-[900px]"
+  ref={canvasRef}
+  style={{
+    cursor: cursorStyle,
+    zIndex: 60,
+    background: "transparent",
+  }}
+  data-pen-canvas="true"
+  onMouseDown={startDrawing}
+  onMouseMove={draw}
+  onMouseUp={stopDrawing}
+  onMouseLeave={stopDrawing}
+/>
+
     </div>
   );
 }
@@ -960,44 +988,60 @@ function ToolbarPlugin({ onTogglePenTool }) {
       {activeBar === "pen" && <PenTool />}
 
       <div
-        className="flex justify-center items-center gap-2 px-1 py-1 bg-black/90 rounded-lg border border-gray-600 fixed bottom-16 left-1/2 transform -translate-x-1/2 z-50 shadow-xl"
-        style={{ minWidth: 240 }}
-      >
-        {/* Text Options Button */}
-        <button
-          onClick={() => setActiveBar(activeBar === "text" ? null : "text")}
-          className={`flex flex-col items-center px-4 py-2 rounded transition-all ${
-            activeBar === "text" ? "bg-gray-800" : ""
-          }`}
-          title="Text options"
-        >
-          <Type size={24} />
-        </button>
+  className="flex justify-center items-center gap-2 px-1 py-1 rounded-lg fixed bottom-[40px] left-1/2 transform -translate-x-1/2 z-50 shadow-xl"
+  style={{
+    minWidth: 240,
+    backgroundColor: "rgba(12, 46, 50, 0.90)", // dark teal translucent background
+    border: "1px solid #20e3d7", // bright cyan border
+     // subtle cyan glow
+  }}
+>
+  {/* Text Options Button */}
+  <button
+    onClick={() => setActiveBar(activeBar === "text" ? null : "text")}
+    className="flex flex-col items-center px-4 py-2 rounded transition-all"
+    style={{
+      backgroundColor: activeBar === "text" ? "#0ff9cc" : "transparent",
+      color: activeBar === "text" ? "#003534" : "#a5f1ea",
+      boxShadow: activeBar === "text" ? "0 0 8px #0ff9ccaa" : "none",
+    }}
+    title="Text options"
+  >
+    <Type size={24} />
+  </button>
 
-        {/* Pen Tool Button */}
-        <button
-          onClick={() => setActiveBar(activeBar === "pen" ? null : "pen")}
-          className={`flex flex-col items-center px-4 py-2 rounded transition-all ${
-            activeBar === "pen" ? "bg-gray-800" : ""
-          }`}
-          title="Pen Tool"
-        >
-          <Pencil size={24} />
-        </button>
+  {/* Pen Tool Button */}
+  <button
+    onClick={() => setActiveBar(activeBar === "pen" ? null : "pen")}
+    className="flex flex-col items-center px-4 py-2 rounded transition-all"
+    style={{
+      backgroundColor: activeBar === "pen" ? "#0ff9cc" : "transparent",
+      color: activeBar === "pen" ? "#003534" : "#a5f1ea",
+      boxShadow: activeBar === "pen" ? "0 0 8px #0ff9ccaa" : "none",
+    }}
+    title="Pen Tool"
+  >
+    <Pencil size={24} />
+  </button>
 
-        {/* Effects Button (Disabled) */}
-        <button
-          onClick={() => setActiveBar(activeBar === "effect" ? null : "effect")}
-          className={`flex flex-col items-center px-4 py-2 rounded transition-all ${
-            activeBar === "effect" ? "bg-gray-800" : ""
-          }`}
-          title="Effects"
-          disabled
-          style={{ opacity: 0.3, cursor: "not-allowed" }}
-        >
-          <Sparkle size={24} />
-        </button>
-      </div>
+  {/* Effects Button (Disabled) */}
+  <button
+    onClick={() => setActiveBar(activeBar === "effect" ? null : "effect")}
+    className="flex flex-col items-center px-4 py-2 rounded transition-all"
+    title="Effects"
+    disabled
+    style={{
+      opacity: 0.3,
+      cursor: "not-allowed",
+      color: "#20e3d7",
+      backgroundColor: "transparent",
+      border: "none",
+    }}
+  >
+    <Sparkle size={24} />
+  </button>
+</div>
+
     </>
   );
 }
@@ -1116,87 +1160,130 @@ function LexicalEditor() {
   }, []);
 
   return (
-    <div className="flex">
-      {/* Main editor wrapper */}
-      <div className="w-screen h-screen bg-black relative flex flex-col justify-center items-center overflow-hidden">
-        <SidebarOnHover2 />
-        <div className="absolute gap-2 top-20 left-10 flex items-center">
-          <a href="/tasks" className="    text-white font-medium">
-            <ArrowLeft size={18} />
-          </a>
-
-          <p className=" text-white font-medium">{title}</p>
-        </div>
-        {/* Editable <h1> */}
-        <h1
-          className="editable-title"
-          ref={h1Ref}
-          contentEditable
-          suppressContentEditableWarning={true}
-          spellCheck={false}
-          onInput={handleInput}
-          style={{
-            position: "fixed",
-            top: "80px",
-            left: "310px",
-            zIndex: 50,
-            cursor: "text",
-            fontSize: "1.5rem",
-            fontWeight: "600",
-            fontFamily: "sans-serif",
-            color: "white",
-            backgroundColor: "rgba(0, 0, 0, 0.6)",
-            padding: "8px 16px",
-            borderRadius: "12px",
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
-            overflow: "hidden",
-            whiteSpace: "nowrap",
-            textOverflow: "ellipsis",
-            outline: "none",
-            userSelect: "text",
-          }}
-          aria-label="Notes Title"
-        />
-
-        <div className=" h-[400px] w-[900px]  border border-cyan-900 rounded-md  pt-10 relative z-10">
-          {ispenactive && (
-            <div className="bg-black border-none rounded-lg shadow-lg relative px-10">
-              <LexicalComposer initialConfig={editorInitialConfig}>
-                <div className="relative">
-                  <RichTextPlugin
-                    contentEditable={
-                      <ContentEditable
-                        className="min-h-[350px] text-xl font-normal outline-none resize-none px-1"
-                        style={{ color: "white", caretColor: "white" }}
-                      />
-                    }
-                    placeholder={
-                      <h2 className="absolute top-0 left-4 text-white pointer-events-none text-lg">
-                        {"Let's Start"}
-                      </h2>
-                    }
-                    ErrorBoundary={LexicalErrorBoundary}
-                  />
-                  <SaveToLocalStoragePlugin />
-                  <HistoryPlugin />
-                  <AutoFocusPlugin />
-                  <OnChangePlugin onChange={onChange} />
-
-                  {/* ✅ Pass toggle down to ToolbarPlugin */}
-                  <ToolbarPlugin
-                    onTogglePenTool={() => setShowPenTool((prev) => !prev)}
-                  />
-                </div>
-                <SharePlugin  title={title}/>
-              </LexicalComposer>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ✅ Only render PenTool if state is true */}
-      <div>{showPenTool && <PenTool />}</div>
+    <div
+  className="flex opacity-80 bg-gradient-to-br from-transparent via-cyan-800 to-transparent"
+  style={{
+    minHeight: "100vh",
+    minWidth: "100vw",
+    
+    color: "#e8fffe" // Very light cyan for main text
+  }}
+>
+  {/* Main editor wrapper */}
+  <div
+    className="w-screen h-screen relative flex flex-col justify-center items-center overflow-hidden"
+    style={{
+       background: "rgba(6, 26, 36, 0.4)",
+      boxShadow: "0 0 60px 0 rgba(15, 249, 204, 0.25)" // semi-transparent bright cyan glow
+    }}
+  >
+    <SidebarOnHover2 />
+    <div className="absolute gap-2 top-20 left-10 flex items-center">
+      <a
+        href="/tasks"
+        className="font-medium transition-colors"
+        style={{ color: "#22d2c6" }} // Teal cyan
+        onMouseEnter={(e) => (e.currentTarget.style.color = "#16b0a6")} // Darker teal on hover
+        onMouseLeave={(e) => (e.currentTarget.style.color = "#22d2c6")}
+      >
+        <ArrowLeft size={18} />
+      </a>
+      <p
+        className="font-medium drop-shadow-md"
+        style={{ color: "#15f1cf" }} // Light cyan
+      >
+        {title}
+      </p>
     </div>
+
+    {/* Editable <h1> */}
+    <h1
+      className="editable-title"
+      ref={h1Ref}
+      contentEditable
+      suppressContentEditableWarning={true}
+      spellCheck={false}
+      onInput={handleInput}
+      style={{
+        position: "fixed",
+        top: "80px",
+        left: "340px",
+        zIndex: 50,
+        cursor: "text",
+        fontSize: "1.5rem",
+        fontWeight: 600,
+        fontFamily: "sans-serif",
+        color: "#0ff9cc", // Bright cyan
+        backgroundColor: "rgba(15, 52, 96, 0.95)", // Semi-transparent dark blue
+        padding: "8px 16px",
+        borderRadius: "12px",
+         // semi-transparent bright cyan glow
+        border: "1px solid #1ae5d2", // Cyan blue border
+        overflow: "hidden",
+        whiteSpace: "nowrap",
+        textOverflow: "ellipsis",
+        outline: "none",
+        userSelect: "text",
+      }}
+      aria-label="Notes Title"
+    />
+
+    <div
+      className="h-[400px] w-[900px] border rounded-md pt-10 relative z-10"
+      style={{
+         background: "rgba(6, 26, 36, 0.4)", // Semi-transparent very dark blue
+       // semi-transparent bright cyan glow
+        border: "2px solid #20e3d7", // Light cyan blue border
+      }}
+    >
+      {ispenactive && (
+        <div
+          className="rounded-lg shadow-lg relative px-10"
+          style={{  border: "none" }} // Very dark blue background
+        >
+          <LexicalComposer initialConfig={editorInitialConfig}>
+            <div className="relative">
+              <RichTextPlugin
+                contentEditable={
+                  <ContentEditable
+                    className="h-[350px] text-xl font-normal outline-none resize-none px-1"
+                    style={{
+                      color: "#e4ffff", // Light cyan alternative
+                       // Bright cyan caret
+                       // Semi-transparent very dark blue
+                    }}
+                  />
+                }
+                placeholder={
+                  <h2
+                    className="absolute top-0 left-4 pointer-events-none text-lg"
+                     // Very light cyan
+                  >
+                    {"Let's Start"}
+                  </h2>
+                }
+                ErrorBoundary={LexicalErrorBoundary}
+              />
+              <SaveToLocalStoragePlugin />
+              <HistoryPlugin />
+              <AutoFocusPlugin />
+              <OnChangePlugin onChange={onChange} />
+              <ToolbarPlugin
+                onTogglePenTool={() => setShowPenTool((prev) => !prev)}
+              />
+            </div>
+            <SharePlugin title={title} />
+          </LexicalComposer>
+        </div>
+      )}
+    </div>
+  </div>
+
+  {/* Only render PenTool if state is true */}
+  <div>{showPenTool && <PenTool />}</div>
+</div>
+
+
   );
 }
 
