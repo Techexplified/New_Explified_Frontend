@@ -12,10 +12,13 @@ function SidebarOnHover({
   setCurrentMessages,
   onOpenChange,
   onAddClick,
+  tools = [],
+  setCurrentTool= ()=>{}
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarPinned, setSidebarPinned] = useState(false);
   console.log("chatHistory from sidebar:", chatHistory);
+  
 
   useEffect(() => {
     if (typeof onOpenChange === "function") {
@@ -97,7 +100,7 @@ function SidebarOnHover({
                 <div className="h-[250px] border-t border-minimal-primary/20 pt-2 overflow-y-auto">
                   <h1 className="text-sm text-gray-500">Available Keys</h1>
                   <div className="flex flex-col gap-2 mt-2">
-                    <button className="w-full bg-[#23b5b5] text-gray-300 p-2 rounded-md hover:bg-[#23b5b5]/80 transition-colors text-sm">
+                    {/* <button className="w-full bg-[#23b5b5] text-gray-300 p-2 rounded-md hover:bg-[#23b5b5]/80 transition-colors text-sm">
                       OpenAI
                     </button>
                     <button className="w-full bg-[#23b5b5] text-gray-300 p-2 rounded-md hover:bg-[#23b5b5]/80 transition-colors text-sm">
@@ -105,7 +108,16 @@ function SidebarOnHover({
                     </button>
                     <button className="w-full bg-[#23b5b5]   text-gray-300 p-2 rounded-md hover:bg-[#23b5b5]/80 transition-colors text-sm">
                       Grok
-                    </button>
+                    </button> */}
+                    {Object.entries(tools).map(([name, key], index) => (
+                      <button
+                        key={index}
+                        onClick={()=> setCurrentTool(name)}
+                        className="w-full bg-[#23b5b5] text-gray-300 p-2 rounded-md hover:bg-[#23b5b5]/80 transition-colors text-sm"
+                      >
+                        {name}
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>

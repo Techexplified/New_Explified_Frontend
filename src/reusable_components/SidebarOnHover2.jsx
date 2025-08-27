@@ -91,12 +91,12 @@ function SidebarOnHover2({ toolName, onToggle }) {
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full bg-black/95 backdrop-blur-xl border-r border-minimal-primary/20
-        flex flex-col justify-between transition-all duration-300 z-50
-        ${sidebarOpen || sidebarPinned ? "w-72 px-6" : "w-0 px-0 overflow-hidden"}`}
-        onMouseEnter={() => !sidebarPinned && setSidebarOpen(true)}
-        onMouseLeave={() => !sidebarPinned && setSidebarOpen(false)}
-      >
+  className={`fixed top-0 left-0 h-full bg-black/95 backdrop-blur-xl border-r border-minimal-primary/20
+  flex flex-col justify-between transition-all duration-300 z-50 overflow-y-auto
+  ${sidebarOpen || sidebarPinned ? "w-72 px-6" : "w-0 px-0 overflow-hidden"}`}
+  onMouseEnter={() => !sidebarPinned && setSidebarOpen(true)}
+  onMouseLeave={() => !sidebarPinned && setSidebarOpen(false)}
+>
         {/* Top Section */}
         <div className="mt-8 flex flex-col gap-6">
           {/* Header + Pin */}
@@ -116,7 +116,7 @@ function SidebarOnHover2({ toolName, onToggle }) {
           </div>
 
           {/* Search */}
-          <div className="relative w-22 mr-4">
+          <div className="relative w-[200px] mr-4">
   <input
     type="text"
     placeholder="Search notes..."
@@ -131,14 +131,15 @@ function SidebarOnHover2({ toolName, onToggle }) {
           {/* Floating + Button */}
           <button
             onClick={() => navigate("/notes")}
-            className="absolute right-10 top-24 w-10 h-10 bg-minimal-primary text-white rounded-xl flex items-center justify-center shadow-lg hover:bg-minimal-primary/80 transition-all"
+            className="absolute right-3 top-[90px] w-8 h-8 bg-minimal-primary text-white rounded-xl flex items-center justify-center shadow-lg hover:bg-minimal-primary/80 transition-all"
             title="Add Note"
           >
             <Plus className="w-5 h-5" />
           </button>
 
           {/* Notes list */}
-          <div className="flex-1 overflow-y-auto space-y-3 pr-2 pb-6 scrollbar-thin scrollbar-thumb-minimal-primary/40 scrollbar-track-black">
+          <div className="flex-1 h-screen overflow-y-auto space-y-3 pr-2 pb-6 
+  scrollbar-thin scrollbar-thumb-minimal-primary/40 scrollbar-track-black">
             {filteredTasks.map((task) => {
               const isSelected = String(task.id) === selectedId;
               return (

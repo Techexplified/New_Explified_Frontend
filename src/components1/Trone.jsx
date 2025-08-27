@@ -31,6 +31,8 @@ const INTEGRATION_PROVIDERS = [
     description: "Google's Gemini models for text, chat and multimodal tasks.",
     apiUrl: "https://generativelanguage.googleapis.com/v1beta/", // Google AI Studio API
     docs: "https://ai.google.dev/gemini-api/docs",
+    apiUrl: "https://generativelanguage.googleapis.com/v1beta/", // Google AI Studio API
+    docs: "https://ai.google.dev/gemini-api/docs",
   },
   {
     id: "openai",
@@ -38,6 +40,8 @@ const INTEGRATION_PROVIDERS = [
     icon: FiCpu,
     byok: true,
     description: "OpenAI GPT models for powerful text and chat experiences.",
+    apiUrl: "https://api.openai.com/v1/",
+    docs: "https://platform.openai.com/docs/api-reference",
     apiUrl: "https://api.openai.com/v1/",
     docs: "https://platform.openai.com/docs/api-reference",
   },
@@ -49,6 +53,8 @@ const INTEGRATION_PROVIDERS = [
     description: "xAI Grok models for reasoning and fast responses.",
     apiUrl: "https://api.x.ai/v1/", // xAI Grok API
     docs: "https://docs.x.ai/api",
+    apiUrl: "https://api.x.ai/v1/", // xAI Grok API
+    docs: "https://docs.x.ai/api",
   },
   {
     id: "anthropic",
@@ -56,6 +62,8 @@ const INTEGRATION_PROVIDERS = [
     icon: FiLayers,
     byok: true,
     description: "Claude models by Anthropic for safe, helpful outputs.",
+    apiUrl: "https://api.anthropic.com/v1/",
+    docs: "https://docs.anthropic.com/claude/reference",
     apiUrl: "https://api.anthropic.com/v1/",
     docs: "https://docs.anthropic.com/claude/reference",
   },
@@ -67,6 +75,8 @@ const INTEGRATION_PROVIDERS = [
     description: "Mistral small, medium and mixtral models.",
     apiUrl: "https://api.mistral.ai/v1/",
     docs: "https://docs.mistral.ai/",
+    apiUrl: "https://api.mistral.ai/v1/",
+    docs: "https://docs.mistral.ai/",
   },
   {
     id: "cohere",
@@ -74,6 +84,8 @@ const INTEGRATION_PROVIDERS = [
     icon: FiGitBranch,
     byok: true,
     description: "Cohere Command and Embed models for text and vectors.",
+    apiUrl: "https://api.cohere.ai/v1/",
+    docs: "https://docs.cohere.com/docs",
     apiUrl: "https://api.cohere.ai/v1/",
     docs: "https://docs.cohere.com/docs",
   },
@@ -297,6 +309,7 @@ function Trone({ onFirstPrompt }) {
       setIsTyping(true);
 
       // Persist to recentPrompts
+      // Persist to recentPrompts
       const existing = JSON.parse(localStorage.getItem("recentPrompts")) || [];
       const trimmed = prompt.trim();
       const newSet = [trimmed, ...existing.filter((p) => p !== trimmed)].slice(
@@ -426,6 +439,7 @@ function Trone({ onFirstPrompt }) {
 
         const botMessage = {
           sender: "bot",
+          text: botText,
           text: botText,
           timestamp: new Date().toISOString(),
         };
@@ -563,6 +577,8 @@ function Trone({ onFirstPrompt }) {
         onOpenChange={(open) => setIsSidebarOpen(open)}
         link={"https://explified.com/expli/"}
         toolName={"Expli"}
+        tools={providerKeys}
+        setCurrentTool={setCurrentTool}
       />
       <div className="flex-1 flex flex-col items-center justify-center mt-12 w-screen">
         <div
@@ -570,10 +586,12 @@ function Trone({ onFirstPrompt }) {
             isSidebarOpen ? "left-72" : "left-8"
           }`}
         ></div>
+
         {/* Session Controls */}
         <h1 className="text-2xl font-bold text-left w-full max-w-3xl mx-auto px-2 bg-gradient-to-r from-teal-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent mb-4">
           Expli
         </h1>
+
         <div className="w-full max-w-3xl mx-auto rounded-xl border border-cyan-900/60 shadow-[0_0_0_1px_rgba(0,255,255,0.06),0_0_24px_rgba(0,255,255,0.07)] bg-transparent p-4 sm:p-5 flex flex-col min-h-[80vh] relative">
           {/* Background Pattern */}
           <div className="absolute inset-0 rounded-xl opacity-50 pointer-events-none bg-gradient-to-br from-black  to-black"></div>
@@ -765,7 +783,7 @@ function Trone({ onFirstPrompt }) {
                       <select
                         value={currentTool}
                         onChange={(e) => setCurrentTool(e.target.value)}
-                        className="bg-black py-1.5 px-3 border rounded-lg border-cyan-900/80 text-xs sm:text-sm text-gray-200 backdrop-blur focus:outline-none"
+                        className="bg-gray-800 py-1.5 px-3 border rounded-lg border-cyan-900/80 text-xs sm:text-sm text-gray-200 backdrop-blur focus:outline-none"
                       >
                         <option
                           value="default"
@@ -1077,6 +1095,10 @@ function Trone({ onFirstPrompt }) {
                         </button>
                         <button
                           className="px-3 py-2 rounded-lg bg-teal-600 hover:bg-teal-500 text-white"
+                          onClick={() => {
+                            handleSaveProviderKey(selectedProviderId, true);
+                            setCurrentTool(selectedProviderId);
+                          }}
                           onClick={() => {
                             handleSaveProviderKey(selectedProviderId, true);
                             setCurrentTool(selectedProviderId);

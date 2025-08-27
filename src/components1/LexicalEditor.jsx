@@ -25,6 +25,7 @@ import {
   Italic,
   Underline,
   Undo,
+  ArrowLeft,
   Redo,
   Type,
   Pencil,
@@ -101,7 +102,7 @@ function applyStyleToSelection(editor, styleObj) {
 }
 
 // Share Button component
-function ShareButton({ getTextContent }) {
+function ShareButton({ getTextContent,noteTitle }) {
   const [showMenu, setShowMenu] = useState(false);
   const [copied, setCopied] = useState(false);
   const [exportPdf, setExportPdf] = useState(false);
@@ -111,6 +112,7 @@ function ShareButton({ getTextContent }) {
   // Generate sharable link only once when menu opens
   const generateLink = () => {
     const content = getTextContent();
+    saveNoteToTasks(content);
     const id = uuidv4();
 
     // Try to capture current pen drawing (if any) by querying tagged canvas
@@ -155,6 +157,7 @@ function ShareButton({ getTextContent }) {
     if (shareId) {
       // Prefer combined payload if available
       const combined = localStorage.getItem(`shared_note_${shareId}`);
+      console.log(localStorage.getItem("tasks"))
       if (combined) {
         try {
           const parsed = JSON.parse(combined);
@@ -178,6 +181,38 @@ function ShareButton({ getTextContent }) {
       }
     }
   }, []);
+ function saveNoteToTasks(content) {
+  // Assume first line = title, rest = text
+  const lines = content.split("\n");
+  const title = lines[0] || "Untitled";
+  const text = lines.slice(1).join("\n") || lines[0];
+
+  // Build task object
+  const newTask = {
+  id: Date.now(), // or uuidv4()
+  title: noteTitle,
+  content: text,
+  lastModified: new Date().toISOString(),
+  tag: "General",
+  favorite: false,
+};
+
+
+  // Load existing tasks
+  let tasks = [];
+  try {
+    const stored = localStorage.getItem("tasks");
+    if (stored) {
+      tasks = JSON.parse(stored);
+    }
+  } catch (e) {
+    console.warn("Failed to parse tasks:", e);
+  }
+
+  // Push and save back
+  tasks.push(newTask);
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}
 
   const handleCopy = () => {
     navigator.clipboard.writeText(shareLink);
@@ -373,7 +408,7 @@ function ShareButton({ getTextContent }) {
     </div>
   );
 }
-function SharePlugin() {
+function SharePlugin({title}) {
   const [editor] = useLexicalComposerContext();
 
   const getTextContent = () => {
@@ -384,7 +419,7 @@ function SharePlugin() {
     return text;
   };
 
-  return <ShareButton getTextContent={getTextContent} />;
+  return <ShareButton getTextContent={getTextContent} noteTitle={title}/>;
 }
 
 function TextOptionsBar({
@@ -419,7 +454,7 @@ function TextOptionsBar({
 
   return (
     <div
-      className="flex items-center gap-3 px-4 py-2 bg-black/90 rounded-xl border border-gray-700 absolute bottom-[-50px] left-1/2 transform -translate-x-1/2 z-50 shadow-2xl"
+      className="flex items-center gap-3 px-4 py-2 bg-black/90 rounded-xl border border-gray-700 absolute bottom-[-75px] left-1/2 transform -translate-x-1/2 z-50 shadow-2xl"
       style={{ minWidth: 520 }}
     >
       <div className="flex items-center gap-2 bg-gray-900/70 border border-gray-700 rounded-lg px-2 py-1">
@@ -547,7 +582,7 @@ function PenTool() {
 
   const [isDrawing, setIsDrawing] = useState(false);
   const [tool, setTool] = useState("pen"); // pen | eraser | highlighter
-  const [color, setColor] = useState("#000000");
+  const [color, setColor] = useState("#ffffff");
   const [thickness, setThickness] = useState(3);
 
   const [history, setHistory] = useState([]); // undo/redo stack
@@ -671,10 +706,8 @@ function PenTool() {
     <div className="">
       {/* Controls */}
       <div
+        className="absolute left-[130px] bottom-[-80px] w-fit"
         style={{
-          position: "fixed",
-          bottom: "130px",
-          right: "400px",
           background: "#0b0b0b",
           padding: "10px 12px",
           borderRadius: "12px",
@@ -841,15 +874,11 @@ function PenTool() {
         </div>
       </div>
 
-      {/* Canvas */}
+      {/* Canvas main */}
       <canvas
+        className=" absolute max-w-4xl bottom-[-10px] left-[-40px] h-[400px] w-[900px]"
         ref={canvasRef}
         style={{
-          position: "fixed",
-          top: 150,
-          left: 290,
-          width: "50vw",
-          height: "50vh",
           cursor: cursorStyle,
           zIndex: 60,
           background: "transparent",
@@ -1087,21 +1116,20 @@ function LexicalEditor() {
   }, []);
 
   return (
-    <>
+    <div className="flex">
       {/* Main editor wrapper */}
       <div className="w-screen h-screen bg-black relative flex flex-col justify-center items-center overflow-hidden">
         <SidebarOnHover2 />
-        <a
-          href="/tasks"
-          className="absolute top-20 left-20 inline-flex items-center gap-2 px-5 py-2 border-2 border-teal-500 rounded-xl bg-neutral-900 text-white font-medium hover:bg-neutral-800 transition"
-        >
-          Back
-        </a>
+        <div className="absolute gap-2 top-20 left-10 flex items-center">
+          <a href="/tasks" className="    text-white font-medium">
+            <ArrowLeft size={18} />
+          </a>
 
-        <p className="fixed top-8 left-20 text-white font-medium">{title}</p>
-
+          <p className=" text-white font-medium">{title}</p>
+        </div>
         {/* Editable <h1> */}
         <h1
+          className="editable-title"
           ref={h1Ref}
           contentEditable
           suppressContentEditableWarning={true}
@@ -1130,7 +1158,7 @@ function LexicalEditor() {
           aria-label="Notes Title"
         />
 
-        <div className="w-full max-w-2xl pt-16 relative z-10">
+        <div className=" h-[400px] w-[900px]  border border-cyan-900 rounded-md  pt-10 relative z-10">
           {ispenactive && (
             <div className="bg-black border-none rounded-lg shadow-lg relative px-10">
               <LexicalComposer initialConfig={editorInitialConfig}>
@@ -1159,7 +1187,7 @@ function LexicalEditor() {
                     onTogglePenTool={() => setShowPenTool((prev) => !prev)}
                   />
                 </div>
-                <SharePlugin />
+                <SharePlugin  title={title}/>
               </LexicalComposer>
             </div>
           )}
@@ -1167,8 +1195,8 @@ function LexicalEditor() {
       </div>
 
       {/* ✅ Only render PenTool if state is true */}
-      {showPenTool && <PenTool />}
-    </>
+      <div>{showPenTool && <PenTool />}</div>
+    </div>
   );
 }
 

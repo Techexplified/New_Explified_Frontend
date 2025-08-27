@@ -1,0 +1,129 @@
+[33md08e4fe[m[33m ([m[1;36mHEAD -> [m[1;32mAryan5[m[33m, [m[1;31morigin/Aryan5[m[33m)[m HEAD@{0}: commit (merge): Ankit's changes
+[33mb3315ae[m HEAD@{1}: commit: changes in scrollbar
+[33m3a9df80[m HEAD@{2}: pull origin ankit: updating HEAD
+[33m3a9df80[m HEAD@{3}: commit: Ankit's changes
+[33mf70bf94[m HEAD@{4}: commit: Mradul's change
+[33m741a40c[m HEAD@{5}: commit (merge): Sarita's Di
+[33ma7f7128[m HEAD@{6}: commit: changes in trone
+[33m185c7c8[m HEAD@{7}: commit: profilechanged
+[33m75074c9[m HEAD@{8}: commit: Ankit's changes
+[33md2c0c0f[m HEAD@{9}: commit: Mradul's changes
+[33m10ac2c1[m HEAD@{10}: pull origin Sarita: Merge made by the 'ort' strategy.
+[33m1a1bf7e[m HEAD@{11}: commit: Changes in sidebar
+[33md19756e[m HEAD@{12}: commit: mradul's changes in main
+[33ma48f6a8[m HEAD@{13}: commit: sidebar changed
+[33m46929b8[m HEAD@{14}: commit: share function
+[33m27bddf2[m HEAD@{15}: commit: Share feature enabled
+[33m0ab46e6[m HEAD@{16}: commit: Ankit's Trone changes
+[33m367d8a0[m HEAD@{17}: pull origin mradul: Merge made by the 'ort' strategy.
+[33md1a5066[m HEAD@{18}: commit: 25th commit
+[33me2cb928[m HEAD@{19}: commit (merge): 22nd commit
+[33ma722ca4[m HEAD@{20}: commit (merge): 21st commit
+[33m2d25685[m HEAD@{21}: commit: 20th commit
+[33me304ff3[m HEAD@{22}: commit: 19th commit
+[33m970e8d0[m HEAD@{23}: commit: 18th commit
+[33m09a194e[m HEAD@{24}: commit: 18th vommit
+[33m2785506[m HEAD@{25}: commit: 18th commit
+[33m31fd44d[m HEAD@{26}: commit: 17th commit
+[33m7ee9d65[m HEAD@{27}: commit (merge): 16th commit
+[33m0aa6727[m HEAD@{28}: commit: 14th commit
+[33mf6e7e89[m HEAD@{29}: commit: 12th commit
+[33m4eb7cb8[m HEAD@{30}: pull origin ankit: Merge made by the 'ort' strategy.
+[33mb702632[m HEAD@{31}: commit (merge): 14th commit
+[33md13132c[m HEAD@{32}: commit (merge): 13th commit
+[33mdb98324[m HEAD@{33}: commit: 12th commit
+[33m10a0045[m HEAD@{34}: commit (merge): 11th commit
+[33mcfb5003[m HEAD@{35}: commit (merge): 10TH commit
+[33mc99b765[m HEAD@{36}: commit: 9th commit
+[33m9f38cbe[m HEAD@{37}: commit (merge): 10th commit
+[33m46ea565[m HEAD@{38}: commit: 9th commit
+[33mcef3c9a[m HEAD@{39}: commit: 9th commit
+[33mf20f556[m HEAD@{40}: commit: 8th commit
+[33m59443be[m HEAD@{41}: commit (merge): 7th commit
+[33m55f8d31[m HEAD@{42}: commit: 6th commit
+[33m1f52ae9[m HEAD@{43}: commit (merge): 6th commit
+[33m5a82698[m HEAD@{44}: commit: 6th commit
+[33m31a47f8[m HEAD@{45}: commit: 5th commit
+[33m789dfcd[m HEAD@{46}: commit (merge): 5th commit
+[33m76e29c1[m HEAD@{47}: commit: 4th commit
+[33m334e8c6[m HEAD@{48}: commit (merge): third commit
+[33ma787b85[m HEAD@{49}: commit: second commit
+[33ma71a929[m HEAD@{50}: Branch: renamed refs/heads/Aryan7 to refs/heads/Aryan5
+[33ma71a929[m HEAD@{52}: commit (initial): First commit
+[33m45cbbbe[m HEAD@{53}: checkout: moving from 96bd49e7e9ad903d32ab993f48cc7a6816a9a8a2 to Aryan5
+[33m96bd49e[m HEAD@{54}: commit: second commit
+[33m45cbbbe[m HEAD@{55}: checkout: moving from Aryan5 to 45cbbbe
+[33m45cbbbe[m HEAD@{56}: Branch: renamed refs/heads/Aryan7 to refs/heads/Aryan5
+[33m45cbbbe[m HEAD@{58}: commit (initial): First commit
+[33mc653e76[m HEAD@{59}: checkout: moving from mradul to Aryan5
+[33md75e2f4[m[33m ([m[1;32mmradul[m[33m)[m HEAD@{60}: checkout: moving from 29bfc7095301a66b42fcdf28caa00fe2dc7b67a7 to mradul
+[33m29bfc70[m[33m ([m[1;32mnewb[m[33m)[m HEAD@{61}: reset: moving to 29bfc70
+[33mc2e1e7b[m HEAD@{62}: commit: new change
+[33mc653e76[m HEAD@{63}: checkout: moving from Aryan5 to c653e76
+[33mc653e76[m HEAD@{64}: checkout: moving from Aryan4 to Aryan5
+[33m797f301[m[33m ([m[1;32mAryan4[m[33m)[m HEAD@{65}: checkout: moving from Aryan5 to Aryan4
+[33mc653e76[m HEAD@{66}: commit: Changes Made
+[33m29bfc70[m[33m ([m[1;32mnewb[m[33m)[m HEAD@{67}: checkout: moving from Aryan4 to Aryan5
+[33m797f301[m[33m ([m[1;32mAryan4[m[33m)[m HEAD@{68}: checkout: moving from Aryan5 to Aryan4
+[33m29bfc70[m[33m ([m[1;32mnewb[m[33m)[m HEAD@{69}: checkout: moving from mradul to Aryan5
+[33md75e2f4[m[33m ([m[1;32mmradul[m[33m)[m HEAD@{70}: checkout: moving from Aryan5 to mradul
+[33m29bfc70[m[33m ([m[1;32mnewb[m[33m)[m HEAD@{71}: reset: moving to HEAD
+[33m29bfc70[m[33m ([m[1;32mnewb[m[33m)[m HEAD@{72}: checkout: moving from newb to Aryan5
+[33m29bfc70[m[33m ([m[1;32mnewb[m[33m)[m HEAD@{73}: checkout: moving from Aryan5 to newb
+[33m29bfc70[m[33m ([m[1;32mnewb[m[33m)[m HEAD@{74}: checkout: moving from Aryan4 to Aryan5
+[33m797f301[m[33m ([m[1;32mAryan4[m[33m)[m HEAD@{75}: checkout: moving from Aryan5 to Aryan4
+[33m29bfc70[m[33m ([m[1;32mnewb[m[33m)[m HEAD@{76}: commit (merge): final
+[33m8bb732e[m HEAD@{77}: commit: changes
+[33mc81f236[m[33m ([m[1;32mAryan6[m[33m)[m HEAD@{78}: checkout: moving from Aryan4 to Aryan5
+[33m797f301[m[33m ([m[1;32mAryan4[m[33m)[m HEAD@{79}: checkout: moving from aryan to Aryan4
+[33m01a9955[m[33m ([m[1;32maryan[m[33m)[m HEAD@{80}: commit (merge): aryanbranchchanged
+[33me319044[m[33m ([m[1;31morigin/aryan[m[33m)[m HEAD@{81}: checkout: moving from Aryan4 to aryan
+[33m797f301[m[33m ([m[1;32mAryan4[m[33m)[m HEAD@{82}: checkout: moving from aryan to Aryan4
+[33me319044[m[33m ([m[1;31morigin/aryan[m[33m)[m HEAD@{83}: reset: moving to HEAD
+[33me319044[m[33m ([m[1;31morigin/aryan[m[33m)[m HEAD@{84}: commit: why
+[33mf8d9274[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/Rugved[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{85}: checkout: moving from Aryan4 to aryan
+[33m797f301[m[33m ([m[1;32mAryan4[m[33m)[m HEAD@{86}: checkout: moving from aryan to Aryan4
+[33mf8d9274[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/Rugved[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{87}: checkout: moving from Aryan4 to aryan
+[33m797f301[m[33m ([m[1;32mAryan4[m[33m)[m HEAD@{88}: checkout: moving from Aryan6 to Aryan4
+[33mc81f236[m[33m ([m[1;32mAryan6[m[33m)[m HEAD@{89}: checkout: moving from Aryan5 to Aryan6
+[33mc81f236[m[33m ([m[1;32mAryan6[m[33m)[m HEAD@{90}: commit (merge): newchange
+[33m88b00c8[m HEAD@{91}: commit: New branch
+[33m797f301[m[33m ([m[1;32mAryan4[m[33m)[m HEAD@{92}: checkout: moving from Aryan4 to Aryan5
+[33m797f301[m[33m ([m[1;32mAryan4[m[33m)[m HEAD@{93}: reset: moving to HEAD
+[33m797f301[m[33m ([m[1;32mAryan4[m[33m)[m HEAD@{94}: commit: New change
+[33mfcec0f6[m[33m ([m[1;31morigin/Aryan4[m[33m)[m HEAD@{95}: commit (merge): Merge branch 'Sarita' of https://github.com/Techexplified/New_Explified_Frontend into Aryan4
+[33mca4e9c0[m HEAD@{96}: commit: Changes
+[33ma831655[m HEAD@{97}: commit: updated
+[33m000ba96[m HEAD@{98}: commit (merge): Merge branch 'Sarita' of https://github.com/Techexplified/New_Explified_Frontend into Aryan4
+[33mfe96f79[m[33m ([m[1;32mSarita[m[33m)[m HEAD@{99}: reset: moving to HEAD
+[33mfe96f79[m[33m ([m[1;32mSarita[m[33m)[m HEAD@{100}: checkout: moving from Sarita to Aryan4
+[33mfe96f79[m[33m ([m[1;32mSarita[m[33m)[m HEAD@{101}: commit: updates
+[33ma452a33[m HEAD@{102}: commit (merge): Merge branch 'Sarita' of https://github.com/Techexplified/New_Explified_Frontend into Sarita
+[33m92d81af[m HEAD@{103}: reset: moving to HEAD
+[33m92d81af[m HEAD@{104}: pull origin Sarita: updating HEAD
+[33m92d81af[m HEAD@{105}: commit: commit
+[33ma8a82da[m HEAD@{106}: commit (merge): Merge branch 'Sarita' of https://github.com/Techexplified/New_Explified_Frontend into Sarita
+[33m04a6191[m HEAD@{107}: reset: moving to HEAD
+[33m04a6191[m HEAD@{108}: reset: moving to HEAD
+[33m04a6191[m HEAD@{109}: pull origin Sarita: Merge made by the 'ort' strategy.
+[33ma721553[m HEAD@{110}: checkout: moving from aryan3 to Sarita
+[33mb677c25[m[33m ([m[1;31morigin/aryan3[m[33m, [m[1;32maryan3[m[33m)[m HEAD@{111}: checkout: moving from aryan3 to aryan3
+[33mb677c25[m[33m ([m[1;31morigin/aryan3[m[33m, [m[1;32maryan3[m[33m)[m HEAD@{112}: reset: moving to HEAD
+[33mb677c25[m[33m ([m[1;31morigin/aryan3[m[33m, [m[1;32maryan3[m[33m)[m HEAD@{113}: reset: moving to HEAD
+[33mb677c25[m[33m ([m[1;31morigin/aryan3[m[33m, [m[1;32maryan3[m[33m)[m HEAD@{114}: checkout: moving from Sarita to aryan3
+[33ma721553[m HEAD@{115}: checkout: moving from aryan3 to Sarita
+[33mb677c25[m[33m ([m[1;31morigin/aryan3[m[33m, [m[1;32maryan3[m[33m)[m HEAD@{116}: checkout: moving from Sarita to aryan3
+[33ma721553[m HEAD@{117}: commit: Changes in zapier
+[33mb8babf9[m HEAD@{118}: pull origin Sarita: Fast-forward
+[33m256dc73[m HEAD@{119}: checkout: moving from aryan3 to Sarita
+[33mb677c25[m[33m ([m[1;31morigin/aryan3[m[33m, [m[1;32maryan3[m[33m)[m HEAD@{120}: commit: New branch
+[33mf8d9274[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/Rugved[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{121}: checkout: moving from aryan to aryan3
+[33mf8d9274[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/Rugved[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{122}: checkout: moving from Sarita to aryan
+[33m256dc73[m HEAD@{123}: reset: moving to HEAD
+[33m256dc73[m HEAD@{124}: commit (merge): updated zapier
+[33mb27838b[m HEAD@{125}: reset: moving to HEAD
+[33mb27838b[m HEAD@{126}: commit: pushing changes for zapier
+[33mfd97d19[m HEAD@{127}: commit: Login-Logout Enabled
+[33md390bcc[m HEAD@{128}: checkout: moving from mradul to Sarita
+[33md75e2f4[m[33m ([m[1;32mmradul[m[33m)[m HEAD@{129}: commit: Commiting
+[33md33cc95[m HEAD@{130}: clone: from https://github.com/Techexplified/New_Explified_Frontend
