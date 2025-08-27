@@ -199,7 +199,7 @@ function Trone({ onFirstPrompt }) {
     setSelectedProviderId(null);
   };
 
-  const [currentTool, setCurrentTool] = useState("default");
+  const [currentTool, setCurrentTool] = useState("gemini");
   const tools = [
     "default",
     "gemini",
@@ -562,7 +562,7 @@ function Trone({ onFirstPrompt }) {
         setCurrentMessages={setCurrentMessages}
         onOpenChange={(open) => setIsSidebarOpen(open)}
         link={"https://explified.com/expli/"}
-        toolName={"Expli"}
+        toolName={"Expli(+)"}
         tools={providerKeys}
         setCurrentTool={setCurrentTool}
       />
@@ -771,12 +771,12 @@ function Trone({ onFirstPrompt }) {
                         onChange={(e) => setCurrentTool(e.target.value)}
                         className="bg-gray-800 py-1.5 px-3 border rounded-lg border-cyan-900/80 text-xs sm:text-sm text-gray-200 backdrop-blur focus:outline-none"
                       >
-                        <option
+                        {/* <option
                           value="default"
                           className=" text-gray-200 rounded-lg"
                         >
                           default
-                        </option>
+                        </option> */}
                         <option value="gemini" className=" text-gray-200">
                           gemini
                         </option>
