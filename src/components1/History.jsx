@@ -86,7 +86,7 @@ export default function RecentActionsPage() {
           {/* <Grip size={24} color="white" /> */}
         </button>
         {toolsDropdown && (
-          <div className="absolute right-[-6px] top-12 bg-black rounded-lg shadow-xl border border-white p-3 w-16 z-50 flex flex-col items-center space-y-4">
+          <div className="absolute right-[-6px] top-12 bg-black/40 rounded-lg shadow-xl border border-white p-3 w-16 z-50 flex flex-col items-center space-y-4">
             {quickToolsDropdown.map((tool, index) => {
               const IconComponent = iconMap[tool.icon];
               return (
@@ -121,7 +121,7 @@ export default function RecentActionsPage() {
       </div>
 
       {isOpen && (
-        <div className="absolute left-6 mt-2 w-48 bg-black border border-gray-700 rounded-md shadow-lg z-10">
+        <div className="absolute left-6 mt-2 w-48 bg-[#23b5b5]/90 text-black border border-gray-700 rounded-md shadow-lg z-10">
           <ul className="text-white divide-y divide-gray-700">
             <li className="px-4 py-2 hover:bg-[#23b5b5] hover:text-black cursor-pointer">Most Active Tools</li>
             <li className="px-4 py-2 hover:bg-[#23b5b5] hover:text-black cursor-pointer">Last Accessed Extensions</li>
@@ -140,7 +140,7 @@ export default function RecentActionsPage() {
             placeholder="Search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-black text-white pl-4 pr-10 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400"
+            className="w-full bg-black/40 text-white pl-4 pr-10 py-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400"
           />
           <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
         </div>
@@ -151,7 +151,7 @@ export default function RecentActionsPage() {
         {filteredItems.map((item) => (
           <div
             key={item.id}
-            className=" rounded-lg px-4 py-6 border border-gray-700 hover:bg-gray-750 transition-colors cursor-pointer group hover:border hover:border-[#23b5b5]"
+            className=" rounded-lg px-4 py-6 border border-gray-100 hover:bg-gray-750 transition-colors cursor-pointer group hover:border hover:border-[#23b5b5]"
           >
             <div className="flex items-start justify-between">
               <div className="flex items-start space-x-3">
