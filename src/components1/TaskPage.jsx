@@ -138,10 +138,12 @@ export default function TaskManager() {
                 className="group bg-slate-800/40 border border-teal-600/20 rounded-2xl p-5 hover:border-teal-400/40 hover:bg-slate-800/60 transition-all duration-300 overflow-y-hidden backdrop-blur-sm"
               >
                 <div className="flex items-start justify-between mb-3">
+                  <h3 className="text-white font-semibold text-sm">{task.title || "Untitled"}</h3>
                   <Edit3
-                    className="w-4 h-4 text-teal-400 mt-1 cursor-pointer hover:text-teal-300"
-                    onClick={() => setEditingTaskId(task.id)}
-                  />
+  className="absolute right-[40px] w-4 h-4 text-teal-400 mt-1 cursor-pointer hover:text-teal-300"
+  onClick={() => setEditingTaskId(task.id)}
+/>
+
                   <button
                     onClick={() => deleteTask(task.id)}
                     className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 transition-all text-sm"
