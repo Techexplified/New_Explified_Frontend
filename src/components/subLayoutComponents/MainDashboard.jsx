@@ -598,7 +598,7 @@ const MainDashboard = () => {
 
   return (
     <>
-      <div className="w-full px-5 min-h-screen flex flex-col items-center bg-black">
+      <div className="w-full relative px-5 min-h-screen flex flex-col items-center bg-black">
         <div className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
         <div>
           <div
