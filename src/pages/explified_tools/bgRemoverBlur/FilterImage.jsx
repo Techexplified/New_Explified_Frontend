@@ -90,14 +90,19 @@ const App = () => {
     formData.append("category", activeCategory);
 
     try {
-      const response = await fetch("http://localhost:8000/api/filter/apply", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_APP_URL}api/filter/apply`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       const data = await response.json();
       if (data.success) {
-        setFilteredImage(`http://localhost:8000${data.filteredImageUrl}`);
+        setFilteredImage(
+          `https://api-pf6diz22ka-uc.a.run.app${data.filteredImageUrl}`
+        );
       } else {
         alert("Filter application failed: " + data.error);
       }

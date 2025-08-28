@@ -23,10 +23,13 @@ const App = () => {
     formData.append("image", selectedFile);
 
     try {
-      const res = await fetch("http://localhost:8000/api/bg/remove-bg", {
-        method: "POST",
-        body: formData,
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_APP_URL}api/bg/remove-bg`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (!res.ok) throw new Error("Failed to remove background");
 
@@ -123,17 +126,16 @@ const App = () => {
 
   return (
     <div className="min-h-screen py-10 px-4 text-white">
-      <div className="max-w-6xl mx-auto bg-black rounded-2xl shadow-2xl p-8 space-y-8 border border-[#23b5b5]/40">
-        <h2 className="text-3xl font-bold text-center text-[#23b5b5]">
-          AI Background Replacement Tool
-        </h2>
-
+      <h2 className="text-3xl font-bold text-center text-[#23b5b5] mb-6">
+        AI Background Replacement Tool
+      </h2>
+      <div className="max-w-3xl mx-auto bg-black rounded-2xl shadow-2xl p-8 space-y-8 border border-[#23b5b5]/40">
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Left Column - Controls */}
           <div className="space-y-6">
             {/* Upload Foreground Image */}
-            <div className="space-y-3">
-              <label className="block font-semibold text-white/80">
+            <div className="space-y-3 flex flex-col">
+              <label className="w-full block font-semibold text-white/80">
                 Upload Foreground Image
               </label>
               <input
@@ -145,7 +147,7 @@ const App = () => {
               <button
                 onClick={handleRemove}
                 disabled={loading}
-                className={`w-full mt-2 px-4 py-2 rounded font-medium transition 
+                className={`w-56 mt-2 px-4 py-2 rounded font-medium transition mx-auto 
               ${
                 loading
                   ? "bg-gray-500 cursor-not-allowed"
@@ -322,11 +324,11 @@ const App = () => {
                 <h3 className="text-lg font-semibold text-[#23b5b5] mb-3">
                   Foreground Image (Background Removed)
                 </h3>
-                <img
-                  src="http://localhost:5173/dde31fee-378e-4f6a-9571-2e045165287f"
+                {/* <img
+                  src=""
                   alt="Foreground"
                   className="rounded-lg w-full object-contain max-h-64"
-                />
+                /> */}
               </div>
             }
 
