@@ -91,12 +91,13 @@ function SidebarOnHover2({ toolName, onToggle }) {
 
       {/* Sidebar */}
       <div
-  className={`fixed top-0 left-0 h-full bg-black/95 backdrop-blur-xl border-r border-minimal-primary/20
+  className={`fixed top-0 left-0 h-full bg-black border-r border-minimal-primary/20
   flex flex-col justify-between transition-all duration-300 z-50 overflow-y-auto
   ${sidebarOpen || sidebarPinned ? "w-72 px-6" : "w-0 px-0 overflow-hidden"}`}
   onMouseEnter={() => !sidebarPinned && setSidebarOpen(true)}
   onMouseLeave={() => !sidebarPinned && setSidebarOpen(false)}
 >
+
         {/* Top Section */}
         <div className="mt-8 flex flex-col gap-6">
           {/* Header + Pin */}
