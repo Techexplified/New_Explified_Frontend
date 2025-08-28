@@ -39,4 +39,4 @@
 - configured google analytics for website.
 - added google analytics to our website.
 - added looker studio to our show live data in dashboard.
-- added get all users, delete users features
+- added get all users, delete users features.

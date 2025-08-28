@@ -33,6 +33,14 @@ export default function LoginPage() {
           },
           "*"
         );
+        window.postMessage(
+          {
+            source: "explified-auth-awesome-screenshot",
+            type: "store_token_awesome_screenshot",
+            token: user?.email,
+          },
+          "*"
+        );
         if (attempts > 5) clearInterval(interval);
       }, 1000);
 

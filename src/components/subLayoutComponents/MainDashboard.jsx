@@ -199,7 +199,7 @@ const NavBarSection = ({
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={handleSearch}
-                className={`w-full bg-gray-800/50 border border-gray-600 rounded-2xl pl-12 pr-4 py-4 text-white placeholder-gray-400 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-teal-500/10 ${
+                className={`w-full bg-black/50 border border-gray-600 rounded-2xl pl-12 pr-4 py-4 text-white placeholder-gray-400 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-teal-500/10 ${
                   selectedTool === item.name ? "bg-[#23b5b5] font-semibold" : ""
                 }`}
               />
@@ -207,7 +207,11 @@ const NavBarSection = ({
               {/* Results dropdown */}
               {/* Results dropdown */}
               {searchQuery.trim() !== "" && (
-                <div className="absolute left-0 top-full mt-2 w-full bg-minimal-dark-200 border border-gray-700 rounded-xl shadow-2xl max-h-60 overflow-y-auto z-[99999999] animate-fadeInUp">
+                <div
+                  className="absolute left-0 top-full mt-2 w-full border border-gray-700 rounded-xl shadow-2xl max-h-60 overflow-y-auto z-500 animate-fadeInUp"
+                  style={{ backgroundColor: "rgba(0, 0, 0, 1)" }} // solid black background
+                >
+                  {" "}
                   {searchResults.length > 0 ? (
                     searchResults.map((tool, index) => {
                       const IconComponent = iconMap[tool.icon] || FileText;
@@ -254,7 +258,7 @@ const NavBarSection = ({
       </div>
 
       {/* Bottom Row - Nav buttons */}
-      <div className="flex gap-4 justify-center flex-wrap animate-fadeInUp delay-200">
+      <div className="flex gap-4 justify-center flex-wrap animate-fadeInUp delay-200 ">
         {navItems
           .filter((item) => item.name !== "Search")
           .map((item) => (
@@ -265,7 +269,7 @@ const NavBarSection = ({
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95 ${
                 selectedTool === item.name
                   ? "bg-gradient-to-r from-teal-600 to-teal-700 text-white shadow-lg shadow-teal-500/20 border border-teal-500"
-                  : "bg-gray-800/50 border border-gray-600 text-gray-300 hover:bg-gray-700/60 hover:border-gray-500"
+                  : "bg-black/20 border border-gray-600 text-gray-300 hover:bg-gray-700/60 hover:border-gray-500"
               }`}
             >
               <span>{item.name}</span>
@@ -594,7 +598,8 @@ const MainDashboard = () => {
 
   return (
     <>
-      <div className="w-full h-full px-5 mb-10 flex flex-col items-center">
+      <div className="w-full px-5 min-h-screen flex flex-col items-center bg-black">
+        <div className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
         <div>
           <div
             className="absolute left-0 top-0 h-full w-6 z-30"
@@ -722,19 +727,20 @@ const MainDashboard = () => {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
               {/* Special Cards */}
               <div
-                className="tool-card justify-center text-2xl font-bold text-minimal-white transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-minimal-primary/20 will-change-transform"
+                className="tool-card  justify-center text-2xl font-bold text-minimal-white transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-minimal-primary/20 will-change-transform"
                 onClick={() => navigate("/expli")}
               >
-                Expli(+)
+                {/* Background overlay */}
+                {/* <div className="absolute inset-0 rounded-xl pointer-events-none bg-gradient-to-br from-black/50 to-black/50"></div> */}
+                <span className="relative z-10">Expli(+)</span>
               </div>
 
               <div
-                className="tool-card justify-center transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-minimal-primary/20 will-change-transform"
+                className="tool-card justify-center text-2xl font-bold text-minimal-white transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-minimal-primary/20 will-change-transform"
                 onClick={() => navigate("/tasks")}
               >
-                <h1 className="text-2xl font-bold text-minimal-white group-hover:text-minimal-primary transition-colors duration-300">
-                  Notes
-                </h1>
+                {/* <div className="absolute inset-0 rounded-xl pointer-events-none bg-gradient-to-br from-black/50 to-black/50"></div> */}
+                <span className="relative z-10">Notes</span>
               </div>
 
               {/* Dynamic Recent Tools */}

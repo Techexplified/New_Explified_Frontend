@@ -1,49 +1,91 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { MdOutlineFileDownload, MdOutlineFileUpload } from "react-icons/md";
-import WorkFlowButton from "../../../reusable_components/WorkFlowButton";
-import SidebarOnHover from "../../../reusable_components/SidebarOnHover";
+import React, { useState, useRef } from "react";
+import {
+  Upload,
+  Download,
+  X,
+  Loader2,
+  Image as ImageIcon,
+  Trash2,
+  RotateCcw,
+  Zap,
+} from "lucide-react";
 
-// Replace this with your real API key before deploying.
-const REMOVE_BG_API_KEY = import.meta.env.VITE_REMOVE_BG_API_KEY;
+// Replace this with your real API key
+const REMOVE_BG_API_KEY = "8uMp7opx1W9MCANRL5uCYAdq";
 
 const RemoveBackground = () => {
   const [selectedFile, setSelectedFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState("");
-  const [resultUrl, setResultUrl] = useState("");
+  const [preview, setPreview] = useState(null);
+  const [processedImage, setProcessedImage] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
+  const [dragActive, setDragActive] = useState(false);
   const [limitExceeded, setLimitExceeded] = useState(false);
+  const fileInputRef = useRef(null);
 
-  const navigate = useNavigate();
-
-  const handleImageChange = (e) => {
-    const file = e.target.files?.[0];
+  // Handle File Selection
+  const handleFileSelect = (file) => {
     if (!file) return;
 
-    // Cleanup previous object URLs
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    if (resultUrl) URL.revokeObjectURL(resultUrl);
-
-    setSelectedFile(file);
-    setPreviewUrl(URL.createObjectURL(file));
-    setResultUrl("");
-    setError("");
-    setLimitExceeded(false);
-  };
-
-  const handleBgRemoval = async (e) => {
-    e.preventDefault();
-    if (!selectedFile) return;
-    setLoading(true);
-    setError("");
-    if (!REMOVE_BG_API_KEY) {
-      setLoading(false);
-      setError(
-        "API key not configured. Please set VITE_REMOVE_BG_API_KEY and redeploy."
-      );
+    // Validate file type
+    const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    if (!validTypes.includes(file.type)) {
+      setError("Please select a valid image file (JPEG, PNG, or WebP)");
       return;
     }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      setError("File size must be less than 10MB");
+      return;
+    }
+
+    setError(null);
+    setLimitExceeded(false);
+    setSelectedFile(file);
+    setProcessedImage(null);
+    setPreview(URL.createObjectURL(file));
+  };
+
+  const handleFileChange = (e) => handleFileSelect(e.target.files?.[0]);
+
+  // Drag & Drop Handlers
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+  const handleDragIn = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(true);
+  };
+  const handleDragOut = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+  };
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files[0]) {
+      handleFileSelect(files[0]);
+    }
+  };
+
+  // Upload & Remove Background (remove.bg API)
+  const handleUpload = async () => {
+    if (!selectedFile) return;
+
+    if (!REMOVE_BG_API_KEY) {
+      setError("API key not configured. Please set REMOVE_BG_API_KEY.");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
 
     try {
       const formData = new FormData();
@@ -66,143 +108,270 @@ const RemoveBackground = () => {
               .filter(Boolean)
               .join(", ");
           }
-        } catch (_) {
-          // keep raw text if not JSON
-        }
-
+        } catch (_) {}
         let friendlyMessage = messageText || response.statusText;
         if (response.status === 402) {
           friendlyMessage =
             "API credits exhausted for remove.bg. Please top up your credits and try again.";
           setLimitExceeded(true);
         } else if (response.status === 429) {
-          friendlyMessage =
-            "Rate limit reached. Please wait a moment and retry.";
+          friendlyMessage = "Rate limit reached. Please retry later.";
         } else if (response.status === 401 || response.status === 403) {
           friendlyMessage = "Invalid or unauthorized API key.";
         }
-
         throw new Error(friendlyMessage);
       }
 
       const blob = await response.blob();
-      // Cleanup old result URL if present
-      if (resultUrl) URL.revokeObjectURL(resultUrl);
-      const outputUrl = URL.createObjectURL(blob);
-      setResultUrl(outputUrl);
+      const url = URL.createObjectURL(blob);
+      setProcessedImage(url);
     } catch (err) {
-      setError(err?.message || "Failed to remove background.");
+      setError(err.message || "Failed to remove background.");
     } finally {
       setLoading(false);
     }
   };
 
+  // Download Processed Image
+  const downloadImage = () => {
+    if (!processedImage) return;
+    const link = document.createElement("a");
+    link.href = processedImage;
+    link.download = `no-bg-${selectedFile?.name?.replace(/\.[^/.]+$/, "")}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Reset
+  const resetAll = () => {
+    setSelectedFile(null);
+    setPreview(null);
+    setProcessedImage(null);
+    setError(null);
+    setLoading(false);
+    setLimitExceeded(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   return (
-    <>
-      <SidebarOnHover
-        link={"https://explified.com/background-remover-ai/"}
-        toolName={"Background Remover"}
-        id={"bgremover"}
-      />
-
-      <div className="min-h-[calc(100vh-70px)] w-full flex items-center justify-center bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 p-6">
-        <div className="w-full max-w-3xl bg-minimal-card border border-minimal-border rounded-2xl p-6 shadow-lg">
-          <h1 className="text-xl font-semibold text-minimal-white mb-2">
-            Background Remover
-          </h1>
-          <p className="text-minimal-muted text-sm mb-5">
-            Upload an image and remove its background using the remove.bg API.
-            The output is a high-quality PNG with a transparent background.
-            Note: this tool requires active API credits.
-          </p>
-
-          {limitExceeded && (
-            <div className="mb-4 text-sm text-amber-300 bg-amber-900/20 border border-amber-900/40 rounded-md px-3 py-2">
-              You have exhausted the remove.bg API credits. Please top up your
-              credits and try again.
+    <div className="bg-black py-6 px-4">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-6">
+          <div className="bg-black border border-neutral-800 rounded-2xl px-6 py-4 shadow">
+            <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-r from-[#23b5b5] to-cyan-400 rounded-full mb-3">
+              <Zap className="w-7 h-7 text-black" />
             </div>
-          )}
+            <h1 className="text-3xl font-bold text-white mb-2">
+              AI Background <span className="text-[#23b5b5]">Remover</span>
+            </h1>
+            <p className="text-neutral-400 text-base max-w-2xl mx-auto">
+              Upload an image and remove its background using the remove.bg API.
+              Output is a high-quality PNG with transparency.
+            </p>
+          </div>
+        </div>
 
-          <form onSubmit={handleBgRemoval} className="flex flex-col gap-4">
-            <div>
-              <h2 className="text-minimal-white text-sm font-medium mb-2">
-                Upload
-              </h2>
-            </div>
-            <div className="flex gap-3 items-center">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="flex-1 px-3 py-2 rounded-md bg-minimal-dark-100/50 text-minimal-white placeholder-minimal-muted border border-minimal-border focus:outline-none"
-                required
-              />
-              <button
-                type="submit"
-                disabled={loading}
-                className={`flex items-center justify-center gap-2 px-5 py-2 rounded-md border transition-all duration-200 ${
-                  loading
-                    ? "bg-minimal-gray-800 text-minimal-muted border-minimal-border cursor-not-allowed"
-                    : "bg-minimal-primary/20 text-minimal-primary border-minimal-primary/30 hover:bg-minimal-primary/30"
-                }`}
-              >
-                <MdOutlineFileUpload className="size-5" />
-                {loading ? "Processing..." : "Upload & Remove"}
-              </button>
-            </div>
+        {/* File Upload Area */}
+        <div className="bg-black border border-neutral-800 rounded-2xl p-6 mb-8 backdrop-blur">
+          <div
+            className={`border-2 border-dashed rounded-xl p-10 text-center transition-all cursor-pointer ${
+              dragActive
+                ? "border-[#23b5b5] bg-[#23b5b5]/10"
+                : selectedFile
+                ? "border-[#23b5b5]/40 bg-[#23b5b5]/5"
+                : "border-neutral-700 hover:border-[#23b5b5]/50 hover:bg-[#23b5b5]/5"
+            }`}
+            onDragEnter={handleDragIn}
+            onDragLeave={handleDragOut}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="hidden"
+            />
 
-            {error && (
-              <div className="text-sm text-red-400 bg-red-900/20 border border-red-900/40 rounded-md px-3 py-2">
-                {error}
+            {selectedFile ? (
+              <div className="space-y-6">
+                <div className="w-20 h-20 mx-auto bg-[#23b5b5]/20 border border-[#23b5b5]/30 rounded-full flex items-center justify-center">
+                  <ImageIcon className="w-10 h-10 text-[#23b5b5]" />
+                </div>
+                <div>
+                  <p className="text-xl font-semibold text-white mb-1">
+                    {selectedFile.name}
+                  </p>
+                  <p className="text-neutral-400">
+                    {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
+                  </p>
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    resetAll();
+                  }}
+                  className="inline-flex items-center px-4 py-2 text-red-300 hover:text-red-200 hover:bg-red-400/10 rounded-full border border-red-400/30 transition-all"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Remove File
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="w-20 h-20 mx-auto bg-neutral-900 rounded-full flex items-center justify-center">
+                  <Upload className="w-10 h-10 text-neutral-500" />
+                </div>
+                <p className="text-2xl font-semibold text-white mb-2">
+                  Drag & drop your image here
+                </p>
+                <p className="text-neutral-400 text-lg mb-5">
+                  or click to browse files
+                </p>
+                <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#23b5b5] to-cyan-400 text-black font-medium rounded-full hover:from-[#23b5b5]/90 hover:to-cyan-400/90 transition-all">
+                  <Upload className="w-5 h-5 mr-2" />
+                  Choose File
+                </div>
+                <p className="text-neutral-500 text-sm mt-4">
+                  Supports: JPEG, PNG, WebP • Max size: 10MB
+                </p>
               </div>
             )}
+          </div>
+        </div>
 
-            {previewUrl && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                <h2 className="md:col-span-2 text-minimal-white text-sm font-medium">
-                  Preview
-                </h2>
-                <div className="bg-minimal-dark-100/50 border border-minimal-border rounded-xl p-3">
-                  <div className="text-minimal-muted text-sm mb-2">
-                    Original
-                  </div>
+        {/* Error / Limit Exceeded */}
+        {error && (
+          <div className="bg-red-900/30 border border-red-500/30 rounded-lg p-4 mb-8">
+            <div className="flex items-center">
+              <X className="w-5 h-5 text-red-400 mr-3" />
+              <p className="text-red-300">{error}</p>
+            </div>
+          </div>
+        )}
+        {limitExceeded && (
+          <div className="mb-4 text-sm text-amber-300 bg-amber-900/20 border border-amber-900/40 rounded-md px-3 py-2">
+            You have exhausted the remove.bg API credits. Please top up and try
+            again.
+          </div>
+        )}
+
+        {/* Process Button */}
+        {selectedFile && !processedImage && (
+          <div className="text-center mb-8">
+            <button
+              onClick={handleUpload}
+              disabled={loading}
+              className="inline-flex items-center px-10 py-3 bg-gradient-to-r from-[#23b5b5] to-cyan-400 text-black font-semibold text-base rounded-full hover:from-[#23b5b5]/90 hover:to-cyan-400/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-[#23b5b5]/20"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Zap className="w-5 h-5 mr-2" />
+                  Remove Background
+                </>
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* Image Comparison */}
+        {preview && (
+          <div className="bg-black border border-neutral-800 rounded-2xl p-6 backdrop-blur">
+            <div className="grid lg:grid-cols-2 gap-6">
+              {/* Original Image */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-center">
+                  <h3 className="text-base font-semibold text-white bg-neutral-900 px-4 py-2 rounded-full border border-neutral-800">
+                    Original Image
+                  </h3>
+                </div>
+                <div className="bg-neutral-900 rounded-xl p-4 border border-neutral-800">
                   <img
-                    src={previewUrl}
+                    src={preview}
                     alt="Original"
-                    className="w-full h-auto rounded-md object-contain"
+                    className="w-full h-auto max-h-96 object-contain mx-auto rounded-lg"
                   />
                 </div>
-                {resultUrl && (
-                  <div className="bg-minimal-dark-100/50 border border-minimal-border rounded-xl p-3">
-                    <div className="text-minimal-muted text-sm mb-2">
-                      No Background
-                    </div>
-                    <img
-                      src={resultUrl}
-                      alt="No Background"
-                      className="w-full h-auto rounded-md object-contain"
-                    />
-                  </div>
-                )}
               </div>
-            )}
 
-            {resultUrl && (
-              <div className="mt-3">
-                <a href={resultUrl} download="no-bg.png">
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-2 rounded-md px-5 py-2 bg-minimal-primary/20 text-minimal-primary border border-minimal-primary/30 hover:bg-minimal-primary/30"
-                  >
-                    <MdOutlineFileDownload className="size-5" /> Download PNG
-                  </button>
-                </a>
+              {/* Processed Image */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-center">
+                  <h3 className="text-base font-semibold bg-gradient-to-r from-[#23b5b5] to-cyan-400 bg-clip-text text-transparent bg-neutral-900 px-4 py-2 rounded-full border border-neutral-800">
+                    <span className="text-[#23b5b5]">Background Removed</span>
+                  </h3>
+                </div>
+                <div className="bg-neutral-900 rounded-xl border border-neutral-800">
+                  {processedImage ? (
+                    <div className="p-4">
+                      <div className="checkered-bg rounded-lg p-6">
+                        <img
+                          src={processedImage}
+                          alt="Processed"
+                          className="w-full h-auto max-h-96 object-contain mx-auto"
+                        />
+                      </div>
+                      <div className="flex gap-3 mt-6">
+                        <button
+                          onClick={downloadImage}
+                          className="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#23b5b5] to-cyan-400 text-black font-semibold rounded-full transition-all"
+                        >
+                          <Download className="w-5 h-5 mr-2" />
+                          Download PNG
+                        </button>
+                        <button
+                          onClick={resetAll}
+                          className="px-6 py-3 bg-neutral-900 text-white rounded-full border border-neutral-700 hover:bg-neutral-800 transition-all"
+                        >
+                          <RotateCcw className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="h-64 flex items-center justify-center text-neutral-500">
+                      <div className="text-center">
+                        <div className="w-16 h-16 mx-auto bg-neutral-800 rounded-full flex items-center justify-center mb-4">
+                          <ImageIcon className="w-8 h-8 text-neutral-500" />
+                        </div>
+                        <p className="text-lg">
+                          Processed image will appear here
+                        </p>
+                        <p className="text-sm text-neutral-600 mt-2">
+                          Upload and process to see the magic
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
-          </form>
-        </div>
+            </div>
+          </div>
+        )}
       </div>
-    </>
+
+      <style jsx>{`
+        .checkered-bg {
+          background-image: linear-gradient(45deg, #000 25%, transparent 25%),
+            linear-gradient(-45deg, #000 25%, transparent 25%),
+            linear-gradient(45deg, transparent 75%, #000 75%),
+            linear-gradient(-45deg, transparent 75%, #000 75%);
+          background-size: 20px 20px;
+          background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+          background-color: #000;
+        }
+      `}</style>
+    </div>
   );
 };
 
