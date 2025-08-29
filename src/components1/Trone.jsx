@@ -183,6 +183,8 @@ function Trone({ onFirstPrompt }) {
     setShowProviderHelp(false);
   };
 
+  console.log(providerKeys);
+
   const handleSaveProviderKey = (providerId, useAfterSave = false) => {
     const next = { ...(providerKeys || {}), [providerId]: selectedProviderKey };
     try {
@@ -764,55 +766,35 @@ function Trone({ onFirstPrompt }) {
                       <FiPaperclip className="text-minimal-primary" />
                       <span className="text-sm font-medium">Attach Files</span>
                     </button>
-
-                    <div>
-                      <select
-                        value={currentTool}
-                        onChange={(e) => setCurrentTool(e.target.value)}
-                        className="bg-gray-800 py-1.5 px-3 border rounded-lg border-cyan-900/80 text-xs sm:text-sm text-gray-200 backdrop-blur focus:outline-none"
-                      >
-                        {/* <option
-                          value="default"
-                          className=" text-gray-200 rounded-lg"
-                        >
-                          default
-                        </option> */}
-                        <option value="gemini" className=" text-gray-200">
-                          gemini
-                        </option>
-                        <option value="openai" className=" text-gray-200">
-                          openai
-                        </option>
-                        <option value="grok" className=" text-gray-200">
-                          grok
-                        </option>
-                        <option value="anthropic" className=" text-gray-200">
-                          anthropic
-                        </option>
-                        <option value="mistral" className=" text-gray-200">
-                          mistral
-                        </option>
-                        <option value="cohere" className=" text-gray-200">
-                          cohere
-                        </option>
-                      </select>
-                    </div>
                   </div>
 
                   {/* Powered By Badge */}
 
-                  {currentTool !== "default" && (
-                    <div className="flex items-center">
-                      <div className="px-4 py-2 rounded-full bg-gradient-to-r from-cyan-500/10 to-cyan-600/5 border border-cyan-500/20 backdrop-blur-sm">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-minimal-primary rounded-full "></div>
-                          <span className="text-xs font-medium text-gray-200">
-                            Powered by {currentTool}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                  <div className="flex items-center justify-center gap-2">
+                    <p className=" text-sm text-gray-300">Powered by</p>
+
+                    <select
+                      value={currentTool}
+                      onChange={(e) => setCurrentTool(e.target.value)}
+                      className="bg-gray-800 py-1.5 px-3  rounded-full bg-gradient-to-r from-cyan-500/10 to-cyan-600/5 border border-cyan-500/20 text-xs sm:text-sm text-gray-200 backdrop-blur focus:outline-none"
+                    >
+                      <option
+                        value="default"
+                        className="text-gray-200 rounded-lg"
+                      >
+                        default
+                      </option>
+                      {Object.keys(providerKeys).map((tool) => (
+                        <option
+                          key={tool}
+                          value={tool}
+                          className="text-gray-200"
+                        >
+                          {tool}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>

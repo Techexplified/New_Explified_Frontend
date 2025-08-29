@@ -13,12 +13,11 @@ function SidebarOnHover({
   onOpenChange,
   onAddClick,
   tools = [],
-  setCurrentTool= ()=>{}
+  setCurrentTool = () => {},
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarPinned, setSidebarPinned] = useState(false);
   console.log("chatHistory from sidebar:", chatHistory);
-  
 
   useEffect(() => {
     if (typeof onOpenChange === "function") {
@@ -35,7 +34,7 @@ function SidebarOnHover({
       />
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full bg-gradient-to-br from-transparent to-transparent backdrop-blur-xl border-r border-minimal-primary/20 
+        className={`fixed top-0 left-0 h-full bg-black backdrop-blur-xl border-r border-minimal-primary/20 
   flex flex-col justify-between transition-all duration-300 z-50
   ${sidebarOpen ? "w-64 px-6" : "w-0 px-0 overflow-hidden"}`}
         onMouseEnter={() => !sidebarPinned && setSidebarOpen(true)}
@@ -69,7 +68,7 @@ function SidebarOnHover({
             )}
           </div>
           {/* new chat button */}
-          {toolName === "Expli" && (
+          {toolName === "Expli(+)" && (
             <>
               <button
                 onClick={onAddClick}
@@ -112,7 +111,7 @@ function SidebarOnHover({
                     {Object.entries(tools).map(([name, key], index) => (
                       <button
                         key={index}
-                        onClick={()=> setCurrentTool(name)}
+                        onClick={() => setCurrentTool(name)}
                         className="w-full bg-[#23b5b5] text-gray-300 p-2 rounded-md hover:bg-[#23b5b5]/80 transition-colors text-sm"
                       >
                         {name}
