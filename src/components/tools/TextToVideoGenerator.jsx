@@ -95,7 +95,12 @@ const TextToVideoGenerator = () => {
     setErrorMsg("");
 
     try {
-      const token = hfApiKey || import.meta.env.VITE_TEXT_TO_VIDEO_SARITA;
+      const token =
+        hfApiKey ||
+        (typeof window !== "undefined"
+          ? localStorage.getItem("hf_api_token")
+          : "") ||
+        import.meta.env.VITE_TEXT_TO_VIDEO_SARITA;
       if (!token) {
         throw new Error(
           "Missing Hugging Face token. Click 'API KEY' to add your token or set VITE_TEXT_TO_VIDEO_SARITA in .env."
