@@ -10,6 +10,7 @@ import {
   Sparkles,
   Copy,
   Camera,
+  Key,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Pin, PinOff } from "lucide-react";
@@ -29,6 +30,8 @@ const AiImageTool = () => {
   });
   const [errorMsg, setErrorMsg] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const [apiKeyInput, setApiKeyInput] = useState("");
   const navigate = useNavigate();
 
   const HORDE_API_BASE = "https://aihorde.net/api/v2";
@@ -150,7 +153,7 @@ const AiImageTool = () => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        apikey: HORDE_API_KEY,
+        apikey: localStorage.getItem("hf_api_token") || HORDE_API_KEY,
       },
       body: JSON.stringify(body),
     });
@@ -375,7 +378,21 @@ const AiImageTool = () => {
                   placeholder="Describe how you want to transform your photo..."
                   className="w-full h-28 bg-minimal-surface border border-minimal-border rounded-xl p-4 text-minimal-heading placeholder-minimal-muted resize-none focus:outline-none focus:ring-2 focus:ring-minimal-primary"
                 />
-                <div className="flex justify-end mt-4">
+                <div className="flex justify-end mt-4 gap-3">
+                  <button
+                    onClick={() => {
+                      try {
+                        const saved = localStorage.getItem("hf_api_token");
+                        setApiKeyInput(saved || "");
+                      } catch (e) {}
+                      setShowApiKeyModal(true);
+                    }}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-[#23b5b5] text-white hover:text-[#23b5b5] hover:border-[#23b5b5] transition-transform duration-200 hover:scale-105 shadow-[0_0_10px_rgba(35,181,181,0.45)] hover:shadow-[0_0_16px_rgba(35,181,181,0.65)]"
+                    title="Add API Key"
+                  >
+                    <Key className="w-4 h-4" />
+                    Add Key
+                  </button>
                   <button
                     onClick={handleGenerate}
                     disabled={isGenerating}
@@ -419,6 +436,52 @@ const AiImageTool = () => {
           </div> */}
         </div>
       </div>
+
+      {/* API Key Modal */}
+      {showApiKeyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-2xl">
+            <div className="text-xs uppercase tracking-widest text-gray-400 mb-1">
+              AI Image Styler
+            </div>
+            <h3 className="text-xl font-semibold text-[#23b5b5] mb-2">
+              API Key
+            </h3>
+            <p className="text-sm text-gray-400 mb-4">
+              Enter your API key. It will be saved in your browser only.
+            </p>
+            <input
+              type="password"
+              value={apiKeyInput}
+              onChange={(e) => setApiKeyInput(e.target.value)}
+              placeholder="hf_..."
+              className="w-full bg-black/60 border border-neutral-800 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#23b5b5] focus:ring-2 focus:ring-[#23b5b5]/20 transition-all duration-300 mb-4"
+            />
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={() => setShowApiKeyModal(false)}
+                className="px-4 py-2 rounded-xl border border-neutral-700 text-gray-300 hover:text-white hover:border-neutral-500 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  const trimmed = (apiKeyInput || "").trim();
+                  if (trimmed) {
+                    try {
+                      localStorage.setItem("hf_api_token", trimmed);
+                    } catch (e) {}
+                  }
+                  setShowApiKeyModal(false);
+                }}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#23b5b5] to-[#1a9999] text-white font-medium hover:from-[#1a9999] hover:to-[#23b5b5] transition-colors"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

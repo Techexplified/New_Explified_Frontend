@@ -4,7 +4,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { addVideo } from "../../../utils/subtitler_slice/SubtitlerSlice";
 import SubtitlerHeader from "./components/SubtitlerHeader";
 import WorkFlowButton from "../../../reusable_components/WorkFlowButton";
-import { FileVideo, Link2, Mic, Music, Sparkles, Upload } from "lucide-react";
+import {
+  FileVideo,
+  Link2,
+  Mic,
+  Music,
+  Sparkles,
+  Upload,
+  Key,
+} from "lucide-react";
 import SidebarOnHover from "../../../reusable_components/SidebarOnHover";
 
 export default function AISubtitler() {
@@ -15,6 +23,8 @@ export default function AISubtitler() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const uploadedFile = useSelector((state) => state.video);
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const [apiKeyInput, setApiKeyInput] = useState("");
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
@@ -179,7 +189,7 @@ export default function AISubtitler() {
           </div>
 
           {/* Generate Button */}
-          <div className="flex flex-row-reverse mt-8">
+          <div className="flex flex-row-reverse mt-8 gap-4">
             <button className="group bg-gradient-to-r from-minimal-primary to-minimal-primary/80 hover:from-minimal-primary/80 hover:to-minimal-primary text-white rounded-2xl py-5 px-16 text-xl font-bold transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-minimal-primary/30 relative overflow-hidden">
               <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <span
@@ -190,9 +200,71 @@ export default function AISubtitler() {
                 <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
               </span>
             </button>
+            <button
+              onClick={() => {
+                try {
+                  const saved = localStorage.getItem("hf_api_token");
+                  setApiKeyInput(saved || "");
+                } catch (e) {}
+                setShowApiKeyModal(true);
+              }}
+              className="group bg-minimal-dark-100/80 hover:bg-minimal-dark-100 border-2 border-minimal-primary/30 hover:border-minimal-primary/60 text-white rounded-2xl py-5 px-6 text-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-minimal-primary/20 relative overflow-hidden"
+              title="Set API Key"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-minimal-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <span className="relative z-10 flex items-center gap-2">
+                <Key className="w-5 h-5 text-minimal-primary" />
+                API Key
+              </span>
+            </button>
           </div>
         </div>
       </div>
+      {/* API Key Modal */}
+      {showApiKeyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="w-full max-w-md bg-minimal-card border border-minimal-primary/20 rounded-2xl p-6 shadow-2xl">
+            <div className="text-xs uppercase tracking-widest text-minimal-muted mb-1">
+              AI Subtitler
+            </div>
+            <h3 className="text-xl font-semibold text-minimal-primary mb-2">
+              API Key
+            </h3>
+            <p className="text-sm text-minimal-muted mb-4">
+              Enter your API key. It will be saved in your browser only.
+            </p>
+            <input
+              type="password"
+              value={apiKeyInput}
+              onChange={(e) => setApiKeyInput(e.target.value)}
+              placeholder="hf_..."
+              className="w-full bg-minimal-dark-200 border border-minimal-primary/20 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-minimal-primary focus:ring-2 focus:ring-minimal-primary/20 transition-all duration-300 mb-4"
+            />
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={() => setShowApiKeyModal(false)}
+                className="px-4 py-2 rounded-xl border border-minimal-primary/20 text-gray-300 hover:text-white hover:border-minimal-primary/50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  const trimmed = (apiKeyInput || "").trim();
+                  if (trimmed) {
+                    try {
+                      localStorage.setItem("hf_api_token", trimmed);
+                    } catch (e) {}
+                  }
+                  setShowApiKeyModal(false);
+                }}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-minimal-primary to-minimal-primary/80 text-white font-medium hover:from-minimal-primary/80 hover:to-minimal-primary transition-colors"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

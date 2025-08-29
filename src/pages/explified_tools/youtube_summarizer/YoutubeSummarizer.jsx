@@ -5,6 +5,7 @@ import {
   Clock,
   User,
   History,
+  KeyRound,
   Globe,
   ChevronDown,
   Sparkles,
@@ -40,6 +41,16 @@ const YoutubeSummarizer = () => {
   const [historyVideos, setHistoryVideos] = useState(
     JSON.parse(localStorage.getItem("summarize-history")) || []
   );
+
+  const [apiModalOpen, setApiModalOpen] = useState(false);
+  const [rapidApiKeyInput, setRapidApiKeyInput] = useState(
+    localStorage.getItem("ytSummarizerRapidApiKey") || ""
+  );
+  const [geminiApiKeyInput, setGeminiApiKeyInput] = useState(
+    localStorage.getItem("ytSummarizerGeminiApiKey") || ""
+  );
+  const [showRapidApiKey, setShowRapidApiKey] = useState(false);
+  const [showGeminiApiKey, setShowGeminiApiKey] = useState(false);
 
   // const videoTranscript = searchParams.get("videoTranscript");
   const navigate = useNavigate();
@@ -312,6 +323,101 @@ const YoutubeSummarizer = () => {
         </div>
       )}
 
+      {/* API Key Modal */}
+      {apiModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="relative bg-minimal-card rounded-lg shadow-lg w-full max-w-md mx-4 p-6">
+            <button
+              onClick={() => setApiModalOpen(false)}
+              className="absolute top-3 right-3 text-minimal-gray-300 hover:text-white"
+            >
+              ✕
+            </button>
+            <h2 className="text-xl font-semibold text-minimal-white mb-2 flex items-center gap-2">
+              <KeyRound className="w-5 h-5 text-minimal-primary" /> Enter API
+              Keys
+            </h2>
+
+            <div className="space-y-4">
+              <div className="relative">
+                <input
+                  type={showRapidApiKey ? "text" : "password"}
+                  value={rapidApiKeyInput}
+                  onChange={(e) => setRapidApiKeyInput(e.target.value)}
+                  placeholder="Paste your Rapid API key"
+                  className="w-full p-4 pr-24 rounded-xl bg-minimal-dark-200/80 backdrop-blur-sm text-white placeholder-minimal-muted border border-minimal-border focus:border-minimal-primary focus:outline-none focus:ring-2 focus:ring-minimal-primary/25 transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowRapidApiKey((s) => !s)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-minimal-muted hover:text-white text-sm px-3 py-1 rounded-lg border border-minimal-border hover:border-minimal-primary/50"
+                >
+                  {showRapidApiKey ? "Hide" : "Show"}
+                </button>
+              </div>
+
+              <div className="relative">
+                <input
+                  type={showGeminiApiKey ? "text" : "password"}
+                  value={geminiApiKeyInput}
+                  onChange={(e) => setGeminiApiKeyInput(e.target.value)}
+                  placeholder="Paste your Gemini API key"
+                  className="w-full p-4 pr-24 rounded-xl bg-minimal-dark-200/80 backdrop-blur-sm text-white placeholder-minimal-muted border border-minimal-border focus:border-minimal-primary focus:outline-none focus:ring-2 focus:ring-minimal-primary/25 transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowGeminiApiKey((s) => !s)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-minimal-muted hover:text-white text-sm px-3 py-1 rounded-lg border border-minimal-border hover:border-minimal-primary/50"
+                >
+                  {showGeminiApiKey ? "Hide" : "Show"}
+                </button>
+              </div>
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  onClick={() => setApiModalOpen(false)}
+                  className="px-4 py-2 rounded-lg bg-minimal-dark-100/80 text-minimal-gray-300 border border-minimal-border hover:text-white hover:border-minimal-primary/50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    const rapidTrimmed = rapidApiKeyInput.trim();
+                    const geminiTrimmed = geminiApiKeyInput.trim();
+                    if (rapidTrimmed) {
+                      localStorage.setItem(
+                        "ytSummarizerRapidApiKey",
+                        rapidTrimmed
+                      );
+                    } else {
+                      localStorage.removeItem("ytSummarizerRapidApiKey");
+                    }
+                    if (geminiTrimmed) {
+                      localStorage.setItem(
+                        "ytSummarizerGeminiApiKey",
+                        geminiTrimmed
+                      );
+                    } else {
+                      localStorage.removeItem("ytSummarizerGeminiApiKey");
+                    }
+                    setApiModalOpen(false);
+                  }}
+                  disabled={
+                    !rapidApiKeyInput.trim() && !geminiApiKeyInput.trim()
+                  }
+                  className={`px-4 py-2 rounded-lg border-2 ${
+                    rapidApiKeyInput.trim() || geminiApiKeyInput.trim()
+                      ? "bg-minimal-primary border-minimal-primary text-white"
+                      : "border-minimal-primary text-minimal-primary opacity-50 cursor-not-allowed"
+                  }`}
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Video Info Card */}
       {videoData && !historyOpen && (
         <div className="relative z-10 max-w-4xl mx-auto w-full px-4 mb-8">
@@ -514,10 +620,23 @@ const YoutubeSummarizer = () => {
                 placeholder="Paste your YouTube URL here..."
                 className="w-full p-4 pr-12 rounded-xl bg-minimal-dark-200/80 backdrop-blur-sm text-white placeholder-minimal-muted border border-minimal-border focus:border-minimal-primary focus:outline-none focus:ring-2 focus:ring-minimal-primary/25 transition-all"
               />
-              <Video className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-minimal-muted" />
+              {/* <Video className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-minimal-muted" /> */}
             </div>
-
             <button
+              onClick={() => setApiModalOpen(true)}
+              disabled={loading}
+              className={`flex items-center gap-2 px-6 py-4 rounded-xl font-semibold transition-all duration-300 border-2 border-minimal-primary text-minimal-primary hover:bg-minimal-primary/10
+               ${
+                 loading
+                   ? "opacity-50 cursor-not-allowed"
+                   : "hover:transform hover:scale-105"
+               } disabled:hover:transform-none disabled:hover:scale-100`}
+            >
+              <KeyRound className="w-4 h-4" />
+              API
+            </button>
+
+            {/* <button
               onClick={() => setActiveTab("transcript")}
               disabled={loading}
               className={`flex items-center gap-2 px-6 py-4 rounded-xl font-semibold transition-all duration-300 border-2 border-minimal-primary text-minimal-primary hover:bg-minimal-primary/10
@@ -529,9 +648,9 @@ const YoutubeSummarizer = () => {
             >
               <FileText className="w-4 h-4" />
               Transcript
-            </button>
+            </button> */}
 
-            <button
+            {/* <button
               onClick={() => setActiveTab("summary")}
               disabled={loading}
               className={`flex items-center gap-2 px-6 py-4 rounded-xl font-semibold transition-all duration-300 border-2 border-minimal-primary text-minimal-primary hover:bg-minimal-primary/10
@@ -543,7 +662,7 @@ const YoutubeSummarizer = () => {
             >
               <Sparkles className="w-4 h-4" />
               Summarize
-            </button>
+            </button> */}
 
             <button
               onClick={handleGenerate}

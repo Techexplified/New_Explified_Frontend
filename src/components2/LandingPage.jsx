@@ -6,6 +6,7 @@ import {
   FileText,
   RotateCcw,
   ArrowRight,
+  Key,
 } from "lucide-react";
 import { useState } from "react";
 import PptxGenJS from "pptxgenjs";
@@ -22,6 +23,8 @@ export default function LandingPage() {
   const [generatedContent, setGeneratedContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const [apiKeyInput, setApiKeyInput] = useState("");
 
   const handleInputChange = (e) => setTopic(e.target.value);
 
@@ -464,6 +467,22 @@ export default function LandingPage() {
           <Mic className="w-4 h-4 cursor-pointer transition-transform duration-200 hover:scale-110 hover:text-[#23b5b5]" />
         </div>
 
+        {/* Add Key button */}
+        <button
+          onClick={() => {
+            try {
+              const saved = localStorage.getItem("hf_api_token");
+              setApiKeyInput(saved || "");
+            } catch (e) {}
+            setShowApiKeyModal(true);
+          }}
+          className="flex items-center justify-center w-12 h-12 rounded-full border border-[#23b5b5] hover:text-[#23b5b5] hover:border-[#23b5b5] transition-transform duration-200 hover:scale-110"
+          aria-label="Add API Key"
+          title="Add API Key"
+        >
+          <Key className="w-6 h-6" />
+        </button>
+
         {/* Enhanced generate button */}
         <button
           onClick={handleGenerate}
@@ -567,6 +586,52 @@ export default function LandingPage() {
       )}
 
       {/* <Provide /> */}
+
+      {/* API Key Modal */}
+      {showApiKeyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-2xl">
+            <div className="text-xs uppercase tracking-widest text-gray-400 mb-1">
+              AutoDeck AI
+            </div>
+            <h3 className="text-xl font-semibold text-[#23b5b5] mb-2">
+              API Key
+            </h3>
+            <p className="text-sm text-gray-400 mb-4">
+              Enter your API key. It will be saved in your browser only.
+            </p>
+            <input
+              type="password"
+              value={apiKeyInput}
+              onChange={(e) => setApiKeyInput(e.target.value)}
+              placeholder="hf_..."
+              className="w-full bg-black/60 border border-neutral-800 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#23b5b5] focus:ring-2 focus:ring-[#23b5b5]/20 transition-all duration-300 mb-4"
+            />
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={() => setShowApiKeyModal(false)}
+                className="px-4 py-2 rounded-xl border border-neutral-700 text-gray-300 hover:text-white hover:border-neutral-500 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  const trimmed = (apiKeyInput || "").trim();
+                  if (trimmed) {
+                    try {
+                      localStorage.setItem("hf_api_token", trimmed);
+                    } catch (e) {}
+                  }
+                  setShowApiKeyModal(false);
+                }}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#23b5b5] to-[#1a9999] text-white font-medium hover:from-[#1a9999] hover:to-[#23b5b5] transition-colors"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

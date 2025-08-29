@@ -71,20 +71,24 @@ npm run dev
 # 🚀 Deploy to Firebase
 
 ### 1. Install Firebase CLI
+
 ```
 npm install -g firebase-tools
 ```
 
 ### 2. Login & Initialize
+
 ```
 firebase login
 firebase init
 ```
 
 ### 3. Build and deploy
- - Select: Hosting
- - Use dist as the build folder
- - Choose "Single-page app" if you're using React Router
+
+- Select: Hosting
+- Use dist as the build folder
+- Choose "Single-page app" if you're using React Router
+
 ```
 npm run build
 firebase deploy --only hosting:explified-home
@@ -108,13 +112,14 @@ src/
 └── main.jsx        # Entry point
 ```
 
-
 # 💡 Tips
- - Use .env for sensitive config in production builds.
- - Firebase Functions can be added later for backend logic.
- - Use vite-plugin-pwa to add Progressive Web App support.
+
+- Use .env for sensitive config in production builds.
+- Firebase Functions can be added later for backend logic.
+- Use vite-plugin-pwa to add Progressive Web App support.
 
 Made with ❤️ using Vite + Firebase
+
 ```
 Would you like a TypeScript version or one that includes Firestore setup as well?
 ```
