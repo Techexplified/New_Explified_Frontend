@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   MessageSquare,
   Chrome,
@@ -249,6 +249,27 @@ export default function IntegrationsPage() {
   const [activeTab, setActiveTab] = useState("New Integrations");
   const [searchQuery, setSearchQuery] = useState("");
 
+  const [placeholderText, setPlaceholderText] = useState("");
+  const fullText = "Search integrations...";
+  useEffect(() => {
+    let i = 0;
+    let forward = true;
+
+    const interval = setInterval(() => {
+      if (forward) {
+        setPlaceholderText(fullText.slice(0, i + 1));
+        i++;
+        if (i === fullText.length) forward = false;
+      } else {
+        setPlaceholderText(fullText.slice(0, i - 1));
+        i--;
+        if (i === 0) forward = true;
+      }
+    }, 120); // speed of typing
+
+    return () => clearInterval(interval);
+  }, []);
+
   const [showModal, setShowModal] = useState(false);
   const [email, setEmail] = useState("");
 
@@ -314,7 +335,7 @@ export default function IntegrationsPage() {
           <div
             key={index}
             onClick={() => navigate("/locked")}
-            className="bg-[#23b5b5] bg-opacity-20 border border-teal-400 rounded-xl p-5 hover:bg-opacity-40 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl hover:shadow-teal-500/30 relative group cursor-pointer"
+            className="px-6 py-4 rounded-2xl bg-gradient-to-br from-gray-950/80 to-gray-900/60 bg-opacity-70 border border-gray-800/40 backdrop-blur-md shadow-lg transition-all duration-200 hover:bg-gray-900/80 hover:shadow-cyan-700/20 hover:scale-[1.02] cursor-pointer"
           >
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-700 rounded-lg flex items-center justify-center text-white text-xl shadow-lg group-hover:scale-110 transition-transform duration-200">
@@ -385,7 +406,7 @@ export default function IntegrationsPage() {
           <div
             key={index}
             onClick={() => navigate("/locked")}
-            className="bg-teal-800 bg-opacity-30 border border-teal-600 rounded-xl p-5 hover:bg-opacity-50 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg hover:shadow-teal-500/20 relative group"
+            className="px-6 py-4 rounded-2xl bg-gradient-to-br from-gray-950/80 to-gray-900/60 bg-opacity-70 border border-gray-800/40 backdrop-blur-md shadow-lg transition-all duration-200 hover:bg-gray-900/80 hover:shadow-cyan-700/20 hover:scale-[1.02] cursor-pointer"
           >
             {/* Connected status indicator */}
             <div className="absolute top-3 right-3 flex items-center gap-1">
@@ -476,10 +497,12 @@ export default function IntegrationsPage() {
       />
 
       {/* Animated background elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-teal-500/5 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-400/3 rounded-full blur-3xl animate-pulse delay-1000"></div>
-      </div>
+      <div
+        className="fixed inset-0 min-h-screen w-full opacity-30 pointer-events-none 
+  bg-gradient-to-br from-transparent via-cyan-500 to-transparent 
+  animate-pulse brightness-75 duration-[20s]"
+        style={{ zIndex: 0 }}
+      ></div>
 
       {/* Header */}
       <div className="relative px-6 py-8">
@@ -495,13 +518,16 @@ export default function IntegrationsPage() {
         {/* Enhanced Search Bar */}
         <div className="relative max-w-2xl mx-auto mb-8">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-cyan-400" />
             <input
               type="text"
-              placeholder="Search integrations..."
+              placeholder={placeholderText}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-gray-800/50 border border-gray-600 rounded-2xl pl-12 pr-4 py-4 text-white placeholder-gray-400 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20  transition-all duration-200"
+              className="w-full bg-[#0A0F0F] border border-gray-700/60 rounded-2xl 
+      pl-12 pr-4 py-4 text-white placeholder-gray-500
+      focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-700/20 
+      transition-all duration-200 shadow-md"
             />
           </div>
         </div>
@@ -509,13 +535,13 @@ export default function IntegrationsPage() {
         {/* Controls Row */}
         <div className="flex justify-center gap-4 mb-8">
           {/* Category Filter Buttons */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 bg-gradient-to-br from-gray-900/80 to-gray-800/60 p-3 rounded-2xl shadow-md">
             <button
               onClick={() => setSelectedCategory("All")}
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                 selectedCategory === "All"
-                  ? "bg-gradient-to-r from-teal-600 to-teal-700 text-white shadow-lg transform scale-105"
-                  : "bg-gray-800/50 border border-gray-600 text-gray-300 hover:bg-gray-700/50 hover:border-gray-500"
+                  ? "bg-gradient-to-r from-gray-800 to-gray-900 text-cyan-200 shadow-lg transform scale-105"
+                  : "text-white hover:bg-gray-800/80 hover:text-cyan-500"
               }`}
             >
               All
@@ -524,8 +550,8 @@ export default function IntegrationsPage() {
               onClick={() => setSelectedCategory("BYOK")}
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                 selectedCategory === "BYOK"
-                  ? "bg-gradient-to-r from-teal-600 to-teal-700 text-white shadow-lg transform scale-105"
-                  : "bg-gray-800/50 border border-gray-600 text-gray-300 hover:bg-gray-700/50 hover:border-gray-500"
+                  ? "bg-gradient-to-r from-gray-800 to-gray-900 text-cyan-200 shadow-lg transform scale-105"
+                  : "text-white hover:bg-gray-800/80 hover:text-cyan-500"
               }`}
             >
               BYOK
@@ -536,8 +562,8 @@ export default function IntegrationsPage() {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                   selectedCategory === cat
-                    ? "bg-gradient-to-r from-teal-600 to-teal-700 text-white shadow-lg transform scale-105"
-                    : "bg-gray-800/50 border border-gray-600 text-gray-300 hover:bg-gray-700/50 hover:border-gray-500"
+                    ? "bg-gradient-to-r from-gray-800 to-gray-900 text-cyan-200 shadow-lg transform scale-105"
+                    : "text-white hover:bg-gray-800/80 hover:text-cyan-500"
                 }`}
               >
                 {cat}
@@ -547,13 +573,13 @@ export default function IntegrationsPage() {
         </div>
 
         {/* Enhanced Tabs */}
-        <div className="flex gap-1 bg-gray-800/30 rounded-xl p-1 w-fit mx-auto">
+        <div className="flex gap-1 bg-gradient-to-br from-gray-900/80 to-gray-800/60 rounded-xl p-1 w-fit mx-auto shadow-md">
           <button
             onClick={() => setActiveTab("New Integrations")}
             className={`px-6 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
               activeTab === "New Integrations"
-                ? "bg-gradient-to-r from-teal-600 to-teal-700 text-white shadow-lg"
-                : "text-gray-300 hover:bg-gray-700/50 hover:text-white"
+                ? "bg-gradient-to-r from-gray-800 to-gray-900 text-cyan-200 shadow-lg"
+                : "text-cyan-300 hover:bg-gray-800/80 hover:text-white"
             }`}
           >
             New Integrations
@@ -562,8 +588,8 @@ export default function IntegrationsPage() {
             onClick={() => setActiveTab("My Integrations")}
             className={`px-6 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
               activeTab === "My Integrations"
-                ? "bg-gradient-to-r from-teal-600 to-teal-700 text-white shadow-lg"
-                : "text-gray-300 hover:bg-gray-700/50 hover:text-white"
+                ? "bg-gradient-to-r from-gray-800 to-gray-900 text-cyan-200 shadow-lg"
+                : "text-cyan-300 hover:bg-gray-800/80 hover:text-white"
             }`}
           >
             My Integrations
