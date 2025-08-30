@@ -80,14 +80,14 @@ export default function BgToolsApp() {
               <button
                 onClick={() => {
                   try {
-                    const saved = localStorage.getItem("hf_api_token");
+                    const saved = localStorage.getItem("removebg_api_key");
                     setApiKeyInput(saved || "");
                   } catch (e) {}
                   setShowApiKeyModal(true);
                 }}
                 className="group inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-[#23b5b5]/70 border bg-gray-900/60 text-gray-200 border-[#23b5b5] hover:bg-black shadow-[0_0_12px_rgba(35,181,181,0.55)] hover:shadow-[0_0_18px_rgba(35,181,181,0.75)]"
-                title="Add API Key"
-                aria-label="Add API Key"
+                title="Add Remove.bg API Key"
+                aria-label="Add Remove.bg API Key"
               >
                 <Key className="w-4 h-4" />
                 <span className="truncate">Add Key</span>
@@ -152,19 +152,29 @@ export default function BgToolsApp() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
           <div className="w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-2xl">
             <div className="text-xs uppercase tracking-widest text-gray-400 mb-1">
-              RemoveBg
+              Remove.bg API
             </div>
             <h3 className="text-xl font-semibold text-[#23b5b5] mb-2">
               API Key
             </h3>
             <p className="text-sm text-gray-400 mb-4">
-              Enter your API key. It will be saved in your browser only.
+              Enter your Remove.bg API key. It will be saved in your browser
+              only.
+              <br />
+              <a
+                href="https://www.remove.bg/api"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#23b5b5] hover:underline"
+              >
+                Get your API key from Remove.bg →
+              </a>
             </p>
             <input
               type="password"
               value={apiKeyInput}
               onChange={(e) => setApiKeyInput(e.target.value)}
-              placeholder="hf_..."
+              placeholder="Enter your Remove.bg API key..."
               className="w-full bg-black/60 border border-neutral-800 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#23b5b5] focus:ring-2 focus:ring-[#23b5b5]/20 transition-all duration-300 mb-4"
             />
             <div className="flex items-center justify-end gap-3">
@@ -179,7 +189,7 @@ export default function BgToolsApp() {
                   const trimmed = (apiKeyInput || "").trim();
                   if (trimmed) {
                     try {
-                      localStorage.setItem("hf_api_token", trimmed);
+                      localStorage.setItem("removebg_api_key", trimmed);
                     } catch (e) {}
                   }
                   setShowApiKeyModal(false);

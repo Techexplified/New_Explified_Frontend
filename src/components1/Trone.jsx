@@ -20,7 +20,7 @@ import { BsSoundwave } from "react-icons/bs";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import SidebarOnHover from "../reusable_components/SidebarOnHover";
-import { Sparkle } from "lucide-react";
+import { Sparkle, Lock } from "lucide-react";
 
 const INTEGRATION_PROVIDERS = [
   {
@@ -183,6 +183,8 @@ function Trone({ onFirstPrompt }) {
     setShowProviderHelp(false);
   };
 
+  console.log(providerKeys);
+
   const handleSaveProviderKey = (providerId, useAfterSave = false) => {
     const next = { ...(providerKeys || {}), [providerId]: selectedProviderKey };
     try {
@@ -200,6 +202,15 @@ function Trone({ onFirstPrompt }) {
   };
 
   const [currentTool, setCurrentTool] = useState("gemini");
+  const tools = [
+    "default",
+    "gemini",
+    "openai",
+    "grok",
+    "anthropic",
+    "mistral",
+    "cohere",
+  ];
 
   useEffect(() => {
     if (!prevDrawerState.current && isDrawerOpen) {
@@ -228,7 +239,7 @@ function Trone({ onFirstPrompt }) {
     }
   }, [currentMessages, isTyping]);
 
-  // const GEMINI_API_KEY = "AIzaSyCjxEkSZKRdCohde0z5FKaZAO624gF3wms";
+  const GEMINI_API_KEY = "AIzaSyDpCjw13DKuj-KDH8VWegWh0BzVgdoJmjU";
 
   // Removed auto-syncing current messages from localStorage to prevent overwriting sessions
 
@@ -317,14 +328,31 @@ function Trone({ onFirstPrompt }) {
 
         const tool = currentTool;
         const apiKey = providerKeys[tool] || "";
-        if (!apiKey) throw new Error(`No API key found for ${tool}.`);
+
+        if (!apiKey && tool !== "default")
+          throw new Error(`No API key found for ${tool}.`);
 
         let apiUrl = "";
+
         let payload = {};
         let headers = { "Content-Type": "application/json" };
         let parseResponse = () => "No response received.";
 
-        if (tool === "gemini") {
+        if (tool === "default") {
+          apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+          payload = {
+            contents: [{ parts: [{ text: contextPrompt }] }],
+            generationConfig: {
+              temperature: 0.7,
+              topK: 40,
+              topP: 0.95,
+              maxOutputTokens: 2048,
+            },
+          };
+          parseResponse = (data) =>
+            data.candidates?.[0]?.content?.parts?.[0]?.text ||
+            "No response received.";
+        } else if (tool === "gemini") {
           apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
           payload = {
             contents: [{ parts: [{ text: contextPrompt }] }],
@@ -405,6 +433,17 @@ function Trone({ onFirstPrompt }) {
         };
 
         setCurrentMessages((prev) => [...prev, botMessage]);
+
+        const sessionRecord = {
+          id: sessionId,
+          startedAt: sessionStartedAt || Date.now(),
+          endedAt: Date.now(),
+          messages: [userMessage, botMessage],
+        };
+        setChatHistory((prev) => {
+          const next = [...prev, sessionRecord];
+          return next.slice(-3);
+        });
       } catch (err) {
         console.error("Error details:", err);
         let errorMessage = "Sorry, I encountered an error. Please try again.";
@@ -509,18 +548,6 @@ function Trone({ onFirstPrompt }) {
   };
 
   const newChat = () => {
-    if (currentMessages.length > 0) {
-      const sessionRecord = {
-        id: sessionId,
-        startedAt: sessionStartedAt || Date.now(),
-        endedAt: Date.now(),
-        messages: currentMessages,
-      };
-      setChatHistory((prev) => {
-        const next = [...prev, sessionRecord];
-        return next;
-      });
-    }
     setCurrentMessages([]);
     setSessionStartedAt(null);
     setSessionId(
@@ -530,12 +557,16 @@ function Trone({ onFirstPrompt }) {
 
   return (
     <div className="bg-black text-white flex h-screen">
+      <div className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
       <SidebarOnHover
         onAddClick={newChat}
         chatHistory={chatHistory}
+        setCurrentMessages={setCurrentMessages}
         onOpenChange={(open) => setIsSidebarOpen(open)}
         link={"https://explified.com/expli/"}
-        toolName={"Expli"}
+        toolName={"Expli(+)"}
+        tools={providerKeys}
+        setCurrentTool={setCurrentTool}
       />
       <div className="flex-1 flex flex-col items-center justify-center mt-12 w-screen">
         <div
@@ -543,149 +574,228 @@ function Trone({ onFirstPrompt }) {
             isSidebarOpen ? "left-72" : "left-8"
           }`}
         ></div>
-        {/* Session Controls */}
 
-        <div className="w-full max-w-3xl mx-auto rounded-xl border border-cyan-900/60 shadow-[0_0_0_1px_rgba(0,255,255,0.06),0_0_24px_rgba(0,255,255,0.07)] bg-transparent p-4 sm:p-5 flex flex-col min-h-[70vh]">
+        {/* Session Controls */}
+        <h1 className="text-2xl font-bold text-left w-full max-w-3xl mx-auto px-2 bg-gradient-to-r from-teal-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent mb-4">
+          Expli(+)
+        </h1>
+
+        <div className="w-full max-w-3xl mx-auto rounded-xl border border-cyan-900/60 shadow-[0_0_0_1px_rgba(0,255,255,0.06),0_0_24px_rgba(0,255,255,0.07)] bg-transparent p-4 sm:p-5 flex flex-col min-h-[80vh] relative">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 rounded-xl opacity-50 pointer-events-none bg-gradient-to-br from-black  to-black"></div>
+
+          {/* Chat Container */}
           <div
             ref={chatContainerRef}
-            className="flex-1 w-full flex flex-col px-2 sm:px-3 overflow-y-auto scroll-smooth relative"
+            className="flex-1 w-full flex flex-col px-2 sm:px-3 overflow-y-auto scroll-smooth relative z-10"
             style={{
               scrollBehavior: "smooth",
               paddingTop: "1rem",
               paddingBottom: "1rem",
             }}
           >
+            {/* Welcome Header */}
             {currentMessages.length === 0 && (
-              <h1 className="text-2xl md:text-3xl font-medium mb-4 text-center text-gray-200">
-                Ask anything.
-              </h1>
+              <div className="text-center mb-8">
+                <h1 className="text-3xl md:text-4xl font-bold mb-3 bg-gradient-to-r from-cyan-400 via-white to-cyan-400 bg-clip-text text-transparent ">
+                  Ask anything.
+                </h1>
+                {/* <p className="text-gray-400 text-sm">
+                  Powered by advanced AI • Always here to help
+                </p> */}
+                <div className="w-24 h-1 bg-gradient-to-r from-transparent via-minimal-primary to-transparent mx-auto mt-4 rounded-full"></div>
+              </div>
             )}
 
-            <div className="w-full flex flex-col gap-4 ">
+            {/* Messages Container */}
+            <div className="w-full flex flex-col gap-6">
               {currentMessages.map((msg, index) => (
                 <div
                   key={index}
-                  className={`px-4 py-3 rounded-lg text-sm break-words whitespace-pre-wrap text-gray-200 border ${
-                    msg.isError
-                      ? "border-red-500/50 bg-red-500/5"
-                      : "border-cyan-900/50 bg-cyan-900/10 shadow-[0_0_12px_rgba(0,255,255,0.04)]"
-                  }`}
-                  style={{
-                    alignSelf:
-                      msg.sender === "user" ? "flex-end" : "flex-start",
-                    maxWidth: "100%",
-                    wordBreak: "break-word",
-                  }}
+                  className={`transform transition-all duration-300 ease-out ${
+                    msg.sender === "user" ? "self-end" : "self-start"
+                  } max-w-[85%]`}
                 >
                   <div
-                    dangerouslySetInnerHTML={{
-                      __html:
-                        msg.sender === "bot" ? formatText(msg.text) : msg.text,
-                    }}
+                    className={`px-6 py-4 rounded-2xl text-sm break-words whitespace-pre-wrap backdrop-blur-sm shadow-lg border transition-all duration-300 hover:shadow-xl ${
+                      msg.isError
+                        ? "border-red-500/50 bg-red-500/10 text-red-200"
+                        : msg.sender === "user"
+                        ? "bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-cyan-500/30 text-white"
+                        : "bg-gradient-to-br from-gray-900/80 to-gray-800/60 border-gray-700/50 text-gray-200"
+                    }`}
                     style={{
-                      lineHeight: "1.5",
-                      whiteSpace: "pre-wrap",
-                      wordWrap: "break-word",
+                      wordBreak: "break-word",
                     }}
-                  />
+                  >
+                    {msg.sender === "bot" && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-2 h-2 bg-minimal-primary rounded-full "></div>
+                        <span className="text-minimal-primary text-xs font-medium">
+                          AI Assistant
+                        </span>
+                      </div>
+                    )}
+
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html:
+                          msg.sender === "bot"
+                            ? formatText(msg.text)
+                            : msg.text,
+                      }}
+                      style={{
+                        lineHeight: "1.5",
+                        whiteSpace: "pre-wrap",
+                        wordWrap: "break-word",
+                      }}
+                    />
+                  </div>
                 </div>
               ))}
+
+              {/* Typing Indicator */}
               {isTyping && (
-                <div className="self-start px-4 py-3 rounded-lg text-sm text-gray-300 bg-cyan-900/10 border border-cyan-900/50 shadow-[0_0_12px_rgba(0,255,255,0.05)]">
-                  <div className="flex items-center gap-2">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                      <div
-                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                        style={{ animationDelay: "150ms" }}
-                      ></div>
-                      <div
-                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                        style={{ animationDelay: "300ms" }}
-                      ></div>
+                <div className="self-start max-w-[85%]">
+                  <div className="px-6 py-4 rounded-2xl bg-gradient-to-br from-gray-900/80 to-gray-800/60 border border-gray-700/50 backdrop-blur-sm shadow-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="flex space-x-2">
+                        <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce"></div>
+                        <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce [animation-delay:150ms]"></div>
+                        <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce [animation-delay:300ms]"></div>
+                      </div>
+                      <span className="text-gray-300 text-sm">
+                        AI is thinking...
+                      </span>
                     </div>
-                    <span>Thinking...</span>
                   </div>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Input bar - minimalist */}
-          <div className="mt-3 rounded-xl border border-cyan-900/60 bg-transparent px-3 py-2 shadow-[0_0_0_1px_rgba(0,255,255,0.05),0_0_18px_rgba(0,255,255,0.06)]">
-            <div className="flex items-center gap-3">
-              {/* Input */}
-              <input
-                type="text"
-                value={prompt}
-                onChange={handleInputChange}
-                onKeyDown={handleSubmit}
-                onPaste={handlePaste}
-                placeholder="Ask me anything..."
-                className="flex-1 bg-transparent outline-none text-gray-200 placeholder-gray-500 text-sm px-2 py-2"
-                disabled={isTyping}
-                maxLength={2000}
-              />
+          {/* Enhanced Input Section */}
+          <div className="mt-6 relative z-10">
+            {/* Main Input Container */}
+            <div className="rounded-2xl border-2 border-cyan-500/20 bg-gradient-to-r from-gray-900/90 to-gray-800/80 backdrop-blur-lg shadow-2xl">
+              <div className="p-4">
+                {/* Input Field */}
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="flex-1 relative">
+                    <input
+                      type="text"
+                      value={prompt}
+                      onChange={handleInputChange}
+                      onKeyDown={handleSubmit}
+                      onPaste={handlePaste}
+                      placeholder="Type your message here..."
+                      className="w-full bg-black/50 border border-gray-700/50 rounded-xl px-4 py-3 text-white placeholder-gray-400 text-sm focus:outline-none focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-300"
+                      disabled={isTyping}
+                      maxLength={2000}
+                    />
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-gray-500">
+                      {prompt.length}/2000
+                    </div>
+                  </div>
 
-              {/* Right icon buttons */}
-              <button
-                type="button"
-                onClick={!isTyping ? handleMicClick : undefined}
-                className={`w-9 h-9 rounded-lg flex items-center justify-center border ${
-                  isRecording
-                    ? "border-red-500/40 bg-red-500/10"
-                    : "border-cyan-900/60 hover:bg-cyan-900/10 shadow-[0_0_10px_rgba(0,255,255,0.05)]"
-                }`}
-                style={{ cursor: isTyping ? "not-allowed" : "pointer" }}
-                title="Voice input"
-              >
-                <FiMic
-                  className={`text-sm ${
-                    isRecording ? "text-white" : "text-gray-300"
-                  }`}
-                />
-              </button>
-              <div className="w-9 h-9 rounded-lg border border-cyan-900/60 flex items-center justify-center hover:bg-cyan-900/10 shadow-[0_0_10px_rgba(0,255,255,0.05)]">
-                <Sparkle className="text-xs text-gray-300" />
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  // trigger submit using Enter handler for consistency
-                  if (prompt.trim()) {
-                    handleSubmit({ key: "Enter" });
-                  }
-                }}
-                className="w-9 h-9 rounded-lg flex items-center justify-center border border-cyan-900/60 hover:bg-cyan-900/10 shadow-[0_0_10px_rgba(0,255,255,0.05)]"
-                title="Send"
-              >
-                <FiSend className="text-gray-200" />
-              </button>
-            </div>
-            {/* Actions below input */}
-            <div className="mt-2 flex items-center gap-3">
-              <button
-                type="button"
-                onClick={newChat}
-                className="flex items-center gap-2 border border-cyan-900/60 hover:bg-cyan-900/10 shadow-[0_0_10px_rgba(0,255,255,0.05)] text-gray-200 px-3 py-1.5 rounded-lg text-xs"
-                title="New chat"
-              >
-                <FiImage className="text-gray-300" />
-                <span>Generate Image</span>
-              </button>
-              <button
-                type="button"
-                className="flex items-center gap-2 border border-cyan-900/60 hover:bg-cyan-900/10 shadow-[0_0_10px_rgba(0,255,255,0.05)] text-gray-200 px-3 py-1.5 rounded-lg text-xs"
-                title="Attach files"
-              >
-                <FiPaperclip className="text-gray-300" />
-                <span>Attach Files</span>
-              </button>
+                  {/* Action Buttons */}
+                  <div className="flex gap-2">
+                    {/* Voice Input */}
+                    <button
+                      type="button"
+                      onClick={!isTyping ? handleMicClick : undefined}
+                      className={`w-11 h-11 rounded-xl flex items-center justify-center border transition-all duration-300 group ${
+                        isRecording
+                          ? "border-red-500/40 bg-red-500/10"
+                          : "bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-cyan-500/30 hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20"
+                      }`}
+                      style={{ cursor: isTyping ? "not-allowed" : "pointer" }}
+                      title="Voice input"
+                      disabled={isTyping}
+                    >
+                      <FiMic
+                        className={`text-lg ${
+                          isRecording ? "text-white" : "text-minimal-primary"
+                        }`}
+                      />
+                    </button>
 
-              <div className="">
-                <h1 className="py-1.5 px-3 border rounded-full border-cyan-900/80 text-xs sm:text-sm text-gray-200 bg-slate-600/80 backdrop-blur">
-                  Powered by {currentTool}
-                </h1>
+                    {/* Magic/Sparkle Button */}
+                    <button className="w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border border-cyan-500/30 flex items-center justify-center hover:from-cyan-500/30 hover:to-cyan-600/20 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20 group">
+                      <Sparkle className="text-lg text-minimal-primary" />
+                    </button>
+
+                    {/* Send Button */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (prompt.trim()) {
+                          handleSubmit({ key: "Enter" });
+                        }
+                      }}
+                      className="w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-600/10  border border-cyan-500/30 flex items-center justify-center hover:from-cyan-500/30 hover:to-cyan-600/20 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20 group"
+                      title="Send"
+                    >
+                      <FiSend className="text-lg text-minimal-primary" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Enhanced Action Buttons */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {/* Generate Image */}
+                    <button
+                      type="button"
+                      onClick={newChat}
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-gray-800/60 to-gray-700/40 border border-gray-600/40 hover:from-gray-700/80 hover:to-gray-600/60 text-gray-200 transition-all duration-300 group"
+                      title="Generate Image"
+                    >
+                      <FiImage className="text-minimal-primary" />
+                      <span className="text-sm font-medium">
+                        Generate Image
+                      </span>
+                    </button>
+
+                    {/* Attach Files */}
+                    <button
+                      type="button"
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-gray-800/60 to-gray-700/40 border border-gray-600/40 hover:from-gray-700/80 hover:to-gray-600/60 text-gray-200 transition-all duration-300 group"
+                      title="Attach files"
+                    >
+                      <FiPaperclip className="text-minimal-primary" />
+                      <span className="text-sm font-medium">Attach Files</span>
+                    </button>
+                  </div>
+
+                  {/* Powered By Badge */}
+
+                  <div className="flex items-center justify-center gap-2">
+                    <p className=" text-sm text-gray-300">Powered by</p>
+
+                    <select
+                      value={currentTool}
+                      onChange={(e) => setCurrentTool(e.target.value)}
+                      className="bg-gray-800 py-1.5 px-3  rounded-full bg-gradient-to-r from-cyan-500/10 to-cyan-600/5 border border-cyan-500/20 text-xs sm:text-sm text-gray-200 backdrop-blur focus:outline-none"
+                    >
+                      <option
+                        value="default"
+                        className="text-gray-200 rounded-lg"
+                      >
+                        default
+                      </option>
+                      {Object.keys(providerKeys).map((tool) => (
+                        <option
+                          key={tool}
+                          value={tool}
+                          className="text-gray-200"
+                        >
+                          {tool}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -801,17 +911,27 @@ function Trone({ onFirstPrompt }) {
                         <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-700 rounded-lg flex items-center justify-center text-white text-xl shadow-lg group-hover:scale-110 transition-transform duration-200">
                           {Icon && <Icon className="text-white" size={20} />}
                         </div>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleOpenProvider(p.id);
-                            setCurrentTool(p.id);
-                          }}
-                          className="w-8 h-8 bg-gradient-to-r from-teal-500 to-teal-600 rounded-full flex items-center justify-center text-white transition-all duration-200 transform hover:scale-110 shadow-lg"
-                        >
-                          +
-                        </button>
+                        <div className="flex">
+                          {!(p.id === "openai" || p.id === "gemini") && (
+                            <button
+                              type="button"
+                              className="w-8 h-8 rounded-full flex items-center justify-center text-white transition-all duration-200 transform hover:scale-110 shadow-lg"
+                            >
+                              <Lock className="text-yellow-400" size={20} />
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenProvider(p.id);
+                              setCurrentTool(p.id);
+                            }}
+                            className="w-8 h-8 bg-gradient-to-r from-teal-500 to-teal-600 rounded-full flex items-center justify-center text-white transition-all duration-200 transform hover:scale-110 shadow-lg"
+                          >
+                            +
+                          </button>
+                        </div>
                       </div>
 
                       <h3 className="text-white font-semibold text-sm mb-2 group-hover:text-teal-300 transition-colors flex items-center gap-2">

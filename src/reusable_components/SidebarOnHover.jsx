@@ -12,6 +12,8 @@ function SidebarOnHover({
   setCurrentMessages,
   onOpenChange,
   onAddClick,
+  tools = [],
+  setCurrentTool = () => {},
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarPinned, setSidebarPinned] = useState(false);
@@ -32,7 +34,7 @@ function SidebarOnHover({
       />
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full bg-black/95 backdrop-blur-xl border-r border-minimal-primary/20 
+        className={`fixed top-0 left-0 h-full bg-black backdrop-blur-xl border-r border-minimal-primary/20 
   flex flex-col justify-between transition-all duration-300 z-50
   ${sidebarOpen ? "w-64 px-6" : "w-0 px-0 overflow-hidden"}`}
         onMouseEnter={() => !sidebarPinned && setSidebarOpen(true)}
@@ -66,7 +68,7 @@ function SidebarOnHover({
             )}
           </div>
           {/* new chat button */}
-          {toolName === "Expli" && (
+          {toolName === "Expli(+)" && (
             <>
               <button
                 onClick={onAddClick}
@@ -97,7 +99,7 @@ function SidebarOnHover({
                 <div className="h-[250px] border-t border-minimal-primary/20 pt-2 overflow-y-auto">
                   <h1 className="text-sm text-gray-500">Available Keys</h1>
                   <div className="flex flex-col gap-2 mt-2">
-                    <button className="w-full bg-[#23b5b5] text-gray-300 p-2 rounded-md hover:bg-[#23b5b5]/80 transition-colors text-sm">
+                    {/* <button className="w-full bg-[#23b5b5] text-gray-300 p-2 rounded-md hover:bg-[#23b5b5]/80 transition-colors text-sm">
                       OpenAI
                     </button>
                     <button className="w-full bg-[#23b5b5] text-gray-300 p-2 rounded-md hover:bg-[#23b5b5]/80 transition-colors text-sm">
@@ -105,7 +107,16 @@ function SidebarOnHover({
                     </button>
                     <button className="w-full bg-[#23b5b5]   text-gray-300 p-2 rounded-md hover:bg-[#23b5b5]/80 transition-colors text-sm">
                       Grok
-                    </button>
+                    </button> */}
+                    {Object.entries(tools).map(([name, key], index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentTool(name)}
+                        className="w-full bg-[#23b5b5] text-gray-300 p-2 rounded-md hover:bg-[#23b5b5]/80 transition-colors text-sm"
+                      >
+                        {name}
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>

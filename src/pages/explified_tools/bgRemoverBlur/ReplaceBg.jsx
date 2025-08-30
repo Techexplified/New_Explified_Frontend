@@ -19,18 +19,34 @@ const App = () => {
     if (!selectedFile) return alert("Choose an image first");
     setLoading(true);
 
+    // Get API key from localStorage
+    const apiKey = localStorage.getItem("removebg_api_key");
+    if (!apiKey) {
+      alert("Please add your Remove.bg API key first. Click 'Add Key' button.");
+      setLoading(false);
+      return;
+    }
+
     const formData = new FormData();
-    formData.append("image", selectedFile);
+    formData.append("size", "auto");
+    formData.append("image_file", selectedFile);
 
     try {
-      const res = await fetch("http://localhost:8000/api/bg/remove-bg", {
+      const res = await fetch("https://api.remove.bg/v1.0/removebg", {
         method: "POST",
+        headers: {
+          "X-Api-Key": apiKey,
+        },
         body: formData,
       });
 
-      if (!res.ok) throw new Error("Failed to remove background");
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`Remove.bg API Error: ${res.status} - ${errorText}`);
+      }
 
-      const blob = await res.blob();
+      const arrayBuffer = await res.arrayBuffer();
+      const blob = new Blob([arrayBuffer], { type: "image/png" });
       const imageUrl = URL.createObjectURL(blob);
       console.log("Blob type:", blob.type, "Blob size:", blob.size);
       setResultImg(imageUrl);

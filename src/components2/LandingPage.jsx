@@ -26,7 +26,63 @@ export default function LandingPage() {
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const [apiKeyInput, setApiKeyInput] = useState("");
 
+  // Debug: Log environment variables
+  console.log("VITE_APP_URL:", import.meta.env.VITE_APP_URL);
+  console.log(
+    "Backend URL (fallback):",
+    import.meta.env.VITE_APP_URL || "https://api-pf6diz22ka-uc.a.run.app/"
+  );
+
   const handleInputChange = (e) => setTopic(e.target.value);
+
+  // Test function to verify API key
+  const testApiKey = async () => {
+    try {
+      let apiKey = localStorage.getItem("gemini_api_token");
+      if (!apiKey) {
+        apiKey = "AIzaSyAlI6zfz4BghzC4DgaCsEdxmJBcVDeRNPM";
+      }
+
+      console.log("Testing API key:", apiKey.substring(0, 10) + "...");
+
+      // Test direct Gemini API call
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: "Hello, this is a test message. Please respond with 'API key is working' if you can see this.",
+                  },
+                ],
+              },
+            ],
+          }),
+        }
+      );
+
+      const data = await response.json();
+      console.log("Direct API test response:", data);
+
+      if (data.error) {
+        console.error("API key test failed:", data.error);
+        alert("API key test failed: " + data.error.message);
+      } else {
+        console.log("API key test successful!");
+        alert(
+          "API key is working! Response: " +
+            data.candidates[0].content.parts[0].text
+        );
+      }
+    } catch (error) {
+      console.error("API key test error:", error);
+      alert("API key test error: " + error.message);
+    }
+  };
 
   const handleGenerate = async () => {
     if (!topic.trim()) return;
@@ -36,22 +92,83 @@ export default function LandingPage() {
       setErrorMsg("");
       setGeneratedContent("");
 
-      const response = await axiosInstance.post(`api/gemini/topic`, {
-        topic: topic,
-        slideCount: slideCount,
+      // Get the Gemini API key - try localStorage first, then fallback to hardcoded
+      let apiKey = localStorage.getItem("gemini_api_token");
+      if (!apiKey) {
+        apiKey = "AIzaSyAlI6zfz4BghzC4DgaCsEdxmJBcVDeRNPM";
+      }
+
+      if (!apiKey) {
+        setErrorMsg(
+          "Please add your Gemini API key first by clicking the key icon."
+        );
+        setLoading(false);
+        return;
+      }
+
+      const backendURL =
+        import.meta.env.VITE_APP_URL || "https://api-pf6diz22ka-uc.a.run.app/";
+
+      // Use CORS proxy if needed
+      const useCorsProxy = true; // Set to false if you fix CORS on backend
+      const requestURL = useCorsProxy
+        ? `https://cors-anywhere.herokuapp.com/${backendURL}api/gemini/topic`
+        : `${backendURL}api/gemini/topic`;
+
+      console.log("Making request to:", requestURL);
+      console.log("Request payload:", {
+        topic,
+        slideCount,
+        apiKey: apiKey.substring(0, 10) + "...",
       });
 
-      const data = response.data;
+      // Try direct fetch instead of axios to avoid CORS issues
+      const response = await fetch(`${backendURL}api/gemini/topic`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          topic: topic,
+          slideCount: slideCount,
+          apiKey: apiKey, // Pass the API key to backend
+        }),
+      });
 
-      console.log(data);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      console.log("Response data:", data);
 
       await buildPPT(data?.pptData);
       setGeneratedContent(data?.content);
     } catch (err) {
-      console.error(err);
-      setErrorMsg(
-        err.response?.data?.error || "Something went wrong. Please try again."
-      );
+      console.error("Full error object:", err);
+      console.error("Error response:", err.response);
+      console.error("Error message:", err.message);
+
+      let errorMessage = "Something went wrong. Please try again.";
+
+      if (err.message === "Network Error" || err.message.includes("CORS")) {
+        errorMessage =
+          "CORS Error: The backend server doesn't allow requests from this domain. Please contact the backend administrator to enable CORS for localhost:5173.";
+      } else if (err.response?.status === 500) {
+        errorMessage =
+          "Backend server error. Please check if the server is running and the API key is valid.";
+      } else if (err.response?.status === 401) {
+        errorMessage = "Invalid API key. Please check your Gemini API key.";
+      } else if (err.response?.status === 403) {
+        errorMessage = "API key doesn't have permission for this operation.";
+      } else if (err.response?.data?.error) {
+        errorMessage = err.response.data.error;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+
+      setErrorMsg(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -59,14 +176,27 @@ export default function LandingPage() {
 
   async function getImageBase64(prompt) {
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_APP_URL}api/gemini/image`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt }),
-        }
-      );
+      // Get the Gemini API key - try localStorage first, then fallback to hardcoded
+      let apiKey = localStorage.getItem("gemini_api_token");
+      if (!apiKey) {
+        apiKey = "AIzaSyAlI6zfz4BghzC4DgaCsEdxmJBcVDeRNPM";
+      }
+
+      if (!apiKey) {
+        console.warn("No Gemini API key found for image generation");
+        return null;
+      }
+
+      const backendURL =
+        import.meta.env.VITE_APP_URL || "https://api-pf6diz22ka-uc.a.run.app/";
+      const res = await fetch(`${backendURL}api/gemini/image`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt,
+          apiKey: apiKey, // Pass the API key to backend
+        }),
+      });
 
       const data = await res.json();
       return data.base64;
@@ -471,7 +601,7 @@ export default function LandingPage() {
         <button
           onClick={() => {
             try {
-              const saved = localStorage.getItem("hf_api_token");
+              const saved = localStorage.getItem("gemini_api_token");
               setApiKeyInput(saved || "");
             } catch (e) {}
             setShowApiKeyModal(true);
@@ -481,6 +611,28 @@ export default function LandingPage() {
           title="Add API Key"
         >
           <Key className="w-6 h-6" />
+        </button>
+
+        {/* Test API Key button */}
+        <button
+          onClick={testApiKey}
+          className="flex items-center justify-center w-12 h-12 rounded-full border border-green-500 hover:text-green-500 hover:border-green-500 transition-transform duration-200 hover:scale-110"
+          aria-label="Test API Key"
+          title="Test API Key"
+        >
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
         </button>
 
         {/* Enhanced generate button */}
@@ -595,16 +747,16 @@ export default function LandingPage() {
               AutoDeck AI
             </div>
             <h3 className="text-xl font-semibold text-[#23b5b5] mb-2">
-              API Key
+              Gemini API Key
             </h3>
             <p className="text-sm text-gray-400 mb-4">
-              Enter your API key. It will be saved in your browser only.
+              Enter your Gemini API key. It will be saved in your browser only.
             </p>
             <input
               type="password"
               value={apiKeyInput}
               onChange={(e) => setApiKeyInput(e.target.value)}
-              placeholder="hf_..."
+              placeholder="AIzaSy..."
               className="w-full bg-black/60 border border-neutral-800 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#23b5b5] focus:ring-2 focus:ring-[#23b5b5]/20 transition-all duration-300 mb-4"
             />
             <div className="flex items-center justify-end gap-3">
@@ -619,7 +771,7 @@ export default function LandingPage() {
                   const trimmed = (apiKeyInput || "").trim();
                   if (trimmed) {
                     try {
-                      localStorage.setItem("hf_api_token", trimmed);
+                      localStorage.setItem("gemini_api_token", trimmed);
                     } catch (e) {}
                   }
                   setShowApiKeyModal(false);

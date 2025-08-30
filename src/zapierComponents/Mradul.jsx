@@ -48,29 +48,43 @@ export default function RemoveBgApp() {
   };
 
   const handleRemove = async () => {
-  if (!selectedFile) return alert("Select a file first!");
-  setLoading(true);
-  const formData = new FormData();
-  formData.append("image", selectedFile);
+    if (!selectedFile) return alert("Select a file first!");
 
-  try {
-    const res = await fetch("http://localhost:8000/api/bg/remove", {
-      method: "POST",
-      body: formData,
-    });
+    // Get API key from localStorage
+    // const apiKey = localStorage.getItem("removebg_api_key");
+    // if (!apiKey) {
+    //   alert("Please add your Remove.bg API key first. Click 'Add Key' button.");
+    //   return;
+    // }
 
-    if (!res.ok) throw new Error("Background processing failed");
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("size", "auto");
+    formData.append("image_file", selectedFile);
 
-    const blob = await res.blob();
-    setResultImg(URL.createObjectURL(blob));
-  } catch (err) {
-    alert("Error: " + err.message);
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      const res = await fetch("https://api.remove.bg/v1.0/removebg", {
+        method: "POST",
+        headers: {
+          "X-Api-Key": "reSe1VEif8KBPdhpzCncgxyF",
+        },
+        body: formData,
+      });
 
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`Remove.bg API Error: ${res.status} - ${errorText}`);
+      }
 
+      const arrayBuffer = await res.arrayBuffer();
+      const blob = new Blob([arrayBuffer], { type: "image/png" });
+      setResultImg(URL.createObjectURL(blob));
+    } catch (err) {
+      alert("Error: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className=" w-full bg-black text-teal-300 px-4 py-10 flex flex-col justify-center items-center space-y-8">
@@ -106,7 +120,9 @@ export default function RemoveBgApp() {
             ) : (
               <>
                 <UploadCloud className="w-16 h-16 mb-4 stroke-teal-400" />
-                <p className="text-sm opacity-70">Click or drag an image to upload</p>
+                <p className="text-sm opacity-70">
+                  Click or drag an image to upload
+                </p>
               </>
             )}
             <input

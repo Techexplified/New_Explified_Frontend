@@ -255,126 +255,122 @@ const UpdatedDashboard = () => {
               onMouseLeave={handleMouseLeave}
               className="relative inline-block"
             >
+              {/* Profile Avatar Button */}
               <button
                 onClick={() => navigate("/profile")}
-                className="flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 text-minimal-white hover:text-minimal-primary hover:bg-minimal-cardHover"
+                className={`flex items-center justify-center 
+              w-10 h-10 rounded-xl transition-all duration-200 transform
+              ${
+                location.pathname === "/profile"
+                  ? "scale-110 text-[#23b5b5] bg-minimal-primary/20 border border-[#23b5b5]/40"
+                  : "text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover"
+              }`}
               >
                 <CircleUserRound className="w-5 h-5" />
               </button>
 
+              {/* Dropdown */}
               {isOpen && (
-                <div className="absolute left-[-130px] top-14 bg-minimal-card p-4 rounded-xl shadow-lg border border-gray-700 z-5000000 min-w-[200px] flex flex-col items-center">
-                  {/* Dropdown content */}
-                  <div className="mb-4">
-                    <button
-                      className="text-white text-sm font-semibold mb-2 border border-gray-700 rounded-lg px-4 py-2 hover:text-[#23b5b5]"
-                      onClick={() => navigate("/profile")}
-                    >
-                      View My Profile
-                    </button>
+                <div
+                  className="absolute right-0 top-12 min-w-[220px]
+                 bg-gradient-to-br from-[#0d1418] to-[#111c20] 
+                 backdrop-blur-xl border border-[#23b5b5]/40 rounded-xl shadow-lg
+                 p-4 flex flex-col items-center z-50
+                 transform transition-all duration-300 ease-out
+                 animate-in fade-in-20 scale-in-95"
+                >
+                  {/* Profile Button */}
+                  <button
+                    className="w-full h-9 mb-3 rounded-lg border border-[#23b5b5]/40 text-sm font-medium text-white
+                   bg-transparent hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] 
+                   hover:shadow-md hover:shadow-cyan-500/20 transition-all duration-200"
+                    onClick={() => navigate("/profile")}
+                  >
+                    View My Profile
+                  </button>
 
-                    {/* Tools Quick Buttons */}
-                    <div className="flex gap-3 flex-col">
-                      <div className="flex gap-3">
-                        <button
-                          onClick={() => {
-                            navigate("/expli");
-                            setIsOpen(false);
-                          }}
-                          className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
-                        >
-                          <Plus className="w-5 h-5 text-white" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            navigate("/tasks");
-                            setIsOpen(false);
-                          }}
-                          className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
-                        >
-                          <FileText className="w-5 h-5 text-white" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            navigate("/integrations");
-                            setIsOpen(false);
-                          }}
-                          className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
-                        >
-                          <Zap className="w-5 h-5 text-white" />
-                        </button>
-                      </div>
+                  {/* Quick Tools (row) */}
+                  <div className="flex gap-2 w-full mb-3">
+                    {[
+                      { icon: Plus, to: "/expli" },
+                      { icon: FileText, to: "/tasks" },
+                      { icon: Zap, to: "/integrations" },
+                    ].map(({ icon: Icon, to }, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          navigate(to);
+                          setIsOpen(false);
+                        }}
+                        className="flex-1 h-9 flex items-center justify-center rounded-lg border border-[#23b5b5]/40 bg-transparent
+                       hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] hover:shadow-sm hover:shadow-cyan-500/20
+                       text-white transition-all duration-200"
+                      >
+                        <Icon className="w-4 h-4" />
+                      </button>
+                    ))}
+                  </div>
 
-                      <div className="flex gap-3">
-                        <button
-                          onClick={() => {
-                            navigate("/memory");
-                            setIsOpen(false);
-                          }}
-                          className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
-                        >
-                          <Database className="w-5 h-5 text-white" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            navigate("/socials");
-                            setIsOpen(false);
-                          }}
-                          className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
-                        >
-                          <Users className="w-5 h-5 text-white" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            navigate("/discover");
-                            setIsOpen(false);
-                          }}
-                          className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
-                        >
-                          <Search className="w-5 h-5 text-white" />
-                        </button>
-                      </div>
-                    </div>
+                  {/* Second row of Quick Tools */}
+                  <div className="flex gap-2 w-full mb-3">
+                    {[
+                      { icon: Database, to: "/memory" },
+                      { icon: Users, to: "/socials" },
+                      { icon: Search, to: "/discover" },
+                    ].map(({ icon: Icon, to }, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          navigate(to);
+                          setIsOpen(false);
+                        }}
+                        className="flex-1 h-9 flex items-center justify-center rounded-lg border border-[#23b5b5]/40 bg-transparent
+                       hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] hover:shadow-sm hover:shadow-cyan-500/20
+                       text-white transition-all duration-200"
+                      >
+                        <Icon className="w-4 h-4" />
+                      </button>
+                    ))}
                   </div>
 
                   {/* Workflows Section */}
-                  <div className="mb-4 flex flex-col justify-center items-center">
-                    <h3 className="text-white text-sm font-semibold mb-2">
+                  <div className="mb-3 w-full">
+                    <h3 className="text-white text-xs font-semibold opacity-80 mb-2">
                       Workflows
                     </h3>
-                    <div className="flex gap-3">
-                      <button
-                        onClick={() => {
-                          navigate("/workflows");
-                          setIsOpen(false);
-                        }}
-                        className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
-                      >
-                        <Workflow className="w-5 h-5 text-white" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          navigate("/integrations");
-                          setIsOpen(false);
-                        }}
-                        className="w-10 h-10 bg-minimal-dark-100 rounded-md flex items-center justify-center hover:bg-minimal-primary transition-colors"
-                      >
-                        <Zap className="w-5 h-5 text-white" />
-                      </button>
+                    <div className="flex gap-2 w-full">
+                      {[
+                        { icon: Workflow, to: "/workflows" },
+                        { icon: Zap, to: "/integrations" },
+                      ].map(({ icon: Icon, to }, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            navigate(to);
+                            setIsOpen(false);
+                          }}
+                          className="flex-1 h-9 flex items-center justify-center rounded-lg border border-[#23b5b5]/40 bg-transparent
+                         hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] hover:shadow-sm hover:shadow-cyan-500/20
+                         text-white transition-all duration-200"
+                        >
+                          <Icon className="w-4 h-4" />
+                        </button>
+                      ))}
                     </div>
                   </div>
 
                   {/* All Tools Section */}
-                  <div className="mb-2 flex-col items-center justify-center">
-                    <h3 className="text-white text-sm font-semibold mb-2">
+                  <div className="w-full mb-1">
+                    <h3 className="text-white text-xs font-semibold opacity-80 mb-2">
                       All Tools
                     </h3>
                     <button
-                      type="button"
-                      className="flex items-center justify-center w-14 h-14 rounded-xl text-white hover:bg-minimal-primary"
                       onClick={() => navigate("/alltools")}
+                      className="flex items-center justify-center w-12 h-12 mx-auto rounded-lg border border-[#23b5b5]/40 
+                     text-white bg-transparent hover:bg-[#23b5b5]/15 hover:border-[#23b5b5]
+                     hover:shadow-md hover:shadow-cyan-500/20 transition-all duration-200"
                     >
-                      <Grip className="w-6 h-6" />
+                      <Grip className="w-5 h-5" />
                     </button>
                   </div>
                 </div>
