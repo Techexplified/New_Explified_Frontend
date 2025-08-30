@@ -17,7 +17,6 @@ function SidebarOnHover({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarPinned, setSidebarPinned] = useState(false);
-  console.log("chatHistory from sidebar:", chatHistory);
 
   useEffect(() => {
     if (typeof onOpenChange === "function") {
