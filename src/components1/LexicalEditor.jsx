@@ -102,7 +102,7 @@ function applyStyleToSelection(editor, styleObj) {
 }
 
 // Share Button component
-function ShareButton({ getTextContent,noteTitle }) {
+function ShareButton({ getTextContent, noteTitle }) {
   const [showMenu, setShowMenu] = useState(false);
   const [copied, setCopied] = useState(false);
   const [exportPdf, setExportPdf] = useState(false);
@@ -157,7 +157,7 @@ function ShareButton({ getTextContent,noteTitle }) {
     if (shareId) {
       // Prefer combined payload if available
       const combined = localStorage.getItem(`shared_note_${shareId}`);
-      console.log(localStorage.getItem("tasks"))
+      console.log(localStorage.getItem("tasks"));
       if (combined) {
         try {
           const parsed = JSON.parse(combined);
@@ -181,38 +181,37 @@ function ShareButton({ getTextContent,noteTitle }) {
       }
     }
   }, []);
- function saveNoteToTasks(content) {
-  // Assume first line = title, rest = text
-  const lines = content.split("\n");
-  const title = lines[0] || "Untitled";
-  const text = lines.slice(1).join("\n") || lines[0];
+  function saveNoteToTasks(content) {
+    // Assume first line = title, rest = text
+    const lines = content.split("\n");
+    const title = lines[0] || "Untitled";
+    const text = lines.slice(1).join("\n") || lines[0];
 
-  // Build task object
-  const newTask = {
-  id: Date.now(), // or uuidv4()
-  title: noteTitle,
-  content: text,
-  lastModified: new Date().toISOString(),
-  tag: "General",
-  favorite: false,
-};
+    // Build task object
+    const newTask = {
+      id: Date.now(), // or uuidv4()
+      title: noteTitle,
+      content: text,
+      lastModified: new Date().toISOString(),
+      tag: "General",
+      favorite: false,
+    };
 
-
-  // Load existing tasks
-  let tasks = [];
-  try {
-    const stored = localStorage.getItem("tasks");
-    if (stored) {
-      tasks = JSON.parse(stored);
+    // Load existing tasks
+    let tasks = [];
+    try {
+      const stored = localStorage.getItem("tasks");
+      if (stored) {
+        tasks = JSON.parse(stored);
+      }
+    } catch (e) {
+      console.warn("Failed to parse tasks:", e);
     }
-  } catch (e) {
-    console.warn("Failed to parse tasks:", e);
-  }
 
-  // Push and save back
-  tasks.push(newTask);
-  localStorage.setItem("tasks", JSON.stringify(tasks));
-}
+    // Push and save back
+    tasks.push(newTask);
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }
 
   const handleCopy = () => {
     navigator.clipboard.writeText(shareLink);
@@ -245,185 +244,197 @@ function ShareButton({ getTextContent,noteTitle }) {
   };
 
   return (
-    <div style={{ position: "fixed", top: 80, right: 200, zIndex: 1000 }}>
-  <div
-    style={{
-      borderRadius: 12,
-      border: `2px solid #20e3d7`, // bright cyan border
-      display: "inline-block",
-      background: "#0c2e32", // dark teal background
-       // subtle cyan glow
-    }}
-  >
-    <button
-      onClick={() => {
-        setShowMenu((v) => !v);
-        if (!showMenu) generateLink();
-      }}
-      style={{
-        height: 40,
-        minWidth: 80,
-        padding: "0 18px",
-        fontWeight: 500,
-        color: "#a5f1ea", // lighter cyan text
-        background: "transparent",
-        border: "none",
-        borderRadius: 12,
-        display: "flex",
-        alignItems: "center",
-        cursor: "pointer",
-        transition: "color 0.3s ease",
-      }}
-      onMouseEnter={(e) => (e.currentTarget.style.color = "#00fff7")}
-      onMouseLeave={(e) => (e.currentTarget.style.color = "#a5f1ea")}
-    >
-      Share
-      <ArrowUpRight size={20} style={{ marginLeft: 8, color: "#63e3db" }} />
-    </button>
-
-    {showMenu && (
+    <div className="relative display:flex">
       <div
         style={{
-          position: "absolute",
-          left: 0,
-          top: 46,
-          minWidth: 250,
-          background: "#0c2e32", // consistent dark teal
+          display: "flex",
+          gap: "12px",
+          borderRadius: 12,
           border: `2px solid #20e3d7`,
-          borderRadius: 15,
-          color: "#e0f7f6", // pale cyan text
-          
-          padding: "16px 18px 12px 18px",
+          background: "#0c2e32",
+          padding: 8,
+          position: "fixed",
+          top: 80,
+          right: 200,
           zIndex: 1000,
+          alignItems: "center",
         }}
       >
-        <div
-          style={{
-            fontWeight: 500,
-            fontSize: 18,
-            textAlign: "center",
-            marginBottom: 8,
-          }}
-        >
-          Share
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            background: "#043138", // darker teal input bg
-            borderRadius: 8,
-            padding: "4px 6px",
-            marginBottom: 14,
-          }}
-        >
-          <input
-            type="text"
-            readOnly
-            value={shareLink}
-            style={{
-              flex: 1,
-              border: "none",
-              background: "transparent",
-              color: "#c5f9ee", // light cyan text input
-              padding: "6px 3px",
-              fontSize: 15,
-              outline: "none",
-            }}
-          />
-          <button
-            onClick={handleCopy}
-            style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              color: "#63e3db",
-              padding: 0,
-              transition: "color 0.3s ease",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#00fff7")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "#63e3db")}
-          >
-            <Link2 size={20} />
-          </button>
-        </div>
-        {copied && (
-          <div
-            style={{
-              color: "#22ee99",
-              textAlign: "right",
-              fontSize: 14,
-              marginBottom: 4,
-            }}
-          >
-            Copied!
-          </div>
-        )}
-
-        <div style={{ fontSize: 14, marginBottom: 7, color: "#a5f1ea" }}>
-          Export as : &nbsp;
-          <label style={{ marginRight: 10 }}>
-            Pdf
-            <input
-              type="checkbox"
-              checked={exportPdf}
-              onChange={() => {
-                setExportPdf(!exportPdf);
-                if (!exportPdf) setExportJpg(false);
-              }}
-              style={{ marginLeft: 4 }}
-            />
-          </label>
-          <label>
-            Jpg
-            <input
-              type="checkbox"
-              checked={exportJpg}
-              onChange={() => {
-                setExportJpg(!exportJpg);
-                if (!exportJpg) setExportPdf(false);
-              }}
-              style={{ marginLeft: 4 }}
-            />
-          </label>
-        </div>
-
         <button
-          onClick={handleDownload}
+          onClick={() => {
+            setShowMenu((v) => !v);
+            if (!showMenu) generateLink();
+          }}
           style={{
-            width: "100%",
-            border: `2px solid #20e3d7`,
-            color: "#c5f9ee",
-            borderRadius: 8,
+            height: 40,
+            minWidth: 80,
+            padding: "0 18px",
             fontWeight: 500,
-            fontSize: 16,
-            height: 36,
+            color: "#a5f1ea",
+            background: "transparent",
+            border: "2px solid #20e3d7",
+            borderRadius: 12,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            gap: 7,
-            marginTop: 8,
             cursor: "pointer",
-            backgroundColor: "transparent",
-            transition: "background-color 0.3s ease",
+            transition: "color 0.3s ease",
           }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = "rgba(15, 249, 204, 0.15)")
-          }
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "#00fff7")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "#a5f1ea")}
         >
-          Download <Download size={19} />
+          Share
+          <ArrowUpRight size={20} style={{ marginLeft: 8, color: "#63e3db" }} />
         </button>
-      </div>
-    )}
-  </div>
-</div>
 
+        {showMenu && (
+          <div
+            style={{
+              position: "absolute",
+              top: 46,
+              left: 0,
+              minWidth: 250,
+              background: "#0c2e32",
+              border: `2px solid #20e3d7`,
+              borderRadius: 15,
+              color: "#e0f7f6",
+              padding: "16px 18px 12px 18px",
+              zIndex: 1000,
+            }}
+          >
+            <div
+              style={{
+                fontWeight: 500,
+                fontSize: 18,
+                textAlign: "center",
+                marginBottom: 8,
+              }}
+            >
+              Share
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                background: "#043138",
+                borderRadius: 8,
+                padding: "4px 6px",
+                marginBottom: 14,
+              }}
+            >
+              <input
+                type="text"
+                readOnly
+                value={shareLink}
+                style={{
+                  flex: 1,
+                  border: "none",
+                  background: "transparent",
+                  color: "#c5f9ee",
+                  padding: "6px 3px",
+                  fontSize: 15,
+                  outline: "none",
+                }}
+              />
+              <button
+                onClick={handleCopy}
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "#63e3db",
+                  padding: 0,
+                  transition: "color 0.3s ease",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "#00fff7")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "#63e3db")}
+              >
+                <Link2 size={20} />
+              </button>
+            </div>
+
+            {copied && (
+              <div
+                style={{
+                  color: "#22ee99",
+                  textAlign: "right",
+                  fontSize: 14,
+                  marginBottom: 4,
+                }}
+              >
+                Copied!
+              </div>
+            )}
+
+            <div style={{ fontSize: 14, marginBottom: 7, color: "#a5f1ea" }}>
+              Export as : &nbsp;
+              <label style={{ marginRight: 10 }}>
+                Pdf
+                <input
+                  type="checkbox"
+                  checked={exportPdf}
+                  onChange={() => {
+                    setExportPdf(!exportPdf);
+                    if (!exportPdf) setExportJpg(false);
+                  }}
+                  style={{ marginLeft: 4 }}
+                />
+              </label>
+              <label>
+                Jpg
+                <input
+                  type="checkbox"
+                  checked={exportJpg}
+                  onChange={() => {
+                    setExportJpg(!exportJpg);
+                    if (!exportJpg) setExportPdf(false);
+                  }}
+                  style={{ marginLeft: 4 }}
+                />
+              </label>
+            </div>
+
+            <button
+              onClick={handleDownload}
+              style={{
+                width: "100%",
+                border: `2px solid #20e3d7`,
+                color: "#c5f9ee",
+                borderRadius: 8,
+                fontWeight: 500,
+                fontSize: 16,
+                height: 36,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 7,
+                marginTop: 8,
+                cursor: "pointer",
+                backgroundColor: "transparent",
+                transition: "background-color 0.3s ease",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor =
+                  "rgba(15, 249, 204, 0.15)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = "transparent")
+              }
+            >
+              Download <Download size={19} />
+            </button>
+          </div>
+        )}
+      </div>
+      <SaveButton />
+    </div>
   );
 }
-function SharePlugin({title}) {
+
+function SaveButton() {
   const [editor] = useLexicalComposerContext();
+  const [isSaved, setIsSaved] = useState(false);
 
   const getTextContent = () => {
     let text = "";
@@ -433,7 +444,107 @@ function SharePlugin({title}) {
     return text;
   };
 
-  return <ShareButton getTextContent={getTextContent} noteTitle={title}/>;
+  const handleSave = () => {
+    const content = getTextContent();
+    localStorage.setItem("saved_note", content);
+    setIsSaved(true);
+  };
+
+  useEffect(() => {
+    setIsSaved(false);
+  }, [getTextContent()]);
+
+  return (
+    <button
+      onClick={handleSave}
+      disabled={isSaved}
+      style={{
+        height: 40,
+        minWidth: 80,
+        padding: "0 18px",
+        fontWeight: 500,
+        color: isSaved ? "#22ee99" : "#a5f1ea",
+        background: "transparent",
+        border: `2px solid ${isSaved ? "#22ee99" : "#20e3d7"}`,
+        borderRadius: 12,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        cursor: isSaved ? "default" : "pointer",
+        transition: "color 0.3s ease, border-color 0.3s ease",
+      }}
+      onMouseEnter={(e) =>
+        !isSaved && (e.currentTarget.style.color = "#00fff7")
+      }
+      onMouseLeave={(e) =>
+        !isSaved && (e.currentTarget.style.color = "#a5f1ea")
+      }
+    >
+      {isSaved ? "Saved" : "Save"}
+    </button>
+  );
+}
+function SharePlugin({ title }) {
+  const [editor] = useLexicalComposerContext();
+  const [isSaved, setIsSaved] = useState(false);
+
+  const getTextContent = () => {
+    let text = "";
+    editor.getEditorState().read(() => {
+      text = $getRoot().getTextContent();
+    });
+    return text;
+  };
+
+  const handleSave = () => {
+    const content = getTextContent();
+    localStorage.setItem("saved_note", content);
+    setIsSaved(true);
+  };
+
+  useEffect(() => {
+    setIsSaved(false);
+  }, [getTextContent()]);
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        gap: "12px",
+        borderRadius: 12,
+        border: `2px solid #20e3d7`,
+        background: "#0c2e32",
+        padding: 8,
+        position: "fixed",
+        top: 80,
+        right: 200,
+        zIndex: 1000,
+        alignItems: "center",
+      }}
+    >
+      {/* Save Button */}
+      <button
+        onClick={handleSave}
+        disabled={isSaved}
+        style={{
+          height: 40,
+          padding: "0 16px",
+          fontWeight: 500,
+          color: "#a5f1ea",
+          background: "transparent",
+          border: `2px solid #20e3d7`,
+          borderRadius: 12,
+          cursor: isSaved ? "default" : "pointer",
+          transition: "all 0.3s",
+        }}
+      >
+        {isSaved ? "Saved" : "Save"}
+      </button>
+
+      {/* Share Button */}
+      <ShareButton getTextContent={getTextContent} noteTitle={title} />
+    </div>
+  );
 }
 
 function TextOptionsBar({
@@ -468,151 +579,178 @@ function TextOptionsBar({
 
   return (
     <div
-  className="flex items-center gap-3 px-4 py-2 rounded-xl border absolute bottom-[-85px] left-1/2 transform -translate-x-1/2 z-50 shadow-2xl"
-  style={{
-    minWidth: 520,
-    backgroundColor: "rgba(12, 46, 50, 0.9)", // dark teal translucent background
-    borderColor: "#20e3d7", // bright cyan border
-     // subtle cyan glow shadow
-  }}
->
-  <div
-    className="flex items-center gap-2 rounded-lg px-2 py-1"
-    style={{
-      backgroundColor: "rgba(4, 49, 56, 0.7)", // slightly lighter dark teal bg
-      border: "1px solid #20e3d7", // bright cyan border
-    }}
-  >
-    <select
-      value={fontFamily}
-      onChange={onChangeFont}
-      className="bg-transparent border-none rounded px-2 py-1 focus:outline-none"
-      title="Font family"
+      className="flex items-center gap-3 px-4 py-2 rounded-xl border absolute bottom-[-85px] left-1/2 transform -translate-x-1/2 z-50 shadow-2xl"
       style={{
-        color: "#a5f1ea", // light cyan text
+        minWidth: 520,
+        backgroundColor: "rgba(12, 46, 50, 0.9)", // dark teal translucent background
+        borderColor: "#20e3d7", // bright cyan border
+        // subtle cyan glow shadow
       }}
     >
-      {["Arial", "Georgia", "Times New Roman", "Courier New", "Monospace", "sans-serif", "serif"].map((font) => (
-        <option key={font} className="bg-[#043138]" value={font}>
-          {font}
-        </option>
-      ))}
-    </select>
-    <div style={{ width: 1, height: 24, backgroundColor: "#20e3d7" }} />
+      <div
+        className="flex items-center gap-2 rounded-lg px-2 py-1"
+        style={{
+          backgroundColor: "rgba(4, 49, 56, 0.7)", // slightly lighter dark teal bg
+          border: "1px solid #20e3d7", // bright cyan border
+        }}
+      >
+        <select
+          value={fontFamily}
+          onChange={onChangeFont}
+          className="bg-transparent border-none rounded px-2 py-1 focus:outline-none"
+          title="Font family"
+          style={{
+            color: "#a5f1ea", // light cyan text
+          }}
+        >
+          {[
+            "Arial",
+            "Georgia",
+            "Times New Roman",
+            "Courier New",
+            "Monospace",
+            "sans-serif",
+            "serif",
+          ].map((font) => (
+            <option key={font} className="bg-[#043138]" value={font}>
+              {font}
+            </option>
+          ))}
+        </select>
+        <div style={{ width: 1, height: 24, backgroundColor: "#20e3d7" }} />
 
-    <select
-      value={fontSize}
-      onChange={onChangeFontSize}
-      className="bg-transparent border-none rounded px-2 py-1 focus:outline-none"
-      title="Font size"
-      style={{
-        color: "#a5f1ea",
-      }}
-    >
-      {[12, 14, 16, 18, 20, 24, 28, 32].map((size) => (
-        <option key={size} className="bg-[#043138]" value={size}>
-          {size}
-        </option>
-      ))}
-    </select>
-    <div style={{ width: 1, height: 24, backgroundColor: "#20e3d7" }} />
+        <select
+          value={fontSize}
+          onChange={onChangeFontSize}
+          className="bg-transparent border-none rounded px-2 py-1 focus:outline-none"
+          title="Font size"
+          style={{
+            color: "#a5f1ea",
+          }}
+        >
+          {[12, 14, 16, 18, 20, 24, 28, 32].map((size) => (
+            <option key={size} className="bg-[#043138]" value={size}>
+              {size}
+            </option>
+          ))}
+        </select>
+        <div style={{ width: 1, height: 24, backgroundColor: "#20e3d7" }} />
 
-    <input
-      type="color"
-      title="Font color"
-      value={fontColor}
-      onChange={onChangeFontColor}
-      aria-label="Font color picker"
-      className="w-8 h-8 p-0 border-none rounded cursor-pointer bg-transparent"
-      style={{
-        border: "1px solid #20e3d7",
-        cursor: "pointer",
-      }}
-    />
-  </div>
+        <input
+          type="color"
+          title="Font color"
+          value={fontColor}
+          onChange={onChangeFontColor}
+          aria-label="Font color picker"
+          className="w-8 h-8 p-0 border-none rounded cursor-pointer bg-transparent"
+          style={{
+            border: "1px solid #20e3d7",
+            cursor: "pointer",
+          }}
+        />
+      </div>
 
-  <div style={{ width: 1, height: 32, backgroundColor: "#20e3d7" }} />
+      <div style={{ width: 1, height: 32, backgroundColor: "#20e3d7" }} />
 
-  <div
-    className="flex items-center gap-1 rounded-lg p-1"
-    style={{
-      backgroundColor: "rgba(4, 49, 56, 0.7)",
-      border: "1px solid #20e3d7",
-    }}
-  >
-    <button
-      onClick={undo}
-      className="p-2 rounded-lg text-white"
-      title="Undo"
-      style={{ backgroundColor: "transparent", color: "#a5f1ea" }}
-      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0ff9cc33")}
-      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-    >
-      <Undo size={18} />
-    </button>
-    <button
-      onClick={redo}
-      className="p-2 rounded-lg text-white"
-      title="Redo"
-      style={{ backgroundColor: "transparent", color: "#a5f1ea" }}
-      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0ff9cc33")}
-      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-    >
-      <Redo size={18} />
-    </button>
-  </div>
+      <div
+        className="flex items-center gap-1 rounded-lg p-1"
+        style={{
+          backgroundColor: "rgba(4, 49, 56, 0.7)",
+          border: "1px solid #20e3d7",
+        }}
+      >
+        <button
+          onClick={undo}
+          className="p-2 rounded-lg text-white"
+          title="Undo"
+          style={{ backgroundColor: "transparent", color: "#a5f1ea" }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.backgroundColor = "#0ff9cc33")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.backgroundColor = "transparent")
+          }
+        >
+          <Undo size={18} />
+        </button>
+        <button
+          onClick={redo}
+          className="p-2 rounded-lg text-white"
+          title="Redo"
+          style={{ backgroundColor: "transparent", color: "#a5f1ea" }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.backgroundColor = "#0ff9cc33")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.backgroundColor = "transparent")
+          }
+        >
+          <Redo size={18} />
+        </button>
+      </div>
 
-  <div style={{ width: 1, height: 32, backgroundColor: "#20e3d7" }} />
+      <div style={{ width: 1, height: 32, backgroundColor: "#20e3d7" }} />
 
-  <div
-    className="flex items-center gap-1 rounded-lg p-1"
-    style={{
-      backgroundColor: "rgba(4, 49, 56, 0.7)",
-      border: "1px solid #20e3d7",
-    }}
-  >
-    <button
-      onClick={formatBold}
-      className="px-3 py-2 rounded-lg font-semibold text-white"
-      title="Bold"
-      style={{
-        backgroundColor: "transparent",
-        color: "#a5f1ea",
-      }}
-      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0ff9cc33")}
-      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-    >
-      B
-    </button>
-    <button
-      onClick={formatItalic}
-      className="px-3 py-2 rounded-lg italic text-white"
-      title="Italic"
-      style={{
-        backgroundColor: "transparent",
-        color: "#a5f1ea",
-      }}
-      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0ff9cc33")}
-      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-    >
-      I
-    </button>
-    <button
-      onClick={formatUnderline}
-      className="px-3 py-2 rounded-lg underline text-white"
-      title="Underline"
-      style={{
-        backgroundColor: "transparent",
-        color: "#a5f1ea",
-      }}
-      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0ff9cc33")}
-      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-    >
-      U
-    </button>
-  </div>
-</div>
-
+      <div
+        className="flex items-center gap-1 rounded-lg p-1"
+        style={{
+          backgroundColor: "rgba(4, 49, 56, 0.7)",
+          border: "1px solid #20e3d7",
+        }}
+      >
+        <button
+          onClick={formatBold}
+          className="px-3 py-2 rounded-lg font-semibold text-white"
+          title="Bold"
+          style={{
+            backgroundColor: "transparent",
+            color: "#a5f1ea",
+          }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.backgroundColor = "#0ff9cc33")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.backgroundColor = "transparent")
+          }
+        >
+          B
+        </button>
+        <button
+          onClick={formatItalic}
+          className="px-3 py-2 rounded-lg italic text-white"
+          title="Italic"
+          style={{
+            backgroundColor: "transparent",
+            color: "#a5f1ea",
+          }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.backgroundColor = "#0ff9cc33")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.backgroundColor = "transparent")
+          }
+        >
+          I
+        </button>
+        <button
+          onClick={formatUnderline}
+          className="px-3 py-2 rounded-lg underline text-white"
+          title="Underline"
+          style={{
+            backgroundColor: "transparent",
+            color: "#a5f1ea",
+          }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.backgroundColor = "#0ff9cc33")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.backgroundColor = "transparent")
+          }
+        >
+          U
+        </button>
+      </div>
+    </div>
   );
 }
 function PenTool() {
@@ -745,183 +883,184 @@ function PenTool() {
     <div className="">
       {/* Controls */}
       <div
-  className=""
-  style={{
-    position: "absolute",
-    left: "130px",
-    bottom: "-85px",
-    background: "rgba(12, 46, 50, 0.95)", // deep dark teal bg
-    padding: "10px 12px",
-    borderRadius: "12px",
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    border: "1px solid #20e3d7", // bright cyan border
-     // cyan glow shadow
-    zIndex: 6000,
-  }}
->
-  <div
-    style={{
-      display: "flex",
-      gap: 6,
-      background: "#043138", // darker teal for button group bg
-      padding: "6px",
-      borderRadius: 10,
-    }}
-  >
-    {["pen", "highlighter", "eraser"].map((toolType) => {
-      const iconMap = {
-        pen: <Brush size={18} color="#a5f1ea" />,
-        highlighter: <Highlighter size={18} color="#a5f1ea" />,
-        eraser: <Eraser size={18} color="#a5f1ea" />,
-      };
-      const isActive = tool === toolType;
-      return (
-        <button
-          key={toolType}
-          onClick={() => setTool(toolType)}
-          title={toolType[0].toUpperCase() + toolType.slice(1)}
+        className=""
+        style={{
+          position: "absolute",
+          left: "130px",
+          bottom: "-85px",
+          background: "rgba(12, 46, 50, 0.95)", // deep dark teal bg
+          padding: "10px 12px",
+          borderRadius: "12px",
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          border: "1px solid #20e3d7", // bright cyan border
+          // cyan glow shadow
+          zIndex: 6000,
+        }}
+      >
+        <div
           style={{
-            padding: 8,
-            borderRadius: 8,
-            backgroundColor: isActive ? "#0ff9cc" : "transparent",
-            border: isActive ? "1px solid #0cc8b0" : "1px solid transparent",
-            color: "#e5e7eb",
             display: "flex",
-            alignItems: "center",
             gap: 6,
-            transition: "background-color 0.3s, border-color 0.3s",
-            cursor: "pointer",
+            background: "#043138", // darker teal for button group bg
+            padding: "6px",
+            borderRadius: 10,
           }}
         >
-          {iconMap[toolType]}
-        </button>
-      );
-    })}
-  </div>
+          {["pen", "highlighter", "eraser"].map((toolType) => {
+            const iconMap = {
+              pen: <Brush size={18} color="#a5f1ea" />,
+              highlighter: <Highlighter size={18} color="#a5f1ea" />,
+              eraser: <Eraser size={18} color="#a5f1ea" />,
+            };
+            const isActive = tool === toolType;
+            return (
+              <button
+                key={toolType}
+                onClick={() => setTool(toolType)}
+                title={toolType[0].toUpperCase() + toolType.slice(1)}
+                style={{
+                  padding: 8,
+                  borderRadius: 8,
+                  backgroundColor: isActive ? "#0ff9cc" : "transparent",
+                  border: isActive
+                    ? "1px solid #0cc8b0"
+                    : "1px solid transparent",
+                  color: "#e5e7eb",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  transition: "background-color 0.3s, border-color 0.3s",
+                  cursor: "pointer",
+                }}
+              >
+                {iconMap[toolType]}
+              </button>
+            );
+          })}
+        </div>
 
-  <div style={{ width: 1, height: 28, background: "#20e3d7" }} />
+        <div style={{ width: 1, height: 28, background: "#20e3d7" }} />
 
-  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-    <Droplet size={16} color="#20e3d7" />
-    <input
-      type="color"
-      value={color}
-      onChange={(e) => setColor(e.target.value)}
-      disabled={tool === "eraser"}
-      style={{
-        width: 28,
-        height: 28,
-        border: "none",
-        background: "transparent",
-        cursor: tool === "eraser" ? "not-allowed" : "pointer",
-      }}
-      title="Color"
-    />
-  </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <Droplet size={16} color="#20e3d7" />
+          <input
+            type="color"
+            value={color}
+            onChange={(e) => setColor(e.target.value)}
+            disabled={tool === "eraser"}
+            style={{
+              width: 28,
+              height: 28,
+              border: "none",
+              background: "transparent",
+              cursor: tool === "eraser" ? "not-allowed" : "pointer",
+            }}
+            title="Color"
+          />
+        </div>
 
-  <div
-    style={{
-      display: "flex",
-      alignItems: "center",
-      gap: 10,
-      minWidth: 160,
-    }}
-  >
-    <span style={{ color: "#20e3d7", fontSize: 12, width: 50 }}>
-      Size {thickness}
-    </span>
-    <input
-      type="range"
-      min="1"
-      max="30"
-      value={thickness}
-      onChange={(e) => setThickness(e.target.value)}
-      title="Brush size"
-      style={{
-        cursor: "pointer",
-        accentColor: "#0ff9cc",
-      }}
-    />
-  </div>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            minWidth: 160,
+          }}
+        >
+          <span style={{ color: "#20e3d7", fontSize: 12, width: 50 }}>
+            Size {thickness}
+          </span>
+          <input
+            type="range"
+            min="1"
+            max="30"
+            value={thickness}
+            onChange={(e) => setThickness(e.target.value)}
+            title="Brush size"
+            style={{
+              cursor: "pointer",
+              accentColor: "#0ff9cc",
+            }}
+          />
+        </div>
 
-  <div style={{ width: 1, height: 28, background: "#20e3d7" }} />
+        <div style={{ width: 1, height: 28, background: "#20e3d7" }} />
 
-  <div style={{ display: "flex", gap: 6 }}>
-    <button
-      onClick={undo}
-      title="Undo"
-      style={{
-        padding: 8,
-        borderRadius: 8,
-        color: "#a5f1ea",
-        background: "#043138",
-        border: "1px solid #0cc8b0",
-        cursor: "pointer",
-      }}
-    >
-      ↩️
-    </button>
-    <button
-      onClick={redo}
-      title="Redo"
-      style={{
-        padding: 8,
-        borderRadius: 8,
-        color: "#a5f1ea",
-        background: "#043138",
-        border: "1px solid #0cc8b0",
-        cursor: "pointer",
-      }}
-    >
-      ↪️
-    </button>
-    <button
-      title="Clear canvas"
-      onClick={() => {
-        const canvas = canvasRef.current;
-        const ctx = ctxRef.current;
-        if (!canvas || !ctx) return;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        setHistory([]);
-        setRedoStack([]);
-      }}
-      style={{
-        padding: 8,
-        borderRadius: 8,
-        color: "#fca5a5",
-        background: "#2a1b1b",
-        border: "1px solid #7f1d1d",
-        cursor: "pointer",
-      }}
-    >
-      <Trash2 size={18} />
-    </button>
-  </div>
-</div>
+        <div style={{ display: "flex", gap: 6 }}>
+          <button
+            onClick={undo}
+            title="Undo"
+            style={{
+              padding: 8,
+              borderRadius: 8,
+              color: "#a5f1ea",
+              background: "#043138",
+              border: "1px solid #0cc8b0",
+              cursor: "pointer",
+            }}
+          >
+            ↩️
+          </button>
+          <button
+            onClick={redo}
+            title="Redo"
+            style={{
+              padding: 8,
+              borderRadius: 8,
+              color: "#a5f1ea",
+              background: "#043138",
+              border: "1px solid #0cc8b0",
+              cursor: "pointer",
+            }}
+          >
+            ↪️
+          </button>
+          <button
+            title="Clear canvas"
+            onClick={() => {
+              const canvas = canvasRef.current;
+              const ctx = ctxRef.current;
+              if (!canvas || !ctx) return;
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
+              setHistory([]);
+              setRedoStack([]);
+            }}
+            style={{
+              padding: 8,
+              borderRadius: 8,
+              color: "#fca5a5",
+              background: "#2a1b1b",
+              border: "1px solid #7f1d1d",
+              cursor: "pointer",
+            }}
+          >
+            <Trash2 size={18} />
+          </button>
+        </div>
+      </div>
 
-{/* Canvas main */}
-<canvas
-  className="absolute max-w-4xl bottom-[-10px] left-[-40px] h-[400px] w-[900px]"
-  ref={canvasRef}
-  style={{
-    cursor: cursorStyle,
-    zIndex: 60,
-    background: "transparent",
-  }}
-  data-pen-canvas="true"
-  onMouseDown={startDrawing}
-  onMouseMove={draw}
-  onMouseUp={stopDrawing}
-  onMouseLeave={stopDrawing}
-/>
-
+      {/* Canvas main */}
+      <canvas
+        className="absolute max-w-4xl bottom-[-10px] left-[-40px] h-[400px] w-[900px]"
+        ref={canvasRef}
+        style={{
+          cursor: cursorStyle,
+          zIndex: 60,
+          background: "transparent",
+        }}
+        data-pen-canvas="true"
+        onMouseDown={startDrawing}
+        onMouseMove={draw}
+        onMouseUp={stopDrawing}
+        onMouseLeave={stopDrawing}
+      />
     </div>
   );
 }
 
-function ToolbarPlugin({ onTogglePenTool, onToggleChatbot }) {
+function ToolbarPlugin({ openChatbot, closeChatbot }) {
   const [editor] = useLexicalComposerContext();
   const getTextContent = () => {
     let text = "";
@@ -962,7 +1101,24 @@ function ToolbarPlugin({ onTogglePenTool, onToggleChatbot }) {
     setFontColor(value);
     applyStyleToSelection(editor, { color: value });
   };
-  const [showPenOptions, setShowPenOptions] = useState(false);
+
+  // On button click:
+  const handleToolbarClick = (type) => {
+    setActiveBar((prev) => {
+      if (type === "effect") {
+        if (prev === "effect") {
+          if (closeChatbot) closeChatbot();
+          return null;
+        } else {
+          if (openChatbot) openChatbot();
+          return "effect";
+        }
+      } else {
+        if (prev === "effect" && closeChatbot) closeChatbot();
+        return prev === type ? null : type;
+      }
+    });
+  };
 
   return (
     <>
@@ -988,59 +1144,62 @@ function ToolbarPlugin({ onTogglePenTool, onToggleChatbot }) {
       {activeBar === "pen" && <PenTool />}
 
       <div
-  className="flex justify-center items-center gap-2 px-1 py-1 rounded-lg fixed bottom-[40px] left-1/2 transform -translate-x-1/2 z-50 shadow-xl"
-  style={{
-    minWidth: 240,
-    backgroundColor: "rgba(12, 46, 50, 0.90)", // dark teal translucent background
-    border: "1px solid #20e3d7", // bright cyan border
-     // subtle cyan glow
-  }}
->
-  {/* Text Options Button */}
-  <button
-    onClick={() => setActiveBar(activeBar === "text" ? null : "text")}
-    className="flex flex-col items-center px-4 py-2 rounded transition-all"
-    style={{
-      backgroundColor: activeBar === "text" ? "#0ff9cc" : "transparent",
-      color: activeBar === "text" ? "#003534" : "#a5f1ea",
-      boxShadow: activeBar === "text" ? "0 0 8px #0ff9ccaa" : "none",
-    }}
-    title="Text options"
-  >
-    <Type size={24} />
-  </button>
+        className="flex justify-center items-center gap-1 px-2 py-1 rounded-2xl fixed "
+        style={{
+          minWidth: 120,
+          backgroundColor: "rgba(12, 46, 50, 0.85)",
+          border: "1px solid #20e3d7",
+          bottom: "18px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          zIndex: 100,
+        }}
+      >
+        {/* Text Options Button */}
+        <button
+          onClick={() => handleToolbarClick("text")}
+          className="flex items-center justify-center w-7 h-7 rounded-full transition-all duration-300 hover:scale-[1.16] hover:shadow-[0_0_4px_#0ff9cc55]"
+          style={{
+            fontSize: 16,
+            backgroundColor: activeBar === "text" ? "#0ff9cc" : "transparent",
+            color: activeBar === "text" ? "#003534" : "#a5f1ea",
+            boxShadow: activeBar === "text" ? "0 0 4px #0ff9cc88" : "none",
+          }}
+          title="Text options"
+        >
+          <Type size={20} />
+        </button>
 
-  {/* Pen Tool Button */}
-  <button
-    onClick={() => setActiveBar(activeBar === "pen" ? null : "pen")}
-    className="flex flex-col items-center px-4 py-2 rounded transition-all"
-    style={{
-      backgroundColor: activeBar === "pen" ? "#0ff9cc" : "transparent",
-      color: activeBar === "pen" ? "#003534" : "#a5f1ea",
-      boxShadow: activeBar === "pen" ? "0 0 8px #0ff9ccaa" : "none",
-    }}
-    title="Pen Tool"
-  >
-    <Pencil size={24} />
-  </button>
+        {/* Pen Tool Button */}
+        <button
+          onClick={() => handleToolbarClick("pen")}
+          className="flex items-center justify-center w-7 h-7 rounded-full transition-all duration-300 hover:scale-[1.16] hover:shadow-[0_0_4px_#0ff9cc55]"
+          style={{
+            fontSize: 16,
+            backgroundColor: activeBar === "pen" ? "#0ff9cc" : "transparent",
+            color: activeBar === "pen" ? "#003534" : "#a5f1ea",
+            boxShadow: activeBar === "pen" ? "0 0 4px #0ff9cc88" : "none",
+          }}
+          title="Pen Tool"
+        >
+          <Pencil size={20} />
+        </button>
 
-  {/* Effects Button (Disabled) */}
-  <button
-    onClick={() => onToggleChatbot && onToggleChatbot() && setActiveBar(activeBar === "effect" ? null : "effect")}
-    className="flex flex-col items-center px-4 py-2 rounded transition-all"
-    title="Effects"
-    
-    style={{
-      opacity: 0.3,
-      color: "#20e3d7",
-      backgroundColor: "transparent",
-      border: "none",
-    }}
-  >
-    <Sparkle size={24} />
-  </button>
-</div>
-
+        {/* Effects Button */}
+        <button
+          onClick={() => handleToolbarClick("effect")}
+          className="flex items-center justify-center w-7 h-7 rounded-full transition-all duration-300 hover:scale-[1.16] hover:shadow-[0_0_4px_#0ff9cc55]"
+          style={{
+            fontSize: 16,
+            backgroundColor: activeBar === "effect" ? "#0ff9cc" : "transparent",
+            color: activeBar === "effect" ? "#003534" : "#a5f1ea",
+            boxShadow: activeBar === "effect" ? "0 0 4px #0ff9cc88" : "none",
+          }}
+          title="Effects"
+        >
+          <Sparkle size={20} />
+        </button>
+      </div>
     </>
   );
 }
@@ -1159,132 +1318,112 @@ function LexicalEditor() {
   }, []);
 
   return (
-    <div
-  className="flex opacity-80 bg-gradient-to-br from-transparent via-cyan-800 to-transparent"
-  style={{
-    minHeight: "100vh",
-    minWidth: "100vw",
-    
-    color: "#e8fffe" // Very light cyan for main text
-  }}
->
-  {/* Main editor wrapper */}
-  <div
-    className="w-screen h-screen relative flex flex-col justify-center items-center overflow-hidden"
-    style={{
-       background: "rgba(6, 26, 36, 0.4)",
-      boxShadow: "0 0 60px 0 rgba(15, 249, 204, 0.25)" // semi-transparent bright cyan glow
-    }}
-  >
-    <SidebarOnHover2 />
-    <div className="absolute gap-2 top-20 left-10 flex items-center">
-      <a
-        href="/tasks"
-        className="font-medium transition-colors"
-        style={{ color: "#22d2c6" }} // Teal cyan
-        onMouseEnter={(e) => (e.currentTarget.style.color = "#16b0a6")} // Darker teal on hover
-        onMouseLeave={(e) => (e.currentTarget.style.color = "#22d2c6")}
+    <div className="bg-black text-white flex flex-col min-h-screen relative overflow-hidden">
+      <div className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
+      {/* Main editor wrapper */}
+      <div
+        className="w-screen h-screen relative flex flex-col justify-center items-center overflow-hidden"
+        style={{
+          background: "rgba(6, 26, 36, 0.4)",
+          boxShadow: "0 0 60px 0 rgba(15, 249, 204, 0.25)", // semi-transparent bright cyan glow
+        }}
       >
-        <ArrowLeft size={18} />
-      </a>
-      <p
-        className="font-medium drop-shadow-md"
-        style={{ color: "#15f1cf" }} // Light cyan
-      >
-        {title}
-      </p>
-    </div>
-
-    {/* Editable <h1> */}
-    <h1
-      className="editable-title"
-      ref={h1Ref}
-      contentEditable
-      suppressContentEditableWarning={true}
-      spellCheck={false}
-      onInput={handleInput}
-      style={{
-        position: "fixed",
-        top: "80px",
-        left: "340px",
-        zIndex: 50,
-        cursor: "text",
-        fontSize: "1.5rem",
-        fontWeight: 600,
-        fontFamily: "sans-serif",
-        color: "#0ff9cc", // Bright cyan
-        backgroundColor: "rgba(15, 52, 96, 0.95)", // Semi-transparent dark blue
-        padding: "8px 16px",
-        borderRadius: "12px",
-         // semi-transparent bright cyan glow
-        border: "1px solid #1ae5d2", // Cyan blue border
-        overflow: "hidden",
-        whiteSpace: "nowrap",
-        textOverflow: "ellipsis",
-        outline: "none",
-        userSelect: "text",
-      }}
-      aria-label="Notes Title"
-    />
-
-    <div
-      className="h-[400px] w-[900px] border rounded-md pt-10 relative z-10"
-      style={{
-         background: "rgba(6, 26, 36, 0.4)", // Semi-transparent very dark blue
-       // semi-transparent bright cyan glow
-        border: "2px solid #20e3d7", // Light cyan blue border
-      }}
-    >
-      {ispenactive && (
-        <div
-          className="rounded-lg shadow-lg relative px-10"
-          style={{  border: "none" }} // Very dark blue background
-        >
-          <LexicalComposer initialConfig={editorInitialConfig}>
-            <div className="relative">
-              <RichTextPlugin
-                contentEditable={
-                  <ContentEditable
-                    className="h-[350px] text-xl font-normal outline-none resize-none px-1"
-                    style={{
-                      color: "#e4ffff", // Light cyan alternative
-                       // Bright cyan caret
-                       // Semi-transparent very dark blue
-                    }}
-                  />
-                }
-                placeholder={
-                  <h2
-                    className="absolute top-0 left-4 pointer-events-none text-lg"
-                     // Very light cyan
-                  >
-                    {"Let's Start"}
-                  </h2>
-                }
-                ErrorBoundary={LexicalErrorBoundary}
-              />
-              <SaveToLocalStoragePlugin />
-              <HistoryPlugin />
-              <AutoFocusPlugin />
-              <OnChangePlugin onChange={onChange} />
-              <ToolbarPlugin
-                onTogglePenTool={() => setShowPenTool((prev) => !prev)}
-                    onToggleChatbot={() => setShowChatbot((prev) => !prev)}
-              />
-            </div>
-            <SharePlugin title={title} />
-          </LexicalComposer>
+        <SidebarOnHover2 />
+        <div className="absolute gap-10 top-20 left-10 flex items-center">
+          <a
+            href="/tasks"
+            className="font-medium transition-colors"
+            style={{ color: "#22d2c6" }} // Teal cyan
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#16b0a6")} // Darker teal on hover
+            onMouseLeave={(e) => (e.currentTarget.style.color = "#22d2c6")}
+          >
+            <ArrowLeft size={18} />
+          </a>
+          <p
+            className="font-medium drop-shadow-md"
+            style={{ color: "#15f1cf" }} // Light cyan
+          >
+            {title}
+          </p>
         </div>
-      )}
+
+        <div
+          className="h-[400px] w-[900px] border rounded-md pt-6 relative z-10 flex flex-col"
+          style={{
+            background: "rgba(6, 26, 36, 0.4)",
+            border: "2px solid #20e3d7",
+          }}
+        >
+          {/* Editable <h1> inside the box */}
+          <h1
+            className="editable-title mb-4 px-10"
+            ref={h1Ref}
+            contentEditable
+            suppressContentEditableWarning={true}
+            spellCheck={false}
+            onInput={handleInput}
+            style={{
+              cursor: "text",
+              fontSize: "1.5rem",
+              fontWeight: 600,
+              fontFamily: "sans-serif",
+              color: "#0ff9cc",
+              backgroundColor: "rgba(6, 26, 36, 0.4)", // 👈 same as box bg
+              paddingTop: "8px",
+              paddingBottom: "8px",
+              borderRadius: "0px", // 👈 no rounded corners
+              border: "none", // 👈 removed border
+              outline: "none",
+              userSelect: "text",
+              width: "400px",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+            aria-label="Notes Title"
+          />
+
+          {ispenactive && (
+            <div
+              className="rounded-lg shadow-lg relative px-10"
+              style={{ border: "none" }}
+            >
+              <LexicalComposer initialConfig={editorInitialConfig}>
+                <div className="relative">
+                  <RichTextPlugin
+                    contentEditable={
+                      <ContentEditable
+                        className="h-[300px] text-xl font-normal outline-none resize-none px-1"
+                        style={{ color: "#e4ffff" }}
+                      />
+                    }
+                    placeholder={
+                      <span className="absolute top-0 left-4 pointer-events-none text-lg font-poppins text-cyan-200">
+                        <span className="smooth-typing">Let's Start</span>
+                      </span>
+                    }
+                    ErrorBoundary={LexicalErrorBoundary}
+                  />
+                  <SaveToLocalStoragePlugin />
+                  <HistoryPlugin />
+                  <AutoFocusPlugin />
+                  <OnChangePlugin onChange={onChange} />
+                  <ToolbarPlugin
+                    openChatbot={() => setShowChatbot(true)}
+                    closeChatbot={() => setShowChatbot(false)}
+                  />
+                </div>
+                <SharePlugin title={title} />
+              </LexicalComposer>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Only render PenTool if state is true */}
+      <div>{showPenTool && <PenTool />}</div>
+      <SimpleChatbot open={showChatbot} onClose={() => setShowChatbot(false)} />
     </div>
-  </div>
-
-  {/* Only render PenTool if state is true */}
-  <div>{showPenTool && <PenTool />}</div>
-  <SimpleChatbot open={showChatbot} onClose={() => setShowChatbot(false)} />
-</div>
-
-
   );
 }
 
