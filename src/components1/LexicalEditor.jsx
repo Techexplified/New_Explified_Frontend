@@ -184,7 +184,7 @@ function ShareButton({ getTextContent, noteTitle }) {
   function saveNoteToTasks(content) {
     // Assume first line = title, rest = text
     const lines = content.split("\n");
-    const title = lines[0] || "Untitled";
+    const title = String(content.split("\n")[0] || "Untitled");
     const text = lines.slice(1).join("\n") || lines[0];
 
     // Build task object
@@ -244,195 +244,178 @@ function ShareButton({ getTextContent, noteTitle }) {
   };
 
   return (
-    <div className="relative display:flex">
-      <div
-        style={{
-          display: "flex",
-          gap: "12px",
-          borderRadius: 12,
-          border: `2px solid #20e3d7`,
-          background: "#0c2e32",
-          padding: 8,
-          position: "fixed",
-          top: 80,
-          right: 200,
-          zIndex: 1000,
-          alignItems: "center",
+    <div style={{ position: "relative" }}>
+      <button
+        onClick={() => {
+          setShowMenu((v) => !v);
+          if (!showMenu) generateLink();
         }}
+        style={{
+          height: 40,
+          minWidth: 80,
+          padding: "0 18px",
+          fontWeight: 500,
+          color: "#a5f1ea",
+          background: "transparent",
+          border: "2px solid #20e3d7",
+          borderRadius: 12,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+          transition: "color 0.3s ease",
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = "#00fff7")}
+        onMouseLeave={(e) => (e.currentTarget.style.color = "#a5f1ea")}
       >
-        <button
-          onClick={() => {
-            setShowMenu((v) => !v);
-            if (!showMenu) generateLink();
-          }}
-          style={{
-            height: 40,
-            minWidth: 80,
-            padding: "0 18px",
-            fontWeight: 500,
-            color: "#a5f1ea",
-            background: "transparent",
-            border: "2px solid #20e3d7",
-            borderRadius: 12,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            transition: "color 0.3s ease",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "#00fff7")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "#a5f1ea")}
-        >
-          Share
-          <ArrowUpRight size={20} style={{ marginLeft: 8, color: "#63e3db" }} />
-        </button>
+        Share
+        <ArrowUpRight size={20} style={{ marginLeft: 8, color: "#63e3db" }} />
+      </button>
 
-        {showMenu && (
+      {showMenu && (
+        <div
+          style={{
+            position: "absolute",
+            top: 46,
+            left: 0,
+            minWidth: 250,
+            background: "#0c2e32",
+            border: `2px solid #20e3d7`,
+            borderRadius: 15,
+            color: "#e0f7f6",
+            padding: "16px 18px 12px 18px",
+            zIndex: 1000,
+          }}
+        >
           <div
             style={{
-              position: "absolute",
-              top: 46,
-              left: 0,
-              minWidth: 250,
-              background: "#0c2e32",
-              border: `2px solid #20e3d7`,
-              borderRadius: 15,
-              color: "#e0f7f6",
-              padding: "16px 18px 12px 18px",
-              zIndex: 1000,
+              fontWeight: 500,
+              fontSize: 18,
+              textAlign: "center",
+              marginBottom: 8,
             }}
           >
-            <div
+            Share
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              background: "#043138",
+              borderRadius: 8,
+              padding: "4px 6px",
+              marginBottom: 14,
+            }}
+          >
+            <input
+              type="text"
+              readOnly
+              value={shareLink}
               style={{
-                fontWeight: 500,
-                fontSize: 18,
-                textAlign: "center",
-                marginBottom: 8,
-              }}
-            >
-              Share
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                background: "#043138",
-                borderRadius: 8,
-                padding: "4px 6px",
-                marginBottom: 14,
-              }}
-            >
-              <input
-                type="text"
-                readOnly
-                value={shareLink}
-                style={{
-                  flex: 1,
-                  border: "none",
-                  background: "transparent",
-                  color: "#c5f9ee",
-                  padding: "6px 3px",
-                  fontSize: 15,
-                  outline: "none",
-                }}
-              />
-              <button
-                onClick={handleCopy}
-                style={{
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  color: "#63e3db",
-                  padding: 0,
-                  transition: "color 0.3s ease",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#00fff7")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "#63e3db")}
-              >
-                <Link2 size={20} />
-              </button>
-            </div>
-
-            {copied && (
-              <div
-                style={{
-                  color: "#22ee99",
-                  textAlign: "right",
-                  fontSize: 14,
-                  marginBottom: 4,
-                }}
-              >
-                Copied!
-              </div>
-            )}
-
-            <div style={{ fontSize: 14, marginBottom: 7, color: "#a5f1ea" }}>
-              Export as : &nbsp;
-              <label style={{ marginRight: 10 }}>
-                Pdf
-                <input
-                  type="checkbox"
-                  checked={exportPdf}
-                  onChange={() => {
-                    setExportPdf(!exportPdf);
-                    if (!exportPdf) setExportJpg(false);
-                  }}
-                  style={{ marginLeft: 4 }}
-                />
-              </label>
-              <label>
-                Jpg
-                <input
-                  type="checkbox"
-                  checked={exportJpg}
-                  onChange={() => {
-                    setExportJpg(!exportJpg);
-                    if (!exportJpg) setExportPdf(false);
-                  }}
-                  style={{ marginLeft: 4 }}
-                />
-              </label>
-            </div>
-
-            <button
-              onClick={handleDownload}
-              style={{
-                width: "100%",
-                border: `2px solid #20e3d7`,
+                flex: 1,
+                border: "none",
+                background: "transparent",
                 color: "#c5f9ee",
-                borderRadius: 8,
-                fontWeight: 500,
-                fontSize: 16,
-                height: 36,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 7,
-                marginTop: 8,
-                cursor: "pointer",
-                backgroundColor: "transparent",
-                transition: "background-color 0.3s ease",
+                padding: "6px 3px",
+                fontSize: 15,
+                outline: "none",
               }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundColor =
-                  "rgba(15, 249, 204, 0.15)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.backgroundColor = "transparent")
-              }
+            />
+            <button
+              onClick={handleCopy}
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                color: "#63e3db",
+                padding: 0,
+                transition: "color 0.3s ease",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#00fff7")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "#63e3db")}
             >
-              Download <Download size={19} />
+              <Link2 size={20} />
             </button>
           </div>
-        )}
-      </div>
-      <SaveButton />
+
+          {copied && (
+            <div
+              style={{
+                color: "#22ee99",
+                textAlign: "right",
+                fontSize: 14,
+                marginBottom: 4,
+              }}
+            >
+              Copied!
+            </div>
+          )}
+
+          <div style={{ fontSize: 14, marginBottom: 7, color: "#a5f1ea" }}>
+            Export as : &nbsp;
+            <label style={{ marginRight: 10 }}>
+              Pdf
+              <input
+                type="checkbox"
+                checked={exportPdf}
+                onChange={() => {
+                  setExportPdf(!exportPdf);
+                  if (!exportPdf) setExportJpg(false);
+                }}
+                style={{ marginLeft: 4 }}
+              />
+            </label>
+            <label>
+              Jpg
+              <input
+                type="checkbox"
+                checked={exportJpg}
+                onChange={() => {
+                  setExportJpg(!exportJpg);
+                  if (!exportJpg) setExportPdf(false);
+                }}
+                style={{ marginLeft: 4 }}
+              />
+            </label>
+          </div>
+
+          <button
+            onClick={handleDownload}
+            style={{
+              width: "100%",
+              border: `2px solid #20e3d7`,
+              color: "#c5f9ee",
+              borderRadius: 8,
+              fontWeight: 500,
+              fontSize: 16,
+              height: 36,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 7,
+              marginTop: 8,
+              cursor: "pointer",
+              backgroundColor: "transparent",
+              transition: "background-color 0.3s ease",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.backgroundColor =
+                "rgba(15, 249, 204, 0.15)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.backgroundColor = "transparent")
+            }
+          >
+            Download <Download size={19} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
-function SaveButton() {
+function SaveButton({ saveTrigger, title }) {
   const [editor] = useLexicalComposerContext();
   const [isSaved, setIsSaved] = useState(false);
 
@@ -446,13 +429,28 @@ function SaveButton() {
 
   const handleSave = () => {
     const content = getTextContent();
-    localStorage.setItem("saved_note", content);
+    const text = content;
+    const newTask = {
+      id: Date.now(),
+      title: title || "Untitled",
+      content: text,
+      lastModified: new Date().toISOString(),
+    };
+    let tasks = [];
+    try {
+      const stored = localStorage.getItem("tasks");
+      if (stored) tasks = JSON.parse(stored);
+    } catch (e) {
+      tasks = [];
+    }
+    tasks.push(newTask);
+    localStorage.setItem("tasks", JSON.stringify(tasks));
     setIsSaved(true);
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     setIsSaved(false);
-  }, [getTextContent()]);
+  }, [saveTrigger, title]);
 
   return (
     <button
@@ -484,10 +482,9 @@ function SaveButton() {
     </button>
   );
 }
-function SharePlugin({ title }) {
-  const [editor] = useLexicalComposerContext();
-  const [isSaved, setIsSaved] = useState(false);
 
+function SharePlugin({ title, saveTrigger }) {
+  const [editor] = useLexicalComposerContext();
   const getTextContent = () => {
     let text = "";
     editor.getEditorState().read(() => {
@@ -495,25 +492,12 @@ function SharePlugin({ title }) {
     });
     return text;
   };
-
-  const handleSave = () => {
-    const content = getTextContent();
-    localStorage.setItem("saved_note", content);
-    setIsSaved(true);
-  };
-
-  useEffect(() => {
-    setIsSaved(false);
-  }, [getTextContent()]);
-
   return (
     <div
       style={{
         display: "flex",
         gap: "12px",
         borderRadius: 12,
-        border: `2px solid #20e3d7`,
-        background: "#0c2e32",
         padding: 8,
         position: "fixed",
         top: 80,
@@ -522,26 +506,7 @@ function SharePlugin({ title }) {
         alignItems: "center",
       }}
     >
-      {/* Save Button */}
-      <button
-        onClick={handleSave}
-        disabled={isSaved}
-        style={{
-          height: 40,
-          padding: "0 16px",
-          fontWeight: 500,
-          color: "#a5f1ea",
-          background: "transparent",
-          border: `2px solid #20e3d7`,
-          borderRadius: 12,
-          cursor: isSaved ? "default" : "pointer",
-          transition: "all 0.3s",
-        }}
-      >
-        {isSaved ? "Saved" : "Save"}
-      </button>
-
-      {/* Share Button */}
+      <SaveButton saveTrigger={saveTrigger} title={title} />
       <ShareButton getTextContent={getTextContent} noteTitle={title} />
     </div>
   );
@@ -1142,11 +1107,10 @@ function ToolbarPlugin({ openChatbot, closeChatbot }) {
 
       {/* Pen Tool Options */}
       {activeBar === "pen" && <PenTool />}
-
       <div
-        className="flex justify-center items-center gap-1 px-2 py-1 rounded-2xl fixed "
+        className="flex justify-center items-center gap-4 px-4 py-2 rounded-2xl fixed"
         style={{
-          minWidth: 120,
+          minWidth: 160, // increased from 120
           backgroundColor: "rgba(12, 46, 50, 0.85)",
           border: "1px solid #20e3d7",
           bottom: "18px",
@@ -1158,46 +1122,46 @@ function ToolbarPlugin({ openChatbot, closeChatbot }) {
         {/* Text Options Button */}
         <button
           onClick={() => handleToolbarClick("text")}
-          className="flex items-center justify-center w-7 h-7 rounded-full transition-all duration-300 hover:scale-[1.16] hover:shadow-[0_0_4px_#0ff9cc55]"
+          className="flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 hover:scale-[1.16] hover:shadow-[0_0_4px_#0ff9cc55]"
           style={{
-            fontSize: 16,
+            fontSize: 18,
             backgroundColor: activeBar === "text" ? "#0ff9cc" : "transparent",
             color: activeBar === "text" ? "#003534" : "#a5f1ea",
             boxShadow: activeBar === "text" ? "0 0 4px #0ff9cc88" : "none",
           }}
           title="Text options"
         >
-          <Type size={20} />
+          <Type size={22} />
         </button>
 
         {/* Pen Tool Button */}
         <button
           onClick={() => handleToolbarClick("pen")}
-          className="flex items-center justify-center w-7 h-7 rounded-full transition-all duration-300 hover:scale-[1.16] hover:shadow-[0_0_4px_#0ff9cc55]"
+          className="flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 hover:scale-[1.16] hover:shadow-[0_0_4px_#0ff9cc55]"
           style={{
-            fontSize: 16,
+            fontSize: 18,
             backgroundColor: activeBar === "pen" ? "#0ff9cc" : "transparent",
             color: activeBar === "pen" ? "#003534" : "#a5f1ea",
             boxShadow: activeBar === "pen" ? "0 0 4px #0ff9cc88" : "none",
           }}
           title="Pen Tool"
         >
-          <Pencil size={20} />
+          <Pencil size={22} />
         </button>
 
         {/* Effects Button */}
         <button
           onClick={() => handleToolbarClick("effect")}
-          className="flex items-center justify-center w-7 h-7 rounded-full transition-all duration-300 hover:scale-[1.16] hover:shadow-[0_0_4px_#0ff9cc55]"
+          className="flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 hover:scale-[1.16] hover:shadow-[0_0_4px_#0ff9cc55]"
           style={{
-            fontSize: 16,
+            fontSize: 18,
             backgroundColor: activeBar === "effect" ? "#0ff9cc" : "transparent",
             color: activeBar === "effect" ? "#003534" : "#a5f1ea",
             boxShadow: activeBar === "effect" ? "0 0 4px #0ff9cc88" : "none",
           }}
           title="Effects"
         >
-          <Sparkle size={20} />
+          <Sparkle size={22} />
         </button>
       </div>
     </>
@@ -1246,10 +1210,12 @@ function LexicalEditor() {
   const [showChatbot, setShowChatbot] = useState(false);
   // ✅ new state for PenTool visibility
   const [showPenTool, setShowPenTool] = useState(false);
+  const [saveTrigger, setSaveTrigger] = useState(0);
 
   const onChange = (editorState) => {
     editorState.read(() => {
       setEditorState(JSON.stringify(editorState.toJSON(), null, 2));
+      setSaveTrigger((trigger) => trigger + 1); // <-- Add this to bump the trigger
     });
   };
 
@@ -1263,7 +1229,9 @@ function LexicalEditor() {
 
   const handleInput = (e) => {
     setTitle(e.currentTarget.textContent);
+    setSaveTrigger((trigger) => trigger + 1); // <-- Add this to bump the trigger
   };
+
   const params = new URLSearchParams(window.location.search);
   const shareId = params.get("shareId");
 
@@ -1413,7 +1381,7 @@ function LexicalEditor() {
                     closeChatbot={() => setShowChatbot(false)}
                   />
                 </div>
-                <SharePlugin title={title} />
+                <SharePlugin title={title} saveTrigger={saveTrigger} />
               </LexicalComposer>
             </div>
           )}

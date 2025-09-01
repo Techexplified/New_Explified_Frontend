@@ -114,22 +114,16 @@ const MostPopular = () => {
 
   return (
     <div className="bg-gradient-to-br from-cyan-1000 via-black to-cyan-950 ">
-      <div className="w-full pt-5 px-5">
+      <div className="w-full pt-5 ">
         {/* heading */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl md:text-2xl w-fit font-bold text-minimal-white">
             Most Popular Workflows
           </h2>
-          <button
-            onClick={() => navigate("/workflows")}
-            className="text-sm font-semibold text-minimal-primary hover:text-minimal-primary/80 transition-colors duration-200"
-          >
-            Show All
-          </button>
         </div>
 
         {/* workflows card*/}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {sampleWorkflows.map((workflow) => {
             const isMenuOpen = openMenuId === workflow.id;
 
@@ -137,9 +131,9 @@ const MostPopular = () => {
               <div
                 key={workflow.id}
                 onClick={() => navigate("/locked")}
-                className="group relative bg-gradient-to-br from-black via-cyan-950 to-cyan-900/80 border border-cyan-700 rounded-xl p-5 
-             hover:bg-[#23b5b5]/40 transition-all duration-300 transform hover:-translate-y-2 
-             hover:shadow-xl hover:shadow-teal-500/30 cursor-pointer flex flex-col h-64"
+                className="group relative w-[220px] bg-gradient-to-br from-black via-cyan-950 to-cyan-900/80 border border-cyan-700 rounded-xl p-5 
+hover:bg-[#23b5b5]/40 transition-all duration-300 transform hover:-translate-y-2 
+hover:shadow-xl hover:shadow-teal-500/30 cursor-pointer flex flex-col h-64"
               >
                 {/* Gradient overlay on hover */}
                 <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-700/10 to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -229,15 +223,6 @@ const MostPopular = () => {
 
                   {/* Footer */}
                   <div className="flex items-center justify-between pt-2 border-t border-gray-700">
-                    {workflow.recommended && (
-                      <div className="flex items-center text-teal-400">
-                        <Sparkles className="w-4 h-4 mr-2" />
-                        <span className="text-xs font-medium">
-                          Recommended for you
-                        </span>
-                      </div>
-                    )}
-
                     <div className="flex items-center text-teal-400 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-0 group-hover:translate-x-1 ml-auto">
                       <span className="text-xs font-medium">Use Workflow</span>
                       <svg

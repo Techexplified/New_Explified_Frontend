@@ -14,7 +14,6 @@ import {
   Settings,
   Ellipsis,
 } from "lucide-react";
-import { useState } from "react";
 import Existing from "./workflows/Existing";
 import Unfinished from "./workflows/Unfinished";
 import Recommended from "./workflows/Recommended";
@@ -33,9 +32,9 @@ const WorkflowEngine = () => {
             {/* Create Workflow Button Card */}
             <div
               onClick={() => navigate("/workflows/create")}
-              className="flex-1 cursor-pointer group flex flex-col justify-center"
+              className=" w-[31%] cursor-pointer group flex flex-col justify-center"
             >
-              <div className="bg-gradient-to-br from-cyan-900 via-black to-cyan-950 bg-opacity-80 border-2 border-cyan-700 rounded-xl p-6 flex flex-col items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-[1.01] group-hover:shadow-cyan-700/30">
+              <div className="min-h-[300px] bg-gradient-to-br from-cyan-900 via-black to-cyan-950 bg-opacity-80 border-2 border-cyan-700 rounded-xl p-6 flex flex-col items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-[1.01] group-hover:shadow-cyan-700/30">
                 <div className="inline-flex p-3 rounded-full bg-gradient-to-r from-cyan-600 to-cyan-900 mb-3 group-hover:scale-110 transition-transform duration-300">
                   <Plus className="w-7 h-7 text-cyan-200" />
                 </div>
