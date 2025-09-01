@@ -18,7 +18,7 @@ function ExpliInput({
       <div className="rounded-2xl max-w-2xl mx-auto border-2 border-cyan-500/20 bg-gradient-to-r from-gray-900/90 to-gray-800/80 backdrop-blur-lg shadow-2xl">
         <div className="p-4">
           {/* Input Field */}
-          <div className="flex items-center gap-4 mb-4">
+          <div className="flex items-center gap-4 ">
             <div className="flex-1 relative">
               <input
                 type="text"
@@ -80,8 +80,7 @@ function ExpliInput({
           </div>
 
           {/* Enhanced Action Buttons */}
-          <div className="flex justify-end">
-            {/* Powered By Badge */}
+          {/* <div className="flex justify-end">
             <div className="flex items-center justify-center gap-2">
               <p className=" text-sm text-gray-300">Powered by</p>
 
@@ -100,7 +99,7 @@ function ExpliInput({
                 ))}
               </select>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
