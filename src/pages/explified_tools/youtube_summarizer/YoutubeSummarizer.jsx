@@ -56,6 +56,47 @@ const YoutubeSummarizer = () => {
   const navigate = useNavigate();
 
   const user = useSelector((state) => state.user);
+
+  // Helper function to fetch video information using RapidAPI
+  const fetchVideoInfoFromRapidAPI = async (videoId) => {
+    try {
+      const url = `https://youtube-video-information1.p.rapidapi.com/api/youtube?video_id=${videoId}`;
+      const options = {
+        method: "GET",
+        headers: {
+          "x-rapidapi-host": "youtube-video-information1.p.rapidapi.com",
+          "x-rapidapi-key":
+            "cb3f919c25mshe7e6383f6f24ab8p12fd16jsn654b897e1185",
+        },
+      };
+
+      const response = await fetch(url, options);
+      const result = await response.json();
+
+      console.log("RapidAPI Video Info Response:", result);
+
+      if (result && result.videoDetails) {
+        const videoDetails = result.videoDetails;
+        return {
+          title: videoDetails.title || `Video ${videoId}`,
+          channelTitle: videoDetails.author || "Unknown Channel",
+          thumbnails: {
+            default: {
+              url: videoDetails.thumbnail?.thumbnails?.[0]?.url || null,
+            },
+          },
+          channelId: videoDetails.channelId || "",
+          description: videoDetails.shortDescription || "",
+          duration: videoDetails.lengthSeconds || 0,
+        };
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Error fetching video info from RapidAPI:", error);
+      return null;
+    }
+  };
   // console.log("user", user);
   // const accessToken = user.accessToken;
 
@@ -64,34 +105,6 @@ const YoutubeSummarizer = () => {
       navigate("/login");
     }
   }, [user, navigate]);
-
-  // useEffect(() => {
-  //   async function fetchHistory() {
-  //     try {
-  //       const res = await axios.get(
-  //         "https://www.googleapis.com/youtube/v3/playlistItems",
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${accessToken}`,
-  //           },
-  //           params: {
-  //             part: "snippet",
-  //             maxResults: 10,
-  //             playlistId: "WL",
-  //           },
-  //         }
-  //       );
-  //       console.log(res);
-
-  //       const watchHistory = res.data.items;
-  //       console.log(watchHistory);
-  //       setHistoryVideos(watchHistory);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   }
-  //   fetchHistory();
-  // }, [accessToken]);
 
   useEffect(() => {
     if (!videoIdYt) return;
@@ -131,29 +144,62 @@ const YoutubeSummarizer = () => {
       // Get video metadata from YouTube API - handle missing API key
       const youtubeApiKey = import.meta.env.VITE_YT_THUMBNAIL_API_KEY;
       if (!youtubeApiKey) {
-        console.warn("YouTube API key not found, skipping video metadata");
-        // Set basic video data without metadata
-        const newData = {
-          videoId,
-          profile: null,
-          thumbnail: null,
-          chanelId: "",
-          channelTitle: "Unknown Channel",
-          title: `Video ${videoId}`,
-        };
+        console.warn(
+          "YouTube API key not found, trying RapidAPI for video metadata"
+        );
 
-        let storedArray =
-          JSON.parse(localStorage.getItem("summarize-history")) || [];
-        storedArray.push(newData);
-        localStorage.setItem("summarize-history", JSON.stringify(storedArray));
+        // Try to get video info from RapidAPI
+        const rapidApiVideoInfo = await fetchVideoInfoFromRapidAPI(videoId);
 
-        setHistoryVideos((prev) => [...prev, newData]);
-        setVideoData({
-          title: `Video ${videoId}`,
-          channelTitle: "Unknown Channel",
-          thumbnails: { default: { url: null } },
-        });
-        setImageData(null);
+        if (rapidApiVideoInfo) {
+          // Use RapidAPI data
+          const newData = {
+            videoId,
+            profile: null, // RapidAPI doesn't provide channel profile image
+            thumbnail: rapidApiVideoInfo.thumbnails.default.url,
+            chanelId: rapidApiVideoInfo.channelId,
+            channelTitle: rapidApiVideoInfo.channelTitle,
+            title: rapidApiVideoInfo.title,
+          };
+
+          let storedArray =
+            JSON.parse(localStorage.getItem("summarize-history")) || [];
+          storedArray.push(newData);
+          localStorage.setItem(
+            "summarize-history",
+            JSON.stringify(storedArray)
+          );
+
+          setHistoryVideos((prev) => [...prev, newData]);
+          setVideoData(rapidApiVideoInfo);
+          setImageData(null); // No channel profile image from RapidAPI
+        } else {
+          // Fallback to basic data if RapidAPI also fails
+          const newData = {
+            videoId,
+            profile: null,
+            thumbnail: null,
+            chanelId: "",
+            channelTitle: "Unknown Channel",
+            title: `Video ${videoId}`,
+          };
+
+          let storedArray =
+            JSON.parse(localStorage.getItem("summarize-history")) || [];
+          storedArray.push(newData);
+          localStorage.setItem(
+            "summarize-history",
+            JSON.stringify(storedArray)
+          );
+
+          setHistoryVideos((prev) => [...prev, newData]);
+          setVideoData({
+            title: `Video ${videoId}`,
+            channelTitle: "Unknown Channel",
+            thumbnails: { default: { url: null } },
+          });
+          setImageData(null);
+        }
       } else {
         // Get full video metadata
         const response2 = await axios.get(
@@ -202,7 +248,7 @@ const YoutubeSummarizer = () => {
   const getTranscript = async (videoId) => {
     if (!videoId) return;
     setLoading(true);
-    console.log("videoId", videoId);
+
     setTranscript([]);
 
     try {
@@ -244,29 +290,62 @@ const YoutubeSummarizer = () => {
       // Get video metadata from YouTube API - handle missing API key
       const youtubeApiKey = import.meta.env.VITE_YT_THUMBNAIL_API_KEY;
       if (!youtubeApiKey) {
-        console.warn("YouTube API key not found, skipping video metadata");
-        // Set basic video data without metadata
-        const newData = {
-          videoId,
-          profile: null,
-          thumbnail: null,
-          chanelId: "",
-          channelTitle: "Unknown Channel",
-          title: `Video ${videoId}`,
-        };
+        console.warn(
+          "YouTube API key not found, trying RapidAPI for video metadata"
+        );
 
-        let storedArray =
-          JSON.parse(localStorage.getItem("summarize-history")) || [];
-        storedArray.push(newData);
-        localStorage.setItem("summarize-history", JSON.stringify(storedArray));
+        // Try to get video info from RapidAPI
+        const rapidApiVideoInfo = await fetchVideoInfoFromRapidAPI(videoId);
 
-        setHistoryVideos((prev) => [...prev, newData]);
-        setVideoData({
-          title: `Video ${videoId}`,
-          channelTitle: "Unknown Channel",
-          thumbnails: { default: { url: null } },
-        });
-        setImageData(null);
+        if (rapidApiVideoInfo) {
+          // Use RapidAPI data
+          const newData = {
+            videoId,
+            profile: null, // RapidAPI doesn't provide channel profile image
+            thumbnail: rapidApiVideoInfo.thumbnails.default.url,
+            chanelId: rapidApiVideoInfo.channelId,
+            channelTitle: rapidApiVideoInfo.channelTitle,
+            title: rapidApiVideoInfo.title,
+          };
+
+          let storedArray =
+            JSON.parse(localStorage.getItem("summarize-history")) || [];
+          storedArray.push(newData);
+          localStorage.setItem(
+            "summarize-history",
+            JSON.stringify(storedArray)
+          );
+
+          setHistoryVideos((prev) => [...prev, newData]);
+          setVideoData(rapidApiVideoInfo);
+          setImageData(null); // No channel profile image from RapidAPI
+        } else {
+          // Fallback to basic data if RapidAPI also fails
+          const newData = {
+            videoId,
+            profile: null,
+            thumbnail: null,
+            chanelId: "",
+            channelTitle: "Unknown Channel",
+            title: `Video ${videoId}`,
+          };
+
+          let storedArray =
+            JSON.parse(localStorage.getItem("summarize-history")) || [];
+          storedArray.push(newData);
+          localStorage.setItem(
+            "summarize-history",
+            JSON.stringify(storedArray)
+          );
+
+          setHistoryVideos((prev) => [...prev, newData]);
+          setVideoData({
+            title: `Video ${videoId}`,
+            channelTitle: "Unknown Channel",
+            thumbnails: { default: { url: null } },
+          });
+          setImageData(null);
+        }
       } else {
         // Get full video metadata
         const response2 = await axios.get(

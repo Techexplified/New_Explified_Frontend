@@ -17,10 +17,12 @@ function TranscriptCard({ item }) {
       <div className="flex-1 ml-4 relative">
         <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 mt-6 hover:bg-gray-800 transition-colors cursor-pointer">
           <p className="text-gray-300 leading-relaxed">
-            {item.text
-              .replaceAll("&amp;#39;", "'")
-              .replaceAll("&amp;quot;", "'")
-              .replaceAll("&#39;", "'")}
+            {typeof item.text === "string"
+              ? item.text
+                  .replaceAll("&amp;#39;", "'")
+                  .replaceAll("&amp;quot;", "'")
+                  .replaceAll("&#39;", "'")
+              : String(item.text || "No text available")}
           </p>
         </div>
       </div>

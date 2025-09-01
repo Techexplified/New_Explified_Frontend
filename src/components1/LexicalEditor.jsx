@@ -426,6 +426,7 @@ function ShareButton({ getTextContent, noteTitle }) {
 }
 function SharePlugin({ title }) {
   const [editor] = useLexicalComposerContext();
+  const [isSaved, setIsSaved] = useState(false);
 
   const getTextContent = () => {
     let text = "";
@@ -951,7 +952,7 @@ function PenTool() {
   );
 }
 
-function ToolbarPlugin({ onTogglePenTool, onToggleChatbot }) {
+function ToolbarPlugin({ openChatbot, closeChatbot }) {
   const [editor] = useLexicalComposerContext();
   const getTextContent = () => {
     let text = "";
@@ -992,7 +993,24 @@ function ToolbarPlugin({ onTogglePenTool, onToggleChatbot }) {
     setFontColor(value);
     applyStyleToSelection(editor, { color: value });
   };
-  const [showPenOptions, setShowPenOptions] = useState(false);
+
+  // On button click:
+  const handleToolbarClick = (type) => {
+    setActiveBar((prev) => {
+      if (type === "effect") {
+        if (prev === "effect") {
+          if (closeChatbot) closeChatbot();
+          return null;
+        } else {
+          if (openChatbot) openChatbot();
+          return "effect";
+        }
+      } else {
+        if (prev === "effect" && closeChatbot) closeChatbot();
+        return prev === type ? null : type;
+      }
+    });
+  };
 
   return (
     <>

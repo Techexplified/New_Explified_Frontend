@@ -280,14 +280,16 @@ const UpdatedDashboard = () => {
                  animate-in fade-in-20 scale-in-95"
                 >
                   {/* Profile Button */}
-                  <button
+                  <Link
                     className="w-full h-9 mb-3 rounded-lg border border-[#23b5b5]/40 text-sm font-medium text-white
                    bg-transparent hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] 
-                   hover:shadow-md hover:shadow-cyan-500/20 transition-all duration-200"
-                    onClick={() => navigate("/profile")}
+                   hover:shadow-md hover:shadow-cyan-500/20 transition-all duration-200 flex items-center justify-center"
+                    to="https://explified.com/explified-labs"
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
-                    View My Profile
-                  </button>
+                    For Enterprises
+                  </Link>
 
                   {/* Quick Tools (row) */}
                   <div className="flex gap-2 w-full mb-3">

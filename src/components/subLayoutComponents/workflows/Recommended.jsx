@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import {
   MoreHorizontal,
   Trash2,
@@ -138,7 +138,7 @@ const Recommended = () => {
   // }, []);
 
   return (
-    <div className="w-full bg-[#1a1a1a] rounded-2xl border border-teal-500/30 shadow-lg">
+    <div className="bg-gradient-to-br from-cyan-1000 via-black to-cyan-950 ">
       <div className="w-full pt-5 pb-10 px-5">
         {/* heading */}
         <div className="flex items-center justify-between mb-6">
@@ -161,13 +161,13 @@ const Recommended = () => {
             return (
               <div
                 key={workflow.id}
-                onClick={()=> navigate("/locked")}
-                className="group relative bg-[#23b5b5]/20 border border-teal-400 rounded-xl p-5 
+                onClick={() => navigate("/locked")}
+                className="group relative bg-gradient-to-br from-black via-cyan-950 to-cyan-900/80 border border-cyan-700 rounded-xl p-5 
                        hover:bg-[#23b5b5]/40 transition-all duration-300 transform hover:-translate-y-2 
                        hover:shadow-xl hover:shadow-teal-500/30 cursor-pointer flex flex-col h-64"
               >
                 {/* Hover gradient overlay */}
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-teal-500/10 to-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-700/10 to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
                 <div className="relative z-10 flex flex-col h-full">
                   {/* Header - Tools Icons and Menu */}
