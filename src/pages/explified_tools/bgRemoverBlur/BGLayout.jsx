@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { SquareStack, Image as ImageIcon, Wand2, Sidebar } from "lucide-react";
+import {
+  SquareStack,
+  Image as ImageIcon,
+  Wand2,
+  Sidebar,
+  Key,
+} from "lucide-react";
 import RemoveBg from "./RemoveBg"; // Make sure these point to your new files
 import BlurBg from "./BlurBg";
 import WorkFlowButton from "../../../reusable_components/WorkFlowButton";
@@ -14,6 +20,8 @@ import SidebarOnHover from "../../../reusable_components/SidebarOnHover";
  */
 export default function BgToolsApp() {
   const [activeTool, setActiveTool] = useState("remove");
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const [apiKeyInput, setApiKeyInput] = useState("");
 
   const navItem = (id, icon, label) => (
     <button

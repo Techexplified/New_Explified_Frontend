@@ -140,6 +140,32 @@ function Trone() {
         }
       } catch (err) {
         console.error("Error details:", err);
+        // let errorMessage = "Sorry, I encountered an error. Please try again.";
+
+        // if (err.code === "ECONNABORTED" || err.message.includes("timeout")) {
+        //   errorMessage =
+        //     "Request timed out. Please check your internet connection and try again.";
+        // } else if (err.response?.status === 429) {
+        //   errorMessage =
+        //     "Too many requests. Please wait a moment and try again.";
+        // } else if (err.response?.status === 400) {
+        //   errorMessage = "Invalid request. Please rephrase your question.";
+        // } else if (err.response?.status === 403) {
+        //   errorMessage = "API access denied. Please check your API key.";
+        // } else if (err.message.includes("safety")) {
+        //   errorMessage =
+        //     "Your message was blocked by safety filters. Please rephrase your question.";
+        // }
+
+        // setCurrentMessages((prev) => [
+        //   ...prev,
+        //   {
+        //     sender: "bot",
+        //     text: errorMessage,
+        //     isError: true,
+        //     timestamp: new Date().toISOString(),
+        //   },
+        // ]);
       } finally {
         setPrompt("");
         setIsTyping(false);

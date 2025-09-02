@@ -1,8 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function ChatContainer({ messages, isTyping, toolName }) {
   const chatContainerRef = useRef(null);
-
+  const [enabled, setEnabled] = useState(true);
   // Auto-scroll to bottom when new messages are added
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -51,8 +51,18 @@ function ChatContainer({ messages, isTyping, toolName }) {
         paddingBottom: "1rem",
       }}
     >
-      <h1 className="text-2xl border-b border-gray-600 mb-4 py-2">
+      <h1 className="flex items-center justify-between text-2xl border-b border-gray-600 mb-4 py-2">
         {toolName}
+        <label className="relative inline-flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            checked={enabled}
+            onChange={() => setEnabled(!enabled)}
+            className="sr-only peer"
+          />
+          <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:bg-cyan-500 transition-colors"></div>
+          <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+        </label>
       </h1>
       {/* Messages Container */}
       <div className="w-full flex flex-col gap-6">

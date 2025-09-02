@@ -6,11 +6,11 @@ import {
   FileText,
   RotateCcw,
   ArrowRight,
+  Key,
 } from "lucide-react";
 import { useState } from "react";
 import PptxGenJS from "pptxgenjs";
 import WorkFlowButton from "../reusable_components/WorkFlowButton";
-import axiosInstance from "../network/axiosInstance";
 import { Link } from "react-router-dom";
 import SidebarOnHover from "../reusable_components/SidebarOnHover";
 import Provide from "./Provide";
@@ -22,8 +22,15 @@ export default function LandingPage() {
   const [generatedContent, setGeneratedContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const [apiKeyInput, setApiKeyInput] = useState("");
 
   const handleInputChange = (e) => setTopic(e.target.value);
+
+  // Test function disabled in client-only mode
+  const testApiKey = async () => {
+    alert("Client-only mode: No API key needed.");
+  };
 
   const handleGenerate = async () => {
     if (!topic.trim()) return;
@@ -33,44 +40,175 @@ export default function LandingPage() {
       setErrorMsg("");
       setGeneratedContent("");
 
-      const response = await axiosInstance.post(`api/gemini/topic`, {
-        topic: topic,
-        slideCount: slideCount,
-      });
+      // Try AI first (Gemini), then fall back to template generator
 
-      const data = response.data;
+      const aiKey =
+        (localStorage.getItem("gemini_api_token") || "").trim() ||
+        "AIzaSyCBPFYlQvdgtu6NC-iHylpQuZJ6vpqFgi8";
+      let outline = null;
+      if (aiKey) {
+        try {
+          outline = await generateOutlineWithGemini(
+            topic.trim(),
+            slideCount,
+            aiKey
+          );
+        } catch (e) {
+          console.warn(
+            "Gemini generation failed, falling back to template:",
+            e
+          );
+        }
+      }
 
-      console.log(data);
+      if (!outline) {
+        outline = generateOutline(topic.trim(), slideCount);
+      }
+      await buildPPT(outline);
 
-      await buildPPT(data?.pptData);
-      setGeneratedContent(data?.content);
+      // Display content preview
+      const contentText = [
+        `Title: ${outline.title}`,
+        ...outline.slides.map(
+          (s, idx) => `\nSlide ${idx + 1}: ${s.title}\n${s.paragraph}`
+        ),
+      ].join("\n\n");
+      setGeneratedContent(contentText);
     } catch (err) {
-      console.error(err);
-      setErrorMsg(
-        err.response?.data?.error || "Something went wrong. Please try again."
-      );
+      setErrorMsg(err.message || "Failed to generate presentation.");
     } finally {
       setLoading(false);
     }
   };
 
-  async function getImageBase64(prompt) {
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_APP_URL}api/gemini/image`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt }),
-        }
-      );
+  async function generateOutlineWithGemini(rawTopic, count, apiKey) {
+    const safeCount = Math.max(2, Math.min(15, Number(count) || 5));
+    const title = capitalize(rawTopic);
 
-      const data = await res.json();
-      return data.base64;
-    } catch (err) {
-      console.error("Image generation error:", err);
-      return null;
+    const prompt = [
+      `Topic: ${title}`,
+      `Slides: ${safeCount}`,
+      "Write one concise, self-contained paragraph (80-120 words) for each slide.",
+      "Each paragraph must be directly relevant to the topic and slide focus.",
+      "Return ONLY valid JSON with this shape:",
+      '{"slides":[{"title":"Slide 1 title","paragraph":"text"}]}',
+    ].join("\n");
+
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text: prompt }],
+            },
+          ],
+        }),
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error(`Gemini request failed: ${res.status}`);
     }
+    const data = await res.json();
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    const jsonStr = extractJson(text);
+    const parsed = JSON.parse(jsonStr);
+    const slides = Array.isArray(parsed?.slides) ? parsed.slides : [];
+
+    const normalizedSlides = slides.slice(0, safeCount).map((s, i) => ({
+      title: s?.title?.toString()?.trim() || `${title}: Slide ${i + 1}`,
+      paragraph: s?.paragraph?.toString()?.trim() || "",
+    }));
+
+    // Ensure we have exactly safeCount slides; if fewer, pad with template ones
+    while (normalizedSlides.length < safeCount) {
+      const templ = generateOutline(title, safeCount).slides[
+        normalizedSlides.length
+      ];
+      normalizedSlides.push(templ);
+    }
+
+    return { title, slides: normalizedSlides };
+  }
+
+  function extractJson(text) {
+    // Remove markdown code fences if present and trim
+    const trimmed = String(text || "").trim();
+    const fenceMatch = trimmed.match(/```(?:json)?([\s\S]*?)```/i);
+    if (fenceMatch) return fenceMatch[1].trim();
+    // Try to find first { and last } block
+    const start = trimmed.indexOf("{");
+    const end = trimmed.lastIndexOf("}");
+    if (start !== -1 && end !== -1 && end > start) {
+      return trimmed.slice(start, end + 1);
+    }
+    return trimmed; // hope it's raw JSON
+  }
+
+  function generateOutline(rawTopic, count) {
+    const safeCount = Math.max(2, Math.min(15, Number(count) || 5));
+    const title = capitalize(rawTopic);
+
+    const baseSections = [
+      "Overview",
+      "Why It Matters",
+      "Key Concepts",
+      "Examples & Use Cases",
+      "Best Practices",
+      "Pitfalls & Challenges",
+      "Summary & Next Steps",
+    ];
+
+    const slides = Array.from({ length: safeCount }).map((_, i) => {
+      const section = baseSections[i % baseSections.length];
+      return {
+        title: `${title}: ${section}`,
+        paragraph: buildParagraphForSection(section, title),
+      };
+    });
+
+    // Ensure first and last slide are intro/outro
+    slides[0] = {
+      title: `${title}: Overview`,
+      paragraph: `This slide introduces ${title}, explains its scope and why it matters right now, and outlines what the presentation will cover to help you quickly grasp the essentials and the value you can expect.`,
+    };
+    slides[slides.length - 1] = {
+      title: `${title}: Summary & Next Steps`,
+      paragraph: `We recap the most important takeaways about ${title}, highlight practical next steps you can act on, and point to resources for deeper learning and successful adoption.`,
+    };
+
+    return { title, slides };
+  }
+
+  function buildParagraphForSection(section, title) {
+    switch (section) {
+      case "Why It Matters":
+        return `${title} delivers tangible value by improving outcomes, reducing friction, and opening new opportunities. This slide explains why it is relevant now, the benefits for stakeholders, and what changes as ${title} becomes part of your workflow.`;
+      case "Key Concepts":
+        return `To work effectively with ${title}, it helps to understand a few core ideas and terms. We define the essentials in simple language and show how the pieces fit together so you can build intuition quickly.`;
+      case "Examples & Use Cases":
+        return `Here we translate ${title} into concrete scenarios. You will see typical use cases, how teams implement them, and what successful outcomes look like so you can model your own adoption.`;
+      case "Best Practices":
+        return `Adopt ${title} with confidence by following practical guidelines. We cover high‑impact habits, common pitfalls to avoid, and the metrics that indicate whether you are on track.`;
+      case "Pitfalls & Challenges":
+        return `Every approach has trade‑offs. This slide highlights the most frequent challenges when applying ${title}, why they happen, and proven ways to mitigate or sidestep them.`;
+      default:
+        return `${title} at a glance: what it is, when to use it, and how it creates value for your audience. This sets context for the rest of the presentation.`;
+    }
+  }
+
+  function capitalize(text) {
+    const t = String(text || "").trim();
+    if (!t) return "Presentation";
+    return t.charAt(0).toUpperCase() + t.slice(1);
+  }
+
+  async function getImageBase64(_) {
+    // Client-only mode: skip image fetching
+    return null;
   }
 
   function tempPPT() {
@@ -239,58 +377,34 @@ export default function LandingPage() {
     // Content area setup
     const contentTopY = 1.6;
     const contentHeight = 4.6;
-    const bulletBoxWidth = 5.3;
+    const textBoxWidth = 8.5;
 
-    // Left box for text
+    // Text container
     slide.addShape(pptx.ShapeType.rect, {
       x: 0.5,
       y: contentTopY,
-      w: bulletBoxWidth,
+      w: textBoxWidth,
       h: contentHeight,
       fill: colors.white,
       line: { color: colors.border, width: 1 },
     });
 
-    // Side accent bar
-    slide.addShape(pptx.ShapeType.rect, {
-      x: 0.5,
-      y: contentTopY,
-      w: 0.1,
-      h: contentHeight,
-      fill: colors.secondary,
-      line: { color: colors.secondary, width: 0 },
-    });
-
-    // Bullet text
-    const bulletPoints = slideData.bulletPoints || [];
-
-    // Dynamic font size and spacing
-    let fontSize = 17;
-    let lineSpacingMultiple = 1.1;
-    let margin = 2;
-
-    if (bulletPoints.length > 6) fontSize = 15;
-    if (bulletPoints.length > 8) fontSize = 14;
-    if (bulletPoints.length > 10) fontSize = 13;
-    if (bulletPoints.length > 12) fontSize = 12;
-
-    if (bulletPoints.length > 8) lineSpacingMultiple = 1.0;
-    if (bulletPoints.length > 10) lineSpacingMultiple = 0.9;
-
-    const bulletText = bulletPoints.map((point) => `• ${point}`).join("\n");
-
-    slide.addText(bulletText, {
+    // Paragraph text
+    const paragraph = slideData.paragraph || "";
+    slide.addText(paragraph, {
       x: 0.7,
-      y: contentTopY,
-      w: bulletBoxWidth - 0.4,
+      y: contentTopY + 0.2,
+      w: textBoxWidth - 0.6,
       h: contentHeight - 0.4,
-      fontSize,
+      fontSize: 16,
       color: colors.text,
       fontFace: font,
       align: "left",
-      lineSpacingMultiple,
-      margin,
-      shrinkText: true, // allow shrink-to-fit as backup
+      lineSpacingMultiple: 1.2,
+      margin: 10,
+      valign: "top",
+      shrinkText: true,
+      breakLine: true,
     });
 
     // Image
@@ -464,6 +578,44 @@ export default function LandingPage() {
           <Mic className="w-4 h-4 cursor-pointer transition-transform duration-200 hover:scale-110 hover:text-[#23b5b5]" />
         </div>
 
+        {/* Add Key button */}
+        <button
+          onClick={() => {
+            try {
+              const saved = localStorage.getItem("gemini_api_token");
+              setApiKeyInput(saved || "");
+            } catch (e) {}
+            setShowApiKeyModal(true);
+          }}
+          className="flex items-center justify-center w-12 h-12 rounded-full border border-[#23b5b5] hover:text-[#23b5b5] hover:border-[#23b5b5] transition-transform duration-200 hover:scale-110"
+          aria-label="Add API Key"
+          title="Add API Key"
+        >
+          <Key className="w-6 h-6" />
+        </button>
+
+        {/* Test API Key button */}
+        <button
+          onClick={testApiKey}
+          className="flex items-center justify-center w-12 h-12 rounded-full border border-green-500 hover:text-green-500 hover:border-green-500 transition-transform duration-200 hover:scale-110"
+          aria-label="Test API Key"
+          title="Test API Key"
+        >
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+        </button>
+
         {/* Enhanced generate button */}
         <button
           onClick={handleGenerate}
@@ -567,6 +719,52 @@ export default function LandingPage() {
       )}
 
       {/* <Provide /> */}
+
+      {/* API Key Modal */}
+      {showApiKeyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-2xl">
+            <div className="text-xs uppercase tracking-widest text-gray-400 mb-1">
+              AutoDeck AI
+            </div>
+            <h3 className="text-xl font-semibold text-[#23b5b5] mb-2">
+              Gemini API Key
+            </h3>
+            <p className="text-sm text-gray-400 mb-4">
+              Enter your Gemini API key. It will be saved in your browser only.
+            </p>
+            <input
+              type="password"
+              value={apiKeyInput}
+              onChange={(e) => setApiKeyInput(e.target.value)}
+              placeholder="AIzaSy..."
+              className="w-full bg-black/60 border border-neutral-800 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#23b5b5] focus:ring-2 focus:ring-[#23b5b5]/20 transition-all duration-300 mb-4"
+            />
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={() => setShowApiKeyModal(false)}
+                className="px-4 py-2 rounded-xl border border-neutral-700 text-gray-300 hover:text-white hover:border-neutral-500 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  const trimmed = (apiKeyInput || "").trim();
+                  if (trimmed) {
+                    try {
+                      localStorage.setItem("gemini_api_token", trimmed);
+                    } catch (e) {}
+                  }
+                  setShowApiKeyModal(false);
+                }}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#23b5b5] to-[#1a9999] text-white font-medium hover:from-[#1a9999] hover:to-[#23b5b5] transition-colors"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
