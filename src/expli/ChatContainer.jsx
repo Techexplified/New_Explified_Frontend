@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
-function ChatContainer({ messages, isTyping, toolName }) {
+function ChatContainer({ messages, isTyping, toolName, enabled, setEnabled }) {
   const chatContainerRef = useRef(null);
-  const [enabled, setEnabled] = useState(true);
+  // const [enabled, setEnabled] = useState(true);
   // Auto-scroll to bottom when new messages are added
   useEffect(() => {
     if (chatContainerRef.current) {
