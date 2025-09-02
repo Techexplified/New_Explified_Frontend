@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import axios from "axios";
 
 const Aibackground = () => {
   const [image, setImage] = useState(null);
@@ -20,64 +19,44 @@ const Aibackground = () => {
       return;
     }
 
-    // Get API key from localStorage
-    const apiKey = localStorage.getItem("removebg_api_key");
-    if (!apiKey) {
-      alert("Please add your Remove.bg API key first. Click 'Add Key' button.");
-      return;
-    }
-
     try {
       setLoading(true);
+      // Prefer saved RapidAPI key, else fallback to demo
+      const savedKey = localStorage.getItem("rapidapi_ai_bg_key");
+      const apiKey =
+        savedKey || "cb3f919c25mshe7e6383f6f24ab8p12fd16jsn654b897e1185";
 
-      // Step 1: Remove background using Remove.bg API
+      // Send to RapidAPI Color Background endpoint
       const formData = new FormData();
-      formData.append("size", "auto");
-      formData.append("image_file", image);
+      formData.append("image", image);
+      const hex = (color || "").replace("#", "");
+      const r = parseInt(hex.slice(0, 2), 16) || 0;
+      const g = parseInt(hex.slice(2, 4), 16) || 0;
+      const b = parseInt(hex.slice(4, 6), 16) || 0;
+      const rgbaTuple = `(${r},${g},${b},255)`;
+      formData.append("bgcolor", rgbaTuple);
 
-      const response = await fetch("https://api.remove.bg/v1.0/removebg", {
-        method: "POST",
-        headers: {
-          "X-Api-Key": apiKey,
-        },
-        body: formData,
-      });
+      const response = await fetch(
+        "https://ai-background-remover.p.rapidapi.com/image/color/v1",
+        {
+          method: "POST",
+          headers: {
+            "x-rapidapi-host": "ai-background-remover.p.rapidapi.com",
+            "x-rapidapi-key": apiKey,
+          },
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(
-          `Remove.bg API Error: ${response.status} - ${errorText}`
-        );
+        throw new Error(`RapidAPI Error: ${response.status} - ${errorText}`);
       }
 
-      const arrayBuffer = await response.arrayBuffer();
-      const blob = new Blob([arrayBuffer], { type: "image/png" });
-
-      // Step 2: Apply color background using canvas
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-
-        canvas.width = img.width;
-        canvas.height = img.height;
-
-        // Fill with selected color
-        ctx.fillStyle = color;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Draw the transparent image on top
-        ctx.drawImage(img, 0, 0);
-
-        // Convert to blob and create URL
-        canvas.toBlob((resultBlob) => {
-          const imageUrl = URL.createObjectURL(resultBlob);
-          setResult(imageUrl);
-          setLoading(false);
-        }, "image/png");
-      };
-
-      img.src = URL.createObjectURL(blob);
+      const blob = await response.blob();
+      const imageUrl = URL.createObjectURL(blob);
+      setResult(imageUrl);
+      setLoading(false);
     } catch (err) {
       console.error("Upload error:", err.message);
       alert(err.message);
