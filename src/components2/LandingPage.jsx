@@ -11,7 +11,6 @@ import {
 import { useState } from "react";
 import PptxGenJS from "pptxgenjs";
 import WorkFlowButton from "../reusable_components/WorkFlowButton";
-import axiosInstance from "../network/axiosInstance";
 import { Link } from "react-router-dom";
 import SidebarOnHover from "../reusable_components/SidebarOnHover";
 import Provide from "./Provide";
@@ -26,62 +25,11 @@ export default function LandingPage() {
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const [apiKeyInput, setApiKeyInput] = useState("");
 
-  // Debug: Log environment variables
-  console.log("VITE_APP_URL:", import.meta.env.VITE_APP_URL);
-  console.log(
-    "Backend URL (fallback):",
-    import.meta.env.VITE_APP_URL || "https://api-pf6diz22ka-uc.a.run.app/"
-  );
-
   const handleInputChange = (e) => setTopic(e.target.value);
 
-  // Test function to verify API key
+  // Test function disabled in client-only mode
   const testApiKey = async () => {
-    try {
-      let apiKey = localStorage.getItem("gemini_api_token");
-      if (!apiKey) {
-        apiKey = "AIzaSyAlI6zfz4BghzC4DgaCsEdxmJBcVDeRNPM";
-      }
-
-      console.log("Testing API key:", apiKey.substring(0, 10) + "...");
-
-      // Test direct Gemini API call
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  {
-                    text: "Hello, this is a test message. Please respond with 'API key is working' if you can see this.",
-                  },
-                ],
-              },
-            ],
-          }),
-        }
-      );
-
-      const data = await response.json();
-      console.log("Direct API test response:", data);
-
-      if (data.error) {
-        console.error("API key test failed:", data.error);
-        alert("API key test failed: " + data.error.message);
-      } else {
-        console.log("API key test successful!");
-        alert(
-          "API key is working! Response: " +
-            data.candidates[0].content.parts[0].text
-        );
-      }
-    } catch (error) {
-      console.error("API key test error:", error);
-      alert("API key test error: " + error.message);
-    }
+    alert("Client-only mode: No API key needed.");
   };
 
   const handleGenerate = async () => {
@@ -92,118 +40,175 @@ export default function LandingPage() {
       setErrorMsg("");
       setGeneratedContent("");
 
-      // Get the Gemini API key - try localStorage first, then fallback to hardcoded
-      let apiKey = localStorage.getItem("gemini_api_token");
-      if (!apiKey) {
-        apiKey = "AIzaSyAlI6zfz4BghzC4DgaCsEdxmJBcVDeRNPM";
+      // Try AI first (Gemini), then fall back to template generator
+
+      const aiKey =
+        (localStorage.getItem("gemini_api_token") || "").trim() ||
+        "AIzaSyCBPFYlQvdgtu6NC-iHylpQuZJ6vpqFgi8";
+      let outline = null;
+      if (aiKey) {
+        try {
+          outline = await generateOutlineWithGemini(
+            topic.trim(),
+            slideCount,
+            aiKey
+          );
+        } catch (e) {
+          console.warn(
+            "Gemini generation failed, falling back to template:",
+            e
+          );
+        }
       }
 
-      if (!apiKey) {
-        setErrorMsg(
-          "Please add your Gemini API key first by clicking the key icon."
-        );
-        setLoading(false);
-        return;
+      if (!outline) {
+        outline = generateOutline(topic.trim(), slideCount);
       }
+      await buildPPT(outline);
 
-      const backendURL =
-        import.meta.env.VITE_APP_URL || "https://api-pf6diz22ka-uc.a.run.app/";
-
-      // Use CORS proxy if needed
-      const useCorsProxy = true; // Set to false if you fix CORS on backend
-      const requestURL = useCorsProxy
-        ? `https://cors-anywhere.herokuapp.com/${backendURL}api/gemini/topic`
-        : `${backendURL}api/gemini/topic`;
-
-      console.log("Making request to:", requestURL);
-      console.log("Request payload:", {
-        topic,
-        slideCount,
-        apiKey: apiKey.substring(0, 10) + "...",
-      });
-
-      // Try direct fetch instead of axios to avoid CORS issues
-      const response = await fetch(`${backendURL}api/gemini/topic`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          topic: topic,
-          slideCount: slideCount,
-          apiKey: apiKey, // Pass the API key to backend
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      console.log("Response data:", data);
-
-      await buildPPT(data?.pptData);
-      setGeneratedContent(data?.content);
+      // Display content preview
+      const contentText = [
+        `Title: ${outline.title}`,
+        ...outline.slides.map(
+          (s, idx) => `\nSlide ${idx + 1}: ${s.title}\n${s.paragraph}`
+        ),
+      ].join("\n\n");
+      setGeneratedContent(contentText);
     } catch (err) {
-      console.error("Full error object:", err);
-      console.error("Error response:", err.response);
-      console.error("Error message:", err.message);
-
-      let errorMessage = "Something went wrong. Please try again.";
-
-      if (err.message === "Network Error" || err.message.includes("CORS")) {
-        errorMessage =
-          "CORS Error: The backend server doesn't allow requests from this domain. Please contact the backend administrator to enable CORS for localhost:5173.";
-      } else if (err.response?.status === 500) {
-        errorMessage =
-          "Backend server error. Please check if the server is running and the API key is valid.";
-      } else if (err.response?.status === 401) {
-        errorMessage = "Invalid API key. Please check your Gemini API key.";
-      } else if (err.response?.status === 403) {
-        errorMessage = "API key doesn't have permission for this operation.";
-      } else if (err.response?.data?.error) {
-        errorMessage = err.response.data.error;
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
-
-      setErrorMsg(errorMessage);
+      setErrorMsg(err.message || "Failed to generate presentation.");
     } finally {
       setLoading(false);
     }
   };
 
-  async function getImageBase64(prompt) {
-    try {
-      // Get the Gemini API key - try localStorage first, then fallback to hardcoded
-      let apiKey = localStorage.getItem("gemini_api_token");
-      if (!apiKey) {
-        apiKey = "AIzaSyAlI6zfz4BghzC4DgaCsEdxmJBcVDeRNPM";
-      }
+  async function generateOutlineWithGemini(rawTopic, count, apiKey) {
+    const safeCount = Math.max(2, Math.min(15, Number(count) || 5));
+    const title = capitalize(rawTopic);
 
-      if (!apiKey) {
-        console.warn("No Gemini API key found for image generation");
-        return null;
-      }
+    const prompt = [
+      `Topic: ${title}`,
+      `Slides: ${safeCount}`,
+      "Write one concise, self-contained paragraph (80-120 words) for each slide.",
+      "Each paragraph must be directly relevant to the topic and slide focus.",
+      "Return ONLY valid JSON with this shape:",
+      '{"slides":[{"title":"Slide 1 title","paragraph":"text"}]}',
+    ].join("\n");
 
-      const backendURL =
-        import.meta.env.VITE_APP_URL || "https://api-pf6diz22ka-uc.a.run.app/";
-      const res = await fetch(`${backendURL}api/gemini/image`, {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          prompt,
-          apiKey: apiKey, // Pass the API key to backend
+          contents: [
+            {
+              parts: [{ text: prompt }],
+            },
+          ],
         }),
-      });
+      }
+    );
 
-      const data = await res.json();
-      return data.base64;
-    } catch (err) {
-      console.error("Image generation error:", err);
-      return null;
+    if (!res.ok) {
+      throw new Error(`Gemini request failed: ${res.status}`);
     }
+    const data = await res.json();
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    const jsonStr = extractJson(text);
+    const parsed = JSON.parse(jsonStr);
+    const slides = Array.isArray(parsed?.slides) ? parsed.slides : [];
+
+    const normalizedSlides = slides.slice(0, safeCount).map((s, i) => ({
+      title: s?.title?.toString()?.trim() || `${title}: Slide ${i + 1}`,
+      paragraph: s?.paragraph?.toString()?.trim() || "",
+    }));
+
+    // Ensure we have exactly safeCount slides; if fewer, pad with template ones
+    while (normalizedSlides.length < safeCount) {
+      const templ = generateOutline(title, safeCount).slides[
+        normalizedSlides.length
+      ];
+      normalizedSlides.push(templ);
+    }
+
+    return { title, slides: normalizedSlides };
+  }
+
+  function extractJson(text) {
+    // Remove markdown code fences if present and trim
+    const trimmed = String(text || "").trim();
+    const fenceMatch = trimmed.match(/```(?:json)?([\s\S]*?)```/i);
+    if (fenceMatch) return fenceMatch[1].trim();
+    // Try to find first { and last } block
+    const start = trimmed.indexOf("{");
+    const end = trimmed.lastIndexOf("}");
+    if (start !== -1 && end !== -1 && end > start) {
+      return trimmed.slice(start, end + 1);
+    }
+    return trimmed; // hope it's raw JSON
+  }
+
+  function generateOutline(rawTopic, count) {
+    const safeCount = Math.max(2, Math.min(15, Number(count) || 5));
+    const title = capitalize(rawTopic);
+
+    const baseSections = [
+      "Overview",
+      "Why It Matters",
+      "Key Concepts",
+      "Examples & Use Cases",
+      "Best Practices",
+      "Pitfalls & Challenges",
+      "Summary & Next Steps",
+    ];
+
+    const slides = Array.from({ length: safeCount }).map((_, i) => {
+      const section = baseSections[i % baseSections.length];
+      return {
+        title: `${title}: ${section}`,
+        paragraph: buildParagraphForSection(section, title),
+      };
+    });
+
+    // Ensure first and last slide are intro/outro
+    slides[0] = {
+      title: `${title}: Overview`,
+      paragraph: `This slide introduces ${title}, explains its scope and why it matters right now, and outlines what the presentation will cover to help you quickly grasp the essentials and the value you can expect.`,
+    };
+    slides[slides.length - 1] = {
+      title: `${title}: Summary & Next Steps`,
+      paragraph: `We recap the most important takeaways about ${title}, highlight practical next steps you can act on, and point to resources for deeper learning and successful adoption.`,
+    };
+
+    return { title, slides };
+  }
+
+  function buildParagraphForSection(section, title) {
+    switch (section) {
+      case "Why It Matters":
+        return `${title} delivers tangible value by improving outcomes, reducing friction, and opening new opportunities. This slide explains why it is relevant now, the benefits for stakeholders, and what changes as ${title} becomes part of your workflow.`;
+      case "Key Concepts":
+        return `To work effectively with ${title}, it helps to understand a few core ideas and terms. We define the essentials in simple language and show how the pieces fit together so you can build intuition quickly.`;
+      case "Examples & Use Cases":
+        return `Here we translate ${title} into concrete scenarios. You will see typical use cases, how teams implement them, and what successful outcomes look like so you can model your own adoption.`;
+      case "Best Practices":
+        return `Adopt ${title} with confidence by following practical guidelines. We cover high‑impact habits, common pitfalls to avoid, and the metrics that indicate whether you are on track.`;
+      case "Pitfalls & Challenges":
+        return `Every approach has trade‑offs. This slide highlights the most frequent challenges when applying ${title}, why they happen, and proven ways to mitigate or sidestep them.`;
+      default:
+        return `${title} at a glance: what it is, when to use it, and how it creates value for your audience. This sets context for the rest of the presentation.`;
+    }
+  }
+
+  function capitalize(text) {
+    const t = String(text || "").trim();
+    if (!t) return "Presentation";
+    return t.charAt(0).toUpperCase() + t.slice(1);
+  }
+
+  async function getImageBase64(_) {
+    // Client-only mode: skip image fetching
+    return null;
   }
 
   function tempPPT() {
@@ -372,58 +377,34 @@ export default function LandingPage() {
     // Content area setup
     const contentTopY = 1.6;
     const contentHeight = 4.6;
-    const bulletBoxWidth = 5.3;
+    const textBoxWidth = 8.5;
 
-    // Left box for text
+    // Text container
     slide.addShape(pptx.ShapeType.rect, {
       x: 0.5,
       y: contentTopY,
-      w: bulletBoxWidth,
+      w: textBoxWidth,
       h: contentHeight,
       fill: colors.white,
       line: { color: colors.border, width: 1 },
     });
 
-    // Side accent bar
-    slide.addShape(pptx.ShapeType.rect, {
-      x: 0.5,
-      y: contentTopY,
-      w: 0.1,
-      h: contentHeight,
-      fill: colors.secondary,
-      line: { color: colors.secondary, width: 0 },
-    });
-
-    // Bullet text
-    const bulletPoints = slideData.bulletPoints || [];
-
-    // Dynamic font size and spacing
-    let fontSize = 17;
-    let lineSpacingMultiple = 1.1;
-    let margin = 2;
-
-    if (bulletPoints.length > 6) fontSize = 15;
-    if (bulletPoints.length > 8) fontSize = 14;
-    if (bulletPoints.length > 10) fontSize = 13;
-    if (bulletPoints.length > 12) fontSize = 12;
-
-    if (bulletPoints.length > 8) lineSpacingMultiple = 1.0;
-    if (bulletPoints.length > 10) lineSpacingMultiple = 0.9;
-
-    const bulletText = bulletPoints.map((point) => `• ${point}`).join("\n");
-
-    slide.addText(bulletText, {
+    // Paragraph text
+    const paragraph = slideData.paragraph || "";
+    slide.addText(paragraph, {
       x: 0.7,
-      y: contentTopY,
-      w: bulletBoxWidth - 0.4,
+      y: contentTopY + 0.2,
+      w: textBoxWidth - 0.6,
       h: contentHeight - 0.4,
-      fontSize,
+      fontSize: 16,
       color: colors.text,
       fontFace: font,
       align: "left",
-      lineSpacingMultiple,
-      margin,
-      shrinkText: true, // allow shrink-to-fit as backup
+      lineSpacingMultiple: 1.2,
+      margin: 10,
+      valign: "top",
+      shrinkText: true,
+      breakLine: true,
     });
 
     // Image
