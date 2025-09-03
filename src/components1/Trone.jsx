@@ -5,6 +5,10 @@ import SidebarOnHover from "../reusable_components/SidebarOnHover";
 import ExpliInput from "../expli/ExpliInput";
 import ExpliIntegration from "../expli/ExpliIntegration";
 import ChatContainer from "../expli/ChatContainer";
+import { Zap } from "lucide-react";
+import { AiOutlineOpenAI } from "react-icons/ai";
+import { RiGeminiLine } from "react-icons/ri";
+import { FaPlus } from "react-icons/fa6";
 
 function Trone() {
   const [prompt, setPrompt] = useState("");
@@ -498,6 +502,7 @@ function Trone() {
               messages={currentMessages}
               isTyping={isTyping.expli}
               toolName="Expli"
+              icon={<FaPlus />}
               enabled={enabledProviders.expli}
               setEnabled={(val) =>
                 setEnabledProviders((prev) => ({ ...prev, expli: val }))
@@ -509,6 +514,7 @@ function Trone() {
                 messages={currentMessagesOpenAI}
                 isTyping={isTyping.openai}
                 toolName="OpenAI"
+                icon={<AiOutlineOpenAI />}
                 enabled={enabledProviders.openai}
                 setEnabled={(val) =>
                   setEnabledProviders((prev) => ({ ...prev, openai: val }))
@@ -521,6 +527,7 @@ function Trone() {
                 messages={currentMessagesGemini}
                 isTyping={isTyping.gemini}
                 toolName="Gemini"
+                icon={<RiGeminiLine />}
                 enabled={enabledProviders.gemini}
                 setEnabled={(val) =>
                   setEnabledProviders((prev) => ({ ...prev, gemini: val }))

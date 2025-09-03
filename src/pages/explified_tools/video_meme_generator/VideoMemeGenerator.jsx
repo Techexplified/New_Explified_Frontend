@@ -494,7 +494,7 @@ export default function AIMemeGenerator() {
         </div>
       </div>
 
-      <Inspiration />
+      {/* <Inspiration /> */}
     </div>
   );
 }
