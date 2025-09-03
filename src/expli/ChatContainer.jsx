@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 
 function ChatContainer({ messages, isTyping, toolName, enabled, setEnabled }) {
   const chatContainerRef = useRef(null);
-  // const [enabled, setEnabled] = useState(true);
   // Auto-scroll to bottom when new messages are added
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -41,10 +40,11 @@ function ChatContainer({ messages, isTyping, toolName, enabled, setEnabled }) {
         .replace(/\n/g, "<br>")
     );
   };
+
   return (
     <div
       ref={chatContainerRef}
-      className="flex-1 w-full flex flex-col px-2 sm:px-3 overflow-y-auto scroll-smooth relative z-10 border border-gray-600 rounded-xl h-[70vh]"
+      className="flex-1 w-full flex flex-col px-2 sm:px-3 overflow-y-auto scroll-smooth relative z-10 border border-gray-600 rounded-xl h-[60vh]"
       style={{
         scrollBehavior: "smooth",
         paddingTop: "0",

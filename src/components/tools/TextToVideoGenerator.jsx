@@ -31,6 +31,9 @@ const TextToVideoGenerator = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const videoRef = useRef(null);
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const [hfApiKey, setHfApiKey] = useState("");
+  const [apiKeyInput, setApiKeyInput] = useState("");
 
   const navigate = useNavigate();
 
@@ -46,6 +49,18 @@ const TextToVideoGenerator = () => {
       }
     } else {
       setIsLoggedIn(false);
+    }
+  }, []);
+
+  // Load saved HF token if available
+  useEffect(() => {
+    try {
+      const savedToken = localStorage.getItem("hf_api_token");
+      if (savedToken) {
+        setHfApiKey(savedToken);
+      }
+    } catch (e) {
+      // ignore localStorage errors
     }
   }, []);
 
@@ -80,14 +95,19 @@ const TextToVideoGenerator = () => {
     setErrorMsg("");
 
     try {
-      const hfToken = import.meta.env.VITE_TEXT_TO_VIDEO_SARITA;
-      if (!hfToken) {
+      const token =
+        hfApiKey ||
+        (typeof window !== "undefined"
+          ? localStorage.getItem("hf_api_token")
+          : "") ||
+        import.meta.env.VITE_TEXT_TO_VIDEO_SARITA;
+      if (!token) {
         throw new Error(
-          "Missing Hugging Face token. Please set VITE_HF_TOKEN in your .env file."
+          "Missing Hugging Face token. Click 'API KEY' to add your token or set VITE_TEXT_TO_VIDEO_SARITA in .env."
         );
       }
 
-      const client = new InferenceClient(hfToken);
+      const client = new InferenceClient(token);
 
       const response = await client.textToVideo({
         provider: "fal-ai",
@@ -278,7 +298,7 @@ const TextToVideoGenerator = () => {
                   <div className="flex items-center justify-end mt-4 px-2">
                     <div className="flex items-center gap-1">
                       {/* Avatar Dropdown */}
-                      <div className="relative group">
+                      {/* <div className="relative group">
                         <button className="flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-[#23b5b5] transition-colors duration-200">
                           <svg
                             className="w-4 h-4"
@@ -307,10 +327,10 @@ const TextToVideoGenerator = () => {
                             />
                           </svg>
                         </button>
-                      </div>
+                      </div> */}
 
                       {/*Language Dropdown */}
-                      <div className="relative group">
+                      {/* <div className="relative group">
                         <button className="flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-[#23b5b5] transition-colors duration-200">
                           <Languages className="w-4 h-4" />
                           <svg
@@ -327,7 +347,7 @@ const TextToVideoGenerator = () => {
                             />
                           </svg>
                         </button>
-                      </div>
+                      </div> */}
 
                       {/* Duration Dropdown Button */}
                       <div className="relative group" ref={durationDropdownRef}>
@@ -380,13 +400,38 @@ const TextToVideoGenerator = () => {
                         )}
                       </div>
 
-                      {/* Voice clone Button */}
-                      <button className="p-2 text-gray-400 hover:text-[#23b5b5] transition-colors duration-200">
-                        <MicVocal className="w-4 h-4" />
+                      {/* API KEY Button */}
+                      <button
+                        onClick={() => {
+                          setApiKeyInput(hfApiKey || "");
+                          setShowApiKeyModal(true);
+                        }}
+                        className="flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-[#23b5b5] transition-colors duration-200"
+                        title="Set Hugging Face API Key"
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 15v4m-2-2h4M7 10a5 5 0 0110 0v1a2 2 0 002 2v5a2 2 0 01-2 2H7a2 2 0 01-2-2v-5a2 2 0 002-2v-1z"
+                          />
+                        </svg>
+                        <span className="text-sm">API KEY</span>
                       </button>
 
+                      {/* Voice clone Button */}
+                      {/* <button className="p-2 text-gray-400 hover:text-[#23b5b5] transition-colors duration-200">
+                        <MicVocal className="w-4 h-4" />
+                      </button> */}
+
                       {/* Camera Button */}
-                      <button className="p-2 text-gray-400 hover:text-[#23b5b5] transition-colors duration-200">
+                      {/* <button className="p-2 text-gray-400 hover:text-[#23b5b5] transition-colors duration-200">
                         <svg
                           className="w-4 h-4"
                           fill="none"
@@ -406,7 +451,7 @@ const TextToVideoGenerator = () => {
                             d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
                           />
                         </svg>
-                      </button>
+                      </button> */}
                     </div>
                   </div>
                 </div>
@@ -504,6 +549,58 @@ const TextToVideoGenerator = () => {
           </div>
         </div>
       </div>
+      {/* API Key Modal */}
+      {showApiKeyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-2xl">
+            <h3 className="text-xl font-semibold text-[#23b5b5] mb-2">
+              Hugging Face API Key
+            </h3>
+            <p className="text-sm text-gray-400 mb-4">
+              Paste your Hugging Face access token. You can create one from{" "}
+              <a
+                href="https://huggingface.co/settings/tokens"
+                target="_blank"
+                rel="noreferrer"
+                className="text-[#23b5b5] underline"
+              >
+                huggingface.co/settings/tokens
+              </a>
+              .
+            </p>
+            <input
+              type="password"
+              value={apiKeyInput}
+              onChange={(e) => setApiKeyInput(e.target.value)}
+              placeholder="hf_..."
+              className="w-full bg-black/60 border border-neutral-800 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#23b5b5] focus:ring-2 focus:ring-[#23b5b5]/20 transition-all duration-300 mb-4"
+            />
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={() => setShowApiKeyModal(false)}
+                className="px-4 py-2 rounded-xl border border-neutral-700 text-gray-300 hover:text-white hover:border-neutral-500 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  const trimmed = (apiKeyInput || "").trim();
+                  if (trimmed) {
+                    try {
+                      localStorage.setItem("hf_api_token", trimmed);
+                      setHfApiKey(trimmed);
+                    } catch (e) {}
+                    setShowApiKeyModal(false);
+                  }
+                }}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#23b5b5] to-[#1a9999] text-white font-medium hover:from-[#1a9999] hover:to-[#23b5b5] transition-colors"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
