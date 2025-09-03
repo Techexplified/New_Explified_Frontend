@@ -69,18 +69,18 @@ const Recommended = () => {
       category: "Content",
       recommended: true,
     },
-    {
-      id: "gmail-notion",
-      title: "Save Gmail Attachments to Notion Database",
-      description:
-        "Automatically extract and organize email attachments into your Notion workspace. Great for document management and team collaboration.",
-      tools: [
-        { name: "Gmail", icon: "📧", bgColor: "bg-minimal-gray-600" },
-        { name: "Notion", icon: "📝", bgColor: "bg-minimal-gray-700" },
-      ],
-      category: "Development / IT",
-      recommended: false,
-    },
+    // {
+    //   id: "gmail-notion",
+    //   title: "Save Gmail Attachments to Notion Database",
+    //   description:
+    //     "Automatically extract and organize email attachments into your Notion workspace. Great for document management and team collaboration.",
+    //   tools: [
+    //     { name: "Gmail", icon: "📧", bgColor: "bg-minimal-gray-600" },
+    //     { name: "Notion", icon: "📝", bgColor: "bg-minimal-gray-700" },
+    //   ],
+    //   category: "Development / IT",
+    //   recommended: false,
+    // },
   ];
 
   const menuOptions = [
@@ -154,7 +154,7 @@ const Recommended = () => {
         </div>
 
         {/* workflows grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {sampleWorkflows.map((workflow) => {
             const isMenuOpen = openMenuId === workflow.id;
 
@@ -162,7 +162,7 @@ const Recommended = () => {
               <div
                 key={workflow.id}
                 onClick={() => navigate("/locked")}
-                className="group relative bg-gradient-to-br from-black via-cyan-950 to-cyan-900/80 border border-cyan-700 rounded-xl p-5 
+                className=" w-[220px] group relative bg-gradient-to-br from-black via-cyan-950 to-cyan-900/80 border border-cyan-700 rounded-xl p-5 
                        hover:bg-[#23b5b5]/40 transition-all duration-300 transform hover:-translate-y-2 
                        hover:shadow-xl hover:shadow-teal-500/30 cursor-pointer flex flex-col h-64"
               >

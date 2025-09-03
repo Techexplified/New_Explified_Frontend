@@ -119,7 +119,7 @@ export default function TaskManager() {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-3xl font-bold text-white mb-2">Your Notes</h2>
-            <p className="text-teal-200">Capture your thoughts and ideas</p>
+            {/* <p className="text-teal-200">Capture your thoughts and ideas</p> */}
           </div>
 
           {/* Notes Grid */}
@@ -132,17 +132,19 @@ export default function TaskManager() {
               New Note
             </button>
 
-            {filteredTasks.map((task) => (
+            {[...filteredTasks].reverse().map((task) => (
               <div
                 key={task.id}
                 className="group bg-slate-800/40 border border-teal-600/20 rounded-2xl p-5 hover:border-teal-400/40 hover:bg-slate-800/60 transition-all duration-300 overflow-y-hidden backdrop-blur-sm"
               >
                 <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-white font-semibold text-sm">{task.title || "Untitled"}</h3>
+                  <h3 className="text-white font-semibold text-sm">
+                    {task.title || "Untitled"}
+                  </h3>
                   <Edit3
-  className="absolute right-[40px] w-4 h-4 text-teal-400 mt-1 cursor-pointer hover:text-teal-300"
-  onClick={() => setEditingTaskId(task.id)}
-/>
+                    className="absolute right-[40px] w-4 h-4 text-teal-400 mt-1 cursor-pointer hover:text-teal-300"
+                    onClick={() => setEditingTaskId(task.id)}
+                  />
 
                   <button
                     onClick={() => deleteTask(task.id)}

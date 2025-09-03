@@ -131,6 +131,7 @@ import DiscoverPage from "./components1/DiscoverPage.jsx";
 import LexicalEditor from "./components1/LexicalEditor.jsx";
 import LockedPage from "./reusable_components/Locked.jsx";
 import ImageToVideo from "./pages/explified_tools/image_to_video_convertor/ImageToVideo.jsx";
+import LinkToVideoGenerator from "./components1/LinkToVideoGenerator.jsx";
 function App() {
   const navigate = useNavigate();
 
@@ -243,6 +244,7 @@ function App() {
           <Route path="/history" element={<History />}></Route>
           <Route path="/canvas" element={<Canvas />}></Route>
           <Route path="/text-to-video" element={<TextToVideoGenerator />} />
+          <Route path="/link-to-video" element={<LinkToVideoGenerator />} />
           <Route path="/tasks" element={<TaskManagerWithSidebar />} />
 
           <Route path="/history" element={<History />}></Route>

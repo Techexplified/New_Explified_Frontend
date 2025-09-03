@@ -8,17 +8,6 @@ import ChatContainer from "../expli/ChatContainer";
 
 function Trone() {
   const [prompt, setPrompt] = useState("");
-  const [enabledProviders, setEnabledProviders] = useState({
-    expli: true,
-    openai: true,
-    gemini: true,
-  });
-  const [isTyping, setIsTyping] = useState({
-    expli: false,
-    openai: false,
-    gemini: false,
-  });
-
   const [chatHistory, setChatHistory] = useState(() => {
     try {
       const raw = localStorage.getItem("trone_chat_sessions");
@@ -37,7 +26,7 @@ function Trone() {
   );
   const [sessionStartedAt, setSessionStartedAt] = useState(null);
 
-  // const [isTyping, setIsTyping] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const [firstPromptDone, setFirstPromptDone] = useState(
     localStorage.getItem("firstPromptDone") === "true"
   );
@@ -104,7 +93,7 @@ function Trone() {
       setCurrentMessages((prev) => [...prev, userMessage]);
       setCurrentMessagesOpenAI((prev) => [...prev, userMessage]);
       setCurrentMessagesGemini((prev) => [...prev, userMessage]);
-      // setIsTyping(true);
+      setIsTyping(true);
 
       // Persist to recentPrompts
       const existing = JSON.parse(localStorage.getItem("recentPrompts")) || [];
@@ -140,25 +129,50 @@ function Trone() {
         if (!apiKey && tool !== "default")
           throw new Error(`No API key found for ${tool}.`);
 
-        if (tool === "default" && enabledProviders.expli) {
+        if (tool === "default") {
           await handleDefault(userMessage, contextPrompt);
         }
-        if (providerKeys?.gemini && enabledProviders.gemini) {
+        if (providerKeys?.gemini) {
           await handleGemini(contextPrompt);
         }
-        if (providerKeys?.openai && enabledProviders.openai) {
+        if (providerKeys?.openai) {
           await handleOpenAI(contextPrompt);
         }
       } catch (err) {
         console.error("Error details:", err);
+        // let errorMessage = "Sorry, I encountered an error. Please try again.";
+
+        // if (err.code === "ECONNABORTED" || err.message.includes("timeout")) {
+        //   errorMessage =
+        //     "Request timed out. Please check your internet connection and try again.";
+        // } else if (err.response?.status === 429) {
+        //   errorMessage =
+        //     "Too many requests. Please wait a moment and try again.";
+        // } else if (err.response?.status === 400) {
+        //   errorMessage = "Invalid request. Please rephrase your question.";
+        // } else if (err.response?.status === 403) {
+        //   errorMessage = "API access denied. Please check your API key.";
+        // } else if (err.message.includes("safety")) {
+        //   errorMessage =
+        //     "Your message was blocked by safety filters. Please rephrase your question.";
+        // }
+
+        // setCurrentMessages((prev) => [
+        //   ...prev,
+        //   {
+        //     sender: "bot",
+        //     text: errorMessage,
+        //     isError: true,
+        //     timestamp: new Date().toISOString(),
+        //   },
+        // ]);
       } finally {
         setPrompt("");
-        // setIsTyping(false);
+        setIsTyping(false);
       }
     }
   };
   const handleDefault = async (userMessage, contextPrompt) => {
-    setIsTyping((prev) => ({ ...prev, expli: true }));
     try {
       let apiUrl = "";
       let payload = {};
@@ -237,12 +251,9 @@ function Trone() {
           timestamp: new Date().toISOString(),
         },
       ]);
-    } finally {
-      setIsTyping((prev) => ({ ...prev, expli: false }));
     }
   };
   const handleOpenAI = async (contextPrompt) => {
-    setIsTyping((prev) => ({ ...prev, openai: true }));
     try {
       let apiUrl = "";
       let payload = {};
@@ -303,12 +314,9 @@ function Trone() {
           timestamp: new Date().toISOString(),
         },
       ]);
-    } finally {
-      setIsTyping((prev) => ({ ...prev, openai: false }));
     }
   };
   const handleGemini = async (contextPrompt) => {
-    setIsTyping((prev) => ({ ...prev, gemini: true }));
     try {
       let apiUrl = "";
       let payload = {};
@@ -374,8 +382,6 @@ function Trone() {
           timestamp: new Date().toISOString(),
         },
       ]);
-    } finally {
-      setIsTyping((prev) => ({ ...prev, gemini: false }));
     }
   };
 
@@ -486,24 +492,16 @@ function Trone() {
           {/* Chat Container */}
           <ChatContainer
             messages={currentMessages}
-            isTyping={isTyping.expli}
+            isTyping={isTyping}
             toolName="Expli"
-            enabled={enabledProviders.expli}
-            setEnabled={(val) =>
-              setEnabledProviders((prev) => ({ ...prev, expli: val }))
-            }
           />
 
           {/* Chat Container */}
           {providerKeys?.openai && (
             <ChatContainer
               messages={currentMessagesOpenAI}
-              isTyping={isTyping.openai}
+              isTyping={isTyping}
               toolName="OpenAI"
-              enabled={enabledProviders.openai}
-              setEnabled={(val) =>
-                setEnabledProviders((prev) => ({ ...prev, openai: val }))
-              }
             />
           )}
 
@@ -511,12 +509,8 @@ function Trone() {
           {providerKeys?.gemini && (
             <ChatContainer
               messages={currentMessagesGemini}
-              isTyping={isTyping.gemini}
+              isTyping={isTyping}
               toolName="Gemini"
-              enabled={enabledProviders.gemini}
-              setEnabled={(val) =>
-                setEnabledProviders((prev) => ({ ...prev, gemini: val }))
-              }
             />
           )}
         </div>
@@ -527,7 +521,7 @@ function Trone() {
         handleInputChange={handleInputChange}
         handleSubmit={handleSubmit}
         handlePaste={handlePaste}
-        isTyping={isTyping.expli}
+        isTyping={isTyping}
         handleMicClick={handleMicClick}
         isRecording={isRecording}
         currentTool={currentTool}

@@ -125,7 +125,7 @@ const Unfinished = () => {
               <div
                 key={workflow.id}
                 onClick={() => navigate("/locked")}
-                className="group relative bg-gradient-to-br from-black via-cyan-950 to-cyan-900/80 border border-cyan-700 rounded-xl p-5 
+                className="w-[220px] group relative bg-gradient-to-br from-black via-cyan-950 to-cyan-900/80 border border-cyan-700 rounded-xl p-5 
                        hover:bg-[#23b5b5]/40 transition-all duration-300 transform hover:-translate-y-2 
                        hover:shadow-xl hover:shadow-teal-500/30 cursor-pointer flex flex-col h-64"
               >
