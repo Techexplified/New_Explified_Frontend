@@ -145,8 +145,18 @@ function ShareButton({ getTextContent, noteTitle }) {
     // Back-compat: also store text-only for existing consumers
     localStorage.setItem(`shared_content_${id}`, content);
 
-    // Construct link
-    const link = `${window.location.origin}${window.location.pathname}?shareId=${id}`;
+    // Construct link: always point to /notes and embed payload as fallback for other devices
+    let encoded = "";
+    try {
+      const json = JSON.stringify(payload);
+      // base64-url encode
+      encoded = encodeURIComponent(btoa(unescape(encodeURIComponent(json))));
+    } catch (e) {
+      encoded = "";
+    }
+    const link = `${window.location.origin}/notes?shareId=${id}${
+      encoded ? `&data=${encoded}` : ""
+    }`;
     setShareLink(link);
   };
 
@@ -156,7 +166,7 @@ function ShareButton({ getTextContent, noteTitle }) {
     const shareId = params.get("shareId");
 
     if (shareId) {
-      // Prefer combined payload if available
+      // Prefer combined payload if available (local)
       const combined = localStorage.getItem(`shared_note_${shareId}`);
       console.log(localStorage.getItem("tasks"));
       if (combined) {
@@ -180,6 +190,30 @@ function ShareButton({ getTextContent, noteTitle }) {
         } catch (e) {
           console.warn("Failed to parse shared payload:", e);
         }
+      } else {
+        // Fallback: try URL payload for cross-device share
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const dataParam = params.get("data");
+          if (dataParam) {
+            const decoded = decodeURIComponent(dataParam);
+            const json = decodeURIComponent(escape(atob(decoded)));
+            const parsed = JSON.parse(json);
+            if (parsed && parsed.penDataUrl) {
+              const overlay = document.createElement("img");
+              overlay.src = parsed.penDataUrl;
+              overlay.alt = "shared-pen-overlay";
+              overlay.style.position = "fixed";
+              overlay.style.top = "150px";
+              overlay.style.left = "290px";
+              overlay.style.width = "50vw";
+              overlay.style.height = "50vh";
+              overlay.style.pointerEvents = "none";
+              overlay.style.zIndex = "59";
+              document.body.appendChild(overlay);
+            }
+          }
+        } catch (e) {}
       }
     }
   }, []);
@@ -1259,6 +1293,21 @@ function LexicalEditor() {
               setScribbleUrl(parsed.penDataUrl);
           }
         } catch (e) {}
+      } else {
+        // Fallback to URL-embedded payload
+        const dataParam = params.get("data");
+        if (dataParam) {
+          try {
+            const decoded = decodeURIComponent(dataParam);
+            const json = decodeURIComponent(escape(atob(decoded)));
+            const parsed = JSON.parse(json);
+            if (parsed) {
+              if (typeof parsed.title === "string") setTitle(parsed.title);
+              if (typeof parsed.penDataUrl === "string")
+                setScribbleUrl(parsed.penDataUrl);
+            }
+          } catch (e) {}
+        }
       }
     }
   }, []);
@@ -1291,6 +1340,19 @@ function LexicalEditor() {
       if (typeof textOnly === "string") {
         return textOnly;
       }
+      // Fallback to URL-embedded data
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const dataParam = params.get("data");
+        if (dataParam) {
+          const decoded = decodeURIComponent(dataParam);
+          const json = decodeURIComponent(escape(atob(decoded)));
+          const parsed = JSON.parse(json);
+          if (parsed && typeof parsed.text === "string") {
+            return parsed.text;
+          }
+        }
+      } catch {}
     }
     const saved = localStorage.getItem("editorContent");
     return typeof saved === "string" ? saved : "";
