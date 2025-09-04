@@ -5,6 +5,10 @@ import SidebarOnHover from "../reusable_components/SidebarOnHover";
 import ExpliInput from "../expli/ExpliInput";
 import ExpliIntegration from "../expli/ExpliIntegration";
 import ChatContainer from "../expli/ChatContainer";
+import { Zap } from "lucide-react";
+import { AiOutlineOpenAI } from "react-icons/ai";
+import { RiGeminiLine } from "react-icons/ri";
+import { FaPlus } from "react-icons/fa6";
 
 function Trone() {
   const [prompt, setPrompt] = useState("");
@@ -61,8 +65,6 @@ function Trone() {
     }
   });
 
-  console.log(providerKeys);
-
   const [currentTool, setCurrentTool] = useState("default");
 
   useEffect(() => {
@@ -101,9 +103,17 @@ function Trone() {
       if (currentMessages.length === 0) {
         setSessionStartedAt(Date.now());
       }
-      setCurrentMessages((prev) => [...prev, userMessage]);
-      setCurrentMessagesOpenAI((prev) => [...prev, userMessage]);
-      setCurrentMessagesGemini((prev) => [...prev, userMessage]);
+      // Add user message only to enabled providers
+      if (enabledProviders.expli) {
+        setCurrentMessages((prev) => [...prev, userMessage]);
+      }
+      if (enabledProviders.openai) {
+        setCurrentMessagesOpenAI((prev) => [...prev, userMessage]);
+      }
+      if (enabledProviders.gemini) {
+        setCurrentMessagesGemini((prev) => [...prev, userMessage]);
+      }
+
       // setIsTyping(true);
 
       // Persist to recentPrompts
@@ -458,6 +468,7 @@ function Trone() {
   return (
     <div className="bg-black relative text-white h-screen">
       <div className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
+
       <SidebarOnHover
         onAddClick={newChat}
         chatHistory={chatHistory}
@@ -468,6 +479,7 @@ function Trone() {
         tools={providerKeys}
         setCurrentTool={setCurrentTool}
       />
+
       <div className="flex-1 flex flex-col items-center justify-center pt-12 w-screen">
         <div
           className={`fixed top-4 z-40 transition-all duration-300 ${
@@ -479,61 +491,66 @@ function Trone() {
           Expli(+)
         </h1>
 
-        <div className="w-full max-w-5xl mx-auto rounded-xl border border-cyan-900/60 shadow-[0_0_0_1px_rgba(0,255,255,0.06),0_0_24px_rgba(0,255,255,0.07)] bg-transparent p-4 sm:p-5 flex gap-4 min-h-[80vh] relative">
+        {/* Chat + Input inside same box */}
+        <div className="w-full max-w-3xl xl:max-w-5xl 2xl:max-w-7xl mx-auto rounded-xl border border-cyan-900/60 shadow-[0_0_0_1px_rgba(0,255,255,0.06),0_0_24px_rgba(0,255,255,0.07)] bg-transparent p-4 sm:p-5 flex flex-col gap-4 min-h-[80vh] relative">
           {/* Background Pattern */}
-          <div className="absolute inset-0 rounded-xl opacity-50 pointer-events-none bg-gradient-to-br from-black  to-black"></div>
+          <div className="absolute inset-0 rounded-xl opacity-50 pointer-events-none bg-gradient-to-br from-black to-black"></div>
 
-          {/* Chat Container */}
-          <ChatContainer
-            messages={currentMessages}
+          {/* Chat Containers Row */}
+          <div className="flex gap-4 flex-1  h-full">
+            <ChatContainer
+              messages={currentMessages}
+              isTyping={isTyping.expli}
+              toolName="Expli"
+              icon={<FaPlus />}
+              enabled={enabledProviders.expli}
+              setEnabled={(val) =>
+                setEnabledProviders((prev) => ({ ...prev, expli: val }))
+              }
+            />
+
+            {providerKeys?.openai && (
+              <ChatContainer
+                messages={currentMessagesOpenAI}
+                isTyping={isTyping.openai}
+                toolName="OpenAI"
+                icon={<AiOutlineOpenAI />}
+                enabled={enabledProviders.openai}
+                setEnabled={(val) =>
+                  setEnabledProviders((prev) => ({ ...prev, openai: val }))
+                }
+              />
+            )}
+
+            {providerKeys?.gemini && (
+              <ChatContainer
+                messages={currentMessagesGemini}
+                isTyping={isTyping.gemini}
+                toolName="Gemini"
+                icon={<RiGeminiLine />}
+                enabled={enabledProviders.gemini}
+                setEnabled={(val) =>
+                  setEnabledProviders((prev) => ({ ...prev, gemini: val }))
+                }
+              />
+            )}
+          </div>
+
+          {/* Input Box Below Chats */}
+          <ExpliInput
+            prompt={prompt}
+            handleInputChange={handleInputChange}
+            handleSubmit={handleSubmit}
+            handlePaste={handlePaste}
             isTyping={isTyping.expli}
-            toolName="Expli"
-            enabled={enabledProviders.expli}
-            setEnabled={(val) =>
-              setEnabledProviders((prev) => ({ ...prev, expli: val }))
-            }
+            handleMicClick={handleMicClick}
+            isRecording={isRecording}
+            currentTool={currentTool}
+            setCurrentTool={setCurrentTool}
+            providerKeys={providerKeys}
           />
-
-          {/* Chat Container */}
-          {providerKeys?.openai && (
-            <ChatContainer
-              messages={currentMessagesOpenAI}
-              isTyping={isTyping.openai}
-              toolName="OpenAI"
-              enabled={enabledProviders.openai}
-              setEnabled={(val) =>
-                setEnabledProviders((prev) => ({ ...prev, openai: val }))
-              }
-            />
-          )}
-
-          {/* Chat Container */}
-          {providerKeys?.gemini && (
-            <ChatContainer
-              messages={currentMessagesGemini}
-              isTyping={isTyping.gemini}
-              toolName="Gemini"
-              enabled={enabledProviders.gemini}
-              setEnabled={(val) =>
-                setEnabledProviders((prev) => ({ ...prev, gemini: val }))
-              }
-            />
-          )}
         </div>
       </div>
-
-      <ExpliInput
-        prompt={prompt}
-        handleInputChange={handleInputChange}
-        handleSubmit={handleSubmit}
-        handlePaste={handlePaste}
-        isTyping={isTyping.expli}
-        handleMicClick={handleMicClick}
-        isRecording={isRecording}
-        currentTool={currentTool}
-        setCurrentTool={setCurrentTool}
-        providerKeys={providerKeys}
-      />
 
       <ExpliIntegration
         currentTool={currentTool}

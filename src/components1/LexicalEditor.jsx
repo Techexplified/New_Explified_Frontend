@@ -131,7 +131,7 @@ function ShareButton({ getTextContent, noteTitle }) {
     }
 
     // Build combined payload for cross-field sharing
-    const payload = { text: content, penDataUrl };
+    const payload = { title: noteTitle, text: content, penDataUrl };
 
     // Save note to localStorage (new combined key)
     try {
@@ -162,6 +162,7 @@ function ShareButton({ getTextContent, noteTitle }) {
       if (combined) {
         try {
           const parsed = JSON.parse(combined);
+
           if (parsed && parsed.penDataUrl) {
             // Render passive overlay canvas with the shared drawing
             const overlay = document.createElement("img");
@@ -1208,14 +1209,14 @@ function LexicalEditor() {
   const [title, setTitle] = useState("Title");
   const [ispenactive, setpenactive] = useState(true);
   const [showChatbot, setShowChatbot] = useState(false);
-  // ✅ new state for PenTool visibility
   const [showPenTool, setShowPenTool] = useState(false);
   const [saveTrigger, setSaveTrigger] = useState(0);
+  const [scribbleUrl, setScribbleUrl] = useState("");
 
   const onChange = (editorState) => {
     editorState.read(() => {
       setEditorState(JSON.stringify(editorState.toJSON(), null, 2));
-      setSaveTrigger((trigger) => trigger + 1); // <-- Add this to bump the trigger
+      setSaveTrigger((trigger) => trigger + 1);
     });
   };
 
@@ -1223,19 +1224,59 @@ function LexicalEditor() {
 
   useEffect(() => {
     if (h1Ref.current) {
-      h1Ref.current.textContent = title;
+      h1Ref.current.textContent = typeof title === "string" ? title : "";
+      // Move caret to end of contentEditable after updating text
+      const el = h1Ref.current;
+      if (document.activeElement === el) {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        range.collapse(false); // move to end
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
     }
-  }, []);
+  }, [title]);
 
   const handleInput = (e) => {
     setTitle(e.currentTarget.textContent);
-    setSaveTrigger((trigger) => trigger + 1); // <-- Add this to bump the trigger
+    setSaveTrigger((trigger) => trigger + 1);
   };
+
+  // Load shared note data if shareId is present
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const shareId = params.get("shareId");
+    if (shareId) {
+      const combined = localStorage.getItem(`shared_note_${shareId}`);
+      if (combined) {
+        try {
+          const parsed = JSON.parse(combined);
+          if (parsed) {
+            // Fix: Set title as-is, not reversed
+            if (typeof parsed.title === "string") setTitle(parsed.title);
+            if (typeof parsed.penDataUrl === "string")
+              setScribbleUrl(parsed.penDataUrl);
+          }
+        } catch (e) {}
+      }
+    }
+  }, []);
 
   const params = new URLSearchParams(window.location.search);
   const shareId = params.get("shareId");
 
   const initialText = React.useMemo(() => {
+    const isNew =
+      new URLSearchParams(window.location.search).get("new") === "1";
+    if (isNew) {
+      // Fresh note request: clear any persisted editor content for a clean start
+      try {
+        localStorage.removeItem("editorContent");
+      } catch {}
+      return "";
+    }
+
     if (shareId) {
       const combined = localStorage.getItem(`shared_note_${shareId}`);
       if (combined) {

@@ -5,7 +5,7 @@ import {
   PROVIDER_DOC_URL,
 } from "../utils/data/TroneData";
 import { FiChevronDown, FiSearch, FiX } from "react-icons/fi";
-import { Lock } from "lucide-react";
+import { Lock, Zap } from "lucide-react";
 function ExpliIntegration({ providerKeys, setCurrentTool, setProviderKeys }) {
   const [showIntegrationHint, setShowIntegrationHint] = useState(true);
   const [isHoveringIntegration, setIsHoveringIntegration] = useState(false);
@@ -47,6 +47,15 @@ function ExpliIntegration({ providerKeys, setCurrentTool, setProviderKeys }) {
     setShowIntegrationsModal(false);
     setSelectedProviderId(null);
   };
+  const handleRemoveProvider = (providerId) => {
+    const next = { ...(providerKeys || {}), [providerId]: "" };
+    try {
+      localStorage.setItem("provider_keys", JSON.stringify(next));
+    } catch (err) {
+      console.log(err);
+    }
+    setProviderKeys(next);
+  };
   return (
     <>
       <div className="fixed bottom-6 right-6 z-40">
@@ -63,11 +72,11 @@ function ExpliIntegration({ providerKeys, setCurrentTool, setProviderKeys }) {
           )}
           <button
             type="button"
-            className="w-18 h-16 px-2 rounded-lg bg-[#191a1c] hover:bg-[#1f2023] border border-[#2a2a2a] text-gray-200 text-[10px] font-medium flex items-center justify-center shadow-lg"
+            className="w-12 h-12 rounded-lg bg-[#191a1c] hover:bg-[#1f2023] border border-[#2a2a2a] text-gray-200 text-[10px] font-medium flex items-center justify-center shadow-lg"
             title="Integrations"
             onClick={() => setShowIntegrationsModal(true)}
           >
-            Integrations
+            <Zap />
           </button>
         </div>
       </div>
@@ -147,7 +156,7 @@ function ExpliIntegration({ providerKeys, setCurrentTool, setProviderKeys }) {
                   return (
                     <div
                       key={p.id}
-                      className="bg-[#23b5b5] bg-opacity-20 border border-teal-400 rounded-xl p-5 hover:bg-opacity-40 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl hover:shadow-teal-500/30 relative group cursor-pointer"
+                      className="bg-[#23b5b5] bg-opacity-20 border border-teal-400 rounded-xl p-3 hover:bg-opacity-40 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl hover:shadow-teal-500/30 relative group cursor-pointer"
                       onClick={() => handleOpenProvider(p.id)}
                     >
                       <div className="flex items-center justify-between mb-4">
@@ -174,6 +183,20 @@ function ExpliIntegration({ providerKeys, setCurrentTool, setProviderKeys }) {
                           >
                             +
                           </button>
+
+                          {/* X button visible only when integrationTab === "my" */}
+                          {integrationTab === "my" && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveProvider(p.id); // <-- you can implement this function
+                              }}
+                              className="w-8 h-8 ml-2 bg-gradient-to-r from-teal-500 to-teal-600 rounded-full flex items-center justify-center text-white transition-all duration-200 transform hover:scale-110 shadow-lg"
+                            >
+                              ×
+                            </button>
+                          )}
                         </div>
                       </div>
 

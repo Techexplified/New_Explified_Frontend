@@ -13,7 +13,7 @@ function ExpliInput({
   providerKeys,
 }) {
   return (
-    <div className="fixed bottom-5 w-full z-10">
+    <div className=" w-full z-10">
       {/* Main Input Container */}
       <div className="rounded-2xl max-w-2xl mx-auto border-2 border-cyan-500/20 bg-gradient-to-r from-gray-900/90 to-gray-800/80 backdrop-blur-lg shadow-2xl">
         <div className="p-4">

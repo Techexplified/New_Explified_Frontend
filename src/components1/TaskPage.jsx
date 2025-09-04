@@ -125,7 +125,7 @@ export default function TaskManager() {
           {/* Notes Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 overflow-y-hidden">
             <button
-              onClick={() => navigate("/notes")}
+              onClick={() => navigate("/notes?new=1")}
               className="bg-gradient-to-r from-teal-600 to-teal-400 text-white px-6 py-3 rounded-xl font-medium transition-all shadow-lg flex items-center gap-2 max-h-[90px] hover:from-teal-700 hover:to-teal-500"
             >
               <Plus className="w-5 h-5" />

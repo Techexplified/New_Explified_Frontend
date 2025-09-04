@@ -1,8 +1,15 @@
+import { Zap } from "lucide-react";
 import { useEffect, useRef } from "react";
 
-function ChatContainer({ messages, isTyping, toolName, enabled, setEnabled }) {
+function ChatContainer({
+  messages,
+  isTyping,
+  toolName,
+  icon,
+  enabled,
+  setEnabled,
+}) {
   const chatContainerRef = useRef(null);
-  // const [enabled, setEnabled] = useState(true);
   // Auto-scroll to bottom when new messages are added
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -41,18 +48,25 @@ function ChatContainer({ messages, isTyping, toolName, enabled, setEnabled }) {
         .replace(/\n/g, "<br>")
     );
   };
+
   return (
     <div
       ref={chatContainerRef}
-      className="flex-1 w-full flex flex-col px-2 sm:px-3 overflow-y-auto scroll-smooth relative z-10 border border-gray-600 rounded-xl h-[70vh]"
+      className="flex-1 w-full flex flex-col px-2 sm:px-3 overflow-y-auto scroll-smooth relative z-10 border border-gray-600 rounded-xl h-[60vh]"
       style={{
         scrollBehavior: "smooth",
         paddingTop: "0",
         paddingBottom: "1rem",
       }}
     >
-      <h1 className="flex items-center justify-between text-2xl border-b border-gray-600 mb-4 py-2">
-        {toolName}
+      <h1 className="flex items-center justify-between text-xl border-b border-gray-600 mb-4 py-2">
+        {/* Left side: Icon + Tool Name */}
+        <div className="flex items-center gap-2">
+          <span>{icon}</span>
+          <span>{toolName}</span>
+        </div>
+
+        {/* Right side: Toggle */}
         <label className="relative inline-flex items-center cursor-pointer">
           <input
             type="checkbox"
@@ -64,6 +78,7 @@ function ChatContainer({ messages, isTyping, toolName, enabled, setEnabled }) {
           <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
         </label>
       </h1>
+
       {/* Messages Container */}
       <div className="w-full flex flex-col gap-6">
         {messages.map((msg, index) => (
