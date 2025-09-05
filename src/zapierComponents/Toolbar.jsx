@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import HuggingFaceApiInterface from "../components/tools/HuggingFaceApiInterface";
 
 import {
@@ -24,6 +24,9 @@ import {
   Image,
   ImagePlay,
   Laugh,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
@@ -103,7 +106,36 @@ const Toolbar = () => {
     name: "",
     icon: null,
   });
+
+  // Zoom and pan state
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const [panStart, setPanStart] = useState({ x: 0, y: 0 });
+  const canvasRef = useRef(null);
+
   const navigate = useNavigate();
+
+  // Zoom and pan handlers
+  const handleZoomIn = () => {
+    setZoom((prev) => Math.min(prev + 0.1, 3));
+  };
+
+  const handleZoomOut = () => {
+    setZoom((prev) => Math.max(prev - 0.1, 0.3));
+  };
+
+  const handleResetZoom = () => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  };
+
+  const handleWheel = (e) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -0.1 : 0.1;
+    setZoom((prev) => Math.max(0.3, Math.min(3, prev + delta)));
+  };
+
   // Flatten all tools for search
   const allTools = Object.values(categorizedTools).flat();
   const [messages, setMessages] = useState([
@@ -122,6 +154,18 @@ const Toolbar = () => {
   const authToken = import.meta.env.TWILIO_AUTH_TOKEN; // Replace with your Twilio Auth Token
   const fromNumber = import.meta.env.TWILIO_FROM_NUMBER; // Your Twilio WhatsApp number
   const geminiApiKey = import.meta.env.GEMINI_API_KEY;
+
+  // Add event listeners for zoom
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      canvas.addEventListener("wheel", handleWheel, { passive: false });
+
+      return () => {
+        canvas.removeEventListener("wheel", handleWheel);
+      };
+    }
+  }, []);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -372,6 +416,15 @@ const Toolbar = () => {
   };
 
   const handleMouseMove = (e) => {
+    // Canvas panning
+    if (isPanning) {
+      setPan({
+        x: e.clientX - panStart.x,
+        y: e.clientY - panStart.y,
+      });
+      return; // Don't process other mouse events while panning
+    }
+
     // Drag
     if (draggedBoxId && selectedTool !== "arrow") {
       setHasDragged(true);
@@ -403,6 +456,12 @@ const Toolbar = () => {
   };
 
   const handleMouseUp = (e) => {
+    // Stop canvas panning
+    if (isPanning) {
+      setIsPanning(false);
+      return;
+    }
+
     // Finish arrow
     if (isDrawingArrow && selectedTool === "arrow") {
       const targetBox = findBoxAtPosition(e.clientX, e.clientY);
@@ -668,161 +727,242 @@ const Toolbar = () => {
 
   return (
     <div
-      className={`relative w-full h-screen  ${
-        selectedTool === "arrow" ? "cursor-crosshair" : ""
+      ref={canvasRef}
+      className={`relative w-full h-screen overflow-hidden canvas-background ${
+        selectedTool === "arrow"
+          ? "cursor-crosshair"
+          : isPanning
+          ? "cursor-grabbing"
+          : "cursor-grab"
       }`}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
+      onMouseDown={(e) => {
+        // Only start panning if clicking on empty canvas area (not on boxes or other elements)
+        if (
+          e.target === e.currentTarget ||
+          e.target.closest(".canvas-background")
+        ) {
+          if (e.button === 0) {
+            // Left click
+            e.preventDefault();
+            setIsPanning(true);
+            setPanStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+          }
+        }
+
+        // Middle mouse or Ctrl+Left click for panning
+        if (e.button === 1 || (e.button === 0 && e.ctrlKey)) {
+          e.preventDefault();
+          setIsPanning(true);
+          setPanStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+        }
+      }}
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           setActiveBoxId(null);
         }
       }}
     >
-      {/* Empty Canvas Placeholder */}
-      {(!boxes || boxes.length === 0) && (
-        <div className="absolute inset-0 flex items-center justify-center z-30">
-          <div
-            className="group w-[140px] h-[120px] border-2 border-dashed border-[#23b5b5]/50 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-[#23b5b5] hover:bg-[#23b5b5]/5 transition-all duration-300 hover:scale-105"
-            onClick={() => {
-              setBoxes([
-                {
-                  id: Date.now(),
-                  left: window.innerWidth / 2 - 60,
-                  top: window.innerHeight / 2 - 50,
-                  icon: null,
-                },
-              ]);
-            }}
-          >
-            <div className="relative mb-2">
-              <Plus
-                size={56}
-                className="text-[#23b5b5] group-hover:text-white transition-colors duration-300"
-              />
-              <div className="absolute inset-0 bg-[#23b5b5] rounded-full blur-xl opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Hugging Face API interface */}
-      {showApiInterface && shouldShowApiInterface && currentBox && (
-        <div
-          className="absolute z-50"
-          style={{
-            left: `${currentBox.left + 60}px`,
-            top: `${(currentBox.top || 160) - 12}px`,
-            transform: "translate(-50%, -100%)",
-          }}
-        >
-          <div className="bg-black/90 backdrop-blur-xl border border-[#23b5b5]/30 rounded-xl shadow-2xl shadow-[#23b5b5]/10">
-            <HuggingFaceApiInterface
-              setShowApiInterface={setShowApiInterface}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Render Boxes */}
-      {boxes &&
-        boxes.map((box) => (
-          <div
-            key={box.id}
-            className="absolute"
-            style={{
-              left: `${box.left - 32}px`,
-              top: `${(box.top || 160) - 32}px`,
-              width: "184px",
-              height: "164px",
-            }}
-            onMouseEnter={() => setHoveredBoxId(box.id)}
-            onMouseLeave={() => setHoveredBoxId(null)}
-          >
+      {/* Canvas with zoom and pan transform */}
+      <div
+        className="absolute inset-0 origin-top-left"
+        style={{
+          transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+          transformOrigin: "0 0",
+        }}
+      >
+        {/* Empty Canvas Placeholder */}
+        {(!boxes || boxes.length === 0) && (
+          <div className="absolute inset-0 flex items-center justify-center z-30">
             <div
-              data-box-id={box.id}
-              className={`absolute w-[120px] h-[100px] bg-gradient-to-br from-gray-900 via-black to-gray-800 border-2 border-[#23b5b5]/60 rounded-xl shadow-2xl shadow-[#23b5b5]/20 z-40 transition-all duration-300 hover:border-[#23b5b5] hover:shadow-[#23b5b5]/30 hover:scale-105 ${
-                selectedTool === "arrow"
-                  ? "cursor-crosshair"
-                  : draggedBoxId === box.id
-                  ? "cursor-grabbing"
-                  : "cursor-grab"
-              }`}
-              style={{
-                left: "32px",
-                top: "32px",
-              }}
-              onMouseDown={(e) => handleBoxMouseDown(e, box.id)}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleBoxClick(e, box.id);
+              className="group w-[140px] h-[120px] border-2 border-dashed border-[#23b5b5]/50 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-[#23b5b5] hover:bg-[#23b5b5]/5 transition-all duration-300 hover:scale-105"
+              onClick={() => {
+                setBoxes([
+                  {
+                    id: Date.now(),
+                    left: window.innerWidth / 2 - 60,
+                    top: window.innerHeight / 2 - 50,
+                    icon: null,
+                  },
+                ]);
               }}
             >
-              {/* Glowing border effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-[#23b5b5]/20 to-transparent rounded-xl blur-sm opacity-0 hover:opacity-100 transition-opacity duration-300" />
-
-              {/* Icon / placeholder */}
-              {box.icon ? (
-                <div
-                  className="relative w-full h-full flex items-center justify-center text-4xl text-white hover:text-[#23b5b5] transition-colors duration-300"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setLogoSidebarData({
-                      name: box.name || "Selected Logo",
-                      icon: box.icon,
-                    });
-                    setIsLogoSidebarOpen(true);
-                    setActiveBoxId(null);
-                  }}
-                >
-                  {box.icon}
-                </div>
-              ) : (
-                <div className="relative w-full h-full flex items-center justify-center text-4xl text-[#23b5b5]/70 hover:text-[#23b5b5] transition-colors duration-300">
-                  <Square size={48} />
-                </div>
-              )}
+              <div className="relative mb-2">
+                <Plus
+                  size={56}
+                  className="text-[#23b5b5] group-hover:text-white transition-colors duration-300"
+                />
+                <div className="absolute inset-0 bg-[#23b5b5] rounded-full blur-xl opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
+              </div>
             </div>
+          </div>
+        )}
 
-            {/* Side Dots - Enhanced with glow effect */}
-            {hoveredBoxId === box.id && (
-              <>
-                {[
-                  { side: "top", style: "top-0 left-1/2 -translate-x-1/2" },
-                  {
-                    side: "bottom",
-                    style: "bottom-0 left-1/2 -translate-x-1/2",
-                  },
-                  { side: "left", style: "top-1/2 -translate-y-1/2 left-0" },
-                  { side: "right", style: "top-1/2 -translate-y-1/2 right-0" },
-                ].map(({ side, style }) => (
-                  <button
-                    key={side}
+        {/* Hugging Face API interface */}
+        {showApiInterface && shouldShowApiInterface && currentBox && (
+          <div
+            className="absolute z-50"
+            style={{
+              left: `${currentBox.left + 60}px`,
+              top: `${(currentBox.top || 160) - 12}px`,
+              transform: "translate(-50%, -100%)",
+            }}
+          >
+            <div className="bg-black/90 backdrop-blur-xl border border-[#23b5b5]/30 rounded-xl shadow-2xl shadow-[#23b5b5]/10">
+              <HuggingFaceApiInterface
+                setShowApiInterface={setShowApiInterface}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Render Boxes */}
+        {boxes &&
+          boxes.map((box) => (
+            <div
+              key={box.id}
+              className="absolute"
+              style={{
+                left: `${box.left - 32}px`,
+                top: `${(box.top || 160) - 32}px`,
+                width: "184px",
+                height: "164px",
+              }}
+              onMouseEnter={() => setHoveredBoxId(box.id)}
+              onMouseLeave={() => setHoveredBoxId(null)}
+            >
+              <div
+                data-box-id={box.id}
+                className={`absolute w-[120px] h-[100px] bg-gradient-to-br from-gray-900 via-black to-gray-800 border-2 border-[#23b5b5]/60 rounded-xl shadow-2xl shadow-[#23b5b5]/20 z-40 transition-all duration-300 hover:border-[#23b5b5] hover:shadow-[#23b5b5]/30 hover:scale-105 ${
+                  selectedTool === "arrow"
+                    ? "cursor-crosshair"
+                    : draggedBoxId === box.id
+                    ? "cursor-grabbing"
+                    : "cursor-grab"
+                }`}
+                style={{
+                  left: "32px",
+                  top: "32px",
+                }}
+                onMouseDown={(e) => handleBoxMouseDown(e, box.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleBoxClick(e, box.id);
+                }}
+              >
+                {/* Glowing border effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-[#23b5b5]/20 to-transparent rounded-xl blur-sm opacity-0 hover:opacity-100 transition-opacity duration-300" />
+
+                {/* Icon / placeholder */}
+                {box.icon ? (
+                  <div
+                    className="relative w-full h-full flex items-center justify-center text-4xl text-white hover:text-[#23b5b5] transition-colors duration-300"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleCreateBoxFromSide(box.id, side);
+                      setLogoSidebarData({
+                        name: box.name || "Selected Logo",
+                        icon: box.icon,
+                      });
+                      setIsLogoSidebarOpen(true);
+                      setActiveBoxId(null);
                     }}
-                    className={`absolute ${style} w-5 h-5 bg-[#23b5b5]/30 rounded-full hover:bg-[#23b5b5] transition-all duration-300 z-50 hover:scale-125 border-2 border-[#23b5b5]/50 hover:border-[#23b5b5] hover:shadow-lg hover:shadow-[#23b5b5]/50`}
                   >
-                    <div className="absolute inset-0 bg-[#23b5b5] rounded-full blur-sm opacity-0 hover:opacity-50 transition-opacity duration-300" />
-                  </button>
-                ))}
-              </>
-            )}
-          </div>
-        ))}
+                    {box.icon}
+                  </div>
+                ) : (
+                  <div className="relative w-full h-full flex items-center justify-center text-4xl text-[#23b5b5]/70 hover:text-[#23b5b5] transition-colors duration-300">
+                    <Square size={48} />
+                  </div>
+                )}
+              </div>
 
-      {/* Render Arrows */}
-      {arrows &&
-        arrows.map((arrow) => (
+              {/* Side Dots - Enhanced with glow effect */}
+              {hoveredBoxId === box.id && (
+                <>
+                  {[
+                    { side: "top", style: "top-0 left-1/2 -translate-x-1/2" },
+                    {
+                      side: "bottom",
+                      style: "bottom-0 left-1/2 -translate-x-1/2",
+                    },
+                    { side: "left", style: "top-1/2 -translate-y-1/2 left-0" },
+                    {
+                      side: "right",
+                      style: "top-1/2 -translate-y-1/2 right-0",
+                    },
+                  ].map(({ side, style }) => (
+                    <button
+                      key={side}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCreateBoxFromSide(box.id, side);
+                      }}
+                      className={`absolute ${style} w-5 h-5 bg-[#23b5b5]/30 rounded-full hover:bg-[#23b5b5] transition-all duration-300 z-50 hover:scale-125 border-2 border-[#23b5b5]/50 hover:border-[#23b5b5] hover:shadow-lg hover:shadow-[#23b5b5]/50`}
+                    >
+                      <div className="absolute inset-0 bg-[#23b5b5] rounded-full blur-sm opacity-0 hover:opacity-50 transition-opacity duration-300" />
+                    </button>
+                  ))}
+                </>
+              )}
+            </div>
+          ))}
+
+        {/* Render Arrows */}
+        {arrows &&
+          arrows.map((arrow) => (
+            <svg
+              key={arrow.id}
+              className="absolute inset-0 pointer-events-none z-30"
+              style={{ width: "100%", height: "100%" }}
+            >
+              <defs>
+                <marker
+                  id={`arrowhead-${arrow.id}`}
+                  markerWidth="12"
+                  markerHeight="8"
+                  refX="11"
+                  refY="4"
+                  orient="auto"
+                >
+                  <polygon
+                    points="0 0, 12 4, 0 8"
+                    fill="#23b5b5"
+                    stroke="#23b5b5"
+                    strokeWidth="1"
+                  />
+                </marker>
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="2" result="coloredBlur" />
+                  <feMerge>
+                    <feMergeNode in="coloredBlur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+              <line
+                x1={arrow.startX}
+                y1={arrow.startY}
+                x2={arrow.endX}
+                y2={arrow.endY}
+                stroke="#23b5b5"
+                strokeWidth="3"
+                markerEnd={`url(#arrowhead-${arrow.id})`}
+                filter="url(#glow)"
+                className="drop-shadow-lg"
+              />
+            </svg>
+          ))}
+
+        {/* Temporary arrow while drawing */}
+        {isDrawingArrow && (
           <svg
-            key={arrow.id}
             className="absolute inset-0 pointer-events-none z-30"
             style={{ width: "100%", height: "100%" }}
           >
             <defs>
               <marker
-                id={`arrowhead-${arrow.id}`}
+                id="temp-arrowhead"
                 markerWidth="12"
                 markerHeight="8"
                 refX="11"
@@ -836,114 +976,108 @@ const Toolbar = () => {
                   strokeWidth="1"
                 />
               </marker>
-              <filter id="glow">
-                <feGaussianBlur stdDeviation="2" result="coloredBlur" />
-                <feMerge>
-                  <feMergeNode in="coloredBlur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
             </defs>
             <line
-              x1={arrow.startX}
-              y1={arrow.startY}
-              x2={arrow.endX}
-              y2={arrow.endY}
+              x1={arrowStart.x}
+              y1={arrowStart.y}
+              x2={currentMousePos.x}
+              y2={currentMousePos.y}
               stroke="#23b5b5"
               strokeWidth="3"
-              markerEnd={`url(#arrowhead-${arrow.id})`}
-              filter="url(#glow)"
-              className="drop-shadow-lg"
+              markerEnd="url(#temp-arrowhead)"
+              strokeDasharray="8,4"
+              className="animate-pulse"
             />
           </svg>
-        ))}
+        )}
 
-      {/* Temporary arrow while drawing */}
-      {isDrawingArrow && (
-        <svg
-          className="absolute inset-0 pointer-events-none z-30"
-          style={{ width: "100%", height: "100%" }}
-        >
-          <defs>
-            <marker
-              id="temp-arrowhead"
-              markerWidth="12"
-              markerHeight="8"
-              refX="11"
-              refY="4"
-              orient="auto"
-            >
-              <polygon
-                points="0 0, 12 4, 0 8"
-                fill="#23b5b5"
-                stroke="#23b5b5"
-                strokeWidth="1"
+        {/* Enhanced Search Sidebar */}
+        {activeBox && (
+          <div
+            className="absolute left-full top-0 ml-6 w-72 max-h-[350px] bg-black/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-[#23b5b5]/30 z-50 overflow-hidden"
+            style={{
+              left: `${activeBox.left + 120}px`,
+              top: `${activeBox.top || 160}px`,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header with glow effect */}
+            <div className="p-4 border-b border-[#23b5b5]/20 bg-gradient-to-r from-[#23b5b5]/10 to-transparent">
+              <input
+                type="text"
+                placeholder="🔍 Search tools..."
+                className="w-full px-4 py-3 text-sm border border-[#23b5b5]/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#23b5b5]/50 focus:border-[#23b5b5] transition-all duration-300 bg-gray-900/50 backdrop-blur-sm text-white placeholder-gray-400"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
-            </marker>
-          </defs>
-          <line
-            x1={arrowStart.x}
-            y1={arrowStart.y}
-            x2={currentMousePos.x}
-            y2={currentMousePos.y}
-            stroke="#23b5b5"
-            strokeWidth="3"
-            markerEnd="url(#temp-arrowhead)"
-            strokeDasharray="8,4"
-            className="animate-pulse"
-          />
-        </svg>
-      )}
+            </div>
 
-      {/* Enhanced Search Sidebar */}
-      {activeBox && (
-        <div
-          className="absolute left-full top-0 ml-6 w-72 max-h-[350px] bg-black/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-[#23b5b5]/30 z-50 overflow-hidden"
-          style={{
-            left: `${activeBox.left + 120}px`,
-            top: `${activeBox.top || 160}px`,
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header with glow effect */}
-          <div className="p-4 border-b border-[#23b5b5]/20 bg-gradient-to-r from-[#23b5b5]/10 to-transparent">
-            <input
-              type="text"
-              placeholder="🔍 Search tools..."
-              className="w-full px-4 py-3 text-sm border border-[#23b5b5]/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#23b5b5]/50 focus:border-[#23b5b5] transition-all duration-300 bg-gray-900/50 backdrop-blur-sm text-white placeholder-gray-400"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+            {/* Tools List */}
+            <div className="p-2 max-h-64 overflow-y-auto space-y-1 custom-scrollbar">
+              {allTools &&
+                allTools
+                  .filter((tool) =>
+                    tool.name.toLowerCase().includes(searchQuery.toLowerCase())
+                  )
+                  .map((tool, index) => (
+                    <button
+                      key={tool.name}
+                      onClick={() => handleSelectToolIcon(activeBoxId, tool)}
+                      className="flex items-center gap-3 p-3 w-full rounded-xl hover:bg-[#23b5b5]/10 text-white text-sm border border-transparent hover:border-[#23b5b5]/30 transition-all duration-300 group"
+                      style={{ animationDelay: `${index * 50}ms` }}
+                    >
+                      <span className="text-xl group-hover:scale-110 transition-transform duration-300">
+                        {tool.icon}
+                      </span>
+                      <span className="group-hover:text-[#23b5b5] transition-colors duration-300">
+                        {tool.name}
+                      </span>
+                    </button>
+                  ))}
+            </div>
           </div>
+        )}
+      </div>{" "}
+      {/* Close canvas transform div */}
+      {/* Fixed Zoom Controls */}
+      <div className="fixed bottom-5 right-4 z-[9999]">
+        <div className="bg-black/90 backdrop-blur-2xl border border-[#23b5b5]/30 rounded-lg p-2 flex items-center gap-2 shadow-2xl shadow-[#23b5b5]/20">
+          <button
+            onClick={handleZoomOut}
+            className="p-2 text-gray-400 hover:text-white hover:bg-[#23b5b5]/10 rounded-md transition-all duration-300"
+            disabled={zoom <= 0.3}
+          >
+            <ZoomOut size={18} />
+          </button>
 
-          {/* Tools List */}
-          <div className="p-2 max-h-64 overflow-y-auto space-y-1 custom-scrollbar">
-            {allTools &&
-              allTools
-                .filter((tool) =>
-                  tool.name.toLowerCase().includes(searchQuery.toLowerCase())
-                )
-                .map((tool, index) => (
-                  <button
-                    key={tool.name}
-                    onClick={() => handleSelectToolIcon(activeBoxId, tool)}
-                    className="flex items-center gap-3 p-3 w-full rounded-xl hover:bg-[#23b5b5]/10 text-white text-sm border border-transparent hover:border-[#23b5b5]/30 transition-all duration-300 group"
-                    style={{ animationDelay: `${index * 50}ms` }}
-                  >
-                    <span className="text-xl group-hover:scale-110 transition-transform duration-300">
-                      {tool.icon}
-                    </span>
-                    <span className="group-hover:text-[#23b5b5] transition-colors duration-300">
-                      {tool.name}
-                    </span>
-                  </button>
-                ))}
-          </div>
+          <span className="px-3 py-1 text-sm text-white bg-[#23b5b5]/20 rounded-md min-w-[60px] text-center">
+            {Math.round(zoom * 100)}%
+          </span>
+
+          <button
+            onClick={handleZoomIn}
+            className="p-2 text-gray-400 hover:text-white hover:bg-[#23b5b5]/10 rounded-md transition-all duration-300"
+            disabled={zoom >= 3}
+          >
+            <ZoomIn size={18} />
+          </button>
+
+          <button
+            onClick={handleResetZoom}
+            className="p-2 text-gray-400 hover:text-white hover:bg-[#23b5b5]/10 rounded-md transition-all duration-300"
+          >
+            <RotateCcw size={18} />
+          </button>
         </div>
-      )}
-
-      {/* Enhanced Floating Toolbar */}
-      <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50">
+      </div>
+      {/* Enhanced Floating Toolbar - Fixed size regardless of zoom */}
+      <div
+        className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-[9999]"
+        style={{
+          transform: "translateX(-50%) scale(1)",
+          transformOrigin: "center",
+        }}
+      >
         <div className="relative">
           {/* Glow effect background */}
           <div className="absolute inset-0 bg-gradient-to-r from-[#23b5b5]/20 to-[#23b5b5]/10 rounded-lg blur-xl animate-pulse" />
@@ -983,14 +1117,19 @@ const Toolbar = () => {
           </div>
         </div>
       </div>
-
-      {/* Enhanced AI Chatbot Sidebar */}
+      {/* Enhanced AI Chatbot Sidebar - Fixed size regardless of zoom */}
       <div
-        className={`fixed top-20 right-0 h-[calc(100vh-80px)] w-96 bg-black/95 backdrop-blur-2xl border-l border-t border-b border-[#23b5b5]/30 rounded-l-2xl z-50 transform transition-all duration-500 ease-in-out ${
+        className={`fixed top-20 right-0 h-[calc(100vh-80px)] w-96 bg-black/95 backdrop-blur-2xl border-l border-t border-b border-[#23b5b5]/30 rounded-l-2xl z-[9999] transform transition-all duration-500 ease-in-out ${
           isAIChatbotOpen
             ? "translate-x-0 shadow-2xl shadow-[#23b5b5]/20"
             : "translate-x-full"
         }`}
+        style={{
+          transform: isAIChatbotOpen
+            ? "translateX(0) scale(1)"
+            : "translateX(100%) scale(1)",
+          transformOrigin: "right center",
+        }}
       >
         {/* Enhanced Header */}
         <div className="flex items-center justify-between p-6 border-b border-[#23b5b5]/20 bg-gradient-to-r from-[#23b5b5]/10 to-transparent">
@@ -1076,14 +1215,19 @@ const Toolbar = () => {
           </div>
         </div>
       </div>
-
-      {/* Enhanced Logo Details Sidebar */}
+      {/* Enhanced Logo Details Sidebar - Fixed size regardless of zoom */}
       <div
-        className={`fixed top-20 right-0 h-[calc(100vh-80px)] w-96 bg-black/95 backdrop-blur-2xl border-l border-t border-b border-[#23b5b5]/30 rounded-l-2xl z-50 transform transition-all duration-500 ease-in-out ${
+        className={`fixed top-20 right-0 h-[calc(100vh-80px)] w-96 bg-black/95 backdrop-blur-2xl border-l border-t border-b border-[#23b5b5]/30 rounded-l-2xl z-[9999] transform transition-all duration-500 ease-in-out ${
           isLogoSidebarOpen
             ? "translate-x-0 shadow-2xl shadow-[#23b5b5]/20"
             : "translate-x-full"
         }`}
+        style={{
+          transform: isLogoSidebarOpen
+            ? "translateX(0) scale(1)"
+            : "translateX(100%) scale(1)",
+          transformOrigin: "right center",
+        }}
       >
         {/* Enhanced Header */}
         <div className="flex items-center justify-between p-6 border-b border-[#23b5b5]/20 bg-gradient-to-r from-[#23b5b5]/10 to-transparent">
@@ -1206,7 +1350,6 @@ const Toolbar = () => {
           )}
         </div>
       </div>
-
       {/* Custom Scrollbar Styles */}
       <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar {

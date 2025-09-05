@@ -22,6 +22,7 @@ import {
   Star,
   Check,
 } from "lucide-react";
+import { FiChevronDown } from "react-icons/fi";
 import { FaGoogleDrive, FaSearch } from "react-icons/fa";
 import {
   SiGooglecalendar,
@@ -272,6 +273,10 @@ export default function IntegrationsPage() {
 
   const [showModal, setShowModal] = useState(false);
   const [email, setEmail] = useState("");
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
+  const [apiKey, setApiKey] = useState("");
+  const [showProviderHelp, setShowProviderHelp] = useState(false);
 
   const categories = Object.keys(categorizedTools);
   const navigate = useNavigate();
@@ -284,6 +289,24 @@ export default function IntegrationsPage() {
     console.log("User email:", email);
     setShowModal(false);
     setEmail("");
+  };
+
+  const handleApiKeySubmit = () => {
+    console.log(`API Key for ${selectedService}:`, apiKey);
+    setShowApiKeyModal(false);
+    setSelectedService(null);
+    setApiKey("");
+    // Here you would typically save the API key to your backend/database
+  };
+
+  const handleCardClick = (tool) => {
+    if (tool.name === "ChatGPT" || tool.name === "Gemini") {
+      setSelectedService(tool.name);
+      setShowApiKeyModal(true);
+      setShowProviderHelp(false);
+    } else {
+      navigate("/locked");
+    }
   };
 
   // Filter tools based on search query
@@ -334,7 +357,7 @@ export default function IntegrationsPage() {
         {toolsToRender.map((tool, index) => (
           <div
             key={index}
-            onClick={() => navigate("/locked")}
+            onClick={() => handleCardClick(tool)}
             className="px-6 py-4 rounded-2xl bg-gradient-to-br from-gray-950/80 to-gray-900/60 bg-opacity-70 border border-gray-800/40 backdrop-blur-md shadow-lg transition-all duration-200 hover:bg-gray-900/80 hover:shadow-cyan-700/20 hover:scale-[1.02] cursor-pointer"
           >
             <div className="flex items-center justify-between mb-4">
@@ -456,7 +479,7 @@ export default function IntegrationsPage() {
     return filterTools(toolsToRender).length;
   };
 
-  // MODAL COMPONENT
+  // MODAL COMPONENTS
   const EmailModal = ({ email, setEmail, onClose, onSubmit }) => (
     <div className="fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm z-50">
       <div className="bg-[#0f4c4c] border border-teal-500 rounded-2xl shadow-2xl p-6 w-96">
@@ -488,6 +511,167 @@ export default function IntegrationsPage() {
       </div>
     </div>
   );
+
+  const ApiKeyModal = ({
+    serviceName,
+    apiKey,
+    setApiKey,
+    onClose,
+    onSubmit,
+  }) => {
+    // Get the icon for the service
+    const getServiceIcon = () => {
+      if (serviceName === "ChatGPT")
+        return <Bot className="text-black/80" size={18} />;
+      if (serviceName === "Gemini")
+        return <Gem className="text-black/80" size={18} />;
+      return null;
+    };
+
+    // Help steps for each service
+    const getHelpSteps = () => {
+      if (serviceName === "ChatGPT") {
+        return [
+          "Visit OpenAI's website at openai.com",
+          "Sign up or log in to your account",
+          "Go to API section in your dashboard",
+          "Create a new API key",
+          "Copy the key and paste it here",
+        ];
+      }
+      if (serviceName === "Gemini") {
+        return [
+          "Visit Google AI Studio at aistudio.google.com",
+          "Sign in with your Google account",
+          "Click on 'Get API key'",
+          "Create a new API key",
+          "Copy the key and paste it here",
+        ];
+      }
+      return [];
+    };
+
+    const getDocUrl = () => {
+      if (serviceName === "ChatGPT")
+        return "https://platform.openai.com/api-keys";
+      if (serviceName === "Gemini")
+        return "https://aistudio.google.com/app/apikey";
+      return "#";
+    };
+
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+        <div
+          className={`relative w-full ${
+            showProviderHelp ? "max-w-3xl" : "max-w-2xl"
+          } mx-4 bg-[#111213] border border-[#0f8b8d]/50 rounded-xl shadow-2xl p-5`}
+        >
+          <div>
+            <button
+              className="text-xs text-gray-300 hover:text-white mb-4"
+              onClick={onClose}
+            >
+              ← Back
+            </button>
+
+            <div className="flex items-center gap-2 mb-3">
+              <div
+                className="w-8 h-8 rounded-md flex items-center justify-center"
+                style={{ background: "#23b5b5" }}
+              >
+                {getServiceIcon()}
+              </div>
+              <h4 className="text-white text-base font-semibold">
+                {serviceName}
+              </h4>
+            </div>
+
+            <label className="block text-xs text-gray-400 mb-1">API Key</label>
+            <input
+              type="text"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              placeholder={`Enter ${serviceName} API key`}
+              className="w-full bg-black/30 border border-[#2a2a2a] rounded-lg px-3 py-2 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-teal-600"
+              autoFocus
+            />
+
+            <div className="mt-2 flex items-center justify-between">
+              <button
+                type="button"
+                className="flex items-center gap-1 text-xs text-teal-400 hover:text-teal-300"
+                onClick={() => setShowProviderHelp((v) => !v)}
+                aria-expanded={showProviderHelp}
+              >
+                <span>Don't have a key?</span>
+                <FiChevronDown
+                  className={`transition-transform ${
+                    showProviderHelp ? "rotate-180" : "rotate-0"
+                  }`}
+                  size={14}
+                />
+              </button>
+            </div>
+
+            <div
+              className={`mt-3 overflow-hidden transition-all duration-300 ease-in-out ${
+                showProviderHelp
+                  ? "max-h-[500px] opacity-100"
+                  : "max-h-0 opacity-0"
+              }`}
+              aria-hidden={!showProviderHelp}
+            >
+              <div className="border border-[#2a2a2a] rounded-lg p-3 bg-black/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <div
+                    className="w-6 h-6 rounded-md flex items-center justify-center"
+                    style={{ background: "#23b5b5" }}
+                  >
+                    {getServiceIcon()}
+                  </div>
+                  <h5 className="text-white text-sm font-medium">
+                    How to get a key for {serviceName}
+                  </h5>
+                </div>
+                <ol className="list-decimal list-inside text-sm text-gray-200 space-y-2">
+                  {getHelpSteps().map((step, idx) => (
+                    <li key={idx}>{step}</li>
+                  ))}
+                </ol>
+                <div className="mt-2">
+                  <a
+                    href={getDocUrl()}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-xs text-teal-400 hover:text-teal-300"
+                  >
+                    Open official docs →
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                className="px-3 py-2 rounded-lg bg-[#191a1c] border border-[#2a2a2a] text-gray-200 hover:bg-[#1f2023]"
+                onClick={onClose}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-3 py-2 rounded-lg bg-teal-600 hover:bg-teal-500 text-white"
+                onClick={onSubmit}
+                disabled={!apiKey.trim()}
+              >
+                Save & Use
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 text-white">
@@ -619,6 +803,21 @@ export default function IntegrationsPage() {
             setEmail={setEmail}
             onClose={() => setShowModal(false)}
             onSubmit={handleSubmitEmail}
+          />
+        )}
+
+        {showApiKeyModal && (
+          <ApiKeyModal
+            serviceName={selectedService}
+            apiKey={apiKey}
+            setApiKey={setApiKey}
+            onClose={() => {
+              setShowApiKeyModal(false);
+              setSelectedService(null);
+              setApiKey("");
+              setShowProviderHelp(false);
+            }}
+            onSubmit={handleApiKeySubmit}
           />
         )}
 
