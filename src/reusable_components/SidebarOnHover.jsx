@@ -9,7 +9,11 @@ function SidebarOnHover({
   toolName,
   id,
   chatHistory = [],
+  chatHistoryOpenAI = [],
+  chatHistoryGemini = [],
   setCurrentMessages,
+  setCurrentMessagesGemini,
+  setCurrentMessagesOpenAI,
   onOpenChange,
   onAddClick,
   tools = [],
@@ -17,6 +21,7 @@ function SidebarOnHover({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarPinned, setSidebarPinned] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState("expli");
   console.log("chatHistory from sidebar:", chatHistory);
 
   useEffect(() => {
@@ -80,20 +85,54 @@ function SidebarOnHover({
               <div className="h-full">
                 {/* chat history */}
                 <div className=" h-[250px] ">
-                  <p className="text-gray-500 text-sm mt-2">Chat History</p>
-                  {chatHistory && (
-                    <div className="  pt-2 flex flex-col gap-2">
-                      {chatHistory.map((item, index) => (
-                        <p
-                          onClick={() => setCurrentMessages(item.messages)}
-                          className=" cursor-pointer w-[200px] line-clamp-2 bg-gray-900 text-gray-400 p-2 rounded-md "
-                          key={index}
-                        >
-                          {item.messages[0].text}
-                        </p>
-                      ))}
-                    </div>
-                  )}
+                  <div className="flex items-center justify-between mt-4">
+                    <p className="text-gray-500 text-sm mt-2">Chat History</p>
+
+                    <select
+                      value={selectedProvider}
+                      onChange={(e) => setSelectedProvider(e.target.value)}
+                      className="bg-gray-800 text-white rounded"
+                    >
+                      <option value="gemini">Gemini</option>
+                      <option value="openai">OpenAI</option>
+                      <option value="expli">Expli</option>
+                    </select>
+                  </div>
+
+                  {(() => {
+                    let history;
+                    let setMessages;
+
+                    if (selectedProvider === "expli") {
+                      history = chatHistory;
+                      setMessages = setCurrentMessages;
+                    }
+                    if (selectedProvider === "openai") {
+                      history = chatHistoryOpenAI;
+                      setMessages = setCurrentMessagesOpenAI;
+                    }
+                    if (selectedProvider === "gemini") {
+                      history = chatHistoryGemini;
+                      setMessages = setCurrentMessagesGemini;
+                    }
+
+                    return (
+                      history &&
+                      history.length > 0 && (
+                        <div className="pt-2 flex flex-col gap-2 overflow-y-auto">
+                          {history.map((item, index) => (
+                            <p
+                              key={index}
+                              onClick={() => setMessages(item.messages)}
+                              className="cursor-pointer w-[200px] line-clamp-2 bg-gray-900 text-gray-400 p-2 rounded-md"
+                            >
+                              {item.messages[0]?.text}
+                            </p>
+                          ))}
+                        </div>
+                      )
+                    );
+                  })()}
                 </div>
                 {/* available models */}
                 <div className="h-[250px] border-t border-minimal-primary/20 pt-2 overflow-y-auto">

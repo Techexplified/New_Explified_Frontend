@@ -8,6 +8,8 @@ function ChatContainer({
   icon,
   enabled,
   setEnabled,
+  handleCloseChat,
+  pid,
 }) {
   const chatContainerRef = useRef(null);
   // Auto-scroll to bottom when new messages are added
@@ -67,16 +69,21 @@ function ChatContainer({
         </div>
 
         {/* Right side: Toggle */}
-        <label className="relative inline-flex items-center cursor-pointer">
-          <input
-            type="checkbox"
-            checked={enabled}
-            onChange={() => setEnabled(!enabled)}
-            className="sr-only peer"
-          />
-          <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:bg-cyan-500 transition-colors"></div>
-          <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
-        </label>
+        <div className="flex items-center gap-4">
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={enabled}
+              onChange={() => setEnabled(!enabled)}
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:bg-cyan-500 transition-colors"></div>
+            <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+          </label>
+          {toolName !== "Expli" && (
+            <button onClick={() => handleCloseChat(pid)}>X</button>
+          )}
+        </div>
       </h1>
 
       {/* Messages Container */}
