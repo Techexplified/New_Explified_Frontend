@@ -540,7 +540,7 @@ function Trone() {
         setCurrentTool={setCurrentTool}
       />
 
-      <div className="flex-1 flex flex-col items-center justify-center pt-12 w-screen">
+      <div className="flex-1 flex flex-col items-center  overflow-x-auto justify-center pt-12 w-screen">
         <div
           className={`fixed top-4 z-40 transition-all duration-300 ${
             isSidebarOpen ? "left-72" : "left-8"
@@ -552,12 +552,12 @@ function Trone() {
         </h1>
 
         {/* Chat + Input inside same box */}
-        <div className="w-full max-w-3xl xl:max-w-5xl 2xl:max-w-7xl mx-auto rounded-xl border border-cyan-900/60 shadow-[0_0_0_1px_rgba(0,255,255,0.06),0_0_24px_rgba(0,255,255,0.07)] bg-transparent p-4 sm:p-5 flex flex-col gap-4 min-h-[80vh] relative">
+        <div className="min-w-[1000px] max-w-3xl xl:max-w-5xl 2xl:max-w-7xl mx-auto rounded-xl border border-cyan-900/60 shadow-[0_0_0_1px_rgba(0,255,255,0.06),0_0_24px_rgba(0,255,255,0.07)] bg-transparent p-4 sm:p-5 flex flex-col gap-4 min-h-[80vh] relative">
           {/* Background Pattern */}
           <div className="absolute inset-0 rounded-xl opacity-50 pointer-events-none bg-gradient-to-br from-black to-black"></div>
 
           {/* Chat Containers Row */}
-          <div className="flex gap-4 flex-1  h-full">
+          <div className="flex gap-4 flex-1 h-full">
             <ChatContainer
               messages={currentMessages}
               isTyping={isTyping.expli}
