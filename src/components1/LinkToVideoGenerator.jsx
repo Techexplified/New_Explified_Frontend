@@ -113,82 +113,111 @@ const LinkToVideoGenerator = () => {
     }
   };
 
-  // Enhanced video generation with realistic API structure
+  // Tavus-backed video generation
   const generateVideo = async () => {
     setIsGenerating(true);
     setError("");
     setProgress(0);
 
     try {
-      let mediaData = null;
-
-      // Handle file upload to server
-      if (uploadedFile) {
-        const formData = new FormData();
-        formData.append("file", uploadedFile);
-
-        // Simulate file upload
-        for (let i = 0; i <= 30; i += 5) {
-          await new Promise((resolve) => setTimeout(resolve, 100));
-          setProgress(i);
-        }
-
-        // In real implementation:
-        // const uploadResponse = await fetch('/api/upload', {
-        //   method: 'POST',
-        //   body: formData
-        // });
-        // const uploadData = await uploadResponse.json();
-        // mediaData = uploadData.fileUrl;
-
-        mediaData = previewUrl; // Mock data
-      } else if (mediaUrl) {
-        mediaData = mediaUrl;
+      // Note: Tavus generation is driven by "script" and a "replica" of a face/voice.
+      // We use a replica id from env. Configure VITE_TAVUS_REPLICA_ID in your .env.local
+      const replicaId = import.meta.env.VITE_TAVUS_REPLICA_ID;
+      if (!replicaId) {
+        throw new Error("Missing VITE_TAVUS_REPLICA_ID env var");
       }
 
-      // Prepare generation request
-      const requestData = {
-        mediaUrl: mediaData,
-        prompt: prompt,
-        settings: settings,
-        timestamp: Date.now(),
-      };
+      // Kick off Tavus job (direct API call)
+      setProgress(5);
+      const tavusKey = import.meta.env.VITE_TAVUS_API_KEY;
+      if (!tavusKey) {
+        throw new Error("Missing VITE_TAVUS_API_KEY env var");
+      }
 
-      // Simulate API call to video generation service
-      // In real implementation, this would be:
-      // const response = await fetch('/api/generate-video', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(requestData)
-      // });
+      const createResp = await fetch("https://tavusapi.com/v2/videos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": "821b76b5d70d4eddb07ea613f2875dc8",
+        },
+        body: JSON.stringify({
+          replica_id: replicaId,
+          script: prompt,
+          video_name: `explified-${Date.now()}`,
+        }),
+      });
 
-      // Simulate processing stages
-      const stages = [
-        { name: "Uploading media...", duration: 1000 },
-        { name: "Analyzing content...", duration: 1500 },
-        { name: "Generating frames...", duration: 3000 },
-        { name: "Processing motion...", duration: 2000 },
-        { name: "Rendering video...", duration: 2500 },
-        { name: "Finalizing...", duration: 1000 },
-      ];
+      if (!createResp.ok) {
+        const errData = await createResp.json().catch(() => ({}));
+        throw new Error(
+          errData?.message || errData?.error || "Failed to start Tavus job"
+        );
+      }
 
-      let currentProgress = 30;
-      for (const stage of stages) {
-        const stageProgress = 70 / stages.length;
-        for (let i = 0; i < stageProgress; i += 2) {
-          await new Promise((resolve) =>
-            setTimeout(resolve, stage.duration / (stageProgress / 2))
+      const job = await createResp.json();
+      const videoId = job?.id || job?.video_id || job?._id;
+      if (!videoId) {
+        throw new Error("Tavus response missing video id");
+      }
+
+      // Poll status until ready/failed
+      setProgress(15);
+      let status = job?.status || "queued";
+      let finalData = job;
+      const startedAt = Date.now();
+      const timeoutMs = 10 * 60 * 1000; // 10 minutes
+
+      while (true) {
+        if (Date.now() - startedAt > timeoutMs) {
+          throw new Error("Timed out waiting for video generation");
+        }
+
+        await new Promise((r) => setTimeout(r, 4000));
+        const statusResp = await fetch(
+          `https://tavusapi.com/v2/videos/${videoId}`,
+          {
+            headers: {
+              "x-api-key": tavusKey,
+            },
+          }
+        );
+        if (!statusResp.ok) {
+          const errData = await statusResp.json().catch(() => ({}));
+          throw new Error(
+            errData?.message || errData?.error || "Failed to fetch status"
           );
-          currentProgress += 2;
-          setProgress(Math.min(currentProgress, 100));
+        }
+        finalData = await statusResp.json();
+        status = finalData?.status || finalData?.video_status;
+
+        // Best-effort progress updates
+        if (status === "queued") setProgress((p) => Math.max(p, 20));
+        if (status === "processing") setProgress((p) => Math.max(p, 60));
+        if (status === "rendering") setProgress((p) => Math.max(p, 85));
+
+        if (
+          status === "ready" ||
+          status === "completed" ||
+          finalData?.hosted_url ||
+          finalData?.download_url
+        ) {
+          setProgress(100);
+          break;
+        }
+        if (status === "failed" || status === "error") {
+          throw new Error(finalData?.error || "Video generation failed");
         }
       }
 
-      // Create new generated video
+      const videoUrl = finalData?.hosted_url || finalData?.download_url;
+      if (!videoUrl) {
+        throw new Error("Video URL not found in Tavus response");
+      }
+
       const newVideo = {
-        id: Date.now(),
+        id: videoId,
         title: `Generated Video ${generatedVideos.length + 1}`,
-        url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+        url: videoUrl,
         thumbnail: previewUrl || "https://via.placeholder.com/400x225",
         duration: `${settings.duration}s`,
         createdAt: new Date(),
@@ -197,16 +226,14 @@ const LinkToVideoGenerator = () => {
       };
 
       setGeneratedVideos((prev) => [newVideo, ...prev]);
-
-      // Clear inputs
       setPrompt("");
       clearMedia();
     } catch (err) {
       console.error("Generation error:", err);
-      setError("Failed to generate video. Please try again.");
+      setError(err?.message || "Failed to generate video. Please try again.");
     } finally {
       setIsGenerating(false);
-      setProgress(0);
+      setTimeout(() => setProgress(0), 800);
     }
   };
 

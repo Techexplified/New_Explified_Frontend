@@ -68,6 +68,29 @@ export default app;
 npm run dev
 ```
 
+## 🎥 Tavus AI Video Generation (Optional)
+
+This project includes an optional Tavus integration to generate videos from prompts via `src/components1/LinkToVideoGenerator.jsx`.
+
+1. Env setup
+
+- Create a `.env.local` for Vite/React (client calls Tavus directly):
+
+```
+VITE_TAVUS_API_KEY=your_tavus_api_key
+VITE_TAVUS_REPLICA_ID=your_tavus_replica_id
+```
+
+2. Start the dev server
+
+```
+npm run dev
+```
+
+3. Usage
+
+- Open the Link-to-Video tool in the app, enter your prompt, and generate. The app creates a Tavus job and polls until the video is ready, then shows the playable URL.
+
 # 🚀 Deploy to Firebase
 
 ### 1. Install Firebase CLI

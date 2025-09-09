@@ -24,14 +24,17 @@ function Trone() {
   });
 
   const [chatHistory, setChatHistory] = useState(() => {
-    try {
-      const raw = localStorage.getItem("trone_chat_sessions");
-      return raw ? JSON.parse(raw) : [];
-    } catch (e) {
-      console.log(e);
-      return [];
-    }
-  }); // stores ended sessions
+    const raw = localStorage.getItem("trone_chat_sessions");
+    return raw ? JSON.parse(raw) : [];
+  });
+  const [chatHistoryGemini, setChatHistoryGemini] = useState(() => {
+    const raw = localStorage.getItem("gemini_chat_sessions");
+    return raw ? JSON.parse(raw) : [];
+  });
+  const [chatHistoryOpenAI, setChatHistoryOpenAI] = useState(() => {
+    const raw = localStorage.getItem("openai_chat_sessions");
+    return raw ? JSON.parse(raw) : [];
+  });
   const [currentMessages, setCurrentMessages] = useState([]); // active session messages
   const [currentMessagesOpenAI, setCurrentMessagesOpenAI] = useState([]); // active session messages
   const [currentMessagesGemini, setCurrentMessagesGemini] = useState([]); // active session messages
@@ -85,6 +88,26 @@ function Trone() {
       console.log(e);
     }
   }, [chatHistory]);
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        "gemini_chat_sessions",
+        JSON.stringify(chatHistoryGemini)
+      );
+    } catch (e) {
+      console.log(e);
+    }
+  }, [chatHistoryGemini]);
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        "openai_chat_sessions",
+        JSON.stringify(chatHistoryOpenAI)
+      );
+    } catch (e) {
+      console.log(e);
+    }
+  }, [chatHistoryOpenAI]);
 
   // Removed auto-syncing current messages from localStorage to prevent overwriting sessions
 
@@ -103,6 +126,7 @@ function Trone() {
       if (currentMessages.length === 0) {
         setSessionStartedAt(Date.now());
       }
+
       // Add user message only to enabled providers
       if (enabledProviders.expli) {
         setCurrentMessages((prev) => [...prev, userMessage]);
@@ -154,10 +178,10 @@ function Trone() {
           await handleDefault(userMessage, contextPrompt);
         }
         if (providerKeys?.gemini && enabledProviders.gemini) {
-          await handleGemini(contextPrompt);
+          await handleGemini(userMessage, contextPrompt);
         }
         if (providerKeys?.openai && enabledProviders.openai) {
-          await handleOpenAI(contextPrompt);
+          await handleOpenAI(userMessage, contextPrompt);
         }
       } catch (err) {
         console.error("Error details:", err);
@@ -251,7 +275,7 @@ function Trone() {
       setIsTyping((prev) => ({ ...prev, expli: false }));
     }
   };
-  const handleOpenAI = async (contextPrompt) => {
+  const handleOpenAI = async (userMessage, contextPrompt) => {
     setIsTyping((prev) => ({ ...prev, openai: true }));
     try {
       let apiUrl = "";
@@ -286,6 +310,17 @@ function Trone() {
       };
 
       setCurrentMessagesOpenAI((prev) => [...prev, botMessage]);
+
+      const sessionRecord = {
+        id: sessionId,
+        startedAt: sessionStartedAt || Date.now(),
+        endedAt: Date.now(),
+        messages: [userMessage, botMessage],
+      };
+      setChatHistoryOpenAI((prev) => {
+        const next = [...prev, sessionRecord];
+        return next.slice(-3);
+      });
     } catch (err) {
       console.error("Error details:", err);
       let errorMessage = "Sorry, I encountered an error. Please try again.";
@@ -317,7 +352,7 @@ function Trone() {
       setIsTyping((prev) => ({ ...prev, openai: false }));
     }
   };
-  const handleGemini = async (contextPrompt) => {
+  const handleGemini = async (userMessage, contextPrompt) => {
     setIsTyping((prev) => ({ ...prev, gemini: true }));
     try {
       let apiUrl = "";
@@ -357,6 +392,17 @@ function Trone() {
       };
 
       setCurrentMessagesGemini((prev) => [...prev, botMessage]);
+
+      const sessionRecord = {
+        id: sessionId,
+        startedAt: sessionStartedAt || Date.now(),
+        endedAt: Date.now(),
+        messages: [userMessage, botMessage],
+      };
+      setChatHistoryGemini((prev) => {
+        const next = [...prev, sessionRecord];
+        return next.slice(-3);
+      });
     } catch (err) {
       console.error("Error details:", err);
       let errorMessage = "Sorry, I encountered an error. Please try again.";
@@ -465,6 +511,16 @@ function Trone() {
     );
   };
 
+  const handleCloseChat = (providerId) => {
+    const next = { ...(providerKeys || {}), [providerId]: "" };
+    try {
+      localStorage.setItem("provider_keys", JSON.stringify(next));
+    } catch (err) {
+      console.log(err);
+    }
+    setProviderKeys(next);
+  };
+
   return (
     <div className="bg-black relative text-white h-screen">
       <div className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
@@ -472,7 +528,11 @@ function Trone() {
       <SidebarOnHover
         onAddClick={newChat}
         chatHistory={chatHistory}
+        chatHistoryOpenAI={chatHistoryOpenAI}
+        chatHistoryGemini={chatHistoryGemini}
         setCurrentMessages={setCurrentMessages}
+        setCurrentMessagesGemini={setCurrentMessagesGemini}
+        setCurrentMessagesOpenAI={setCurrentMessagesOpenAI}
         onOpenChange={(open) => setIsSidebarOpen(open)}
         link={"https://explified.com/expli/"}
         toolName={"Expli(+)"}
@@ -514,11 +574,13 @@ function Trone() {
                 messages={currentMessagesOpenAI}
                 isTyping={isTyping.openai}
                 toolName="OpenAI"
+                pid="openai"
                 icon={<AiOutlineOpenAI />}
                 enabled={enabledProviders.openai}
                 setEnabled={(val) =>
                   setEnabledProviders((prev) => ({ ...prev, openai: val }))
                 }
+                handleCloseChat={handleCloseChat}
               />
             )}
 
@@ -527,11 +589,13 @@ function Trone() {
                 messages={currentMessagesGemini}
                 isTyping={isTyping.gemini}
                 toolName="Gemini"
+                pid="gemini"
                 icon={<RiGeminiLine />}
                 enabled={enabledProviders.gemini}
                 setEnabled={(val) =>
                   setEnabledProviders((prev) => ({ ...prev, gemini: val }))
                 }
+                handleCloseChat={handleCloseChat}
               />
             )}
           </div>

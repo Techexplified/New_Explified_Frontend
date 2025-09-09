@@ -113,17 +113,24 @@ function ShareButton({ getTextContent, noteTitle }) {
   // Generate sharable link only once when menu opens
   const generateLink = () => {
     const content = getTextContent();
+    console.log("Generating share link for content:", content);
+    console.log("Note title:", noteTitle);
+
     saveNoteToTasks(content);
     const id = uuidv4();
+    console.log("Generated share ID:", id);
 
     // Try to capture current pen drawing (if any) by querying tagged canvas
     let penDataUrl = "";
     try {
       const canvases = document.querySelectorAll("[data-pen-canvas='true']");
+      console.log("Found canvases:", canvases.length);
+
       if (canvases && canvases.length > 0) {
         const targetCanvas = canvases[canvases.length - 1]; // prefer the last/most recent
         if (targetCanvas && typeof targetCanvas.toDataURL === "function") {
           penDataUrl = targetCanvas.toDataURL("image/png");
+          console.log("Captured pen data URL:", penDataUrl ? "Yes" : "No");
         }
       }
     } catch (err) {
@@ -132,10 +139,12 @@ function ShareButton({ getTextContent, noteTitle }) {
 
     // Build combined payload for cross-field sharing
     const payload = { title: noteTitle, text: content, penDataUrl };
+    console.log("Share payload:", payload);
 
     // Save note to localStorage (new combined key)
     try {
       localStorage.setItem(`shared_note_${id}`, JSON.stringify(payload));
+      console.log("Saved to localStorage with key:", `shared_note_${id}`);
     } catch (e) {
       console.warn(
         "Failed to save combined share payload, falling back to text-only."
@@ -144,19 +153,34 @@ function ShareButton({ getTextContent, noteTitle }) {
 
     // Back-compat: also store text-only for existing consumers
     localStorage.setItem(`shared_content_${id}`, content);
+    console.log(
+      "Saved text-only to localStorage with key:",
+      `shared_content_${id}`
+    );
 
     // Construct link: always point to /notes and embed payload as fallback for other devices
     let encoded = "";
     try {
       const json = JSON.stringify(payload);
-      // base64-url encode
-      encoded = encodeURIComponent(btoa(unescape(encodeURIComponent(json))));
+      const encodedCandidate = encodeURIComponent(
+        btoa(unescape(encodeURIComponent(json)))
+      );
+      // Guard against excessively long URLs (e.g., large penDataUrl)
+      if (encodedCandidate.length <= 1800) {
+        encoded = encodedCandidate;
+      } else {
+        console.warn("Share payload too large for URL, omitting data param");
+      }
+      console.log("Encoded payload for URL:", encoded ? "Yes" : "No");
     } catch (e) {
+      console.warn("Failed to encode payload:", e);
       encoded = "";
     }
+
     const link = `${window.location.origin}/notes?shareId=${id}${
       encoded ? `&data=${encoded}` : ""
     }`;
+    console.log("Generated share link:", link);
     setShareLink(link);
   };
 
@@ -165,13 +189,17 @@ function ShareButton({ getTextContent, noteTitle }) {
     const params = new URLSearchParams(window.location.search);
     const shareId = params.get("shareId");
 
+    console.log("Checking for shared link, shareId:", shareId);
+
     if (shareId) {
       // Prefer combined payload if available (local)
       const combined = localStorage.getItem(`shared_note_${shareId}`);
-      console.log(localStorage.getItem("tasks"));
+      console.log("Found shared note data:", combined);
+
       if (combined) {
         try {
           const parsed = JSON.parse(combined);
+          console.log("Parsed shared data:", parsed);
 
           if (parsed && parsed.penDataUrl) {
             // Render passive overlay canvas with the shared drawing
@@ -186,6 +214,7 @@ function ShareButton({ getTextContent, noteTitle }) {
             overlay.style.pointerEvents = "none";
             overlay.style.zIndex = "59"; // just below live pen canvas (60)
             document.body.appendChild(overlay);
+            console.log("Added pen overlay from shared data");
           }
         } catch (e) {
           console.warn("Failed to parse shared payload:", e);
@@ -195,10 +224,14 @@ function ShareButton({ getTextContent, noteTitle }) {
         try {
           const params = new URLSearchParams(window.location.search);
           const dataParam = params.get("data");
+          console.log("Trying URL payload, data param:", dataParam);
+
           if (dataParam) {
             const decoded = decodeURIComponent(dataParam);
             const json = decodeURIComponent(escape(atob(decoded)));
             const parsed = JSON.parse(json);
+            console.log("Parsed URL payload:", parsed);
+
             if (parsed && parsed.penDataUrl) {
               const overlay = document.createElement("img");
               overlay.src = parsed.penDataUrl;
@@ -211,9 +244,12 @@ function ShareButton({ getTextContent, noteTitle }) {
               overlay.style.pointerEvents = "none";
               overlay.style.zIndex = "59";
               document.body.appendChild(overlay);
+              console.log("Added pen overlay from URL payload");
             }
           }
-        } catch (e) {}
+        } catch (e) {
+          console.warn("Failed to parse URL payload:", e);
+        }
       }
     }
   }, []);
@@ -580,11 +616,13 @@ function TextOptionsBar({
 
   return (
     <div
-      className="flex items-center gap-3 px-4 py-2 rounded-xl border absolute bottom-[-85px] left-1/2 transform -translate-x-1/2 z-50 shadow-2xl"
+      className="flex items-center gap-3 px-4 py-2 rounded-xl border fixed left-1/2 transform -translate-x-1/2 shadow-2xl"
       style={{
         minWidth: 520,
         backgroundColor: "rgba(12, 46, 50, 0.9)", // dark teal translucent background
         borderColor: "#20e3d7", // bright cyan border
+        bottom: 90,
+        zIndex: 6000,
         // subtle cyan glow shadow
       }}
     >
@@ -754,6 +792,7 @@ function TextOptionsBar({
     </div>
   );
 }
+
 function PenTool() {
   const canvasRef = useRef(null);
   const ctxRef = useRef(null);
@@ -881,14 +920,12 @@ function PenTool() {
       : "url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22><text y=%2215%22 font-size=%2216%22>🧽</text></svg>') 0 16, auto";
 
   return (
-    <div className="">
+    <div className="absolute inset-0">
       {/* Controls */}
       <div
-        className=""
+        className=" fixed left-1/2  transform -translate-x-1/2"
         style={{
-          position: "absolute",
-          left: "130px",
-          bottom: "-85px",
+          position: "fixed",
           background: "rgba(12, 46, 50, 0.95)", // deep dark teal bg
           padding: "10px 12px",
           borderRadius: "12px",
@@ -898,6 +935,7 @@ function PenTool() {
           border: "1px solid #20e3d7", // bright cyan border
           // cyan glow shadow
           zIndex: 6000,
+          bottom: 80,
         }}
       >
         <div
@@ -1044,7 +1082,7 @@ function PenTool() {
 
       {/* Canvas main */}
       <canvas
-        className="absolute max-w-4xl bottom-[-10px] left-[-40px] h-[400px] w-[900px]"
+        className="absolute inset-0 h-full w-full"
         ref={canvasRef}
         style={{
           cursor: cursorStyle,
@@ -1142,7 +1180,7 @@ function ToolbarPlugin({ openChatbot, closeChatbot }) {
       )}
 
       {/* Pen Tool Options */}
-      {activeBar === "pen" && <PenTool />}
+      <div className="w-full h-full">{activeBar === "pen" && <PenTool />}</div>
       <div
         className="flex justify-center items-center gap-4 px-4 py-2 rounded-2xl fixed"
         style={{
@@ -1281,32 +1319,56 @@ function LexicalEditor() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const shareId = params.get("shareId");
+    console.log("Loading shared note data, shareId:", shareId);
+
     if (shareId) {
       const combined = localStorage.getItem(`shared_note_${shareId}`);
+      console.log("Loading from localStorage:", combined);
+
       if (combined) {
         try {
           const parsed = JSON.parse(combined);
+          console.log("Loaded shared data:", parsed);
+
           if (parsed) {
             // Fix: Set title as-is, not reversed
-            if (typeof parsed.title === "string") setTitle(parsed.title);
-            if (typeof parsed.penDataUrl === "string")
+            if (typeof parsed.title === "string") {
+              console.log("Setting title from shared data:", parsed.title);
+              setTitle(parsed.title);
+            }
+            if (typeof parsed.penDataUrl === "string") {
+              console.log("Setting scribble URL from shared data");
               setScribbleUrl(parsed.penDataUrl);
+            }
           }
-        } catch (e) {}
+        } catch (e) {
+          console.warn("Failed to parse shared note data:", e);
+        }
       } else {
         // Fallback to URL-embedded payload
         const dataParam = params.get("data");
+        console.log("Trying URL payload for title/scribble:", dataParam);
+
         if (dataParam) {
           try {
             const decoded = decodeURIComponent(dataParam);
             const json = decodeURIComponent(escape(atob(decoded)));
             const parsed = JSON.parse(json);
+            console.log("Loaded from URL payload:", parsed);
+
             if (parsed) {
-              if (typeof parsed.title === "string") setTitle(parsed.title);
-              if (typeof parsed.penDataUrl === "string")
+              if (typeof parsed.title === "string") {
+                console.log("Setting title from URL payload:", parsed.title);
+                setTitle(parsed.title);
+              }
+              if (typeof parsed.penDataUrl === "string") {
+                console.log("Setting scribble URL from URL payload");
                 setScribbleUrl(parsed.penDataUrl);
+              }
             }
-          } catch (e) {}
+          } catch (e) {
+            console.warn("Failed to parse URL payload for title/scribble:", e);
+          }
         }
       }
     }
@@ -1318,6 +1380,8 @@ function LexicalEditor() {
   const initialText = React.useMemo(() => {
     const isNew =
       new URLSearchParams(window.location.search).get("new") === "1";
+    console.log("Loading initial text, isNew:", isNew, "shareId:", shareId);
+
     if (isNew) {
       // Fresh note request: clear any persisted editor content for a clean start
       try {
@@ -1328,33 +1392,50 @@ function LexicalEditor() {
 
     if (shareId) {
       const combined = localStorage.getItem(`shared_note_${shareId}`);
+      console.log("Loading text from combined data:", combined);
+
       if (combined) {
         try {
           const parsed = JSON.parse(combined);
           if (parsed && typeof parsed.text === "string") {
+            console.log("Loaded text from combined data:", parsed.text);
             return parsed.text;
           }
-        } catch {}
+        } catch (e) {
+          console.warn("Failed to parse combined data for text:", e);
+        }
       }
+
       const textOnly = localStorage.getItem(`shared_content_${shareId}`);
+      console.log("Loading text from text-only data:", textOnly);
+
       if (typeof textOnly === "string") {
+        console.log("Loaded text from text-only data:", textOnly);
         return textOnly;
       }
+
       // Fallback to URL-embedded data
       try {
         const params = new URLSearchParams(window.location.search);
         const dataParam = params.get("data");
+        console.log("Trying URL payload for text:", dataParam);
+
         if (dataParam) {
           const decoded = decodeURIComponent(dataParam);
           const json = decodeURIComponent(escape(atob(decoded)));
           const parsed = JSON.parse(json);
           if (parsed && typeof parsed.text === "string") {
+            console.log("Loaded text from URL payload:", parsed.text);
             return parsed.text;
           }
         }
-      } catch {}
+      } catch (e) {
+        console.warn("Failed to parse URL payload for text:", e);
+      }
     }
+
     const saved = localStorage.getItem("editorContent");
+    console.log("Loading saved editor content:", saved);
     return typeof saved === "string" ? saved : "";
   }, [shareId]);
 
@@ -1400,7 +1481,7 @@ function LexicalEditor() {
     >
       {/* Main editor wrapper */}
       <div
-        className="w-screen h-screen relative flex flex-col justify-center items-center overflow-hidden"
+        className="relative flex flex-col items-center overflow-hidden w-full"
         style={{
           background: "rgba(6, 26, 36, 0.4)",
           boxShadow: "0 0 60px 0 rgba(15, 249, 204, 0.25)", // semi-transparent bright cyan glow
@@ -1457,55 +1538,57 @@ function LexicalEditor() {
           aria-label="Notes Title"
         />
 
-        <div
-          className="h-[400px] w-[900px] border rounded-md pt-10 relative z-10"
-          style={{
-            background: "rgba(6, 26, 36, 0.4)", // Semi-transparent very dark blue
-            // semi-transparent bright cyan glow
-            border: "2px solid #20e3d7", // Light cyan blue border
-          }}
-        >
-          {ispenactive && (
-            <div
-              className="rounded-lg shadow-lg relative px-10"
-              style={{ border: "none" }} // Very dark blue background
-            >
-              <LexicalComposer initialConfig={editorInitialConfig}>
-                <div className="relative">
-                  <RichTextPlugin
-                    contentEditable={
-                      <ContentEditable
-                        className="h-[350px] text-xl font-normal outline-none resize-none px-1"
-                        style={{
-                          color: "#e4ffff", // Light cyan alternative
-                          // Bright cyan caret
-                          // Semi-transparent very dark blue
-                        }}
-                      />
-                    }
-                    placeholder={
-                      <h2
-                        className="absolute top-0 left-4 pointer-events-none text-lg"
-                        // Very light cyan
-                      >
-                        {"Let's Start"}
-                      </h2>
-                    }
-                    ErrorBoundary={LexicalErrorBoundary}
-                  />
-                  <SaveToLocalStoragePlugin />
-                  <HistoryPlugin />
-                  <AutoFocusPlugin />
-                  <OnChangePlugin onChange={onChange} />
-                  <ToolbarPlugin
-                    onTogglePenTool={() => setShowPenTool((prev) => !prev)}
-                    onToggleChatbot={() => setShowChatbot((prev) => !prev)}
-                  />
-                </div>
-                <SharePlugin title={title} saveTrigger={saveTrigger} />
-              </LexicalComposer>
-            </div>
-          )}
+        <div className=" mb-20 mt-36 px-10 w-full">
+          <div
+            className="w-full max-w-4xl mx-auto border rounded-md pt-10 relative z-10"
+            style={{
+              background: "rgba(6, 26, 36, 0.4)", // Semi-transparent very dark blue
+              // semi-transparent bright cyan glow
+              border: "2px solid #20e3d7", // Light cyan blue border
+            }}
+          >
+            {ispenactive && (
+              <div
+                className="rounded-lg shadow-lg relative px-10"
+                style={{ border: "none" }} // Very dark blue background
+              >
+                <LexicalComposer initialConfig={editorInitialConfig}>
+                  <div className="relative">
+                    <RichTextPlugin
+                      contentEditable={
+                        <ContentEditable
+                          className="min-h-[350px] max-h-[60vh] overflow-y-auto text-xl font-normal outline-none resize-none px-1"
+                          style={{
+                            color: "#e4ffff", // Light cyan alternative
+                            // Bright cyan caret
+                            // Semi-transparent very dark blue
+                          }}
+                        />
+                      }
+                      placeholder={
+                        <h2
+                          className="absolute top-0 left-4 pointer-events-none text-lg"
+                          // Very light cyan
+                        >
+                          {"Let's Start"}
+                        </h2>
+                      }
+                      ErrorBoundary={LexicalErrorBoundary}
+                    />
+                    <SaveToLocalStoragePlugin />
+                    <HistoryPlugin />
+                    <AutoFocusPlugin />
+                    <OnChangePlugin onChange={onChange} />
+                    <ToolbarPlugin
+                      onTogglePenTool={() => setShowPenTool((prev) => !prev)}
+                      onToggleChatbot={() => setShowChatbot((prev) => !prev)}
+                    />
+                  </div>
+                  <SharePlugin title={title} saveTrigger={saveTrigger} />
+                </LexicalComposer>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
