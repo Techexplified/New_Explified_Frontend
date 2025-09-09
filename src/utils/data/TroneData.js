@@ -1,17 +1,12 @@
-import {
-  FiStar,
-  FiCpu,
-  FiZap,
-  FiLayers,
-  FiCloud,
-  FiGitBranch,
-} from "react-icons/fi";
+import { AiOutlineOpenAI } from "react-icons/ai";
+import { FiZap, FiCloud, FiGitBranch } from "react-icons/fi";
+import { RiAnthropicFill, RiGeminiLine } from "react-icons/ri";
 
 export const INTEGRATION_PROVIDERS = [
   {
     id: "gemini",
     name: "Gemini",
-    icon: FiStar,
+    icon: RiGeminiLine,
     byok: true,
     description: "Google's Gemini models for text, chat and multimodal tasks.",
     apiUrl: "https://generativelanguage.googleapis.com/v1beta/", // Google AI Studio API
@@ -20,7 +15,7 @@ export const INTEGRATION_PROVIDERS = [
   {
     id: "openai",
     name: "OpenAI",
-    icon: FiCpu,
+    icon: AiOutlineOpenAI,
     byok: true,
     description: "OpenAI GPT models for powerful text and chat experiences.",
     apiUrl: "https://api.openai.com/v1/",
@@ -38,7 +33,7 @@ export const INTEGRATION_PROVIDERS = [
   {
     id: "anthropic",
     name: "Anthropic",
-    icon: FiLayers,
+    icon: RiAnthropicFill,
     byok: true,
     description: "Claude models by Anthropic for safe, helpful outputs.",
     apiUrl: "https://api.anthropic.com/v1/",

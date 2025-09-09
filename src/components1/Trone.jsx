@@ -530,6 +530,9 @@ function Trone() {
         chatHistory={chatHistory}
         chatHistoryOpenAI={chatHistoryOpenAI}
         chatHistoryGemini={chatHistoryGemini}
+        setChatHistory={setChatHistory}
+        setChatHistoryOpenAI={setChatHistoryOpenAI}
+        setChatHistoryGemini={setChatHistoryGemini}
         setCurrentMessages={setCurrentMessages}
         setCurrentMessagesGemini={setCurrentMessagesGemini}
         setCurrentMessagesOpenAI={setCurrentMessagesOpenAI}
@@ -547,7 +550,7 @@ function Trone() {
           }`}
         ></div>
 
-        <h1 className="text-2xl font-bold text-left w-full max-w-4xl mx-auto px-2 bg-gradient-to-r from-teal-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent mb-4">
+        <h1 className="text-2xl font-bold text-left w-full max-w-3xl xl:max-w-5xl 2xl:max-w-7xl mx-auto px-4  text-[#23b5b5] mb-4">
           Expli(+)
         </h1>
 

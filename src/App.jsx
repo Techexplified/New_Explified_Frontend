@@ -131,7 +131,9 @@ import DiscoverPage from "./components1/DiscoverPage.jsx";
 import LexicalEditor from "./components1/LexicalEditor.jsx";
 import LockedPage from "./reusable_components/Locked.jsx";
 import ImageToVideo from "./pages/explified_tools/image_to_video_convertor/ImageToVideo.jsx";
+import usePageTracking from "./hooks/usePageTracking.js";
 function App() {
+  usePageTracking();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -145,6 +147,7 @@ function App() {
   return (
     <div>
       <ScrollToTop />
+
       <Routes>
         <Route path="/web" element={<MainPage />} />
         <Route path="/result" element={<Result />} />
