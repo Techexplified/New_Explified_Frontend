@@ -51,7 +51,7 @@ function SidebarOnHover({
 
       {/* Main Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-screen overflow-y-scroll scroll-t bg-gradient-to-b from-gray-900/95 to-black/95 backdrop-blur-2xl 
+        className={`fixed top-0 left-0 h-screen overflow-y-scroll scroll-t bg-gradient-to-b from-gray-900/50 to-black/95 backdrop-blur-2xl 
         border-r border-minimal-primary/30 shadow-2xl shadow-minimal-primary/10
         flex flex-col justify-between transition-all duration-500 ease-in-out z-50
         ${
@@ -63,14 +63,13 @@ function SidebarOnHover({
         onMouseLeave={() => !sidebarPinned && setSidebarOpen(false)}
       >
         {/* Top section */}
-        <div className="mt-8 space-y-6">
-          <div className="border-b border-minimal-primary/30 pb-6">
-            <div className="flex items-center justify-between gap-3 mb-4">
+        <div className="mt-4 space-y-4">
+          <div className="border-b border-minimal-primary/30 pb-2">
+            <div className="flex items-center justify-between gap-3 mb-2">
               <div className="flex-1">
                 <h1 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white via-minimal-primary to-cyan-400 bg-clip-text text-transparent">
                   {toolName}
                 </h1>
-                <div className="h-1 w-12 bg-gradient-to-r from-minimal-primary to-cyan-400 rounded-full mt-2 opacity-60" />
               </div>
 
               <button
@@ -110,21 +109,21 @@ function SidebarOnHover({
 
           {/* Enhanced Expli(+) section */}
           {toolName === "Expli(+)" && (
-            <div className="space-y-6">
+            <div className="space-y-2">
               {/* New Chat Button */}
               <button
                 onClick={onAddClick}
                 className="w-full group relative overflow-hidden bg-gradient-to-r from-gray-800/80 to-gray-700/80 
                 hover:from-minimal-primary/20 hover:to-cyan-500/20 border border-gray-600/50 hover:border-minimal-primary/50
-                text-white font-medium py-3 px-4 rounded-xl transition-all duration-300 hover:scale-105 
+                text-white font-medium py-1.5 px-2 rounded-xl transition-all duration-300 hover:scale-105 
                 hover:shadow-lg hover:shadow-minimal-primary/10"
               >
                 <div
                   className="absolute inset-0 bg-gradient-to-r from-minimal-primary/0 to-minimal-primary/10 
                 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                 />
-                <div className="relative flex items-center justify-center gap-3">
-                  <MessageSquare size={18} />
+                <div className="relative text-sm flex items-center justify-center gap-3">
+                  <MessageSquare size={14} />
                   <span>New Chat</span>
                 </div>
               </button>
@@ -151,7 +150,7 @@ function SidebarOnHover({
                   </select>
                 </div>
 
-                <div className="h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+                <div className="h-52 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
                   {(() => {
                     let history;
                     let setMessages;
@@ -221,9 +220,9 @@ function SidebarOnHover({
               </div>
 
               {/* Available Models Section */}
-              <div className="bg-gray-900/30 rounded-xl p-4 border border-gray-700/30">
+              <div className="bg-transparent p-4 ">
                 <h3 className="text-sm font-medium text-gray-300 mb-4 flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                  <div className="w-2 h-2 bg-green-400 rounded-full" />
                   Available Keys
                 </h3>
                 <div className="space-y-2 max-h-64 ">
@@ -232,14 +231,10 @@ function SidebarOnHover({
                       <button
                         key={index}
                         onClick={() => setCurrentTool(name)}
-                        className="w-full group bg-gradient-to-r from-minimal-primary/80 to-cyan-500/80 
-                        hover:from-minimal-primary hover:to-cyan-500 text-white font-medium py-2.5 px-4 
-                        rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg 
-                        hover:shadow-minimal-primary/25 text-sm"
+                        className="w-full group bg-[#148686] text-white font-medium py-2.5 px-4 rounded-lg transition-all duration-300 hover:scale-105 text-sm"
                       >
                         <div className="flex items-center justify-center gap-2">
-                          <div className="w-2 h-2 bg-white/80 rounded-full group-hover:animate-pulse" />
-                          <span>{name}</span>
+                          <span className="capitalize">{name}</span>
                         </div>
                       </button>
                     ))

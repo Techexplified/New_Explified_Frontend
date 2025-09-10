@@ -557,7 +557,7 @@ function Trone() {
         {/* Chat + Input inside same box */}
         <div className="min-w-[1000px] max-w-3xl xl:max-w-5xl 2xl:max-w-7xl mx-auto rounded-xl border border-cyan-900/60 shadow-[0_0_0_1px_rgba(0,255,255,0.06),0_0_24px_rgba(0,255,255,0.07)] bg-transparent p-4 sm:p-5 flex flex-col gap-4 min-h-[80vh] relative">
           {/* Background Pattern */}
-          <div className="absolute inset-0 rounded-xl opacity-50 pointer-events-none bg-gradient-to-br from-black to-black"></div>
+          <div className="absolute inset-0 rounded-xl opacity-60 pointer-events-none bg-gradient-to-br from-black to-black"></div>
 
           {/* Chat Containers Row */}
           <div className="flex gap-4 flex-1 h-full">

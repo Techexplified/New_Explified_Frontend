@@ -196,7 +196,7 @@ function ExpliIntegration({ providerKeys, setCurrentTool, setProviderKeys }) {
                     >
                       <div className="flex items-center justify-between mb-4">
                         <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-700 rounded-lg flex items-center justify-center text-white text-xl shadow-lg group-hover:scale-110 transition-transform duration-200">
-                          {Icon && <Icon className="text-white" size={20} />}
+                          {Icon}
                         </div>
                         <div className="flex">
                           {!(p.id === "openai" || p.id === "gemini") && (

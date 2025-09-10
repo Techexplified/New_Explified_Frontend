@@ -69,3 +69,22 @@
   padding: 3px 1px;
   border-radius: 10%;
 }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px; /* scrollbar width */
+}
+
+::-webkit-scrollbar-track {
+  background: #282828; /* Tailwind slate-900 */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #3c3c3c; /* Tailwind teal-500 */
+  border-radius: 9999px; /* fully rounded */
+  border: 1px solid #0f172a; /* space around thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #474747; /* Tailwind teal-600 */
+}
