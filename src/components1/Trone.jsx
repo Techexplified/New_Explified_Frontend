@@ -9,6 +9,7 @@ import { Zap } from "lucide-react";
 import { AiOutlineOpenAI } from "react-icons/ai";
 import { RiGeminiLine } from "react-icons/ri";
 import { FaPlus } from "react-icons/fa6";
+import ExpliSidebar from "../expli/ExpliSidebar";
 
 function Trone() {
   const [prompt, setPrompt] = useState("");
@@ -522,10 +523,10 @@ function Trone() {
   };
 
   return (
-    <div className="bg-black relative text-white h-screen">
+    <div className="flex  bg-black relative text-white h-screen">
       <div className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
 
-      <SidebarOnHover
+      <ExpliSidebar
         onAddClick={newChat}
         chatHistory={chatHistory}
         chatHistoryOpenAI={chatHistoryOpenAI}
@@ -543,19 +544,13 @@ function Trone() {
         setCurrentTool={setCurrentTool}
       />
 
-      <div className="flex-1 flex flex-col items-center  overflow-x-auto justify-center pt-12 w-screen">
-        <div
-          className={`fixed top-4 z-40 transition-all duration-300 ${
-            isSidebarOpen ? "left-72" : "left-8"
-          }`}
-        ></div>
-
-        <h1 className="text-2xl font-bold text-left w-full max-w-3xl xl:max-w-5xl 2xl:max-w-7xl mx-auto px-4  text-[#23b5b5] mb-4">
+      <div className="overflow-x-auto pt-12 w-screen">
+        <h1 className="text-2xl font-bold text-left w-full  px-4  text-[#23b5b5] mb-4">
           Expli(+)
         </h1>
 
         {/* Chat + Input inside same box */}
-        <div className="min-w-[1000px] max-w-3xl xl:max-w-5xl 2xl:max-w-7xl mx-auto rounded-xl border border-cyan-900/60 shadow-[0_0_0_1px_rgba(0,255,255,0.06),0_0_24px_rgba(0,255,255,0.07)] bg-transparent p-4 sm:p-5 flex flex-col gap-4 min-h-[80vh] relative">
+        <div className="w-full rounded-xl border border-cyan-900/60 shadow-[0_0_0_1px_rgba(0,255,255,0.06),0_0_24px_rgba(0,255,255,0.07)] bg-transparent p-4 sm:p-5 flex flex-col gap-4 min-h-[80vh] relative">
           {/* Background Pattern */}
           <div className="absolute inset-0 rounded-xl opacity-60 pointer-events-none bg-gradient-to-br from-black to-black"></div>
 
