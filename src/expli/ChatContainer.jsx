@@ -54,7 +54,7 @@ function ChatContainer({
   return (
     <div
       ref={chatContainerRef}
-      className="flex-1 w-full flex flex-col px-2 sm:px-3 overflow-y-auto scroll-smooth relative z-10 border border-gray-600 rounded-xl h-[60vh]"
+      className="flex-1 w-full flex flex-col px-2 sm:px-3 overflow-y-auto scroll-smooth relative z-10 border border-gray-600 rounded-xl h-full"
       style={{
         scrollBehavior: "smooth",
         paddingTop: "0",

@@ -71,20 +71,29 @@
 }
 
 /* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px; /* scrollbar width */
+/* ::-webkit-scrollbar {
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #282828; /* Tailwind slate-900 */
+  background: #282828;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #3c3c3c; /* Tailwind teal-500 */
-  border-radius: 9999px; /* fully rounded */
-  border: 1px solid #0f172a; /* space around thumb */
+  background-color: #3c3c3c;
+  border-radius: 9999px;
+  border: 1px solid #0f172a;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #474747; /* Tailwind teal-600 */
+  background-color: #474747;
+} */
+
+.sidebar-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.sidebar-scroll {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }

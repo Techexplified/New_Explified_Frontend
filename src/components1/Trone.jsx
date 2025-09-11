@@ -13,6 +13,7 @@ import ExpliSidebar from "../expli/ExpliSidebar";
 
 function Trone() {
   const [prompt, setPrompt] = useState("");
+
   const [enabledProviders, setEnabledProviders] = useState({
     expli: true,
     openai: true,
@@ -57,7 +58,6 @@ function Trone() {
   // Voice recognition
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [providerKeys, setProviderKeys] = useState(() => {
     try {
@@ -523,8 +523,8 @@ function Trone() {
   };
 
   return (
-    <div className="flex  bg-black relative text-white h-screen">
-      <div className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
+    <div className="flex bg-black relative text-white h-screen">
+      <div className="absolute inset-0  opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
 
       <ExpliSidebar
         onAddClick={newChat}
@@ -537,25 +537,23 @@ function Trone() {
         setCurrentMessages={setCurrentMessages}
         setCurrentMessagesGemini={setCurrentMessagesGemini}
         setCurrentMessagesOpenAI={setCurrentMessagesOpenAI}
-        onOpenChange={(open) => setIsSidebarOpen(open)}
         link={"https://explified.com/expli/"}
-        toolName={"Expli(+)"}
         tools={providerKeys}
         setCurrentTool={setCurrentTool}
       />
 
-      <div className="overflow-x-auto pt-12 w-screen">
-        <h1 className="text-2xl font-bold text-left w-full  px-4  text-[#23b5b5] mb-4">
-          Expli(+)
-        </h1>
+      <div className="overflow-x-auto h-screen w-screen flex flex-col">
+        {/* <h1 className="text-2xl font-bold text-left w-full  px-4 py-4 opacity-0  text-[#23b5b5]">
+          Expli
+        </h1> */}
 
         {/* Chat + Input inside same box */}
-        <div className="w-full rounded-xl border border-cyan-900/60 shadow-[0_0_0_1px_rgba(0,255,255,0.06),0_0_24px_rgba(0,255,255,0.07)] bg-transparent p-4 sm:p-5 flex flex-col gap-4 min-h-[80vh] relative">
+        <div className="w-full flex-1  border border-cyan-900/60 shadow-[0_0_0_1px_rgba(0,255,255,0.06),0_0_24px_rgba(0,255,255,0.07)] bg-transparent p-4 sm:p-5 flex flex-col gap-4   relative">
           {/* Background Pattern */}
-          <div className="absolute inset-0 rounded-xl opacity-60 pointer-events-none bg-gradient-to-br from-black to-black"></div>
+          <div className="absolute inset-0 opacity-40 pointer-events-none bg-gradient-to-br from-black to-black"></div>
 
           {/* Chat Containers Row */}
-          <div className="flex gap-4 flex-1 h-full">
+          <div className="flex gap-4 flex-1 pt-12 h-full">
             <ChatContainer
               messages={currentMessages}
               isTyping={isTyping.expli}
