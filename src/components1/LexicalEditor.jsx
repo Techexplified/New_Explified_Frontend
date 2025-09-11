@@ -157,7 +157,6 @@ function ShareButton({ getTextContent, noteTitle }) {
     if (shareId) {
       // Prefer combined payload if available
       const combined = localStorage.getItem(`shared_note_${shareId}`);
-      console.log(localStorage.getItem("tasks"));
       if (combined) {
         try {
           const parsed = JSON.parse(combined);
@@ -447,6 +446,7 @@ function SaveButton({ saveTrigger, title }) {
     tasks.push(newTask);
     localStorage.setItem("tasks", JSON.stringify(tasks));
     setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 1000);
   };
 
   React.useEffect(() => {
@@ -501,7 +501,7 @@ function SharePlugin({ title, saveTrigger }) {
         borderRadius: 12,
         padding: 8,
         position: "fixed",
-        top: 80,
+        top: 40,
         right: 200,
         zIndex: 1000,
         alignItems: "center",
@@ -1194,7 +1194,6 @@ function SaveToLocalStoragePlugin() {
       editorState.read(() => {
         // Correct: use $getRoot() inside read()
         const plainText = $getRoot().getTextContent();
-
         // Save to localStorage
         localStorage.setItem("editorContent", plainText);
       });
@@ -1261,6 +1260,9 @@ function LexicalEditor() {
         } catch (e) {}
       }
     }
+    else{
+      localStorage.setItem("editorContent","");
+    }
   }, []);
 
   const params = new URLSearchParams(window.location.search);
@@ -1282,10 +1284,15 @@ function LexicalEditor() {
         return textOnly;
       }
     }
-    const saved = localStorage.getItem("editorContent");
-    return typeof saved === "string" ? saved : "";
+    //const saved = localStorage.getItem("editorContent");
+    return "";
   }, [shareId]);
 
+  useEffect (() => {
+   return () => {
+    localStorage.removeItem("editorContent");
+   } 
+  });
   const editorInitialConfig = React.useMemo(
     () => ({
       ...initialConfig,
@@ -1311,11 +1318,9 @@ function LexicalEditor() {
       const storedContent = localStorage.getItem(`shared_content_${shareId}`);
       if (storedContent) {
         // Instead of auto-download, you can render this content in a viewer page
-        console.log("Shared Note:", storedContent);
       }
     }
   }, []);
-
   return (
     <div className="bg-black text-white flex flex-col min-h-screen relative overflow-hidden">
       <div className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
@@ -1338,24 +1343,18 @@ function LexicalEditor() {
           >
             <ArrowLeft size={18} />
           </a>
-          <p
-            className="font-medium drop-shadow-md"
-            style={{ color: "#15f1cf" }} // Light cyan
-          >
-            {title}
-          </p>
         </div>
-
         <div
-          className="h-[400px] w-[900px] border rounded-md pt-6 relative z-10 flex flex-col"
+          className="h-auto w-auto border rounded-md pt-2 relative z-10 flex flex-col"
           style={{
-            background: "rgba(6, 26, 36, 0.4)",
+            background: "rgba(6, 26, 36, 0.6)",
             border: "2px solid #20e3d7",
+            marginBottom: "20px",
+            minWidth: "100px",
           }}
         >
-          {/* Editable <h1> inside the box */}
           <h1
-            className="editable-title mb-4 px-10"
+            className="editable-title mb-4"
             ref={h1Ref}
             contentEditable
             suppressContentEditableWarning={true}
@@ -1363,25 +1362,33 @@ function LexicalEditor() {
             onInput={handleInput}
             style={{
               cursor: "text",
-              fontSize: "1.5rem",
-              fontWeight: 600,
+              textAlign: "center",
+              fontSize: "1.3rem",
+              fontWeight: 400,
               fontFamily: "sans-serif",
               color: "#0ff9cc",
               backgroundColor: "rgba(6, 26, 36, 0.4)", // 👈 same as box bg
-              paddingTop: "8px",
-              paddingBottom: "8px",
+              padding: "4px 16px 0",
               borderRadius: "0px", // 👈 no rounded corners
               border: "none", // 👈 removed border
               outline: "none",
               userSelect: "text",
-              width: "400px",
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
             }}
             aria-label="Notes Title"
           />
-
+        </div>
+        <div
+          className="h-[400px] w-[900px] border rounded-md pt-6 relative z-10 flex flex-col"
+          style={{
+            background: "rgba(6, 26, 36, 0.4)",
+            border: "2px solid #20e3d7",
+            borderTopLeftRadius: 0,
+            borderTopRightRadius: 0
+          }}
+        >
           {ispenactive && (
             <div
               className="rounded-lg shadow-lg relative px-10"

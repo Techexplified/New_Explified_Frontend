@@ -158,14 +158,14 @@ export default function SocialCard({
             <div className="flex items-center text-sm">
               <TrendingUp size={14} className="text-green-400 mr-2" />
               <span className="text-green-400">{data.viewsIncrease}%</span>
-              <span className="text-gray-400 ml-2">
+              <span className="text-gray-200 ml-2">
                 Views increase from last week
               </span>
             </div>
             <div className="flex items-center text-sm">
               <TrendingUp size={14} className="text-green-400 mr-2" />
               <span className="text-green-400">{data.followersIncrease}%</span>
-              <span className="text-gray-400 ml-2">
+              <span className="text-gray-200 ml-2">
                 Followers increase from last week
               </span>
             </div>
@@ -178,7 +178,7 @@ export default function SocialCard({
               <span className="text-green-400">
                 {data.profileViewsIncrease}%
               </span>
-              <span className="text-gray-400 ml-2">
+              <span className="text-gray-200 ml-2">
                 Profile views increase from last week
               </span>
             </div>
@@ -187,7 +187,7 @@ export default function SocialCard({
               <span className="text-red-400">
                 {Math.abs(data.likesDecrease)}%
               </span>
-              <span className="text-gray-400 ml-2">
+              <span className="text-gray-200 ml-2">
                 Likes decreased from last week
               </span>
             </div>
@@ -200,14 +200,14 @@ export default function SocialCard({
               <span className="text-red-400">
                 {Math.abs(data.subscribersLost)}%
               </span>
-              <span className="text-gray-400 ml-2">
+              <span className="text-gray-200 ml-2">
                 Subscribers lost from last week
               </span>
             </div>
             <div className="flex items-center text-sm">
               <TrendingUp size={14} className="text-green-400 mr-2" />
               <span className="text-green-400">{data.viewsIncrease}%</span>
-              <span className="text-gray-400 ml-2">
+              <span className="text-gray-200 ml-2">
                 Views increase from last week
               </span>
             </div>
@@ -225,15 +225,15 @@ export default function SocialCard({
       {/* Bottom Stats */}
       <div className="flex flex-row flex-wrap xl:flex-nowrap justify-between gap-2 mb-6">
         <div>
-          <span className="text-gray-400">Reach:</span>
+          <span className="text-gray-200">Reach:</span>
           <span className="text-green-400 ml-2">▲ {data.reach}%</span>
         </div>
         <div>
-          <span className="text-gray-400">Views:</span>
+          <span className="text-gray-200">Views:</span>
           <span className="text-green-400 ml-2">▲ {data.views}%</span>
         </div>
         <div>
-          <span className="text-gray-400">Likes:</span>
+          <span className="text-gray-200">Likes:</span>
           <span className="text-red-400 ml-2">▼ {Math.abs(data.likes)}%</span>
         </div>
       </div>
@@ -245,16 +245,16 @@ export default function SocialCard({
           className={`border px-3 py-2 rounded text-sm ${
             showScheduleComponent
               ? "bg-white text-black border-white"
-              : "bg-gray-800 hover:bg-gray-700 text-white border-gray-600"
+              : "bg-gradient-to-r from-teal-600 to-teal-700 text-white shadow-lg shadow-teal-500/20 border border-teal-500 px-4 py-2 text-sm flex items-center space-x-2 hover:bg-gray-700"
           }`}
           onClick={() => setShowScheduleComponent(!showScheduleComponent)}
         >
           Schedule Post
         </button>
-        <button className="bg-gray-800 hover:bg-gray-700 text-white px-3 py-2 rounded text-sm">
+        <button className="bg-gradient-to-r from-teal-600 to-teal-700 text-white shadow-lg shadow-teal-500/20 border border-teal-500 flex items-center space-x-2 hover:bg-gray-700 px-3 py-2 rounded text-sm">
           Last Post
         </button>
-        <button className="bg-gray-800 hover:bg-gray-700 text-white px-3 py-2 rounded text-sm">
+        <button className="bg-gradient-to-r from-teal-600 to-teal-700 shadow-lg shadow-teal-500/20 border border-teal-500 flex items-center space-x-2 hover:bg-gray-700 text-white px-3 py-2 rounded text-sm">
           Draft Post
         </button>
       </div>
@@ -270,8 +270,8 @@ export default function SocialCard({
               </span>
               <hr className="flex-1 border-t border-gray-500" />
             </div>
-            <span className="text-gray-400 text-sm">Caption</span>
-            <span className="text-gray-400 text-sm">28-09-25</span>
+            <span className="text-gray-200 text-sm">Caption</span>
+            <span className="text-gray-200 text-sm">28-09-25</span>
           </div>
           <div className="flex items-center justify-between border border-cyan-700 rounded-2xl px-2 py-1">
             <div className="flex items-center gap-2 text-white">
@@ -280,8 +280,8 @@ export default function SocialCard({
               </span>
               <hr className="flex-1 border-t border-gray-500" />
             </div>
-            <span className="text-gray-400 text-sm">Caption</span>
-            <span className="text-gray-400 text-sm">03-11-25</span>
+            <span className="text-gray-200 text-sm">Caption</span>
+            <span className="text-gray-200 text-sm">03-11-25</span>
           </div>
 
           {/* New Post Button */}

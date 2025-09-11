@@ -69,13 +69,15 @@ export default function SocialsPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto pt-14">
       {/* Header */}
+      <div className="fixed inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
+      
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-6xl font-bold text-white">
           Socials <span className="text-2xl">(Coming Soon)</span>
         </h1>
-        <button className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2">
+        <button className="bg-gradient-to-r from-teal-600 to-teal-700 text-white shadow-lg shadow-teal-500/20 border border-teal-500 px-4 py-2 rounded-xl text-sm font-bold flex items-center space-x-2">
           <Plus size={16} />
           <span>Add Profile</span>
         </button>
@@ -87,17 +89,17 @@ export default function SocialsPage() {
           Recent Growth Update
         </h2>
         <div className="flex justify-around space-x-4">
-          <div className="bg-gray-900 border border-green-500 rounded-lg px-4 py-2 flex items-center space-x-2">
+          <div className="bg-black/20  text-gray-300 font-medium border-2 border-green-500 rounded-lg px-4 py-2 flex items-center space-x-2">
             <TrendingUp size={16} className="text-green-400" />
             <span className="text-green-400">41%</span>
             <span className="text-white">Instagram</span>
           </div>
-          <div className="bg-gray-900 border border-red-500 rounded-lg px-4 py-2 flex items-center space-x-2">
+          <div className="bg-black/20  text-gray-300 font-medium border-2 border-red-500 rounded-lg px-4 py-2 flex items-center space-x-2">
             <TrendingDown size={16} className="text-red-400" />
             <span className="text-red-400">20%</span>
             <span className="text-white">Twitter</span>
           </div>
-          <div className="bg-gray-900 border border-green-500 rounded-lg px-4 py-2 flex items-center space-x-2">
+          <div className="bg-black/20  text-gray-300 font-medium border-2 border-green-500 rounded-lg px-4 py-2 flex items-center space-x-2">
             <TrendingUp size={16} className="text-green-400" />
             <span className="text-green-400">21%</span>
             <span className="text-white">Youtube</span>
