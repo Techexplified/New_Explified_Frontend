@@ -6,10 +6,16 @@ import {
 } from "../utils/data/TroneData";
 import { FiChevronDown, FiSearch, FiX } from "react-icons/fi";
 import { Lock, Zap } from "lucide-react";
-function ExpliIntegration({ providerKeys, setCurrentTool, setProviderKeys }) {
+function ExpliIntegration({
+  providerKeys,
+  setCurrentTool,
+  setProviderKeys,
+  showIntegrationsModal,
+  setShowIntegrationsModal,
+}) {
   const [showIntegrationHint, setShowIntegrationHint] = useState(true);
   const [isHoveringIntegration, setIsHoveringIntegration] = useState(false);
-  const [showIntegrationsModal, setShowIntegrationsModal] = useState(false);
+  // const [showIntegrationsModal, setShowIntegrationsModal] = useState(false);
   const [integrationTab, setIntegrationTab] = useState("my"); // "my" | "add"
   const [integrationSearch, setIntegrationSearch] = useState("");
 
@@ -275,7 +281,7 @@ function ExpliIntegration({ providerKeys, setCurrentTool, setProviderKeys }) {
                             className="w-8 h-8 rounded-md flex items-center justify-center"
                             style={{ background: "#23b5b5" }}
                           >
-                            <Icon className="text-black/80" size={18} />
+                            {Icon}
                           </div>
                         )}
                         <h4 className="text-white text-base font-semibold">
@@ -326,7 +332,7 @@ function ExpliIntegration({ providerKeys, setCurrentTool, setProviderKeys }) {
                                 className="w-6 h-6 rounded-md flex items-center justify-center"
                                 style={{ background: "#23b5b5" }}
                               >
-                                <Icon className="text-black/80" size={14} />
+                                {Icon}
                               </div>
                             )}
                             <h5 className="text-white text-sm font-medium">

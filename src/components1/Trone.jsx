@@ -13,7 +13,7 @@ import ExpliSidebar from "../expli/ExpliSidebar";
 
 function Trone() {
   const [prompt, setPrompt] = useState("");
-
+  const [showIntegrationsModal, setShowIntegrationsModal] = useState(false);
   const [enabledProviders, setEnabledProviders] = useState({
     expli: true,
     openai: true,
@@ -540,6 +540,7 @@ function Trone() {
         link={"https://explified.com/expli/"}
         tools={providerKeys}
         setCurrentTool={setCurrentTool}
+        setShowIntegrationsModal={setShowIntegrationsModal}
       />
 
       <div className="overflow-x-auto h-screen w-screen flex flex-col">
@@ -605,9 +606,6 @@ function Trone() {
             isTyping={isTyping.expli}
             handleMicClick={handleMicClick}
             isRecording={isRecording}
-            currentTool={currentTool}
-            setCurrentTool={setCurrentTool}
-            providerKeys={providerKeys}
           />
         </div>
       </div>
@@ -616,6 +614,8 @@ function Trone() {
         currentTool={currentTool}
         providerKeys={providerKeys}
         setProviderKeys={setProviderKeys}
+        showIntegrationsModal={showIntegrationsModal}
+        setShowIntegrationsModal={setShowIntegrationsModal}
       />
     </div>
   );
