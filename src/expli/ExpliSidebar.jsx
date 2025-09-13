@@ -5,20 +5,23 @@ import {
   PinOff,
   Pin,
   Search,
+  Plus,
+  MoreVertical,
+  Share2,
+  Edit3,
+  Archive,
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { INTEGRATION_PROVIDERS } from "../utils/data/TroneData";
+import { AiOutlineOpenAI } from "react-icons/ai";
+import { RiGeminiLine } from "react-icons/ri";
 
 function ExpliSidebar({
   link,
   id,
   chatHistory = [],
-  chatHistoryOpenAI = [],
-  chatHistoryGemini = [],
   setChatHistory,
-  setChatHistoryOpenAI,
-  setChatHistoryGemini,
   setCurrentMessages,
   setCurrentMessagesGemini,
   setCurrentMessagesOpenAI,
@@ -27,56 +30,50 @@ function ExpliSidebar({
   setCurrentTool = () => {},
   setShowIntegrationsModal,
 }) {
-  const [selectedProvider, setSelectedProvider] = useState("expli");
+  // const [selectedProvider, setSelectedProvider] = useState("expli");
   const [sidebarPinned, setSidebarPinned] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState(""); // ✅ new state
   const [searchProviders, setSearchProviders] = useState(""); // ✅ new state
   const navigate = useNavigate();
-
-  // ✅ Filter chat history by selected provider + search query
-  const { history, setHistory, setMessages } = useMemo(() => {
-    if (selectedProvider === "openai") {
-      return {
-        history: chatHistoryOpenAI,
-        setHistory: setChatHistoryOpenAI,
-        setMessages: setCurrentMessagesOpenAI,
-      };
-    }
-    if (selectedProvider === "gemini") {
-      return {
-        history: chatHistoryGemini,
-        setHistory: setChatHistoryGemini,
-        setMessages: setCurrentMessagesGemini,
-      };
-    }
-    return {
-      history: chatHistory,
-      setHistory: setChatHistory,
-      setMessages: setCurrentMessages,
-    };
-  }, [
-    selectedProvider,
-    chatHistory,
-    chatHistoryOpenAI,
-    chatHistoryGemini,
-    setChatHistory,
-    setChatHistoryOpenAI,
-    setChatHistoryGemini,
-    setCurrentMessages,
-    setCurrentMessagesGemini,
-    setCurrentMessagesOpenAI,
-  ]);
+  const [menuOpen, setMenuOpen] = useState(null);
 
   const filteredHistory = useMemo(() => {
-    if (!searchQuery.trim()) return history;
-    return history.filter((item) =>
-      item.messages.some((msg) =>
-        msg.text.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+    if (!searchQuery.trim()) return chatHistory;
+    return chatHistory.filter((item) =>
+      item.question.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  }, [searchQuery, history]);
+  }, [searchQuery, chatHistory]);
 
+  const handleHistoryClick = (item) => {
+    // Reset all panels
+    setCurrentMessages([]);
+    setCurrentMessagesOpenAI([]);
+    setCurrentMessagesGemini([]);
+
+    // Load question + answers into respective bots
+    const userMsg = {
+      sender: "user",
+      text: item.question,
+      timestamp: item.timestamp,
+    };
+
+    item.answers.forEach((ans) => {
+      const botMsg = {
+        sender: "bot",
+        text: ans.text,
+        timestamp: item.timestamp,
+      };
+
+      if (ans.tool === "expli") {
+        setCurrentMessages([userMsg, botMsg]);
+      } else if (ans.tool === "openai") {
+        setCurrentMessagesOpenAI([userMsg, botMsg]);
+      } else if (ans.tool === "gemini") {
+        setCurrentMessagesGemini([userMsg, botMsg]);
+      }
+    });
+  };
   return (
     <>
       <div
@@ -159,7 +156,7 @@ function ExpliSidebar({
                     </h3>
                   </div>
 
-                  <select
+                  {/* <select
                     value={selectedProvider}
                     onChange={(e) => setSelectedProvider(e.target.value)}
                     className="bg-gray-800/80 text-white text-xs rounded-lg px-3 py-1.5 border border-gray-600/50 
@@ -168,7 +165,7 @@ function ExpliSidebar({
                     <option value="gemini">Gemini</option>
                     <option value="openai">OpenAI</option>
                     <option value="expli">Expli</option>
-                  </select>
+                  </select> */}
                 </div>
 
                 {/* ✅ Input Section (Search Bar) */}
@@ -188,56 +185,111 @@ function ExpliSidebar({
                 </div>
 
                 {/* Filtered History */}
-                <div className="h-52 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
-                  {filteredHistory && filteredHistory.length > 0 ? (
-                    <div className="space-y-2">
-                      {filteredHistory.map((item, index) => (
-                        <div
-                          key={index}
-                          className="group bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700/30 
-                            hover:border-minimal-primary/30 rounded-lg p-3 transition-all duration-200"
-                        >
-                          <div className="flex items-start justify-between gap-3">
-                            <p
-                              onClick={() => setMessages(item.messages)}
-                              className="cursor-pointer text-sm text-gray-300 group-hover:text-white 
-                                truncate flex-1 transition-colors duration-200 leading-relaxed"
-                            >
-                              {item.messages[0]?.text}
-                            </p>
+                {filteredHistory && filteredHistory.length > 0 ? (
+                  <div className="space-y-2">
+                    {filteredHistory.map((item, index) => (
+                      <div
+                        key={item.id}
+                        onClick={() => handleHistoryClick(item)}
+                        className="group bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700/30 
+    hover:border-minimal-primary/30 rounded-lg px-3 pt-1 pb-1.5 transition-all duration-200 cursor-pointer"
+                      >
+                        {/* Top row: question + 3-dot menu */}
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm text-gray-300 group-hover:text-white truncate">
+                            {item.question}
+                          </p>
+
+                          {/* 3-dot dropdown menu */}
+                          <div className="relative">
                             <button
-                              onClick={() => {
-                                const updatedHistory = history.filter(
-                                  (_, i) => i !== index
+                              onClick={(e) => {
+                                e.stopPropagation(); // prevent triggering history click
+                                setMenuOpen(
+                                  menuOpen === item.id ? null : item.id
                                 );
-                                setHistory(updatedHistory);
                               }}
-                              className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-400 
-                                p-1 rounded transition-all duration-200 hover:bg-red-500/10"
+                              className="p-1 rounded hover:bg-gray-700/50 text-gray-400 hover:text-white"
                             >
-                              <Trash2 size={14} />
+                              <MoreVertical size={16} />
                             </button>
+
+                            {menuOpen === item.id && (
+                              <div className="absolute right-0 mt-2 w-36 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-[100]">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    console.log("Share clicked:", item);
+                                  }}
+                                  className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-t-lg"
+                                >
+                                  <Share2 size={14} /> Share
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    console.log("Rename clicked:", item);
+                                  }}
+                                  className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-300 hover:bg-gray-700"
+                                >
+                                  <Edit3 size={14} /> Rename
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const updatedHistory = chatHistory.filter(
+                                      (h) => h.id !== item.id
+                                    );
+                                    setChatHistory(updatedHistory);
+                                    setMenuOpen(null);
+                                  }}
+                                  className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-400 hover:bg-red-500/20 rounded-b-lg"
+                                >
+                                  <Trash2 size={14} /> Delete
+                                </button>
+                              </div>
+                            )}
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center h-32 text-gray-500">
-                      <div className="text-center">
-                        <MessageSquare
-                          size={24}
-                          className="mx-auto mb-2 opacity-50"
-                        />
-                        <p className="text-sm">No chat history found</p>
+
+                        {/* Bottom row: tool icons */}
+                        <div className="flex gap-2 mt-1">
+                          {item.answers.map((ans) => (
+                            <span
+                              key={ans.tool}
+                              className="text-[10px] px-1.5 py-0.5 rounded bg-gray-700 text-gray-300 flex items-center justify-center"
+                            >
+                              {ans.tool === "expli" && <Plus size={15} />}
+                              {ans.tool === "openai" && (
+                                <AiOutlineOpenAI size={15} />
+                              )}
+                              {ans.tool === "gemini" && (
+                                <RiGeminiLine size={15} />
+                              )}
+                            </span>
+                          ))}
+                        </div>
                       </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-32 text-gray-500">
+                    <div className="text-center">
+                      <MessageSquare
+                        size={24}
+                        className="mx-auto mb-2 opacity-50"
+                      />
+                      <p className="text-sm">No chat history found</p>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
 
               {/* Available Models */}
-              <div className="mt-6">
-                <h2 className="text-lg font-semibold mb-3">Available Keys</h2>
+              <div className="">
+                <h2 className="text-lg font-semibold mb-3 mt-10">
+                  Available Keys
+                </h2>
 
                 {/* ✅ Input Section (Search Bar) */}
                 <div className="relative mb-2">

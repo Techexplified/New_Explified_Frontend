@@ -29,14 +29,7 @@ function Trone() {
     const raw = localStorage.getItem("trone_chat_sessions");
     return raw ? JSON.parse(raw) : [];
   });
-  const [chatHistoryGemini, setChatHistoryGemini] = useState(() => {
-    const raw = localStorage.getItem("gemini_chat_sessions");
-    return raw ? JSON.parse(raw) : [];
-  });
-  const [chatHistoryOpenAI, setChatHistoryOpenAI] = useState(() => {
-    const raw = localStorage.getItem("openai_chat_sessions");
-    return raw ? JSON.parse(raw) : [];
-  });
+
   const [currentMessages, setCurrentMessages] = useState([]); // active session messages
   const [currentMessagesOpenAI, setCurrentMessagesOpenAI] = useState([]); // active session messages
   const [currentMessagesGemini, setCurrentMessagesGemini] = useState([]); // active session messages
@@ -89,26 +82,6 @@ function Trone() {
       console.log(e);
     }
   }, [chatHistory]);
-  useEffect(() => {
-    try {
-      localStorage.setItem(
-        "gemini_chat_sessions",
-        JSON.stringify(chatHistoryGemini)
-      );
-    } catch (e) {
-      console.log(e);
-    }
-  }, [chatHistoryGemini]);
-  useEffect(() => {
-    try {
-      localStorage.setItem(
-        "openai_chat_sessions",
-        JSON.stringify(chatHistoryOpenAI)
-      );
-    } catch (e) {
-      console.log(e);
-    }
-  }, [chatHistoryOpenAI]);
 
   // Removed auto-syncing current messages from localStorage to prevent overwriting sessions
 
@@ -235,15 +208,29 @@ function Trone() {
 
       setCurrentMessages((prev) => [...prev, botMessage]);
 
-      const sessionRecord = {
-        id: sessionId,
-        startedAt: sessionStartedAt || Date.now(),
-        endedAt: Date.now(),
-        messages: [userMessage, botMessage],
-      };
       setChatHistory((prev) => {
-        const next = [...prev, sessionRecord];
-        return next.slice(-3);
+        // check if last entry was same question
+        const last = prev[prev.length - 1];
+        if (last && last.question === userMessage.text) {
+          // append Expli answer to same session
+          return [
+            ...prev.slice(0, -1),
+            {
+              ...last,
+              answers: [...last.answers, { tool: "expli", text: botText }],
+            },
+          ];
+        }
+        // else start new session
+        return [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            question: userMessage.text,
+            answers: [{ tool: "expli", text: botText }],
+            timestamp: new Date().toISOString(),
+          },
+        ];
       });
     } catch (err) {
       console.error("Error details:", err);
@@ -312,15 +299,29 @@ function Trone() {
 
       setCurrentMessagesOpenAI((prev) => [...prev, botMessage]);
 
-      const sessionRecord = {
-        id: sessionId,
-        startedAt: sessionStartedAt || Date.now(),
-        endedAt: Date.now(),
-        messages: [userMessage, botMessage],
-      };
-      setChatHistoryOpenAI((prev) => {
-        const next = [...prev, sessionRecord];
-        return next.slice(-3);
+      setChatHistory((prev) => {
+        // check if last entry was same question
+        const last = prev[prev.length - 1];
+        if (last && last.question === userMessage.text) {
+          // append Expli answer to same session
+          return [
+            ...prev.slice(0, -1),
+            {
+              ...last,
+              answers: [...last.answers, { tool: "openai", text: botText }],
+            },
+          ];
+        }
+        // else start new session
+        return [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            question: userMessage.text,
+            answers: [{ tool: "openai", text: botText }],
+            timestamp: new Date().toISOString(),
+          },
+        ];
       });
     } catch (err) {
       console.error("Error details:", err);
@@ -394,15 +395,29 @@ function Trone() {
 
       setCurrentMessagesGemini((prev) => [...prev, botMessage]);
 
-      const sessionRecord = {
-        id: sessionId,
-        startedAt: sessionStartedAt || Date.now(),
-        endedAt: Date.now(),
-        messages: [userMessage, botMessage],
-      };
-      setChatHistoryGemini((prev) => {
-        const next = [...prev, sessionRecord];
-        return next.slice(-3);
+      setChatHistory((prev) => {
+        // check if last entry was same question
+        const last = prev[prev.length - 1];
+        if (last && last.question === userMessage.text) {
+          // append Expli answer to same session
+          return [
+            ...prev.slice(0, -1),
+            {
+              ...last,
+              answers: [...last.answers, { tool: "gemini", text: botText }],
+            },
+          ];
+        }
+        // else start new session
+        return [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            question: userMessage.text,
+            answers: [{ tool: "gemini", text: botText }],
+            timestamp: new Date().toISOString(),
+          },
+        ];
       });
     } catch (err) {
       console.error("Error details:", err);
@@ -529,11 +544,7 @@ function Trone() {
       <ExpliSidebar
         onAddClick={newChat}
         chatHistory={chatHistory}
-        chatHistoryOpenAI={chatHistoryOpenAI}
-        chatHistoryGemini={chatHistoryGemini}
         setChatHistory={setChatHistory}
-        setChatHistoryOpenAI={setChatHistoryOpenAI}
-        setChatHistoryGemini={setChatHistoryGemini}
         setCurrentMessages={setCurrentMessages}
         setCurrentMessagesGemini={setCurrentMessagesGemini}
         setCurrentMessagesOpenAI={setCurrentMessagesOpenAI}
