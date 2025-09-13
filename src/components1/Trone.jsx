@@ -77,7 +77,7 @@ function Trone() {
   // Persist sessions to localStorage whenever they change
   useEffect(() => {
     try {
-      localStorage.setItem("trone_chat_sessions", JSON.stringify(chatHistory));
+      localStorage.setItem("trone_chat_sessions1", JSON.stringify(chatHistory));
     } catch (e) {
       console.log(e);
     }
