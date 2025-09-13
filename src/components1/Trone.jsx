@@ -26,7 +26,7 @@ function Trone() {
   });
 
   const [chatHistory, setChatHistory] = useState(() => {
-    const raw = localStorage.getItem("trone_chat_sessions");
+    const raw = localStorage.getItem("trone_chat_sessions1");
     return raw ? JSON.parse(raw) : [];
   });
 
