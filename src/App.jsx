@@ -132,6 +132,13 @@ import LexicalEditor from "./components1/LexicalEditor.jsx";
 import LockedPage from "./reusable_components/Locked.jsx";
 import ImageToVideo from "./pages/explified_tools/image_to_video_convertor/ImageToVideo.jsx";
 import usePageTracking from "./hooks/usePageTracking.js";
+import CarPartsAssistant from "./client_component/AI-Assitant.jsx";
+import SalesAssistant from "./sales-bot-assistant/SalesBotAssistant.jsx";
+import Admin from "./client_component/AdminComp.jsx";
+import InventoryComp from "./client_component/Inventroy.jsx";
+import PurchaseOrdersComp from "./client_component/PurchaseComp.jsx";
+import FlowstateLogin from "./client_component/FlowstateLogin.jsx";
+import DashboardComp from "./client_component/AI-dashboard.jsx";
 function App() {
   usePageTracking();
   const navigate = useNavigate();
@@ -247,6 +254,14 @@ function App() {
           <Route path="/canvas" element={<Canvas />}></Route>
           <Route path="/text-to-video" element={<TextToVideoGenerator />} />
           <Route path="/tasks" element={<TaskManagerWithSidebar />} />
+
+          <Route path="/chat" element={<CarPartsAssistant />} />
+          <Route path="/flowstate" element={<DashboardComp />} />
+          <Route path="/flowstate/login" element={<FlowstateLogin />} />
+          <Route path="/flowstate/explified" element={<SalesAssistant />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/inventory" element={<InventoryComp />} />
+          <Route path="/admin/purchaseOrder" element={<PurchaseOrdersComp />} />
 
           <Route path="/history" element={<History />}></Route>
           {/* <Route path="/newlurph" element={<LurphLanding />}></Route> */}

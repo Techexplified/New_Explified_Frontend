@@ -10,6 +10,8 @@ function ChatContainer({
   setEnabled,
   handleCloseChat,
   pid,
+  providerKeys,
+  closedChats,
 }) {
   const chatContainerRef = useRef(null);
   // Auto-scroll to bottom when new messages are added
@@ -54,7 +56,9 @@ function ChatContainer({
   return (
     <div
       ref={chatContainerRef}
-      className="flex-1 w-full flex flex-col px-2 sm:px-3 overflow-y-auto scroll-smooth relative z-10 border border-gray-600 rounded-xl h-full"
+      className={
+        "flex-1 w-full flex flex-col px-2 sm:px-3 overflow-y-auto scroll-smooth relative z-10 border border-gray-600 rounded-xl h-full"
+      }
       style={{
         scrollBehavior: "smooth",
         paddingTop: "0",
@@ -69,21 +73,23 @@ function ChatContainer({
         </div>
 
         {/* Right side: Toggle */}
-        <div className="flex items-center gap-4">
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              checked={enabled}
-              onChange={() => setEnabled(!enabled)}
-              className="sr-only peer"
-            />
-            <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:bg-cyan-500 transition-colors"></div>
-            <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
-          </label>
-          {toolName !== "Expli" && (
-            <button onClick={() => handleCloseChat(pid)}>X</button>
-          )}
-        </div>
+        {(providerKeys?.gemini || providerKeys?.openai !== "") && (
+          <div className="flex items-center gap-4">
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={enabled}
+                onChange={() => setEnabled(!enabled)}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:bg-cyan-500 transition-colors"></div>
+              <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+            </label>
+            {toolName !== "Expli" && (
+              <button onClick={() => handleCloseChat(pid)}>X</button>
+            )}
+          </div>
+        )}
       </h1>
 
       {/* Messages Container */}

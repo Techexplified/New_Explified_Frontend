@@ -24,6 +24,10 @@ function Trone() {
     openai: false,
     gemini: false,
   });
+  const [closedChats, setClosedChats] = useState({
+    openai: false,
+    gemini: false,
+  });
 
   const [chatHistory, setChatHistory] = useState(() => {
     const raw = localStorage.getItem("trone_chat_sessions1");
@@ -575,9 +579,11 @@ function Trone() {
               setEnabled={(val) =>
                 setEnabledProviders((prev) => ({ ...prev, expli: val }))
               }
+              providerKeys={providerKeys}
+              closedChats={closedChats}
             />
 
-            {providerKeys?.openai && (
+            {providerKeys?.openai && !closedChats.openai && (
               <ChatContainer
                 messages={currentMessagesOpenAI}
                 isTyping={isTyping.openai}
@@ -588,11 +594,13 @@ function Trone() {
                 setEnabled={(val) =>
                   setEnabledProviders((prev) => ({ ...prev, openai: val }))
                 }
-                handleCloseChat={handleCloseChat}
+                handleCloseChat={(pid) =>
+                  setClosedChats((prev) => ({ ...prev, [pid]: true }))
+                }
               />
             )}
 
-            {providerKeys?.gemini && (
+            {providerKeys?.gemini && !closedChats.gemini && (
               <ChatContainer
                 messages={currentMessagesGemini}
                 isTyping={isTyping.gemini}
@@ -603,7 +611,9 @@ function Trone() {
                 setEnabled={(val) =>
                   setEnabledProviders((prev) => ({ ...prev, gemini: val }))
                 }
-                handleCloseChat={handleCloseChat}
+                handleCloseChat={(pid) =>
+                  setClosedChats((prev) => ({ ...prev, [pid]: true }))
+                }
               />
             )}
           </div>

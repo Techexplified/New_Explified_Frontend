@@ -296,7 +296,7 @@ const UpdatedDashboard = () => {
                     {[
                       { icon: Plus, to: "/expli" },
                       { icon: FileText, to: "/tasks" },
-                      { icon: Zap, to: "/integrations" },
+                      // { icon: Zap, to: "/integrations" },
                     ].map(({ icon: Icon, to }, idx) => (
                       <button
                         key={idx}
@@ -316,8 +316,8 @@ const UpdatedDashboard = () => {
                   {/* Second row of Quick Tools */}
                   <div className="flex gap-2 w-full mb-3">
                     {[
-                      { icon: Database, to: "/memory" },
-                      { icon: Users, to: "/socials" },
+                      // { icon: Database, to: "/memory" },
+                      // { icon: Users, to: "/socials" },
                       { icon: Search, to: "/discover" },
                     ].map(({ icon: Icon, to }, idx) => (
                       <button

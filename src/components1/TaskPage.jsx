@@ -39,6 +39,12 @@ export default function TaskManager() {
     } catch {
       setTasks([]);
     }
+    if (localStorage.getItem("selectedTaskId")) {
+      localStorage.removeItem("selectedTaskId");
+    }
+    if (localStorage.getItem("editorContent")) {
+      localStorage.removeItem("editorContent");
+    }
   }, []);
 
   // Gemini title generator
@@ -95,6 +101,10 @@ export default function TaskManager() {
 
   const selectedTask = tasks.find((task) => task.id === selectedTaskId);
 
+  const handleNotesView = (id) => {
+    localStorage.setItem("selectedTaskId", id.toString());
+    navigate("/notes");
+  };
   return (
     <div className="flex h-screen opacity-80 bg-gradient-to-br from-transparent via-cyan-900 to-transparent">
       {/* Sidebar */}
@@ -143,7 +153,7 @@ export default function TaskManager() {
                   </h3>
                   <Edit3
                     className="absolute right-[40px] w-4 h-4 text-teal-400 mt-1 cursor-pointer hover:text-teal-300"
-                    onClick={() => setEditingTaskId(task.id)}
+                    onClick={() => handleNotesView(task.id)}
                   />
 
                   <button

@@ -329,6 +329,7 @@ function ExpliSidebar({
                           }`}
                         >
                           {/* name */}
+                          <div className="text-white">{provider.icon}</div>
                           <div className="text-white">{provider.name}</div>
 
                           {/* active indicator */}
