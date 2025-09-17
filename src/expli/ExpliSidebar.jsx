@@ -29,6 +29,8 @@ function ExpliSidebar({
   tools = [],
   setCurrentTool = () => {},
   setShowIntegrationsModal,
+  closedChats,
+  setClosedChats,
 }) {
   // const [selectedProvider, setSelectedProvider] = useState("expli");
   const [sidebarPinned, setSidebarPinned] = useState(false);
@@ -316,31 +318,65 @@ function ExpliSidebar({
                   )
                     .slice(0, 3)
                     .map((provider) => {
-                      const isActive = Boolean(tools[provider.id]); // check if key exists
+                      const hasKey = Boolean(tools[provider.id]); // key exists in providerKeys
+                      const isClosed = closedChats?.[provider.id]; // state from parent
+                      let state = "disabled"; // default
+
+                      if (hasKey && !isClosed) {
+                        state = "active"; // ✅ key present + not closed
+                      } else if (hasKey && isClosed) {
+                        state = "inactive"; // ✅ key present + closed
+                      }
 
                       return (
                         <div
                           key={provider.id}
-                          onClick={() => setShowIntegrationsModal(true)}
-                          className={`flex items-center gap-2 p-2 text-xs rounded-lg border transition-colors ${
-                            isActive
-                              ? "bg-[#23b5b5]/20 border-[#23b5b5]"
-                              : "bg-gray-800/50 border-gray-700"
-                          }`}
+                          className={`flex items-center gap-2 p-2 text-xs rounded-lg border transition-colors
+            ${
+              state === "active"
+                ? "bg-[#23b5b5]/20 border-[#23b5b5]"
+                : state === "inactive"
+                ? "bg-gray-800/50 border-yellow-500/50"
+                : "bg-gray-800/50 border-gray-700 opacity-50 cursor-not-allowed"
+            }`}
                         >
-                          {/* name */}
+                          {/* name + icon */}
                           <div className="text-white">{provider.icon}</div>
                           <div className="text-white">{provider.name}</div>
 
-                          {/* active indicator */}
-                          <div className="ml-auto">
-                            {isActive ? (
+                          {/* status */}
+                          <div className="ml-auto flex items-center gap-1">
+                            {state === "active" && (
                               <span className="text-green-400 text-xs font-semibold">
                                 Active
                               </span>
-                            ) : (
-                              <span className="text-gray-500 text-xs">
-                                Inactive
+                            )}
+
+                            {state === "inactive" && (
+                              <>
+                                <span className="text-red-400 text-xs font-semibold">
+                                  Inactive
+                                </span>
+                                {/* + button */}
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    // ✅ flip closedChats for this provider
+                                    setClosedChats((prev) => ({
+                                      ...prev,
+                                      [provider.id]: false,
+                                    }));
+                                  }}
+                                  className="ml-1 p-1 rounded-full bg-gray-700 hover:bg-gray-600 transition"
+                                >
+                                  <Plus size={12} className="text-white" />
+                                </button>
+                              </>
+                            )}
+
+                            {state === "disabled" && (
+                              <span className="text-gray-300 text-xs">
+                                Disabled
                               </span>
                             )}
                           </div>

@@ -556,6 +556,8 @@ function Trone() {
         tools={providerKeys}
         setCurrentTool={setCurrentTool}
         setShowIntegrationsModal={setShowIntegrationsModal}
+        closedChats={closedChats}
+        setClosedChats={setClosedChats}
       />
 
       <div className="overflow-x-auto h-screen w-screen flex flex-col">
@@ -569,7 +571,13 @@ function Trone() {
           <div className="absolute inset-0 opacity-40 pointer-events-none bg-gradient-to-br from-black to-black"></div>
 
           {/* Chat Containers Row */}
-          <div className="flex gap-4 flex-1 pt-12 h-full">
+          <div
+            className={`flex gap-4  ${
+              closedChats?.openai && closedChats?.gemini
+                ? "w-[70%] mx-auto"
+                : "flex-1"
+            }  pt-12 h-full`}
+          >
             <ChatContainer
               messages={currentMessages}
               isTyping={isTyping.expli}
@@ -580,7 +588,6 @@ function Trone() {
                 setEnabledProviders((prev) => ({ ...prev, expli: val }))
               }
               providerKeys={providerKeys}
-              closedChats={closedChats}
             />
 
             {providerKeys?.openai && !closedChats.openai && (
