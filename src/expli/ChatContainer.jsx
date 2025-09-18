@@ -88,7 +88,7 @@ function ChatContainer({
     <div
       ref={chatContainerRef}
       className={
-        "flex-1 w-full flex flex-col px-2 sm:px-3 overflow-y-auto scroll-smooth relative z-10 border border-gray-600 rounded-xl h-full backdrop-blur-md"
+        "flex-1 w-full  flex flex-col px-2 sm:px-3 overflow-y-auto scroll-smooth relative z-10 border border-gray-600 rounded-xl h-full backdrop-blur-md"
       }
       style={{
         scrollBehavior: "smooth",
@@ -115,12 +115,12 @@ function ChatContainer({
               <h1 className="text-lg font-semibold text-white tracking-tight">
                 {toolName}
               </h1>
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-400 rounded-full  shadow-sm shadow-green-400/50"></div>
                 <p className="text-xs text-slate-400 font-medium">
                   AI Assistant
                 </p>
-              </div>
+              </div> */}
             </div>
           </div>
 

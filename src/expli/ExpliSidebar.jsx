@@ -129,56 +129,32 @@ function ExpliSidebar({
 
           {/* Only render content when open */}
           {isOpen && (
-            <div className="space-y-2">
+            <div>
               {/* New Chat */}
-              <button
-                onClick={onAddClick}
-                className="w-full group relative overflow-hidden bg-gradient-to-r from-gray-800/80 to-gray-700/80 
+              <div
+                className="w-full  overflow-hidden bg-gradient-to-r from-gray-800/80 to-gray-700/80 
                 hover:from-minimal-primary/20 hover:to-cyan-500/20 border border-gray-600/50 hover:border-minimal-primary/50
-                text-white font-medium py-1.5 px-2 rounded-xl transition-all duration-300 hover:scale-105 
-                hover:shadow-lg hover:shadow-minimal-primary/10"
+                text-white font-medium py-2 px-3 rounded-xl transition-all duration-300 hover:scale-105 
+                hover:shadow-lg hover:shadow-minimal-primary/10 flex items-center  gap-3"
               >
-                <div
-                  className="absolute inset-0 bg-gradient-to-r from-minimal-primary/0 to-minimal-primary/10 
-                opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                />
-                <div className="relative text-sm flex items-center justify-center gap-3">
-                  <MessageSquare size={14} />
-                  <span>New Chat</span>
-                </div>
-              </button>
+                <button onClick={onAddClick}>
+                  <MessageSquare size={20} />
+                </button>
+              </div>
 
-              {/* Chat History */}
-              <div className="bg-gray-900/30 rounded-xl p-1 border border-gray-700/30">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <MessageSquare size={16} className="text-minimal-primary" />
-                    <h3 className="text-sm font-medium text-gray-300">
-                      Chat History
-                    </h3>
-                  </div>
-
-                  {/* <select
-                    value={selectedProvider}
-                    onChange={(e) => setSelectedProvider(e.target.value)}
-                    className="bg-gray-800/80 text-white text-xs rounded-lg px-3 py-1.5 border border-gray-600/50 
-                    focus:border-minimal-primary/50 focus:outline-none transition-colors duration-200"
-                  >
-                    <option value="gemini">Gemini</option>
-                    <option value="openai">OpenAI</option>
-                    <option value="expli">Expli</option>
-                  </select> */}
-                </div>
+              {/* Available Models */}
+              <div className="mt-4">
+                <h2 className="text-lg font-semibold mb-3">Active Keys</h2>
 
                 {/* ✅ Input Section (Search Bar) */}
                 <div className="relative mb-2">
                   <input
                     type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search chats..."
+                    value={searchProviders}
+                    onChange={(e) => setSearchProviders(e.target.value)}
+                    placeholder="Search keys..."
                     className="w-full bg-gray-800/80 text-white text-xs rounded-lg px-3 py-1.5 pr-8 border border-gray-600/50 
-                    focus:border-minimal-primary/50 focus:outline-none transition-colors duration-200"
+      focus:border-minimal-primary/50 focus:outline-none transition-colors duration-200"
                   />
                   <Search
                     size={14}
@@ -186,9 +162,88 @@ function ExpliSidebar({
                   />
                 </div>
 
+                {/* ✅ Filter + Render Providers */}
+                <div className="space-y-2">
+                  {INTEGRATION_PROVIDERS.filter((provider) =>
+                    provider.name
+                      .toLowerCase()
+                      .includes(searchProviders.toLowerCase())
+                  )
+                    .slice(0, 2)
+                    .map((provider) => {
+                      const hasKey = Boolean(tools[provider.id]); // key exists in providerKeys
+                      const isClosed = closedChats?.[provider.id]; // state from parent
+                      let state = "disabled"; // default
+
+                      if (hasKey && !isClosed) {
+                        state = "active"; // ✅ key present + not closed
+                      } else if (hasKey && isClosed) {
+                        state = "inactive"; // ✅ key present + closed
+                      }
+
+                      return (
+                        <div
+                          key={provider.id}
+                          className={`flex items-center gap-2 p-2 text-xs rounded-lg border transition-colors
+            ${
+              state === "active"
+                ? "bg-[#23b5b5]/20 border-[#23b5b5]"
+                : state === "inactive"
+                ? "bg-gray-800/50 border-yellow-500/50"
+                : "bg-gray-800/50 border-gray-700 opacity-50 cursor-not-allowed"
+            }`}
+                        >
+                          {/* name + icon */}
+                          <div className="text-white">{provider.icon}</div>
+                          <div className="text-white">{provider.name}</div>
+
+                          {/* status */}
+                          <div className="ml-auto flex items-center gap-1">
+                            {state === "active" && (
+                              <span className="text-green-400 text-xs font-semibold">
+                                Active
+                              </span>
+                            )}
+
+                            {state === "inactive" && (
+                              <>
+                                <span className="text-red-400 text-xs font-semibold">
+                                  Inactive
+                                </span>
+                                {/* + button */}
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    // ✅ flip closedChats for this provider
+                                    setClosedChats((prev) => ({
+                                      ...prev,
+                                      [provider.id]: false,
+                                    }));
+                                  }}
+                                  className="ml-1 p-1 rounded-full bg-gray-700 hover:bg-gray-600 transition"
+                                >
+                                  <Plus size={12} className="text-white" />
+                                </button>
+                              </>
+                            )}
+
+                            {state === "disabled" && (
+                              <span className="text-gray-300 text-xs">
+                                Disabled
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+
+              {/* Chat History */}
+              <div className="bg-gray-900/30 rounded-xl p-1 ">
                 {/* Filtered History */}
                 {filteredHistory && filteredHistory.length > 0 ? (
-                  <div className="space-y-2">
+                  <div className="space-y-2 mt-28">
                     {filteredHistory.map((item, index) => (
                       <div
                         key={item.id}
@@ -285,105 +340,6 @@ function ExpliSidebar({
                     </div>
                   </div>
                 )}
-              </div>
-
-              {/* Available Models */}
-              <div className="">
-                <h2 className="text-lg font-semibold mb-3 mt-10">
-                  Available Keys
-                </h2>
-
-                {/* ✅ Input Section (Search Bar) */}
-                <div className="relative mb-2">
-                  <input
-                    type="text"
-                    value={searchProviders}
-                    onChange={(e) => setSearchProviders(e.target.value)}
-                    placeholder="Search keys..."
-                    className="w-full bg-gray-800/80 text-white text-xs rounded-lg px-3 py-1.5 pr-8 border border-gray-600/50 
-      focus:border-minimal-primary/50 focus:outline-none transition-colors duration-200"
-                  />
-                  <Search
-                    size={14}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
-                  />
-                </div>
-
-                {/* ✅ Filter + Render Providers */}
-                <div className="space-y-2">
-                  {INTEGRATION_PROVIDERS.filter((provider) =>
-                    provider.name
-                      .toLowerCase()
-                      .includes(searchProviders.toLowerCase())
-                  )
-                    .slice(0, 3)
-                    .map((provider) => {
-                      const hasKey = Boolean(tools[provider.id]); // key exists in providerKeys
-                      const isClosed = closedChats?.[provider.id]; // state from parent
-                      let state = "disabled"; // default
-
-                      if (hasKey && !isClosed) {
-                        state = "active"; // ✅ key present + not closed
-                      } else if (hasKey && isClosed) {
-                        state = "inactive"; // ✅ key present + closed
-                      }
-
-                      return (
-                        <div
-                          key={provider.id}
-                          className={`flex items-center gap-2 p-2 text-xs rounded-lg border transition-colors
-            ${
-              state === "active"
-                ? "bg-[#23b5b5]/20 border-[#23b5b5]"
-                : state === "inactive"
-                ? "bg-gray-800/50 border-yellow-500/50"
-                : "bg-gray-800/50 border-gray-700 opacity-50 cursor-not-allowed"
-            }`}
-                        >
-                          {/* name + icon */}
-                          <div className="text-white">{provider.icon}</div>
-                          <div className="text-white">{provider.name}</div>
-
-                          {/* status */}
-                          <div className="ml-auto flex items-center gap-1">
-                            {state === "active" && (
-                              <span className="text-green-400 text-xs font-semibold">
-                                Active
-                              </span>
-                            )}
-
-                            {state === "inactive" && (
-                              <>
-                                <span className="text-red-400 text-xs font-semibold">
-                                  Inactive
-                                </span>
-                                {/* + button */}
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    // ✅ flip closedChats for this provider
-                                    setClosedChats((prev) => ({
-                                      ...prev,
-                                      [provider.id]: false,
-                                    }));
-                                  }}
-                                  className="ml-1 p-1 rounded-full bg-gray-700 hover:bg-gray-600 transition"
-                                >
-                                  <Plus size={12} className="text-white" />
-                                </button>
-                              </>
-                            )}
-
-                            {state === "disabled" && (
-                              <span className="text-gray-300 text-xs">
-                                Disabled
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                </div>
               </div>
             </div>
           )}

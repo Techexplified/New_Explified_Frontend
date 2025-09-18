@@ -3,25 +3,34 @@ import {
   FiPaperclip,
   FiImage,
   FiSend,
-  FiShoppingCart,
-  FiSearch,
-  FiTruck,
-  FiInfo,
+  FiSettings,
+  FiDollarSign,
+  FiUsers,
+  FiCalendar,
 } from "react-icons/fi";
 import ReactMarkdown from "react-markdown";
 
 const promptSuggestions = [
-  { icon: <FiSearch />, text: "Get a price quote for automation service" },
-  { icon: <FiInfo />, text: "How does automation improve workflow?" },
   {
-    icon: <FiShoppingCart />,
-    text: "Request automation service for inventory",
+    icon: <FiSettings />,
+    text: "Learning about our automation services",
   },
-  { icon: <FiTruck />, text: "Schedule automation setup call" },
+  {
+    icon: <FiDollarSign />,
+    text: "Exploring our pricing automation tools",
+  },
+  {
+    icon: <FiUsers />,
+    text: "Connecting you with a sales expert",
+  },
+  {
+    icon: <FiCalendar />,
+    text: "Scheduling a call with our team",
+  },
 ];
 
 const webhookUrl =
-  "https://invgauravkaushik.app.n8n.cloud/webhook/69cf9b73-d9a8-4151-b743-46c5f97e533c";
+  "https://invgauravkaushik.app.n8n.cloud/webhook/7cf23db3-e0c0-40b2-bb8f-77c8399e2e85";
 
 const SalesAssistant = () => {
   const [input, setInput] = useState("");
@@ -40,15 +49,15 @@ const SalesAssistant = () => {
   }, [chat, loading]);
 
   const parseBotResponse = (text) => {
-    const clean = text.trim();
-    const serviceMatch = clean.match(/Service:\s*(.+)/i);
-    const quoteMatch = clean.match(/Quote ID:\s*(.+)/i);
-    const priceMatch = clean.match(/Estimated Price:\s*(.+)/i);
+    const clean = text ? text.trim() : "";
+    const itemMatch = clean.match(/Item Name:\s*(.+)/i);
+    const partMatch = clean.match(/Part Number:\s*(.+)/i);
+    const priceMatch = clean.match(/Price:\s*(.+)/i);
 
     return {
       raw: clean,
-      service: serviceMatch ? serviceMatch[1] : null,
-      quoteId: quoteMatch ? quoteMatch[1] : null,
+      item: itemMatch ? itemMatch[1] : null,
+      part: partMatch ? partMatch[1] : null,
       price: priceMatch ? priceMatch[1] : null,
     };
   };
@@ -74,9 +83,23 @@ const SalesAssistant = () => {
       if (!res.ok) throw new Error(`Error: ${res.status} ${res.statusText}`);
 
       const data = await res.json();
-      const parsed = parseBotResponse(data[0]?.output || "");
+      const botText =
+        data && Array.isArray(data) && data[0]?.output
+          ? data[0].output
+          : data.output || "";
 
-      setChat((prev) => [...prev, { sender: "bot", ...parsed }]);
+      const parsed = parseBotResponse(botText);
+
+      setChat((prev) => [
+        ...prev,
+        {
+          sender: "bot",
+          raw: parsed.raw,
+          item: parsed.item,
+          part: parsed.part,
+          price: parsed.price,
+        },
+      ]);
     } catch (err) {
       setError(err.message || "Something went wrong");
     } finally {
@@ -84,6 +107,9 @@ const SalesAssistant = () => {
     }
   };
 
+  const handlePromptClick = (text) => {
+    setInput(text);
+  };
   return (
     <div className="min-h-screen w-full bg-gray-900 flex flex-col">
       {!firstMessageSent && (
@@ -92,27 +118,29 @@ const SalesAssistant = () => {
             <div>
               <h1 className="text-4xl md:text-5xl font-extralight text-white leading-tight font-serif">
                 <span className="bg-gradient-to-r from-white via-[#23b5b5]/80 to-[#23b5b5]/80 text-transparent bg-clip-text font-semibold">
-                  Automation Assistant
+                  Sales Automation Assistant
                 </span>
                 <br />
                 <span className="text-white font-light">
-                  What process would you like to automate today?
+                  How can we assist you today?
                 </span>
               </h1>
               <p className="mt-3 text-base text-gray-400 font-serif">
                 Your{" "}
                 <span className="text-[#23b5b5] font-semibold">
-                  AI-powered service
+                  smart assistant
                 </span>{" "}
-                for price automation, scheduling, and smart workflows.
+                for automation-related queries. Just send us your request — our
+                team will review it and get in touch!
               </p>
             </div>
 
+            {/* Prompt Suggestions */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
               {promptSuggestions.map((item, index) => (
                 <div
                   key={index}
-                  onClick={() => setInput(item.text)}
+                  onClick={() => handlePromptClick(item.text)}
                   className="group flex flex-col items-start gap-3 p-4 bg-gray-800 border border-gray-700 rounded-xl shadow-sm transition hover:shadow-lg hover:border-[#23b5b5]/70 hover:scale-105 cursor-pointer"
                 >
                   <div className="text-2xl text-[#23b5b5] group-hover:rotate-6 transition-transform">
@@ -127,8 +155,7 @@ const SalesAssistant = () => {
           </div>
         </div>
       )}
-
-      {/* Chat area */}
+      {/* 💬 Chat area */}
       <div className="flex-1 px-4 overflow-y-auto pb-44 pt-4 max-w-3xl w-full mx-auto">
         <div className="flex flex-col gap-4">
           {chat.map((msg, idx) => (
@@ -145,31 +172,9 @@ const SalesAssistant = () => {
                     : "bg-gray-800 text-gray-100"
                 }`}
               >
-                {msg.sender === "bot" &&
-                (msg.service || msg.quoteId || msg.price) ? (
-                  <div>
-                    {msg.service && (
-                      <p>
-                        <span className="text-[#23b5b5]/60 font-semibold">
-                          Service:
-                        </span>{" "}
-                        <span className="font-medium">{msg.service}</span>
-                      </p>
-                    )}
-                    {msg.quoteId && (
-                      <p>
-                        <span className="text-[#23b5b5]/60 font-semibold">
-                          Quote ID:
-                        </span>{" "}
-                        <span className="font-medium">{msg.quoteId}</span>
-                      </p>
-                    )}
-                    {msg.price && (
-                      <p className="mt-2 px-3 py-1 inline-block bg-[#23b5b5] text-white rounded-full font-semibold text-sm">
-                        Estimated Price: {msg.price}
-                      </p>
-                    )}
-                    <div className="mt-2 prose prose-invert prose-sm max-w-none">
+                {msg.sender === "bot" ? (
+                  <>
+                    {msg.raw ? (
                       <ReactMarkdown
                         components={{
                           strong: ({ ...props }) => (
@@ -191,36 +196,12 @@ const SalesAssistant = () => {
                       >
                         {msg.raw}
                       </ReactMarkdown>
-                      <p className="mt-4 text-sm text-gray-400 italic">
-                        Please confirm if you'd like our team to reach out to
-                        proceed.
-                      </p>
-                    </div>
-                  </div>
-                ) : msg.sender === "bot" ? (
-                  <div className="prose prose-invert prose-sm max-w-none">
-                    <ReactMarkdown
-                      components={{
-                        strong: ({ ...props }) => (
-                          <strong
-                            className="text-[#23b5b5] font-semibold"
-                            {...props}
-                          />
-                        ),
-                        ul: ({ ...props }) => (
-                          <ul
-                            className="list-disc list-inside ml-4"
-                            {...props}
-                          />
-                        ),
-                        p: ({ ...props }) => <p className="mb-2" {...props} />,
-                      }}
-                    >
-                      {msg.raw}
-                    </ReactMarkdown>
-                  </div>
+                    ) : (
+                      <p>(No bot message found)</p>
+                    )}
+                  </>
                 ) : (
-                  msg.text
+                  <p>{msg.text}</p>
                 )}
               </div>
             </div>
@@ -241,13 +222,13 @@ const SalesAssistant = () => {
         )}
       </div>
 
-      {/* Input Area */}
+      {/* ✏️ Input area */}
       <div className="w-full fixed bottom-0 left-0 bg-gray-900 border-t border-gray-800 z-50 px-4 py-4">
         <div className="max-w-3xl mx-auto">
           <div className="bg-gray-800 border border-gray-700 rounded-xl p-4 shadow-sm">
             <textarea
               rows="2"
-              placeholder="Type your automation request here..."
+              placeholder="Type your message here..."
               className="w-full resize-none text-sm bg-transparent text-gray-200 placeholder-gray-500 focus:outline-none"
               value={input}
               onChange={(e) => setInput(e.target.value)}
