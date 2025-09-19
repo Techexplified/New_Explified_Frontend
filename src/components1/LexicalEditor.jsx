@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import jsPDF from "jspdf";
+import { toJpeg } from "html-to-image";
+import ReactDOM from "react-dom";
 import {
   $getSelection,
   $isRangeSelection,
@@ -44,6 +47,7 @@ import { v4 as uuidv4 } from "uuid";
 import { $getRoot } from "lexical";
 import { $createParagraphNode, $createTextNode } from "lexical";
 import SimpleChatbot from "../reusable_components/SimpleChatbot";
+import { useNavigate } from "react-router-dom";
 // Theme configuration
 const theme = {
   text: {
@@ -108,7 +112,7 @@ function ShareButton({ getTextContent, noteTitle }) {
   const [exportPdf, setExportPdf] = useState(false);
   const [exportJpg, setExportJpg] = useState(false);
   const [shareLink, setShareLink] = useState("");
-
+  const [disableShare, setDisableShare] = useState(false);
   // Generate sharable link only once when menu opens
   const generateLink = () => {
     const content = getTextContent();
@@ -178,6 +182,7 @@ function ShareButton({ getTextContent, noteTitle }) {
         } catch (e) {
           console.warn("Failed to parse shared payload:", e);
         }
+        setDisableShare(true);
       }
     }
   }, []);
@@ -219,16 +224,25 @@ function ShareButton({ getTextContent, noteTitle }) {
     setTimeout(() => setCopied(false), 1500);
   };
 
-  const handleDownload = () => {
-    let filename = "notes.txt";
-    let blob = new Blob([getTextContent()], { type: "text/plain" });
+  const handleDownload = async () => {
+    const filename = "notes.txt";
+    const blob = new Blob([getTextContent()], { type: "text/plain" });
 
     if (exportPdf) {
-      filename = "notes.pdf";
-      // TODO: Use jsPDF to properly generate a PDF
-    } else if (exportJpg) {
-      filename = "notes.jpg";
-      // TODO: Use html-to-image or dom-to-image to generate JPG
+      const doc = new jsPDF();
+      doc.text(getTextContent(), 10, 10);
+      doc.save("notes.pdf");
+      return;
+    }
+
+    if (exportJpg) {
+      const node = document.getElementById("notes-container");
+      const dataUrl = await toJpeg(node);
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = "notes.jpg";
+      a.click();
+      return;
     }
 
     const url = URL.createObjectURL(blob);
@@ -267,6 +281,7 @@ function ShareButton({ getTextContent, noteTitle }) {
         }}
         onMouseEnter={(e) => (e.currentTarget.style.color = "#00fff7")}
         onMouseLeave={(e) => (e.currentTarget.style.color = "#a5f1ea")}
+        disabled={disableShare}
       >
         Share
         <ArrowUpRight size={20} style={{ marginLeft: 8, color: "#63e3db" }} />
@@ -415,10 +430,9 @@ function ShareButton({ getTextContent, noteTitle }) {
   );
 }
 
-function SaveButton({ saveTrigger, title }) {
+function SaveButton({ saveTrigger, isLoggedIn, displayModal,title,shareId}) {
   const [editor] = useLexicalComposerContext();
   const [isSaved, setIsSaved] = useState(false);
-
   const getTextContent = () => {
     let text = "";
     editor.getEditorState().read(() => {
@@ -426,8 +440,36 @@ function SaveButton({ saveTrigger, title }) {
     });
     return text;
   };
-
-  const handleSave = () => {
+  const isNewNote = !localStorage.getItem("selectedTaskId") && !shareId;
+  const handleEditNote = () => {
+    const selectedTaskId = localStorage.getItem("selectedTaskId");
+    const content = getTextContent();
+    const text = content;
+    let tasks = [];
+    try {
+      const stored = localStorage.getItem("tasks");
+      if (stored)
+        tasks = JSON.parse(stored);
+    } catch (e) {
+      tasks = [];
+    }
+    const selectedTask = tasks.filter((t) => t.id === Number(selectedTaskId))[0];
+    const otherTasks = tasks.filter((t) => t.id !== Number(selectedTaskId));
+    otherTasks.push({
+      ...selectedTask,
+      title: title,
+      content: text,
+      lastModified: new Date().toISOString()
+    });
+    localStorage.setItem("tasks", JSON.stringify(otherTasks));
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 1000);
+  
+  React.useEffect(() => {
+    setIsSaved(false);
+  }, [saveTrigger, title]);
+  }
+  const handleSaveNewNote = () => {
     const content = getTextContent();
     const text = content;
     const newTask = {
@@ -439,7 +481,8 @@ function SaveButton({ saveTrigger, title }) {
     let tasks = [];
     try {
       const stored = localStorage.getItem("tasks");
-      if (stored) tasks = JSON.parse(stored);
+      if (stored)
+        tasks = JSON.parse(stored);
     } catch (e) {
       tasks = [];
     }
@@ -447,16 +490,15 @@ function SaveButton({ saveTrigger, title }) {
     localStorage.setItem("tasks", JSON.stringify(tasks));
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 1000);
-  };
-
+  
   React.useEffect(() => {
     setIsSaved(false);
   }, [saveTrigger, title]);
-
+  //}
+  }
   return (
     <button
-      onClick={handleSave}
-      disabled={isSaved}
+      onClick={ isLoggedIn? ( isNewNote ? handleSaveNewNote : handleEditNote ) : displayModal }
       style={{
         height: 40,
         minWidth: 80,
@@ -484,33 +526,43 @@ function SaveButton({ saveTrigger, title }) {
   );
 }
 
-function SharePlugin({ title, saveTrigger }) {
-  const [editor] = useLexicalComposerContext();
-  const getTextContent = () => {
-    let text = "";
-    editor.getEditorState().read(() => {
-      text = $getRoot().getTextContent();
-    });
-    return text;
-  };
-  return (
-    <div
-      style={{
-        display: "flex",
-        gap: "12px",
-        borderRadius: 12,
-        padding: 8,
-        position: "fixed",
-        top: 40,
-        right: 200,
-        zIndex: 1000,
-        alignItems: "center",
-      }}
-    >
-      <SaveButton saveTrigger={saveTrigger} title={title} />
-      <ShareButton getTextContent={getTextContent} noteTitle={title} />
-    </div>
-  );
+function SharePlugin({ title, saveTrigger, isLoggedIn,displayModal,shareId }) {
+  try {
+    const [editor] = useLexicalComposerContext();
+    const getTextContent = () => {
+      let text = "";
+      editor.getEditorState().read(() => {
+        text = $getRoot().getTextContent();
+      });
+      return text;
+    };
+    return (
+      <div
+        style={{
+          display: "flex",
+          gap: "12px",
+          borderRadius: 12,
+          padding: 8,
+          position: "fixed",
+          top: 40,
+          right: 170,
+          alignItems: "center",
+          zIndex: 1000,
+        }}
+      >
+        <SaveButton
+          saveTrigger={saveTrigger}
+          title={title}
+          isLoggedIn={isLoggedIn}
+          displayModal={displayModal}
+          shareId = {shareId}
+        />
+        <ShareButton getTextContent={getTextContent} noteTitle={title} />
+      </div>
+    );
+  } catch (e) {
+    console.log(e);
+  }
 }
 
 function TextOptionsBar({
@@ -719,7 +771,7 @@ function TextOptionsBar({
     </div>
   );
 }
-function PenTool() {
+const PenTool = React.memo(function() {
   const canvasRef = useRef(null);
   const ctxRef = useRef(null);
 
@@ -730,7 +782,6 @@ function PenTool() {
 
   const [history, setHistory] = useState([]); // undo/redo stack
   const [redoStack, setRedoStack] = useState([]);
-
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -852,7 +903,7 @@ function PenTool() {
         className=""
         style={{
           position: "absolute",
-          left: "130px",
+          left: "400px",
           bottom: "-85px",
           background: "rgba(12, 46, 50, 0.95)", // deep dark teal bg
           padding: "10px 12px",
@@ -1009,7 +1060,7 @@ function PenTool() {
 
       {/* Canvas main */}
       <canvas
-        className="absolute max-w-4xl bottom-[-10px] left-[-40px] h-[400px] w-[900px]"
+        className="absolute bottom-[10px] left-[10px] h-[100%] w-[100%]"
         ref={canvasRef}
         style={{
           cursor: cursorStyle,
@@ -1022,11 +1073,10 @@ function PenTool() {
         onMouseUp={stopDrawing}
         onMouseLeave={stopDrawing}
       />
-    </div>
-  );
-}
-
-function ToolbarPlugin({ openChatbot, closeChatbot }) {
+     </div>
+)
+})
+function ToolbarPlugin({ openChatbot, closeChatbot, isLoggedIn,displayModal,isEditable  }) {
   const [editor] = useLexicalComposerContext();
   const getTextContent = () => {
     let text = "";
@@ -1039,7 +1089,6 @@ function ToolbarPlugin({ openChatbot, closeChatbot }) {
     });
     return text;
   };
-
   const [fontFamily, setFontFamily] = useState("Arial");
   const [fontSize, setFontSize] = useState("16");
   const [fontColor, setFontColor] = useState("#FFFFFF");
@@ -1122,7 +1171,7 @@ function ToolbarPlugin({ openChatbot, closeChatbot }) {
       >
         {/* Text Options Button */}
         <button
-          onClick={() => handleToolbarClick("text")}
+          onClick={ isLoggedIn ? () => handleToolbarClick("text") : displayModal }
           className="flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 hover:scale-[1.16] hover:shadow-[0_0_4px_#0ff9cc55]"
           style={{
             fontSize: 18,
@@ -1137,13 +1186,14 @@ function ToolbarPlugin({ openChatbot, closeChatbot }) {
 
         {/* Pen Tool Button */}
         <button
-          onClick={() => handleToolbarClick("pen")}
+          onClick={ isLoggedIn ? () => handleToolbarClick("pen") : displayModal }
           className="flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 hover:scale-[1.16] hover:shadow-[0_0_4px_#0ff9cc55]"
           style={{
             fontSize: 18,
             backgroundColor: activeBar === "pen" ? "#0ff9cc" : "transparent",
             color: activeBar === "pen" ? "#003534" : "#a5f1ea",
             boxShadow: activeBar === "pen" ? "0 0 4px #0ff9cc88" : "none",
+            zIndex: 96
           }}
           title="Pen Tool"
         >
@@ -1152,7 +1202,7 @@ function ToolbarPlugin({ openChatbot, closeChatbot }) {
 
         {/* Effects Button */}
         <button
-          onClick={() => handleToolbarClick("effect")}
+          onClick={ isLoggedIn ? () => handleToolbarClick("effect") : displayModal}
           className="flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 hover:scale-[1.16] hover:shadow-[0_0_4px_#0ff9cc55]"
           style={{
             fontSize: 18,
@@ -1202,7 +1252,6 @@ function SaveToLocalStoragePlugin() {
 
   return null;
 }
-
 function LexicalEditor() {
   const [editor, setEditorState] = useState("");
   const [title, setTitle] = useState("Title");
@@ -1211,7 +1260,34 @@ function LexicalEditor() {
   const [showPenTool, setShowPenTool] = useState(false);
   const [saveTrigger, setSaveTrigger] = useState(0);
   const [scribbleUrl, setScribbleUrl] = useState("");
-
+  const [id, setId] = useState(null);
+  const [showAlertModal, setShowAlertModal] = useState(false);
+  const [isEditable, setIsEditable] = useState(true);
+  const navigate = useNavigate();
+  const loggedIn = () => {
+    const params = new URLSearchParams(window.location.search);
+    const shareId = params.get("shareId");
+    if (shareId) {
+      //No Login
+      if (!localStorage.getItem(`explified`)) {
+        return false;
+      }
+      //Logged in
+      if (
+        localStorage.getItem(`shared_note_${shareId}`) &&
+        localStorage.getItem(`explified`)
+      ) {
+        const logindetails = JSON.parse(localStorage.getItem(`explified`));
+        if (logindetails && logindetails.email) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    }
+    return true;
+  };
+  const isLoggedIn = loggedIn();
   const onChange = (editorState) => {
     editorState.read(() => {
       setEditorState(JSON.stringify(editorState.toJSON(), null, 2));
@@ -1259,15 +1335,14 @@ function LexicalEditor() {
           }
         } catch (e) {}
       }
-    }
-    else{
-      localStorage.setItem("editorContent","");
+    } else {
+      localStorage.setItem("editorContent", "");
     }
   }, []);
 
   const params = new URLSearchParams(window.location.search);
   const shareId = params.get("shareId");
-
+  const selectedTaskId = localStorage.getItem("selectedTaskId");
   const initialText = React.useMemo(() => {
     if (shareId) {
       const combined = localStorage.getItem(`shared_note_${shareId}`);
@@ -1284,15 +1359,29 @@ function LexicalEditor() {
         return textOnly;
       }
     }
-    //const saved = localStorage.getItem("editorContent");
+    if (selectedTaskId) {
+      let tasks = [];
+      try {
+        const stored = localStorage.getItem("tasks");
+        if (stored) tasks = JSON.parse(stored);
+      } catch (e) {
+        tasks = [];
+        console.error("Error parsing tasks from localStorage:", e);
+      }
+      const selectedTask = tasks.find(
+        (task) => task.id.toString() == selectedTaskId
+      );
+      try {
+        if (selectedTask && typeof selectedTask.content === "string") {
+          return selectedTask.content;
+        }
+      } catch (e) {
+        console.error("Error parsing selected task content:", e);
+      }
+    }
     return "";
   }, [shareId]);
 
-  useEffect (() => {
-   return () => {
-    localStorage.removeItem("editorContent");
-   } 
-  });
   const editorInitialConfig = React.useMemo(
     () => ({
       ...initialConfig,
@@ -1306,10 +1395,10 @@ function LexicalEditor() {
           root.append(paragraph);
         });
       },
+      editable: isEditable
     }),
-    [initialText]
+    [initialText,isEditable]
   );
-
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const shareId = params.get("shareId");
@@ -1320,10 +1409,44 @@ function LexicalEditor() {
         // Instead of auto-download, you can render this content in a viewer page
       }
     }
+    if (selectedTaskId) {
+      let tasks = [];
+      try {
+        const stored = localStorage.getItem("tasks");
+        if (stored) tasks = JSON.parse(stored);
+      } catch (e) {
+        tasks = [];
+      }
+      const selectedTask = tasks.find(
+        (task) => task.id.toString() === selectedTaskId
+      );
+      try {
+        if (selectedTask) {
+          // Fix: Set title as-is, not reversed
+          if (typeof selectedTask.title === "string")
+            setTitle(selectedTask.title);
+          if (typeof selectedTask.penDataUrl === "string")
+            setScribbleUrl(selectedTask.penDataUrl);
+        }
+      } catch (e) {}
+    }
   }, []);
+  useEffect(() => {
+    return () => {
+      //on unmounting clear localStorage
+      //localStorage.removeItem("selectedTaskId");
+      //localStorage.removeItem("editorContent");
+    };
+  }, []);
+  const displayModal = (e) => {
+    setShowAlertModal(true);
+    setIsEditable(false);
+  };
   return (
-    <div className="bg-black text-white flex flex-col min-h-screen relative overflow-hidden">
+    <div className="bg-black text-white flex flex-col min-h-screen
+     relative overflow-hidden">
       <div className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
+        {/* <IndependentChild/> */}
       {/* Main editor wrapper */}
       <div
         className="w-screen h-screen relative flex flex-col justify-center items-center overflow-hidden"
@@ -1332,8 +1455,7 @@ function LexicalEditor() {
           boxShadow: "0 0 60px 0 rgba(15, 249, 204, 0.25)", // semi-transparent bright cyan glow
         }}
       >
-        <SidebarOnHover2 />
-        <div className="absolute gap-10 top-20 left-10 flex items-center">
+        <div className="flex items-center fixed top-12 left-10">
           <a
             href="/tasks"
             className="font-medium transition-colors"
@@ -1344,8 +1466,35 @@ function LexicalEditor() {
             <ArrowLeft size={18} />
           </a>
         </div>
+        <SidebarOnHover2 />
+        {showAlertModal && (
+          <div className="fixed inset-0 flex items-center justify-center z-50">
+            <div className="bg-gradient-to-br from-transparent via-cyan-900/30 to-transparent p-8 rounded-xl text-center w-100 drop-shadow-xl" style={{ border: "1px solid #20e3d7" }}>
+              <h2 className="text-[#0ff9cc] text-xl font-semibold mb-4">
+                Login to continue editing <b>{title}</b>
+              </h2>
+              <div className="flex justify-end">
+                <button
+                  onClick={() => setShowAlertModal(false)}
+                  className="mt-4 px-4 py-2 bg-gradient-to-r from-teal-600 to-teal-700 text-white rounded-lg mr-4"
+                >
+                  View Only
+                </button>
+                <button
+                  onClick={() => {
+                    localStorage.setItem("notesShareId", shareId); 
+                    navigate("/login"); 
+                  }}
+                  className="mt-4 px-4 py-2 bg-gradient-to-r from-teal-600 to-teal-700 text-white rounded-lg"
+                >
+                  Login
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         <div
-          className="h-auto w-auto border rounded-md pt-2 relative z-10 flex flex-col"
+          className="h-auto w-auto border rounded-md pt-2 relative top-[-5px] z-10 flex flex-col"
           style={{
             background: "rgba(6, 26, 36, 0.6)",
             border: "2px solid #20e3d7",
@@ -1356,10 +1505,10 @@ function LexicalEditor() {
           <h1
             className="editable-title mb-4"
             ref={h1Ref}
-            contentEditable
+            contentEditable = { isEditable }
             suppressContentEditableWarning={true}
             spellCheck={false}
-            onInput={handleInput}
+            onKeyDown={isLoggedIn ? (e) => handleInput(e) : () => displayModal()}
             style={{
               cursor: "text",
               textAlign: "center",
@@ -1381,12 +1530,12 @@ function LexicalEditor() {
           />
         </div>
         <div
-          className="h-[400px] w-[900px] border rounded-md pt-6 relative z-10 flex flex-col"
+          className="h-[68%] w-[95%] border rounded-md pt-6 relative z-10 flex flex-col"
           style={{
             background: "rgba(6, 26, 36, 0.4)",
             border: "2px solid #20e3d7",
             borderTopLeftRadius: 0,
-            borderTopRightRadius: 0
+            borderTopRightRadius: 0,
           }}
         >
           {ispenactive && (
@@ -1399,13 +1548,14 @@ function LexicalEditor() {
                   <RichTextPlugin
                     contentEditable={
                       <ContentEditable
-                        className="h-[300px] text-xl font-normal outline-none resize-none px-1"
+                        className="h-[380px] text-xl font-normal outline-none resize-none px-1"
                         style={{ color: "#e4ffff" }}
+                        onKeyDown={isLoggedIn ? null : displayModal}
                       />
                     }
                     placeholder={
                       <span className="absolute top-0 left-4 pointer-events-none text-lg font-poppins text-cyan-200">
-                        <span className="smooth-typing">Let's Start</span>
+                        <span className="smooth-typing"></span>
                       </span>
                     }
                     ErrorBoundary={LexicalErrorBoundary}
@@ -1417,9 +1567,17 @@ function LexicalEditor() {
                   <ToolbarPlugin
                     openChatbot={() => setShowChatbot(true)}
                     closeChatbot={() => setShowChatbot(false)}
+                    isLoggedIn={isLoggedIn}
+                    displayModal={displayModal}
                   />
                 </div>
-                <SharePlugin title={title} saveTrigger={saveTrigger} />
+                <SharePlugin
+                  title={title}
+                  saveTrigger={saveTrigger}
+                  isLoggedIn={isLoggedIn}
+                  displayModal={displayModal}
+                  shareId = {shareId}
+                />
               </LexicalComposer>
             </div>
           )}
