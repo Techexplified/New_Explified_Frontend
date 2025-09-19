@@ -10,6 +10,7 @@ import { AiOutlineOpenAI } from "react-icons/ai";
 import { RiGeminiLine } from "react-icons/ri";
 import { FaPlus } from "react-icons/fa6";
 import ExpliSidebar from "../expli/ExpliSidebar";
+import { INTEGRATION_PROVIDERS } from "../utils/data/TroneData";
 
 function Trone() {
   const [prompt, setPrompt] = useState("");
@@ -24,10 +25,16 @@ function Trone() {
     openai: false,
     gemini: false,
   });
-  const [closedChats, setClosedChats] = useState({
-    openai: false,
-    gemini: false,
+  const [closedChats, setClosedChats] = useState(() => {
+    try {
+      const raw = localStorage.getItem("trone_closed_chats");
+      return raw ? JSON.parse(raw) : { openai: false, gemini: false };
+    } catch {
+      return { openai: false, gemini: false };
+    }
   });
+
+  const [selectedTool, setSelectedTool] = useState("Expli");
 
   const [chatHistory, setChatHistory] = useState(() => {
     const raw = localStorage.getItem("trone_chat_sessions1");
@@ -66,7 +73,15 @@ function Trone() {
     }
   });
 
-  const [currentTool, setCurrentTool] = useState("default");
+  const [currentTool, setCurrentTool] = useState("expli");
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("trone_closed_chats", JSON.stringify(closedChats));
+    } catch (err) {
+      console.error("Failed to save closedChats:", err);
+    }
+  }, [closedChats]);
 
   useEffect(() => {
     if (!prevDrawerState.current && isDrawerOpen) {
@@ -149,16 +164,24 @@ function Trone() {
         const tool = currentTool;
         const apiKey = providerKeys[tool] || "";
 
-        if (!apiKey && tool !== "default")
+        if (!apiKey && tool !== "expli")
           throw new Error(`No API key found for ${tool}.`);
 
-        if (tool === "default" && enabledProviders.expli) {
+        if (tool === "expli" && enabledProviders.expli) {
           await handleDefault(userMessage, contextPrompt);
         }
-        if (providerKeys?.gemini && enabledProviders.gemini) {
+        if (
+          providerKeys?.gemini &&
+          enabledProviders.gemini &&
+          !closedChats.gemini
+        ) {
           await handleGemini(userMessage, contextPrompt);
         }
-        if (providerKeys?.openai && enabledProviders.openai) {
+        if (
+          providerKeys?.openai &&
+          enabledProviders.openai &&
+          !closedChats.openai
+        ) {
           await handleOpenAI(userMessage, contextPrompt);
         }
       } catch (err) {
@@ -540,10 +563,13 @@ function Trone() {
     }
     setProviderKeys(next);
   };
+  const activeChats = Object.entries(closedChats)
+    .filter(([key, closed]) => !closed && providerKeys[key])
+    .map(([key]) => key);
 
   return (
     <div className="flex bg-black relative text-white h-screen">
-      <div className="absolute inset-0  opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-900 to-transparent"></div>
+      <div className="absolute inset-0  opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-400 to-transparent"></div>
 
       <ExpliSidebar
         onAddClick={newChat}
@@ -554,21 +580,56 @@ function Trone() {
         setCurrentMessagesOpenAI={setCurrentMessagesOpenAI}
         link={"https://explified.com/expli/"}
         tools={providerKeys}
-        setCurrentTool={setCurrentTool}
         setShowIntegrationsModal={setShowIntegrationsModal}
         closedChats={closedChats}
         setClosedChats={setClosedChats}
       />
 
       <div className="overflow-x-auto h-screen w-screen flex flex-col">
-        {/* <h1 className="text-2xl font-bold text-left w-full  px-4 py-4 opacity-0  text-[#23b5b5]">
-          Expli
-        </h1> */}
-
         {/* Chat + Input inside same box */}
-        <div className="w-full flex-1 border border-cyan-900/60 shadow-[0_0_0_1px_rgba(0,255,255,0.06),0_0_24px_rgba(0,255,255,0.07)] bg-gradient-to-br from-black via-gray-950 to-black p-4 sm:p-5 flex flex-col gap-4 relative">
+        <div className="w-full flex-1 border border-cyan-900/60 shadow-[0_0_0_1px_rgba(0,255,255,0.06),0_0_24px_rgba(0,255,255,0.07)] bg-gradient-to-br from-black via-[#23b5b5] to-black p-4 sm:p-5 flex flex-col gap-4 relative">
           {/* Background Pattern */}
-          {/* <div className="absolute inset-0 opacity-40 pointer-events-none bg-gradient-to-br from-black to-black"></div> */}
+          <div className="absolute inset-0 opacity-40 pointer-events-none bg-gradient-to-br from-black to-black"></div>
+
+          {/* Select tool */}
+          {/* Show select only if one chat is open */}
+          {activeChats.length <= 1 && (
+            <div className="text-2xl font-bold text-left w-full px-4 py-1 text-[#23b5b5]">
+              <select
+                value={selectedTool}
+                onChange={(e) => {
+                  const selected = e.target.value;
+
+                  if (selected === "expli") {
+                    setSelectedTool(selected);
+                    setClosedChats({ openai: true, gemini: true });
+                    return;
+                  }
+
+                  if (providerKeys[selected]) {
+                    // open only the selected chat, close others
+                    setSelectedTool(selected);
+                    setClosedChats({
+                      openai: selected !== "openai",
+                      gemini: selected !== "gemini",
+                    });
+                  } else {
+                    setShowIntegrationsModal(true);
+                    e.target.value = selectedTool; // keep previous if not integrated
+                  }
+                }}
+                className="relative z-50 bg-gray-800/80 text-white text-xs rounded-lg px-3 py-1.5 border border-gray-600/50 
+      focus:border-minimal-primary/50 focus:outline-none transition-colors duration-200"
+              >
+                <option value="expli">Expli</option>
+                {INTEGRATION_PROVIDERS.map((tool) => (
+                  <option key={tool.id} value={tool.id}>
+                    {tool.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* Chat Containers Row */}
           <div
@@ -639,7 +700,6 @@ function Trone() {
       </div>
 
       <ExpliIntegration
-        currentTool={currentTool}
         providerKeys={providerKeys}
         setProviderKeys={setProviderKeys}
         showIntegrationsModal={showIntegrationsModal}

@@ -95,7 +95,7 @@ function ChatContainer({
         paddingTop: "0",
         paddingBottom: "1rem",
         background:
-          "linear-gradient(180deg, rgba(30,30,30,0.6) 0%, rgba(20,20,20,0.8) 100%)",
+          "linear-gradient(180deg, rgba(30,30,30,0.9) 0%, rgba(20,20,20,0.9) 100%)",
         scrollbarWidth: "thin",
         scrollbarColor: "#374151 transparent",
       }}

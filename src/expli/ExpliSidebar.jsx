@@ -27,8 +27,6 @@ function ExpliSidebar({
   setCurrentMessagesOpenAI,
   onAddClick,
   tools = [],
-  setCurrentTool = () => {},
-  setShowIntegrationsModal,
   closedChats,
   setClosedChats,
 }) {
@@ -99,14 +97,6 @@ function ExpliSidebar({
                   </h1>
                   <div className="flex items-center justify-between gap-1">
                     {/* Workflow button */}
-                    <button
-                      onClick={() =>
-                        navigate(`w?id=${id}`, { relative: "path" })
-                      }
-                      className="p-2 rounded-md hover:bg-gray-800 transition-colors"
-                    >
-                      <Workflow size={18} className="text-white" />
-                    </button>
 
                     {/* Pin button */}
                     <button
@@ -139,6 +129,12 @@ function ExpliSidebar({
               >
                 <button onClick={onAddClick}>
                   <MessageSquare size={20} />
+                </button>
+                <button
+                  onClick={() => navigate(`w?id=${id}`, { relative: "path" })}
+                  className="p-2 rounded-md hover:bg-gray-800 transition-colors"
+                >
+                  <Workflow size={18} className="text-white" />
                 </button>
               </div>
 

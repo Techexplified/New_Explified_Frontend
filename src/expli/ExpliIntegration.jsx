@@ -8,7 +8,6 @@ import { FiChevronDown, FiSearch, FiX } from "react-icons/fi";
 import { Lock, Zap } from "lucide-react";
 function ExpliIntegration({
   providerKeys,
-  setCurrentTool,
   setProviderKeys,
   showIntegrationsModal,
   setShowIntegrationsModal,
@@ -218,7 +217,6 @@ function ExpliIntegration({
                             onClick={(e) => {
                               e.stopPropagation();
                               handleOpenProvider(p.id);
-                              setCurrentTool(p.id);
                             }}
                             className="w-8 h-8 bg-gradient-to-r from-teal-500 to-teal-600 rounded-full flex items-center justify-center text-white transition-all duration-200 transform hover:scale-110 shadow-lg"
                           >
@@ -372,7 +370,6 @@ function ExpliIntegration({
                           className="px-3 py-2 rounded-lg bg-teal-600 hover:bg-teal-500 text-white"
                           onClick={() => {
                             handleSaveProviderKey(selectedProviderId, true);
-                            setCurrentTool(selectedProviderId);
                           }}
                         >
                           Save & Use
