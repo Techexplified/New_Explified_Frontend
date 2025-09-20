@@ -111,6 +111,9 @@ export default {
         teko: ["Teko", "cursive"],
         breakbrush: ["BreakBrush", "sans-serif"],
       },
+      screens: {
+        xs: "400px", // Add a new 'xs' breakpoint
+      },
     },
   },
   darkMode: "class",

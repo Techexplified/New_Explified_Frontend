@@ -178,103 +178,57 @@ const NavBarSection = ({
   highlightMatch,
 }) => (
   <>
-    <div className="w-full pt-[30px] px-24 flex flex-col items-center gap-6 animate-fadeIn">
-      {/* Heading */}
-      <h1 className="text-4xl font-bold bg-gradient-to-r from-teal-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent mb-2 drop-shadow-lg transition-transform duration-500 hover:scale-105 hover:tracking-wider">
-        Explified
-      </h1>
+    <div className="w-full pt-[30px] px-6 sm:px-12 lg:px-24 flex flex-col items-center gap-6 animate-fadeIn">
+      <div className="w-full max-w-screen-lg mx-auto flex flex-col items-center gap-6">
+        {/* Heading */}
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-teal-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent mb-2 drop-shadow-lg transition-transform duration-500 hover:scale-105 hover:tracking-wider text-center">
+          Explified
+        </h1>
 
-      {/* Top Row - Search */}
-      <div className="flex justify-center w-full">
-        {navItems
-          .filter((item) => item.name === "Search")
-          .map((item) => (
-            <div
-              key={item.name}
-              className="relative w-[600px] animate-slideDown"
-            >
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors group-hover:text-teal-400" />
-              <input
-                type="text"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={handleSearch}
-                className={`w-full bg-black/50 border border-gray-600 rounded-2xl pl-12 pr-4 py-4 text-white placeholder-gray-400 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-teal-500/10 ${
-                  selectedTool === item.name ? "bg-[#23b5b5] font-semibold" : ""
+        {/* Top Row - Search */}
+        <div className="flex justify-center w-full px-2">
+          {navItems
+            .filter((item) => item.name === "Search")
+            .map((item) => (
+              <div
+                key={item.name}
+                className="relative w-full max-w-md sm:max-w-lg md:max-w-2xl animate-slideDown"
+              >
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors group-hover:text-teal-400" />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={handleSearch}
+                  className={`w-full bg-black/50 border border-gray-600 rounded-2xl pl-12 pr-4 py-3 sm:py-4 text-sm sm:text-base text-white placeholder-gray-400 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-teal-500/10 ${
+                    selectedTool === item.name
+                      ? "bg-[#23b5b5] font-semibold"
+                      : ""
+                  }`}
+                />
+              </div>
+            ))}
+        </div>
+
+        {/* Bottom Row - Nav buttons */}
+        <div className="flex gap-3 sm:gap-4 overflow-x-auto flex-nowrap animate-fadeInUp delay-200 w-full px-2 sm:px-4 justify-center">
+          {navItems
+            .filter((item) => item.name !== "Search")
+            .map((item) => (
+              <button
+                key={item.name}
+                type="button"
+                onClick={() => onNavClick(item.name)}
+                className={`px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm md:text-base font-medium transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95 whitespace-nowrap ${
+                  selectedTool === item.name
+                    ? "bg-gradient-to-r from-teal-600 to-teal-700 text-white shadow-lg shadow-teal-500/20 border border-teal-500"
+                    : "bg-black/20 border border-gray-600 text-gray-300 hover:bg-gray-700/60 hover:border-gray-500"
                 }`}
-              />
-
-              {/* Results dropdown */}
-              {/* Results dropdown */}
-              {searchQuery.trim() !== "" && (
-                <div
-                  className="absolute left-0 top-full mt-2 w-full border border-gray-700 rounded-xl shadow-2xl max-h-60 overflow-y-auto z-500 animate-fadeInUp"
-                  style={{ backgroundColor: "rgba(0, 0, 0, 1)" }} // solid black background
-                >
-                  {" "}
-                  {searchResults.length > 0 ? (
-                    searchResults.map((tool, index) => {
-                      const IconComponent = iconMap[tool.icon] || FileText;
-                      return (
-                        <div
-                          key={index}
-                          onClick={() => {
-                            addRecentTool(tool);
-                            setRecentTools(getRecentTools());
-                            navigate(tool.route);
-                            setSearchQuery("");
-                            setSearchResults([]);
-                          }}
-                          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-800/90 cursor-pointer transition-all duration-200 rounded-lg hover:scale-[1.02]"
-                        >
-                          <div
-                            className={`h-6 w-6 flex items-center justify-center rounded-lg bg-gradient-to-r ${tool.color} shadow-md`}
-                          >
-                            <IconComponent className="w-4 h-4 text-white" />
-                          </div>
-                          <div>
-                            <p className="text-sm text-white">
-                              {highlightMatch(tool.title, searchQuery)}
-                            </p>
-                            <p className="text-xs text-gray-400 line-clamp-1">
-                              {highlightMatch(tool.description, searchQuery)}
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <div className="flex items-center gap-3 px-4 py-2 cursor-default">
-                      <div className="h-6 w-6 flex items-center justify-center rounded-lg bg-gradient-to-r from-minimal-primary to-minimal-gray-400">
-                        <FileText className="w-4 h-4 text-white" />
-                      </div>
-                      <p className="text-sm text-gray-400">No results found</p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
-      </div>
-
-      {/* Bottom Row - Nav buttons */}
-      <div className="flex gap-4 justify-center flex-wrap animate-fadeInUp delay-200 ">
-        {navItems
-          .filter((item) => item.name !== "Search")
-          .map((item) => (
-            <button
-              key={item.name}
-              type="button"
-              onClick={() => onNavClick(item.name)}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95 ${
-                selectedTool === item.name
-                  ? "bg-gradient-to-r from-teal-600 to-teal-700 text-white shadow-lg shadow-teal-500/20 border border-teal-500"
-                  : "bg-black/20 border border-gray-600 text-gray-300 hover:bg-gray-700/60 hover:border-gray-500"
-              }`}
-            >
-              <span>{item.name}</span>
-            </button>
-          ))}
+              >
+                <span>{item.name}</span>
+              </button>
+            ))}
+        </div>
       </div>
     </div>
 
@@ -516,63 +470,63 @@ const MainDashboard = () => {
     },
     {
       title: "Video Meme Generator AI",
-      description: "Style your images.",
+      description: "Turn any clip into a share-worthy meme in seconds with AI.",
       icon: "Laugh",
       route: "/video-meme-generator",
       color: "from-teal-500 to-teal-700",
     },
     {
       title: "Integrations",
-      description: "Style your images.",
+      description: "Instantly share across your socials.",
       icon: "Zap",
       route: "/integrations",
       color: "from-teal-500 to-teal-700",
     },
     {
       title: "Socials",
-      description: "Style your images.",
+      description: "One click, everywhere.",
       icon: "BoomBox",
       route: "/socials",
       color: "from-teal-500 to-teal-700",
     },
     {
       title: "AI GIF Generator",
-      description: "Style your images.",
+      description: "Viral GIFs, AI-powered in seconds.",
       icon: "MdOutlineGifBox",
       route: "/ai-gif-generator",
       color: "from-teal-500 to-teal-700",
     },
     {
       title: "AI Hugging Video Maker",
-      description: "Style your images.",
+      description: "Bring warm hugs to life with AI-powered videos.",
       icon: "ScreenShare",
       route: "/ai-hugging-video-maker",
       color: "from-teal-500 to-teal-700",
     },
     {
       title: "Ageing Video Maker AI",
-      description: "Style your images.",
+      description: "See yourself age in seconds with AI-powered videos.",
       icon: "MdElderlyWoman",
       route: "/ageing-video-maker-ai",
       color: "from-teal-500 to-teal-700",
     },
     {
       title: "AI Tattoo Art Generator",
-      description: "Style your images.",
+      description: "Design unique tattoo art instantly with AI.",
       icon: "PenOff",
       route: "/ai-tattoo-art-generator",
       color: "from-teal-500 to-teal-700",
     },
     {
       title: "Image To Video AI",
-      description: "Style your images.",
+      description: "Transform any image into a stunning video with AI.",
       icon: "Image",
       route: "/image-to-video-ai",
       color: "from-teal-500 to-teal-700",
     },
     {
       title: "Link To Video AI",
-      description: "Style your images.",
+      description: "Turn any link into an engaging video with AI.",
       icon: "Link",
       route: "/link-to-video-ai",
       color: "from-teal-500 to-teal-700",
@@ -675,7 +629,7 @@ const MainDashboard = () => {
 
             {/* main dashboard */}
             <div
-              className="flex flex-wrap gap-6 justify-start"
+              className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6"
               ref={toolsGridRef}
             >
               <div
@@ -724,7 +678,7 @@ const MainDashboard = () => {
             <div className="border-t border-gray-600 w-full mb-6"></div>
 
             {/* Grid of Recent Tools */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
               {/* Special Cards */}
               <div
                 className="tool-card  justify-center text-2xl font-bold text-minimal-white transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-minimal-primary/20 will-change-transform"
@@ -842,7 +796,7 @@ const MainDashboard = () => {
                 >
                   <div
                     ref={allToolsGridRef}
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full"
+                    className="grid grid-cols-1  sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full"
                   >
                     {allTools.map((tool, index) => {
                       const IconComponent = iconMap[tool.icon] || FileText;
