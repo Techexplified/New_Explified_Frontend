@@ -130,8 +130,9 @@ export default function FlowstateLogin() {
                         email: decoded?.email,
                       })
                     );
+                    localStorage.setItem("explified", JSON.stringify(decoded));
                     dispatch(loginUser(decoded));
-                    navigate(`/admin`);
+                    navigate(`/flowsense`);
                   } catch (error) {
                     console.error("Error decoding JWT:", error);
                   }
