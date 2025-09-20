@@ -553,6 +553,15 @@ function Trone() {
       `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
     );
   };
+  const handleRemoveProvider = (providerId) => {
+    const next = { ...(providerKeys || {}), [providerId]: "" };
+    try {
+      localStorage.setItem("provider_keys", JSON.stringify(next));
+    } catch (err) {
+      console.log(err);
+    }
+    setProviderKeys(next);
+  };
 
   // const handleCloseChat = (providerId) => {
   //   const next = { ...(providerKeys || {}), [providerId]: "" };
@@ -583,6 +592,7 @@ function Trone() {
         setShowIntegrationsModal={setShowIntegrationsModal}
         closedChats={closedChats}
         setClosedChats={setClosedChats}
+        handleRemoveProvider={handleRemoveProvider}
       />
 
       <div className="overflow-x-auto h-screen w-screen flex flex-col">
@@ -648,6 +658,7 @@ function Trone() {
                 setEnabledProviders((prev) => ({ ...prev, expli: val }))
               }
               providerKeys={providerKeys}
+              closedChats={closedChats}
             />
 
             {providerKeys?.openai && !closedChats.openai && (

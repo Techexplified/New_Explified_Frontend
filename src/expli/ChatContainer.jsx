@@ -11,6 +11,7 @@ function ChatContainer({
   handleCloseChat,
   pid,
   providerKeys,
+  closedChats,
 }) {
   const chatContainerRef = useRef(null);
   const [copiedIndex, setCopiedIndex] = useState(null);
@@ -125,39 +126,40 @@ function ChatContainer({
           </div>
 
           {/* Right side: Controls */}
-          {(providerKeys?.gemini || providerKeys?.openai !== "") && (
-            <div className="flex items-center gap-4">
-              {/* Enhanced Toggle */}
-              <div className="flex items-center gap-3">
-                <label className="relative inline-flex items-center cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    checked={enabled}
-                    onChange={() => setEnabled(!enabled)}
-                    className="sr-only peer"
-                  />
-                  <div className="w-12 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-cyan-500/50 rounded-full peer peer-checked:bg-gradient-to-r peer-checked:from-cyan-500 peer-checked:to-cyan-400 transition-all duration-300 shadow-lg peer-checked:shadow-cyan-500/25"></div>
-                  <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 peer-checked:translate-x-6 shadow-md peer-checked:shadow-lg"></div>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400/20 to-transparent opacity-0 peer-checked:opacity-100 transition-opacity duration-300"></div>
-                </label>
-              </div>
+          {(providerKeys?.gemini !== "" || providerKeys?.openai !== "") &&
+            !(closedChats?.openai && closedChats?.gemini) && (
+              <div className="flex items-center gap-4">
+                {/* Enhanced Toggle */}
+                <div className="flex items-center gap-3">
+                  <label className="relative inline-flex items-center cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={enabled}
+                      onChange={() => setEnabled(!enabled)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-12 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-cyan-500/50 rounded-full peer peer-checked:bg-gradient-to-r peer-checked:from-cyan-500 peer-checked:to-cyan-400 transition-all duration-300 shadow-lg peer-checked:shadow-cyan-500/25"></div>
+                    <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 peer-checked:translate-x-6 shadow-md peer-checked:shadow-lg"></div>
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400/20 to-transparent opacity-0 peer-checked:opacity-100 transition-opacity duration-300"></div>
+                  </label>
+                </div>
 
-              {/* Enhanced Close Button */}
-              {toolName !== "Expli" && (
-                <button
-                  onClick={() => handleCloseChat(pid)}
-                  className="relative p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/20 rounded-xl transition-all duration-300 group border border-transparent hover:border-red-500/30 backdrop-blur-sm"
-                  aria-label="Close chat"
-                >
-                  <X
-                    size={18}
-                    className="group-hover:rotate-90 transition-all duration-300 drop-shadow-sm"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </button>
-              )}
-            </div>
-          )}
+                {/* Enhanced Close Button */}
+                {toolName !== "Expli" && (
+                  <button
+                    onClick={() => handleCloseChat(pid)}
+                    className="relative p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/20 rounded-xl transition-all duration-300 group border border-transparent hover:border-red-500/30 backdrop-blur-sm"
+                    aria-label="Close chat"
+                  >
+                    <X
+                      size={18}
+                      className="group-hover:rotate-90 transition-all duration-300 drop-shadow-sm"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </button>
+                )}
+              </div>
+            )}
         </div>
       </div>
 

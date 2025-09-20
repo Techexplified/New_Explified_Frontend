@@ -139,6 +139,7 @@ import InventoryComp from "./client_component/Inventroy.jsx";
 import PurchaseOrdersComp from "./client_component/PurchaseComp.jsx";
 import FlowstateLogin from "./client_component/FlowstateLogin.jsx";
 import DashboardComp from "./client_component/AI-dashboard.jsx";
+import FlowSenseLanding from "./expli/flowsense.jsx";
 function App() {
   usePageTracking();
   const navigate = useNavigate();
@@ -257,9 +258,12 @@ function App() {
 
           <Route path="/chat" element={<CarPartsAssistant />} />
           <Route path="/flowstate" element={<DashboardComp />} />
+          <Route path="/flowsense" element={<FlowSenseLanding />} />
           <Route path="/flowstate/login" element={<FlowstateLogin />} />
+          <Route path="/flowsense/login" element={<FlowstateLogin />} />
           <Route path="/flowstate/explified" element={<SalesAssistant />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/flowsense/admin" element={<Admin />} />
           <Route path="/admin/inventory" element={<InventoryComp />} />
           <Route path="/admin/purchaseOrder" element={<PurchaseOrdersComp />} />
 
@@ -377,7 +381,7 @@ function App() {
           ></Route>
           <Route path="/presentation/create" element={<CreatePresentation />} />
           <Route path="/zapier" element={<AutomatedVideoGenerator />} />
-          <Route path="/*" element={<ComingSoon />} />
+          <Route path="/*" element={<FlowstateLogin />} />
           <Route path="/notes" element={<LexicalEditor />} />
           <Route path="/memory" element={<HistoryChat />} />
           <Route path="/locked" element={<LockedPage />} />

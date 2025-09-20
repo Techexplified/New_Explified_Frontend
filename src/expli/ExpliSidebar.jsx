@@ -10,6 +10,8 @@ import {
   Share2,
   Edit3,
   Archive,
+  Cross,
+  X,
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -29,6 +31,7 @@ function ExpliSidebar({
   tools = [],
   closedChats,
   setClosedChats,
+  handleRemoveProvider,
 }) {
   // const [selectedProvider, setSelectedProvider] = useState("expli");
   const [sidebarPinned, setSidebarPinned] = useState(false);
@@ -186,9 +189,19 @@ function ExpliSidebar({
                         {/* status */}
                         <div className="ml-auto flex items-center gap-1">
                           {state === "active" && (
-                            <span className="text-green-400 text-xs font-semibold">
-                              Active
-                            </span>
+                            <>
+                              <span className="text-green-400 text-xs font-semibold">
+                                Active
+                              </span>
+                              <button
+                                onClick={() =>
+                                  handleRemoveProvider(provider.id)
+                                }
+                                className="ml-1 p-1 rounded-full bg-gray-700 hover:bg-gray-600 transition"
+                              >
+                                <X size={12} className="text-white" />
+                              </button>
+                            </>
                           )}
 
                           {state === "inactive" && (
