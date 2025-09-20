@@ -34,7 +34,7 @@ function Trone() {
     }
   });
 
-  const [selectedTool, setSelectedTool] = useState("Expli");
+  // const [selectedTool, setSelectedTool] = useState("expli");
 
   const [chatHistory, setChatHistory] = useState(() => {
     const raw = localStorage.getItem("trone_chat_sessions1");
@@ -554,18 +554,18 @@ function Trone() {
     );
   };
 
-  const handleCloseChat = (providerId) => {
-    const next = { ...(providerKeys || {}), [providerId]: "" };
-    try {
-      localStorage.setItem("provider_keys", JSON.stringify(next));
-    } catch (err) {
-      console.log(err);
-    }
-    setProviderKeys(next);
-  };
-  const activeChats = Object.entries(closedChats)
-    .filter(([key, closed]) => !closed && providerKeys[key])
-    .map(([key]) => key);
+  // const handleCloseChat = (providerId) => {
+  //   const next = { ...(providerKeys || {}), [providerId]: "" };
+  //   try {
+  //     localStorage.setItem("provider_keys", JSON.stringify(next));
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  //   setProviderKeys(next);
+  // };
+  // const activeChats = Object.entries(closedChats)
+  //   .filter(([key, closed]) => !closed && providerKeys[key])
+  //   .map(([key]) => key);
 
   return (
     <div className="flex bg-black relative text-white h-screen">
@@ -592,8 +592,7 @@ function Trone() {
           <div className="absolute inset-0 opacity-40 pointer-events-none bg-gradient-to-br from-black to-black"></div>
 
           {/* Select tool */}
-          {/* Show select only if one chat is open */}
-          {activeChats.length <= 1 && (
+          {/* {activeChats.length <= 1 && (
             <div className="text-2xl font-bold text-left w-full px-4 py-1 text-[#23b5b5]">
               <select
                 value={selectedTool}
@@ -629,7 +628,7 @@ function Trone() {
                 ))}
               </select>
             </div>
-          )}
+          )} */}
 
           {/* Chat Containers Row */}
           <div
