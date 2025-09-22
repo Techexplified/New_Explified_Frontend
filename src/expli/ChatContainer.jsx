@@ -88,7 +88,7 @@ function ChatContainer({
     <div
       ref={chatContainerRef}
       className={
-        "flex-1 w-full bg-gradient-to-b from-gray-900/50 to-black/95 backdrop-blur-2xl  flex flex-col px-2 sm:px-3 overflow-y-auto scroll-smooth relative z-10 border border-gray-600 rounded-xl h-full "
+        "flex-1 w-full bg-gradient-to-b from-gray-900/50 to-black/95 backdrop-blur-2xl  flex flex-col px-2 sm:px-3 overflow-y-auto scroll-smooth relative z-10 border border-gray-600 rounded-xl h-full"
       }
       style={{
         scrollBehavior: "smooth",
@@ -194,7 +194,7 @@ function ChatContainer({
                   ? "border-red-500/50 bg-gradient-to-br from-red-500/20 to-red-600/10 text-red-200 shadow-red-500/20"
                   : msg.sender === "user"
                   ? "bg-gradient-to-br from-cyan-500/25 to-cyan-600/15 border-cyan-500/40 text-white shadow-cyan-500/20"
-                  : "bg-gradient-to-br from-gray-900/90 to-gray-800/70 border-gray-700/60 text-gray-200 shadow-gray-900/50"
+                  : "bg-gradient-to-br from-sky-500/25 to-sky-600/15 border-sky-500/40 text-white shadow-sky-500/20"
               }`}
               style={{
                 wordBreak: "break-word",
@@ -202,12 +202,12 @@ function ChatContainer({
             >
               {/* Message Header for Bot Messages */}
               {msg.sender === "bot" && (
-                <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-700/30">
+                <div className="flex items-center justify-between  pb-2 border-b border-gray-700/30">
                   <div className="flex items-center gap-2">
-                    <div className="p-1 bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 rounded-lg">
-                      <Bot className="w-3 h-3 text-cyan-400" />
+                    <div className="p-1 bg-gradient-to-br from-sky-500/20 to-sky-600/10 rounded-lg">
+                      <Bot className="w-3 h-3 text-sky-400" />
                     </div>
-                    <span className="text-cyan-400 text-xs font-semibold tracking-wide">
+                    <span className="text-sky-400 text-xs font-semibold tracking-wide">
                       AI ASSISTANT
                     </span>
                   </div>
@@ -228,10 +228,10 @@ function ChatContainer({
               {/* User Message Header */}
               {msg.sender === "user" && (
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="p-1 bg-gradient-to-br from-white/20 to-white/10 rounded-lg">
-                    <User className="w-3 h-3 text-white" />
+                  <div className="p-1 bg-gradient-to-br from-cyan-500/20 to-cyan-400/10 rounded-lg">
+                    <User className="w-3 h-3 text-cyan-400" />
                   </div>
-                  <span className="text-white/80 text-xs font-semibold tracking-wide">
+                  <span className="text-cyan-400 text-xs font-semibold tracking-wide">
                     YOU
                   </span>
                 </div>

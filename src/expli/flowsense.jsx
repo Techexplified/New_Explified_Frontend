@@ -1,5 +1,6 @@
 const FlowSenseLanding = () => {
-  const isLoggedIn = typeof window !== 'undefined' && localStorage.getItem("explified");
+  const isLoggedIn =
+    typeof window !== "undefined" && localStorage.getItem("explified");
   const handleLogout = () => {
     localStorage.removeItem("explified");
     window.location.reload();
@@ -9,37 +10,38 @@ const FlowSenseLanding = () => {
       {/* Header */}
       <header className="flex justify-between items-center px-6 py-6 border-b border-gray-800">
         <h1 className="text-2xl font-bold text-[#23b5b5]">FlowSense</h1>
-  <div className="flex items-center gap-4 pt-6  ">
-    {isLoggedIn ? (
-      <>
-        <a
-          href="/flowsense/explified/admin"
-          className="bg-[#23b5b5] text-black px-5 py-2 rounded-full font-semibold hover:bg-[#1fa3a3] transition shadow-sm text-sm"
-        >
-          Admin
-        </a>
-        <button
-          onClick={handleLogout}
-          className="bg-[#23b5b5] text-black px-5 py-2 rounded-full font-semibold hover:bg-[#1fa3a3] transition shadow-sm text-sm"
-        >
-          Logout
-        </button>
-      </>
-    ) : (
-      <a
-        href="/flowsense/explified/admin/login"
-        className="bg-[#23b5b5] text-black px-5 py-2 rounded-full font-semibold hover:bg-[#1fa3a3] transition shadow-sm text-sm"
-      >
-        Login
-      </a>
-    )}
-  </div>
+        <div className="flex items-center gap-4 pt-6  ">
+          {isLoggedIn ? (
+            <>
+              <a
+                href="/flowsense/explified/admin"
+                className="bg-[#23b5b5] text-black px-5 py-2 rounded-full font-semibold hover:bg-[#1fa3a3] transition shadow-sm text-sm"
+              >
+                Admin
+              </a>
+              <button
+                onClick={handleLogout}
+                className="bg-[#23b5b5] text-black px-5 py-2 rounded-full font-semibold hover:bg-[#1fa3a3] transition shadow-sm text-sm"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <a
+              href="/flowsense/explified/admin/login"
+              className="bg-[#23b5b5] text-black px-5 py-2 rounded-full font-semibold hover:bg-[#1fa3a3] transition shadow-sm text-sm"
+            >
+              Login
+            </a>
+          )}
+        </div>
       </header>
 
       {/* Hero Section */}
       <section className="flex flex-col items-center text-center px-4 py-20">
         <h2 className="text-4xl md:text-5xl font-extrabold mb-6 leading-tight">
-          Meet <span className="text-[#23b5b5]">FlowSense</span><br />
+          Meet <span className="text-[#23b5b5]">FlowSense</span>
+          <br />
           Your Smart AI Sales Assistant
         </h2>
         <p className="text-gray-400 max-w-xl mb-10">
@@ -50,7 +52,7 @@ const FlowSenseLanding = () => {
         <a
           href="/flowsense/chat"
           className="inline-block bg-[#23b5b5] text-black px-8 py-4 rounded-full font-semibold hover:bg-[#1fa3a3] transition text-lg shadow-md mb-8"
-          style={{ marginTop: '8px' }}
+          style={{ marginTop: "8px" }}
         >
           Chat with Us
         </a>
