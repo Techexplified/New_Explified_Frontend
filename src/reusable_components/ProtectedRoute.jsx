@@ -9,7 +9,7 @@ export default function ProtectedRoute({ children }) {
   const location = useLocation();
   if (!isLoggedIn()) {
     // Redirect to login, preserve the requested path
-    return <Navigate to="/flowsense/login" state={{ from: location }} replace />;
+    return <Navigate to="/flowsense/explified/admin/login" state={{ from: location }} replace />;
   }
   return children;
 }
