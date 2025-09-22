@@ -258,14 +258,23 @@ function App() {
 
           <Route path="/chat" element={<CarPartsAssistant />} />
           <Route path="/flowstate" element={<DashboardComp />} />
-          <Route path="/flowsense" element={<FlowSenseLanding />} />
+          <Route path="/flowsense/explified" element={<FlowSenseLanding />} />
           <Route path="/flowstate/login" element={<FlowstateLogin />} />
-          <Route path="/flowsense/login" element={<FlowstateLogin />} />
-          <Route path="/flowstate/explified" element={<SalesAssistant />} />
+          <Route
+            path="/flowsense/explified/admin/login"
+            element={<FlowstateLogin />}
+          />
+          <Route path="/flowsense/chat" element={<SalesAssistant />} />
           <Route path="/admin" element={<Admin />} />
-          <Route path="/flowsense/admin" element={<Admin />} />
-          <Route path="/admin/inventory" element={<InventoryComp />} />
-          <Route path="/admin/purchaseOrder" element={<PurchaseOrdersComp />} />
+          <Route path="/flowsense/explified/admin" element={<Admin />} />
+          <Route
+            path="flowsense/explified/admin/inventory"
+            element={<InventoryComp />}
+          />
+          <Route
+            path="flowsense/explified/admin/purchaseOrder"
+            element={<PurchaseOrdersComp />}
+          />
 
           <Route path="/history" element={<History />}></Route>
           {/* <Route path="/newlurph" element={<LurphLanding />}></Route> */}
