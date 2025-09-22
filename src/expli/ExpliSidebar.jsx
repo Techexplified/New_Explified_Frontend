@@ -112,9 +112,9 @@ function ExpliSidebar({
             </div>
           </div>
 
-          <div className="space-y-10">
+          <div>
             {/* New Chat */}
-            <div className="w-full overflow-hidden text-white font-medium  flex items-center gap-3">
+            <div className="w-full mt-4 overflow-hidden text-white font-medium  flex items-center gap-3">
               <button
                 onClick={onAddClick}
                 className="flex flex-col items-center"
@@ -132,7 +132,7 @@ function ExpliSidebar({
             </div>
 
             {/* Available Models */}
-            <div>
+            <div className="mt-6 ">
               <h2 className="text-lg font-semibold mb-1">Active Keys</h2>
 
               {/* ✅ Input Section (Search Bar) */}
@@ -178,7 +178,7 @@ function ExpliSidebar({
               state === "active"
                 ? "bg-[#23b5b5]/20 border-[#23b5b5]"
                 : state === "inactive"
-                ? "bg-gray-800/50 border-yellow-500/50"
+                ? "bg-gray-800/50 border-gray-500/50"
                 : "bg-gray-800/50 border-gray-700 opacity-50 cursor-not-allowed"
             }`}
                       >
@@ -239,7 +239,7 @@ function ExpliSidebar({
             </div>
 
             {/* Chat History */}
-            <div className="bg-gray-900/30">
+            <div className="bg-gray-900/30 mt-14 ">
               <div className="text-lg font-semibold mb-1"> Chat History</div>
               {/* Filtered History */}
               {filteredHistory && filteredHistory.length > 0 ? (

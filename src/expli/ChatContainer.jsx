@@ -10,8 +10,7 @@ function ChatContainer({
   setEnabled,
   handleCloseChat,
   pid,
-  providerKeys,
-  closedChats,
+  onlyExpliOpen,
 }) {
   const chatContainerRef = useRef(null);
   const [copiedIndex, setCopiedIndex] = useState(null);
@@ -89,20 +88,20 @@ function ChatContainer({
     <div
       ref={chatContainerRef}
       className={
-        "flex-1 w-full  flex flex-col px-2 sm:px-3 overflow-y-auto scroll-smooth relative z-10 border border-gray-600 rounded-xl h-full backdrop-blur-md"
+        "flex-1 w-full bg-gradient-to-b from-gray-900/50 to-black/95 backdrop-blur-2xl  flex flex-col px-2 sm:px-3 overflow-y-auto scroll-smooth relative z-10 border border-gray-600 rounded-xl h-full "
       }
       style={{
         scrollBehavior: "smooth",
         paddingTop: "0",
         paddingBottom: "1rem",
-        background:
-          "linear-gradient(180deg, rgba(30,30,30,0.9) 0%, rgba(20,20,20,0.9) 100%)",
+        // background:
+        //   "linear-gradient(180deg, rgba(30,30,30,0.9) 0%, rgba(20,20,20,0.9) 100%)",
         scrollbarWidth: "thin",
         scrollbarColor: "#374151 transparent",
       }}
     >
       {/* Enhanced Header */}
-      <div className="sticky top-0 z-20 bg-gradient-to-r from-gray-900/95 to-gray-800/95 backdrop-blur-xl border-b border-gray-600/50 mb-4 rounded-t-xl -mx-2 sm:-mx-3 px-2 sm:px-3">
+      <div className="sticky top-0 z-20 bg-gradient-to-b from-gray-900/50 to-black/95 backdrop-blur-2xl border-b border-gray-600/50 mb-4 rounded-t-xl -mx-2 sm:-mx-3 px-2 sm:px-3">
         <div className="flex items-center justify-between py-3">
           {/* Left side: Icon + Tool Name */}
           <div className="flex items-center gap-3">
@@ -126,45 +125,44 @@ function ChatContainer({
           </div>
 
           {/* Right side: Controls */}
-          {(providerKeys?.gemini !== "" || providerKeys?.openai !== "") &&
-            !(closedChats?.openai && closedChats?.gemini) && (
-              <div className="flex items-center gap-4">
-                {/* Enhanced Toggle */}
-                <div className="flex items-center gap-3">
-                  <label className="relative inline-flex items-center cursor-pointer group">
-                    <input
-                      type="checkbox"
-                      checked={enabled}
-                      onChange={() => setEnabled(!enabled)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-12 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-cyan-500/50 rounded-full peer peer-checked:bg-gradient-to-r peer-checked:from-cyan-500 peer-checked:to-cyan-400 transition-all duration-300 shadow-lg peer-checked:shadow-cyan-500/25"></div>
-                    <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 peer-checked:translate-x-6 shadow-md peer-checked:shadow-lg"></div>
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400/20 to-transparent opacity-0 peer-checked:opacity-100 transition-opacity duration-300"></div>
-                  </label>
-                </div>
-
-                {/* Enhanced Close Button */}
-                {toolName !== "Expli" && (
-                  <button
-                    onClick={() => handleCloseChat(pid)}
-                    className="relative p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/20 rounded-xl transition-all duration-300 group border border-transparent hover:border-red-500/30 backdrop-blur-sm"
-                    aria-label="Close chat"
-                  >
-                    <X
-                      size={18}
-                      className="group-hover:rotate-90 transition-all duration-300 drop-shadow-sm"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </button>
-                )}
+          {!onlyExpliOpen && (
+            <div className="flex items-center gap-4">
+              {/* Enhanced Toggle */}
+              <div className="flex items-center gap-3">
+                <label className="relative inline-flex items-center cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={enabled}
+                    onChange={() => setEnabled(!enabled)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-12 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-cyan-500/50 rounded-full peer peer-checked:bg-gradient-to-r peer-checked:from-cyan-500 peer-checked:to-cyan-400 transition-all duration-300 shadow-lg peer-checked:shadow-cyan-500/25"></div>
+                  <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 peer-checked:translate-x-6 shadow-md peer-checked:shadow-lg"></div>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400/20 to-transparent opacity-0 peer-checked:opacity-100 transition-opacity duration-300"></div>
+                </label>
               </div>
-            )}
+
+              {/* Enhanced Close Button */}
+              {toolName !== "Expli" && (
+                <button
+                  onClick={() => handleCloseChat(pid)}
+                  className="relative p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/20 rounded-xl transition-all duration-300 group border border-transparent hover:border-red-500/30 backdrop-blur-sm"
+                  aria-label="Close chat"
+                >
+                  <X
+                    size={18}
+                    className="group-hover:rotate-90 transition-all duration-300 drop-shadow-sm"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
       {/* Messages Container */}
-      <div className="w-full flex flex-col gap-6 px-1">
+      <div className="w-full flex flex-col gap-6 px-1 ">
         {(!messages || messages.length === 0) && (
           <div className="flex flex-col items-center justify-center h-full text-center mt-12 animate-fade-in">
             <div className="relative mb-6">

@@ -44,7 +44,7 @@ export default function LoginPage() {
         if (attempts > 5) clearInterval(interval);
       }, 1000);
 
-      navigate("/");
+      navigate("/expli");
     }
   }, [user, navigate]);
 
@@ -177,7 +177,9 @@ export default function LoginPage() {
                       })
                     );
                     dispatch(loginUser(decoded));
-                    navigate("/youtube-summarizer");
+                    console.log("dfgd");
+
+                    navigate("/expli");
                   } catch (error) {
                     console.error("Error decoding JWT:", error);
                   }

@@ -1,16 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
-import SidebarOnHover from "../reusable_components/SidebarOnHover";
 import ExpliInput from "../expli/ExpliInput";
 import ExpliIntegration from "../expli/ExpliIntegration";
 import ChatContainer from "../expli/ChatContainer";
-import { Zap } from "lucide-react";
 import { AiOutlineOpenAI } from "react-icons/ai";
 import { RiGeminiLine } from "react-icons/ri";
 import { FaPlus } from "react-icons/fa6";
 import ExpliSidebar from "../expli/ExpliSidebar";
-import { INTEGRATION_PROVIDERS } from "../utils/data/TroneData";
 
 function Trone() {
   const [prompt, setPrompt] = useState("");
@@ -562,6 +559,10 @@ function Trone() {
     }
     setProviderKeys(next);
   };
+  // True if Expli is the only open chat
+  const onlyExpliOpen =
+    (closedChats.openai || !providerKeys.openai) &&
+    (closedChats.gemini || !providerKeys.gemini);
 
   // const handleCloseChat = (providerId) => {
   //   const next = { ...(providerKeys || {}), [providerId]: "" };
@@ -643,9 +644,7 @@ function Trone() {
           {/* Chat Containers Row */}
           <div
             className={`flex gap-4  ${
-              closedChats?.openai && closedChats?.gemini
-                ? "w-[70%] mx-auto"
-                : "flex-1"
+              onlyExpliOpen ? "w-[70%] mx-auto" : "flex-1"
             }  pt-12 h-full`}
           >
             <ChatContainer
@@ -657,8 +656,7 @@ function Trone() {
               setEnabled={(val) =>
                 setEnabledProviders((prev) => ({ ...prev, expli: val }))
               }
-              providerKeys={providerKeys}
-              closedChats={closedChats}
+              onlyExpliOpen={onlyExpliOpen}
             />
 
             {providerKeys?.openai && !closedChats.openai && (
