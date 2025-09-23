@@ -1,5 +1,6 @@
 import { Sparkles, X, Zap, Bot, User, Copy, Check } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { formatText } from "../utils/data/TroneData";
 
 function ChatContainer({
   messages,
@@ -32,56 +33,6 @@ function ChatContainer({
     } catch (err) {
       console.error("Failed to copy text: ", err);
     }
-  };
-
-  // Format text with proper line breaks, code blocks, and lists
-  const formatText = (text) => {
-    if (!text) return "";
-
-    return (
-      text
-        // Handle code blocks (```code```)
-        .replace(
-          /```([\s\S]*?)```/g,
-          "<pre style=\"background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%); padding: 16px; border-radius: 12px; margin: 12px 0; overflow-x: auto; border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);\"><code style=\"font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace; font-size: 0.9em; line-height: 1.4;\">$1</code></pre>"
-        )
-        // Handle inline code (`code`)
-        .replace(
-          /`([^`]+)`/g,
-          "<code style=\"background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%); padding: 3px 8px; border-radius: 6px; font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace; font-size: 0.9em; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 1px 2px rgba(0,0,0,0.2);\">$1</code>"
-        )
-        // Handle bold text (**text** or __text__)
-        .replace(
-          /\*\*(.*?)\*\*/g,
-          "<strong style='font-weight: 600; color: rgba(255,255,255,0.95);'>$1</strong>"
-        )
-        .replace(
-          /__(.*?)__/g,
-          "<strong style='font-weight: 600; color: rgba(255,255,255,0.95);'>$1</strong>"
-        )
-        // Handle italic text (*text* or _text_)
-        .replace(
-          /\*(.*?)\*/g,
-          "<em style='font-style: italic; color: rgba(255,255,255,0.9);'>$1</em>"
-        )
-        .replace(
-          /_(.*?)_/g,
-          "<em style='font-style: italic; color: rgba(255,255,255,0.9);'>$1</em>"
-        )
-        // Handle numbered lists
-        .replace(
-          /^\d+\.\s+(.+)$/gm,
-          '<div style="margin: 6px 0; padding-left: 16px; position: relative;"><span style="position: absolute; left: 0; color: #23b5b5; font-weight: 600;">•</span> $1</div>'
-        )
-        // Handle bullet points
-        .replace(
-          /^[-•*]\s+(.+)$/gm,
-          '<div style="margin: 6px 0; padding-left: 16px; position: relative;"><span style="position: absolute; left: 0; color: #23b5b5; font-weight: 600;">•</span> $1</div>'
-        )
-        // Handle line breaks
-        .replace(/\n\n/g, "<br><br>")
-        .replace(/\n/g, "<br>")
-    );
   };
 
   return (

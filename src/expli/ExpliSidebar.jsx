@@ -9,13 +9,11 @@ import {
   MoreVertical,
   Share2,
   Edit3,
-  Archive,
-  Cross,
   X,
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { INTEGRATION_PROVIDERS } from "../utils/data/TroneData";
+import { INTEGRATION_PROVIDERS, formatText } from "../utils/data/TroneData";
 import { AiOutlineOpenAI } from "react-icons/ai";
 import { RiGeminiLine } from "react-icons/ri";
 
@@ -40,6 +38,7 @@ function ExpliSidebar({
   const [searchProviders, setSearchProviders] = useState(""); // ✅ new state
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(null);
+  const [showSearch, setShowSearch] = useState(false);
 
   const filteredHistory = useMemo(() => {
     if (!searchQuery.trim()) return chatHistory;
@@ -122,34 +121,44 @@ function ExpliSidebar({
                 <MessageSquare size={20} />
                 <span className="text-[8px]">New Chat</span>
               </button>
-              <button
+              {/* <button
                 onClick={() => navigate(`w?id=${id}`, { relative: "path" })}
                 className="flex flex-col items-center"
               >
                 <Workflow size={20} />
                 <span className="text-[8px]">Workflow</span>
-              </button>
+              </button> */}
             </div>
 
             {/* Available Models */}
             <div className="mt-6 ">
-              <h2 className="text-lg font-semibold mb-1">Active Keys</h2>
+              <div className="flex justify-between items-center">
+                <h2 className="text-lg font-semibold mb-1">Active Keys</h2>
+                <button
+                  onClick={() => setShowSearch((prev) => !prev)}
+                  className="p-1 rounded hover:bg-gray-700/50 transition"
+                >
+                  {showSearch ? (
+                    <X size={14} className="text-gray-400" />
+                  ) : (
+                    <Search size={14} className="text-gray-400" />
+                  )}
+                </button>
+              </div>
 
               {/* ✅ Input Section (Search Bar) */}
-              <div className="relative mb-2">
-                <input
-                  type="text"
-                  value={searchProviders}
-                  onChange={(e) => setSearchProviders(e.target.value)}
-                  placeholder="Search keys..."
-                  className="w-full bg-gray-800/80 text-white text-xs rounded-lg px-3 py-1.5 pr-8 border border-gray-600/50 
-      focus:border-minimal-primary/50 focus:outline-none transition-colors duration-200"
-                />
-                <Search
-                  size={14}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
-                />
-              </div>
+              {showSearch && (
+                <div className="relative mb-2 mt-2">
+                  <input
+                    type="text"
+                    value={searchProviders}
+                    onChange={(e) => setSearchProviders(e.target.value)}
+                    placeholder="Search keys..."
+                    className="w-full bg-gray-800/80 text-white text-xs rounded-lg px-3 py-1.5 pr-8 border border-gray-600/50 
+            focus:border-minimal-primary/50 focus:outline-none transition-colors duration-200"
+                  />
+                </div>
+              )}
 
               {/* ✅ Filter + Render Providers */}
               <div className="space-y-2">
@@ -253,9 +262,12 @@ function ExpliSidebar({
                     >
                       {/* Top row: question + 3-dot menu */}
                       <div className="flex items-center justify-between">
-                        <p className="text-sm text-gray-300 group-hover:text-white truncate">
-                          {item.question}
-                        </p>
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html: formatText(item.promptSummary),
+                          }}
+                          className="text-sm text-gray-300 group-hover:text-white truncate "
+                        />
 
                         {/* 3-dot dropdown menu */}
                         <div className="relative">

@@ -63,7 +63,7 @@ function ExpliIntegration({
   };
   return (
     <>
-      <div className="fixed bottom-6 right-6 z-40">
+      <div className="absolute top-6 left-6 z-40">
         <div
           className="relative group"
           onMouseEnter={() => setIsHoveringIntegration(true)}
@@ -122,7 +122,7 @@ function ExpliIntegration({
       </div>
 
       {showIntegrationsModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50  flex items-center justify-center">
           <div
             className="absolute inset-0 bg-black/60"
             onClick={() => setShowIntegrationsModal(false)}
@@ -130,14 +130,15 @@ function ExpliIntegration({
           <div
             className={`relative w-full ${
               showProviderHelp ? "max-w-3xl" : "max-w-2xl"
-            } mx-4 bg-[#111213] border border-[#0f8b8d]/50 rounded-xl shadow-2xl p-5`}
+            } mx-4 bg-gradient-to-br from-black via-[#23b5b5] to-black border border-[#0f8b8d]/50 rounded-xl shadow-2xl p-5`}
           >
+            <div className="absolute inset-0 opacity-20 pointer-events-none bg-gradient-to-br from-black to-black"></div>
             <button
               aria-label="Close"
               onClick={() => setShowIntegrationsModal(false)}
-              className="absolute top-3 right-3 text-gray-400 hover:text-white"
+              className="absolute top-3 right-3 text-gray-900 "
             >
-              <FiX />
+              <FiX size={25} />
             </button>
             <h3 className="text-white text-xl font-semibold text-center">
               Integrations
@@ -196,7 +197,7 @@ function ExpliIntegration({
                   return (
                     <div
                       key={p.id}
-                      className="bg-[#23b5b5] bg-opacity-20 border border-teal-400 rounded-xl p-3 hover:bg-opacity-40 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl hover:shadow-teal-500/30 relative group cursor-pointer"
+                      className="bg-gradient-to-br from-gray-950/80 to-gray-900/60 bg-opacity-70 border border-gray-800/40  rounded-xl p-3 hover:bg-opacity-40 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl hover:shadow-teal-500/30 relative group cursor-pointer"
                       onClick={() => handleOpenProvider(p.id)}
                     >
                       <div className="flex items-center justify-between mb-4">
@@ -301,7 +302,7 @@ function ExpliIntegration({
                       <div className="mt-2 flex items-center justify-between">
                         <button
                           type="button"
-                          className="flex items-center gap-1 text-xs text-teal-400 hover:text-teal-300"
+                          className="flex items-center gap-1 text-xs text-black"
                           onClick={() => setShowProviderHelp((v) => !v)}
                           aria-expanded={showProviderHelp}
                         >
