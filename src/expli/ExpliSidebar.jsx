@@ -12,14 +12,13 @@ import {
   X,
 } from "lucide-react";
 import { useState, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { INTEGRATION_PROVIDERS, formatText } from "../utils/data/TroneData";
 import { AiOutlineOpenAI } from "react-icons/ai";
 import { RiGeminiLine } from "react-icons/ri";
 
 function ExpliSidebar({
   link,
-  id,
   chatHistory = [],
   setChatHistory,
   setCurrentMessages,
@@ -30,13 +29,16 @@ function ExpliSidebar({
   closedChats,
   setClosedChats,
   handleRemoveProvider,
+  sidebarPinned,
+  isSidebarOpen,
+  setSidebarPinned,
+  setIsSidebarOpen,
 }) {
   // const [selectedProvider, setSelectedProvider] = useState("expli");
-  const [sidebarPinned, setSidebarPinned] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  // const [sidebarPinned, setSidebarPinned] = useState(false);
+  // const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState(""); // ✅ new state
   const [searchProviders, setSearchProviders] = useState(""); // ✅ new state
-  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(null);
   const [showSearch, setShowSearch] = useState(false);
 
@@ -78,16 +80,18 @@ function ExpliSidebar({
   };
   return (
     <div
-      onMouseEnter={() => !sidebarPinned && setIsOpen(true)}
-      onMouseLeave={() => !sidebarPinned && setIsOpen(false)}
+      onMouseEnter={() => !sidebarPinned && setIsSidebarOpen(true)}
+      onMouseLeave={() => !sidebarPinned && setIsSidebarOpen(false)}
       className={`h-screen ${
-        isOpen || sidebarPinned ? "w-72  px-3" : "w-0 px-0 overflow-hidden"
+        isSidebarOpen || sidebarPinned
+          ? "w-72  px-3"
+          : "w-0 px-0 overflow-hidden"
       } relative z-50 overflow-y-scroll sidebar-scroll bg-gradient-to-b from-gray-900/50 to-black/95 backdrop-blur-2xl 
         border-r border-minimal-primary/30 shadow-2xl shadow-minimal-primary/10
         flex flex-col justify-between transition-all duration-500 ease-in-out`}
     >
       {/* Top section */}
-      {isOpen && (
+      {isSidebarOpen && (
         <div>
           {/* Header */}
           <div className="flex items-center justify-between gap-3 border-b border-minimal-primary/30 py-4 mb-4">
@@ -111,25 +115,24 @@ function ExpliSidebar({
             </div>
           </div>
 
-          <div>
-            {/* New Chat */}
-            <div className="w-full mt-4 overflow-hidden text-white font-medium  flex items-center gap-3">
-              <button
-                onClick={onAddClick}
-                className="flex flex-col items-center"
-              >
-                <MessageSquare size={20} />
-                <span className="text-[8px]">New Chat</span>
-              </button>
-              {/* <button
-                onClick={() => navigate(`w?id=${id}`, { relative: "path" })}
-                className="flex flex-col items-center"
-              >
-                <Workflow size={20} />
-                <span className="text-[8px]">Workflow</span>
-              </button> */}
+          <button
+            onClick={onAddClick}
+            className="w-full group relative overflow-hidden bg-gradient-to-r from-gray-800/80 to-gray-700/80 
+                hover:from-minimal-primary/20 hover:to-cyan-500/20 border border-gray-600/50 hover:border-minimal-primary/50
+                text-white font-medium py-1.5 px-2 rounded-xl transition-all duration-300 hover:scale-105 
+                hover:shadow-lg hover:shadow-minimal-primary/10"
+          >
+            <div
+              className="absolute inset-0 bg-gradient-to-r from-minimal-primary/0 to-minimal-primary/10 
+                opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            />
+            <div className="relative text-sm flex items-center justify-center gap-3">
+              <MessageSquare size={14} />
+              <span>New Chat</span>
             </div>
+          </button>
 
+          <div>
             {/* Available Models */}
             <div className="mt-6 ">
               <div className="flex justify-between items-center">
@@ -358,7 +361,7 @@ function ExpliSidebar({
       )}
 
       {/* Bottom Section */}
-      {isOpen && (
+      {isSidebarOpen && (
         <div className="my-4">
           <Link to={link}>
             <div className="underline text-[#23b5b5] flex items-center justify-center gap-2">

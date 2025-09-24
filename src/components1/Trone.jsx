@@ -8,10 +8,19 @@ import { AiOutlineOpenAI } from "react-icons/ai";
 import { RiGeminiLine } from "react-icons/ri";
 import { FaPlus } from "react-icons/fa6";
 import ExpliSidebar from "../expli/ExpliSidebar";
+import IntegrationModal from "../expli/IntegrationModal";
 
-function Trone() {
+function Trone({
+  providerKeys,
+  setProviderKeys,
+  showIntegrationsModal,
+  setShowIntegrationsModal,
+  sidebarPinned,
+  isSidebarOpen,
+  setSidebarPinned,
+  setIsSidebarOpen,
+}) {
   const [prompt, setPrompt] = useState("");
-  const [showIntegrationsModal, setShowIntegrationsModal] = useState(false);
   const [enabledProviders, setEnabledProviders] = useState({
     expli: true,
     openai: true,
@@ -60,15 +69,15 @@ function Trone() {
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef(null);
 
-  const [providerKeys, setProviderKeys] = useState(() => {
-    try {
-      const raw = localStorage.getItem("provider_keys");
-      return raw ? JSON.parse(raw) : {};
-    } catch (e) {
-      console.log(e);
-      return {};
-    }
-  });
+  // const [providerKeys, setProviderKeys] = useState(() => {
+  //   try {
+  //     const raw = localStorage.getItem("provider_keys");
+  //     return raw ? JSON.parse(raw) : {};
+  //   } catch (e) {
+  //     console.log(e);
+  //     return {};
+  //   }
+  // });
 
   const [currentTool, setCurrentTool] = useState("expli");
 
@@ -615,10 +624,13 @@ function Trone() {
         setCurrentMessagesOpenAI={setCurrentMessagesOpenAI}
         link={"https://explified.com/expli/"}
         tools={providerKeys}
-        setShowIntegrationsModal={setShowIntegrationsModal}
         closedChats={closedChats}
         setClosedChats={setClosedChats}
         handleRemoveProvider={handleRemoveProvider}
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+        sidebarPinned={sidebarPinned}
+        setSidebarPinned={setSidebarPinned}
       />
 
       <div className="overflow-x-auto h-screen w-screen flex flex-col">
@@ -626,51 +638,19 @@ function Trone() {
         <div className="w-full  flex-1 border border-cyan-900/60 shadow-[0_0_0_1px_rgba(0,255,255,0.06),0_0_24px_rgba(0,255,255,0.07)] bg-gradient-to-br from-black via-[#23b5b5] to-black p-4 sm:p-5 flex flex-col gap-4 relative">
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-40 pointer-events-none bg-gradient-to-br from-black to-black"></div>
-
-          {/* Select tool */}
-          {/* {activeChats.length <= 1 && (
-            <div className="text-2xl font-bold text-left w-full px-4 py-1 text-[#23b5b5]">
-              <select
-                value={selectedTool}
-                onChange={(e) => {
-                  const selected = e.target.value;
-
-                  if (selected === "expli") {
-                    setSelectedTool(selected);
-                    setClosedChats({ openai: true, gemini: true });
-                    return;
-                  }
-
-                  if (providerKeys[selected]) {
-                    // open only the selected chat, close others
-                    setSelectedTool(selected);
-                    setClosedChats({
-                      openai: selected !== "openai",
-                      gemini: selected !== "gemini",
-                    });
-                  } else {
-                    setShowIntegrationsModal(true);
-                    e.target.value = selectedTool; // keep previous if not integrated
-                  }
-                }}
-                className="relative z-50 bg-gray-800/80 text-white text-xs rounded-lg px-3 py-1.5 border border-gray-600/50 focus:border-minimal-primary/50 focus:outline-none transition-colors duration-200"
-              >
-                <option value="expli">Expli</option>
-                {INTEGRATION_PROVIDERS.map((tool) => (
-                  <option key={tool.id} value={tool.id}>
-                    {tool.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )} */}
-
+          {/* 
           <ExpliIntegration
             providerKeys={providerKeys}
             setProviderKeys={setProviderKeys}
-            showIntegrationsModal={showIntegrationsModal}
-            setShowIntegrationsModal={setShowIntegrationsModal}
-          />
+          /> */}
+
+          {showIntegrationsModal && (
+            <IntegrationModal
+              providerKeys={providerKeys}
+              setProviderKeys={setProviderKeys}
+              setShowIntegrationsModal={setShowIntegrationsModal}
+            />
+          )}
 
           {/* Chat Containers Row */}
           <div

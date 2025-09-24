@@ -140,6 +140,7 @@ import PurchaseOrdersComp from "./client_component/PurchaseComp.jsx";
 import FlowstateLogin from "./client_component/FlowstateLogin.jsx";
 import DashboardComp from "./client_component/AI-dashboard.jsx";
 import FlowSenseLanding from "./expli/flowsense.jsx";
+import ExpliDashboard from "./expli/ExpliDashboard.jsx";
 function App() {
   usePageTracking();
   const navigate = useNavigate();
@@ -296,7 +297,6 @@ function App() {
           <Route path="/socials/:id" element={<DetailedCard />}></Route>
           <Route path="/alltools" element={<AITools />}></Route>
           <Route path="/discover" element={<DiscoverPage />}></Route>
-          <Route path="/expli" element={<Trone />} />
           <Route path="/Meme" element={<Meme />} />
           <Route path="/ai-gif-generator" element={<GIFGenerator />} />
           <Route path="/video-meme-generator" element={<AIMemeGenerator />} />
@@ -396,6 +396,7 @@ function App() {
           <Route path="/locked" element={<LockedPage />} />
         </Route>
 
+        <Route path="/expli" element={<ExpliDashboard />} />
         {/* Tools Page */}
 
         {/* Landing Page */}
