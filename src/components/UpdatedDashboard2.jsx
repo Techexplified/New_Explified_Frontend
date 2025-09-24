@@ -389,11 +389,6 @@ const UpdatedDashboard = () => {
           sidebarOpen ? "ml-80" : "ml-0"
         } w-full transition-all duration-300`}
       >
-        {/* FILTER BAR */}
-
-        {/* MAIN CONTENT SLOT */}
-        
-        <Outlet />
       </div>
     </div>
   );
