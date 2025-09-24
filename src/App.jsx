@@ -246,7 +246,7 @@ function App() {
             <Route path="/pdf-tools/sign" element={<Sign />} />
           </Route> */}
         <Route path="/lurph" element={<LurphLanding />}></Route>
-
+        <Route path="/notes" element={<LexicalEditor />} />
         <Route path="/" element={<UpdatedDashboard />}>
           <Route index element={<MainDashboard />}></Route>
           <Route path="/socials" element={<SocialsPage />}></Route>
@@ -378,11 +378,10 @@ function App() {
           <Route path="/presentation/create" element={<CreatePresentation />} />
           <Route path="/zapier" element={<AutomatedVideoGenerator />} />
           <Route path="/*" element={<ComingSoon />} />
-          <Route path="/notes" element={<LexicalEditor />} />
           <Route path="/memory" element={<HistoryChat />} />
           <Route path="/locked" element={<LockedPage />} />
         </Route>
-
+        
         {/* Tools Page */}
 
         {/* Landing Page */}

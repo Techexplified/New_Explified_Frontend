@@ -3,6 +3,22 @@ import { create } from "zustand";
 import { nanoid } from "nanoid";
 import { useEffect } from "react";
 import React from "react";
+import eraserCursor from "../assets/images/eraser-icon-vector.png";
+import UpdatedDashboard2 from "../components/UpdatedDashboard2";
+import {
+  Circle,
+  Minus,
+  RectangleHorizontal,
+  PencilLine,
+  RemoveFormatting,
+  Eraser,
+  Image,
+  Pen,
+  Pencil,
+  Brush,
+  Droplet,
+  SlidersHorizontal,
+} from "lucide-react";
 // ---- STORE ----
 const useStore = create((set, get) => ({
   shapes: [],
@@ -34,16 +50,18 @@ const useStore = create((set, get) => ({
     fontSize: 20,
     bold: false,
     italic: false,
-    color: "#000000",
+    color: "#23b5b5",
   },
   setTextStyle: (partial) =>
     set((state) => ({ textStyle: { ...state.textStyle, ...partial } })),
+  freehandType: "pencil",
+  setFreehandType: (fType) => set({ freehandType: fType }),
 }));
 
 function ShapesPanel() {
   const selectedTool = useStore((state) => state.selectedTool);
   const setTool = useStore((state) => state.setTool);
-  
+
   const tools = [
     { id: "rectangle", label: "Rectangle" },
     { id: "circle", label: "Circle" },
@@ -52,11 +70,12 @@ function ShapesPanel() {
 
   return (
     <div
-      className="p-2 bg-white rounded-md flex flex-col gap-2 w-60"
+      className="flex flex-col gap-3 bg-gray-600 rounded-t-2xl rounded-b-2xl p-2"
       style={{
         position: "absolute",
-        left: "-500px",
         top: 100,
+        left: 75,
+        width: "60px",
         marginLeft: 12,
         zIndex: 100,
         boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
@@ -66,13 +85,22 @@ function ShapesPanel() {
         <button
           key={t.id}
           onClick={() => setTool(t.id)}
-          className={`appearance-none px-3 py-1 rounded w-full text-left border-2 border-black ${
-            selectedTool === t.id
-              ? "bg-blue-500 text-white"
-              : "bg-white text-black"
-          }`}
+          className={`flex justify-center items-center p-2 rounded-xl text-lg
+            ${
+              selectedTool === t.id
+                ? "bg-blue-500 text-white"
+                : "bg-teal-600 text-white"
+            }`}
+          style={{ fontSize: "1.1rem" }}
+          title={t.label}
         >
-          {t.label}
+          {t.label === "Rectangle" ? (
+            <RectangleHorizontal />
+          ) : t.label === "Circle" ? (
+            <Circle />
+          ) : t.label === "Line" ? (
+            <Minus />
+          ) : null}
         </button>
       ))}
     </div>
@@ -102,20 +130,39 @@ function Shape({
   r,
   cx,
   cy,
+  src,
+  strokeW,
+  opacity,
 }) {
   if (type === "freehand") {
     if (!points || points.length < 2) return null;
     const pathData = points
       .map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`)
       .join(" ");
+
     return (
       <path
         d={pathData}
         stroke={color}
-        strokeWidth={strokeWidth ?? 2}
+        strokeWidth={strokeW ?? 2}
         fill="none"
         strokeLinecap="round"
         strokeLinejoin="round"
+        opacity={opacity ?? 1}
+      />
+    );
+  }
+  // Render image shape
+  if (type === "image") {
+    return (
+      <image
+        key={id}
+        href={arguments.src || src}
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        style={{ pointerEvents: "all" }}
       />
     );
   }
@@ -127,7 +174,7 @@ function Shape({
         y={y}
         width={width}
         height={height}
-        stroke="black"
+        stroke={color}
         fill="transparent"
       />
     );
@@ -138,12 +185,12 @@ function Shape({
         cx={cx}
         cy={cy}
         r={r}
-        stroke="black"
+        stroke={color}
         fill="transparent"
       />
     );
   } else if (type === "line") {
-    return <line key={id} x1={x1} y1={y1} x2={x2} y2={y2} stroke="black" />;
+    return <line key={id} x1={x1} y1={y1} x2={x2} y2={y2} stroke={color} />;
   }
   if (type === "text") {
     const boxW = Math.max(40, width || 160);
@@ -158,7 +205,7 @@ function Shape({
             <rect x={x} y={y} width={boxW} height={boxH} />
           </clipPath>
         </defs>
-        {(text && (
+        {/* {(text && (
           <>
             <rect
               x={x}
@@ -187,7 +234,8 @@ function Shape({
               </text>
             </g>
           </>
-        )) || null}
+        )) ||
+          null} */}
       </g>
     );
   }
@@ -197,82 +245,174 @@ function Shape({
 // ---- CANVAS ----
 function Canvas() {
   const shapes = useStore((s) => s.shapes);
+  const setShapes = useStore((s) => s.setShapes);
   const addShape = useStore((s) => s.addShape);
   const updateShape = useStore((s) => s.updateShape);
   const removeShape = useStore((s) => s.removeShape);
+  // Undo/redo history
+  const [history, setHistory] = useState([]);
+  const [historyIndex, setHistoryIndex] = useState(0);
+
+  // Update shapes when historyIndex changes
+  useEffect(() => {
+    if (history[historyIndex]) {
+      setShapes(history[historyIndex]);
+    }
+  }, [historyIndex]);
+
+  // Undo
+  const handleUndo = () => {
+    setHistoryIndex((prev) => Math.max(prev - 1, 0));
+  };
+
+  // Redo
+  const handleRedo = () => {
+    setHistoryIndex((prev) => Math.min(prev + 1, history.length - 1));
+  };
+
+  function getSVGCoords(svg, clientX, clientY) {
+    const pt = svg.createSVGPoint();
+    pt.x = clientX;
+    pt.y = clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+  let clickTimeout;
+  const [textareaValue, setTextareaValue] = useState("");
   const selectedTool = useStore((s) => s.selectedTool);
   const textStyle = useStore((s) => s.textStyle);
   const selectedShapeId = useStore((s) => s.selectedShapeId);
   const setSelectedShapeId = useStore((s) => s.setSelectedShapeId);
   const [currentShapeId, setCurrentShapeId] = useState(null);
   const [editingId, setEditingId] = useState(null);
-  const [caretIndex, setCaretIndex] = useState(0);
+  // const [caretIndex, setCaretIndex] = useState(0);
   const [showCaret, setShowCaret] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
+  const [isErasing, setIsErasing] = useState(false);
   const [dragOffset, setDragOffset] = useState({ dx: 0, dy: 0 });
   const [isResizing, setIsResizing] = useState(false);
   const [resizeCorner, setResizeCorner] = useState(null); // 'tl' | 'tr' | 'bl' | 'br'
   const [isCreatingTextBox, setIsCreatingTextBox] = useState(false);
+  const freehandType = useStore((s) => s.freehandType);
   const containerRef = useRef(null);
   const measureCanvasRef = useRef(null);
   const svgRef = useRef(null);
-  // caret blink
+  const textareaRef = useRef(null);
+
   useEffect(() => {
-    const t = setInterval(() => setShowCaret((v) => !v), 600);
-    return () => clearInterval(t);
-  }, []);
+    if (editingId && textareaRef.current) {
+      textareaRef.current.focus();
+      // Move cursor to end
+      textareaRef.current.selectionStart = textareaRef.current.selectionEnd =
+        textareaRef.current.value.length;
+    }
+  }, [editingId]);
+  // Expose undo/redo handlers for Toolbar
+  Canvas.handleUndo = handleUndo;
+  Canvas.handleRedo = handleRedo;
   // global key handling when editing
-  useEffect(() => {
-    const handler = (e) => {
-      if (!editingId) return;
-      const shape = shapes.find((s) => s.id === editingId);
-      if (!shape) return;
-      let text = shape.text || "";
-      const insertChar = (ch) => {
-        const before = text.slice(0, caretIndex);
-        const after = text.slice(caretIndex);
-        text = before + ch + after;
-        setCaretIndex(caretIndex + ch.length);
-      };
-      if (e.key === "Backspace") {
-        e.preventDefault();
-        if (caretIndex > 0) {
-          const before = text.slice(0, caretIndex - 1);
-          const after = text.slice(caretIndex);
-          text = before + after;
-          setCaretIndex(caretIndex - 1);
-        }
-      } else if (e.key === "Delete") {
-        e.preventDefault();
-        const before = text.slice(0, caretIndex);
-        const after = text.slice(caretIndex + 1);
-        text = before + after;
-      } else if (e.key === "Enter") {
-        e.preventDefault();
-        insertChar("\n");
-      } else if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        if (caretIndex > 0) setCaretIndex(caretIndex - 1);
-      } else if (e.key === "ArrowRight") {
-        e.preventDefault();
-        if (caretIndex < text.length) setCaretIndex(caretIndex + 1);
-      } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-        e.preventDefault();
-        insertChar(e.key);
-      } else if (e.key === "Escape") {
-        e.preventDefault();
-        setEditingId(null);
-        return;
-      } else {
-        return;
-      }
-      updateShape(editingId, { text });
-      // reflow columns after each edit step
-      reflowColumns(editingId);
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [editingId, caretIndex, shapes, updateShape]);
+  // useEffect(() => {
+  //   const handler = (e) => {
+  //     if (!editingId) return;
+  //     const shape = shapes.find((s) => s.id === editingId);
+  //     if (!shape) return;
+  //     let text = shape.text || "";
+  //     const insertChar = (ch) => {
+  //       const before = text.slice(0, caretIndex);
+  //       const after = text.slice(caretIndex);
+  //       text = before + ch + after;
+  //       // If inserting a newline, move caret to start of next line
+  //       if (ch === "\n") {
+  //         setCaretIndex(caretIndex + 1);
+  //       } else {
+  //         setCaretIndex(caretIndex + ch.length);
+  //       }
+  //     };
+  //     if (e.key === "Backspace") {
+  //       e.preventDefault();
+  //       if (caretIndex > 0) {
+  //         const before = text.slice(0, caretIndex - 1);
+  //         const after = text.slice(caretIndex);
+  //         text = before + after;
+  //         setCaretIndex(caretIndex - 1);
+  //       }
+  //     } else if (e.key === "Delete") {
+  //       e.preventDefault();
+  //       const before = text.slice(0, caretIndex);
+  //       const after = text.slice(caretIndex + 1);
+  //       text = before + after;
+  //     } else if (e.key === "Enter") {
+  //       e.preventDefault();
+  //       const before = text.slice(0, caretIndex);
+  //       const after = text.slice(caretIndex);
+  //       text = before + "\n" + after;
+  //       const lines = before.split("\n");
+  //       const currentLine = lines[lines.length - 1]; // text before caret in current line
+
+  //       let caretXOffset = 0;
+  //       for (let ch of currentLine) {
+  //         caretXOffset += measureTextWidth(
+  //           ch,
+  //           shape.fontSize,
+  //           shape.fontFamily,
+  //           shape.bold,
+  //           shape.italic
+  //         );
+  //       }
+  //       // Now decide where to place caret in the new line
+  //       const newLine = after.split("\n")[0]; // text immediately after caret, before next \n
+  //       let newCaretIndexInLine = 0;
+  //       let x = 0;
+  //       for (let i = 0; i < newLine.length; i++) {
+  //         const w = measureTextWidth(
+  //           newLine[i],
+  //           shape.fontSize,
+  //           shape.fontFamily,
+  //           shape.bold,
+  //           shape.italic
+  //         );
+  //         if (x + w / 2 >= caretXOffset) {
+  //           break; // found closest spot
+  //         }
+  //         x += w;
+  //         newCaretIndexInLine++;
+  //       }
+  //       const newCaretIndex = before.length + 1 + newCaretIndexInLine;
+  //       setCaretIndex(newCaretIndex);
+  //     } else if (e.key === "ArrowLeft") {
+  //       e.preventDefault();
+  //       if (caretIndex > 0) setCaretIndex(caretIndex - 1);
+  //     } else if (e.key === "ArrowRight") {
+  //       e.preventDefault();
+  //       if (caretIndex < text.length) setCaretIndex(caretIndex + 1);
+  //     } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+  //       e.preventDefault();
+  //       insertChar(e.key);
+  //     } else if (e.key === "Escape") {
+  //       e.preventDefault();
+  //       setEditingId(null);
+  //       return;
+  //     } else {
+  //       return;
+  //     }
+  //     updateShape(editingId, { text });
+  //     // reflow columns after each edit step
+  //     reflowColumns(editingId);
+  //   };
+  //   window.addEventListener("keydown", handler);
+  //   return () => window.removeEventListener("keydown", handler);
+  // }, [editingId, caretIndex, shapes, updateShape]);
+
+  // Hide caret when clicking outside the SVG/textbox
+  // useEffect(() => {
+  //   const handleClick = (e) => {
+  //     // Only hide caret if editing and click is outside SVG
+  //     // if (editingId && svgRef.current && !svgRef.current.contains(e.target)) {
+  //     //   setEditingId(null);
+  //     // }
+  //   };
+  //   document.addEventListener("mousedown", handleClick);
+  //   return () => document.removeEventListener("mousedown", handleClick);
+  // }, [editingId]);
   // text measurement helper
   const measureTextWidth = (text, fontSize, fontFamily, bold, italic) => {
     let canvas = measureCanvasRef.current;
@@ -283,10 +423,19 @@ function Canvas() {
     const ctx = canvas.getContext("2d");
     const weight = bold ? "700" : "400";
     const style = italic ? "italic" : "normal";
-    ctx.font = `${style} ${weight} ${fontSize || 16}px ${fontFamily || "Arial"}`;
+    ctx.font = `${style} ${weight} ${fontSize || 16}px ${
+      fontFamily || "Arial"
+    }`;
     return ctx.measureText(text || "").width;
   };
-  const wrapTextToWidth = (text, maxWidth, fontSize, fontFamily, bold, italic) => {
+  const wrapTextToWidth = (
+    text,
+    maxWidth,
+    fontSize,
+    fontFamily,
+    bold,
+    italic
+  ) => {
     const paragraphs = (text || "").split("\n");
     const lines = [];
     for (const para of paragraphs) {
@@ -294,7 +443,13 @@ function Canvas() {
       let line = "";
       for (const token of words) {
         const candidate = line + token;
-        const w = measureTextWidth(candidate, fontSize, fontFamily, bold, italic);
+        const w = measureTextWidth(
+          candidate,
+          fontSize,
+          fontFamily,
+          bold,
+          italic
+        );
         if (w <= maxWidth || line === "") {
           line = candidate;
         } else {
@@ -323,57 +478,16 @@ function Canvas() {
     const padding = 12;
     const maxTextWidth = Math.max(0, (root.width || 0) - padding);
     const lineHeight = getLineHeight(root.fontSize);
-    const lines = wrapTextToWidth(root.text || "", maxTextWidth, root.fontSize, root.fontFamily, root.bold, root.italic);
-    const capacity = Math.max(1, Math.floor(Math.max(24, root.height || 24) - padding) / lineHeight);
-
-    // compute columns needed
-    const columns = [];
-    let idx = 0;
-    while (idx < lines.length) {
-      columns.push(lines.slice(idx, idx + capacity));
-      idx += capacity;
-    }
-    if (columns.length === 0) columns.push([""]);
-
-    // gather existing children for this root
-    const children = all.filter((s) => s.parentId === rootId && s.type === "text");
-
-    // update/create columns
-    columns.forEach((colLines, colIndex) => {
-      const text = colLines.join("\n");
-      const y = root.y + colIndex * ((root.height || 0) + gap);
-      const x = root.x;
-      if (colIndex === 0) {
-        updateShape(root.id, { text });
-      } else {
-        const existing = children.find((c) => c.columnIndex === colIndex);
-        if (existing) {
-          updateShape(existing.id, { x, y, width: root.width, height: root.height, text });
-        } else {
-          addShape({
-            id: nanoid(),
-            type: "text",
-            parentId: rootId,
-            columnIndex: colIndex,
-            x,
-            y,
-            width: root.width,
-            height: root.height,
-            text,
-            fontFamily: root.fontFamily,
-            fontSize: root.fontSize,
-            bold: root.bold,
-            italic: root.italic,
-            color: root.color,
-          });
-        }
-      }
-    });
-
-    // remove extra children beyond needed
-    children.forEach((c) => {
-      if (c.columnIndex >= columns.length) removeShape(c.id);
-    });
+    const lines = wrapTextToWidth(
+      root.text || "",
+      maxTextWidth,
+      root.fontSize,
+      root.fontFamily,
+      root.bold,
+      root.italic
+    );
+    const newHeight = lines.length * lineHeight + padding;
+    updateShape(root.id, { height: newHeight, text: root.text });
   };
 
   // Auto-grow text box height while typing to fit wrapped content
@@ -392,7 +506,10 @@ function Canvas() {
       shape.italic
     );
     const lineHeight = (shape.fontSize || 16) * 1.2;
-    const neededH = Math.max(minH, lines.length > 0 ? lineHeight * lines.length + 12 : minH);
+    const neededH = Math.max(
+      minH,
+      lines.length > 0 ? lineHeight * lines.length + 12 : minH
+    );
     if (!shape.height || neededH > shape.height) {
       updateShape(editingId, { height: neededH });
     }
@@ -422,8 +539,8 @@ function Canvas() {
             color: textStyle.color,
           });
         }
-        setEditingId(null);
-        setCaretIndex(0);
+        // setEditingId(null);
+        // setCaretIndex(0);
       }
       // create a new empty text shape and drag to set width/height
       const id = nanoid();
@@ -442,17 +559,35 @@ function Canvas() {
         color: textStyle.color,
       });
       setSelectedShapeId(id);
+      setEditingId(id);
       setCurrentShapeId(id);
       setIsCreatingTextBox(true);
       e.stopPropagation();
     }
+    if (selectedTool === "eraser") {
+      setIsErasing(true);
+      eraseAt(offsetX, offsetY);
+      e.stopPropagation();
+      return;
+    }
     if (selectedTool === "freehand") {
+      let strokeW = 1,
+        opacity = 1;
+      if (freehandType === "pencil") {
+        strokeW = 1;
+      } else if (freehandType === "pen") {
+        strokeW = 2;
+      } else if (freehandType === "brush") {
+        strokeW = 6;
+        opacity = 0.7; // semi-transparent for brush effect
+      }
       const newShape = {
         id: nanoid(),
         type: "freehand",
         points: [{ x: offsetX, y: offsetY }],
-        color: "black",
-        strokeWidth: 2,
+        color: "#23b5b5",
+        strokeW: strokeW,
+        opacity: opacity,
       };
       addShape(newShape);
       setCurrentShapeId(newShape.id);
@@ -465,7 +600,7 @@ function Canvas() {
         y: offsetY,
         width: 0,
         height: 0,
-        color: "black",
+        color: "#23b5b5",
         strokeWidth: 2,
       };
       addShape(newShape);
@@ -479,7 +614,7 @@ function Canvas() {
         y1: offsetY,
         x2: offsetX,
         y2: offsetY,
-        color: "black",
+        color: "#23b5b5",
         strokeWidth: 2,
       };
       addShape(newShape);
@@ -494,7 +629,7 @@ function Canvas() {
         r: 0,
         width: 0,
         height: 0,
-        color: "black",
+        color: "#23b5b5",
         strokeWidth: 2,
       };
       addShape(newShape);
@@ -509,9 +644,19 @@ function Canvas() {
       updateShape(currentShapeId, (prev) => {
         const newW = Math.max(40, offsetX - prev.x);
         const maxTextWidth = Math.max(0, newW - 12);
-        const lines = wrapTextToWidth(prev.text || "", maxTextWidth, prev.fontSize, prev.fontFamily, prev.bold, prev.italic);
+        const lines = wrapTextToWidth(
+          prev.text || "",
+          maxTextWidth,
+          prev.fontSize,
+          prev.fontFamily,
+          prev.bold,
+          prev.italic
+        );
         const lineHeight = (prev.fontSize || 16) * 1.2;
-        const newH = Math.max(prev.height || 24, lines.length > 0 ? lineHeight * lines.length + 12 : prev.height);
+        const newH = Math.max(
+          prev.height || 24,
+          lines.length > 0 ? lineHeight * lines.length + 12 : prev.height
+        );
         return { width: newW, height: newH };
       });
       reflowColumns(currentShapeId);
@@ -525,18 +670,18 @@ function Canvas() {
         let nh = prev.height || 24;
         const minW = 40;
         const minH = 24;
-        if (resizeCorner === 'br') {
+        if (resizeCorner === "br") {
           nw = Math.max(minW, offsetX - prev.x);
           nh = Math.max(minH, offsetY - prev.y);
-        } else if (resizeCorner === 'tr') {
+        } else if (resizeCorner === "tr") {
           nw = Math.max(minW, offsetX - prev.x);
           nh = Math.max(minH, prev.y + (prev.height || 0) - offsetY);
           ny = Math.min(prev.y + (prev.height || 0) - minH, offsetY);
-        } else if (resizeCorner === 'bl') {
+        } else if (resizeCorner === "bl") {
           nw = Math.max(minW, prev.x + (prev.width || 0) - offsetX);
           nx = Math.min(prev.x + (prev.width || 0) - minW, offsetX);
           nh = Math.max(minH, offsetY - prev.y);
-        } else if (resizeCorner === 'tl') {
+        } else if (resizeCorner === "tl") {
           nw = Math.max(minW, prev.x + (prev.width || 0) - offsetX);
           nx = Math.min(prev.x + (prev.width || 0) - minW, offsetX);
           nh = Math.max(minH, prev.y + (prev.height || 0) - offsetY);
@@ -544,13 +689,27 @@ function Canvas() {
         }
         // Auto height grow to fit current text
         const maxTextWidth = Math.max(0, nw - 12);
-        const lines = wrapTextToWidth(prev.text || "", maxTextWidth, prev.fontSize, prev.fontFamily, prev.bold, prev.italic);
+        const lines = wrapTextToWidth(
+          prev.text || "",
+          maxTextWidth,
+          prev.fontSize,
+          prev.fontFamily,
+          prev.bold,
+          prev.italic
+        );
         const lineHeight = (prev.fontSize || 16) * 1.2;
-        const neededH = Math.max(minH, lines.length > 0 ? lineHeight * lines.length + 12 : minH);
+        const neededH = Math.max(
+          minH,
+          lines.length > 0 ? lineHeight * lines.length + 12 : minH
+        );
         nh = Math.max(nh, neededH);
         return { x: nx, y: ny, width: nw, height: nh };
       });
       reflowColumns(selectedShapeId);
+      return;
+    }
+    if (selectedTool === "eraser" && isErasing) {
+      eraseAt(offsetX, offsetY);
       return;
     }
     if (isDragging && selectedShapeId) {
@@ -580,14 +739,16 @@ function Canvas() {
       }
       return {};
     });
-    
   };
-  
 
   const handleMouseUp = () => {
     setCurrentShapeId(null);
     setIsDragging(false);
     setIsResizing(false);
+    if (selectedTool === "eraser") {
+      setIsErasing(false);
+      return;
+    }
     if (isCreatingTextBox) {
       setIsCreatingTextBox(false);
       // start editing the newly created box
@@ -596,6 +757,8 @@ function Canvas() {
         setCaretIndex(0);
       }
     }
+    setHistory((prev) => [...prev.slice(0, historyIndex + 1), shapes]); // clear redo history
+    setHistoryIndex((prev) => prev + 1);
   };
   const commitText = () => {
     if (!editingId) return;
@@ -612,169 +775,187 @@ function Canvas() {
   };
 
   const onTextareaKeyDown = () => {};
+  function eraseAt(x, y) {
+    shapes.forEach((shape) => {
+      if (isShapeIntersecting(shape, x, y, 20)) {
+        removeShape(shape.id);
+      }
+    });
+  }
+  function isShapeIntersecting(shape, x, y, size) {
+    const radius = size / 2;
+    if (shape.type === "rect") {
+      return (
+        x + radius > shape.x &&
+        x - radius < shape.x + shape.width &&
+        y + radius > shape.y &&
+        y - radius < shape.y + shape.height
+      );
+    }
+    if (shape.type === "circle") {
+      const dist = Math.sqrt((x - shape.cx) ** 2 + (y - shape.cy) ** 2);
+      return dist < shape.r + radius;
+    }
+    if (shape.type === "line") {
+      // Check if eraser circle intersects line segment (approximate)
+      // ...implement line-circle intersection...
+    }
+    if (shape.type === "freehand" && shape.points) {
+      return shape.points.some(
+        (pt) => Math.sqrt((x - pt.x) ** 2 + (y - pt.y) ** 2) < radius
+      );
+    }
+    // For text, use bounding box
+    if (shape.type === "text") {
+      return (
+        x + radius > shape.x &&
+        x - radius < shape.x + (shape.width || 160) &&
+        y + radius > shape.y &&
+        y - radius < shape.y + (shape.height || 28)
+      );
+    }
+    return false;
+  }
   return (
     <div
       ref={containerRef}
       style={{
-        position: "relative",
+        position: "absolute",
         width: "100vw",
-        height: "100%",
+        height: "100vh",
         border: "1px solid #ddd",
       }}
     >
       <svg
         ref={svgRef}
-        className="w-[100%] h-[100%] bg-white border"
+        className="w-[100%] h-[100%] border"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
+        style={{
+          cursor:
+            selectedTool === "eraser"
+              ? `url(${eraserCursor}), auto`
+              : "crosshair",
+        }}
       >
-        { shapes.map((shape) => (
-          <g
-            key={shape.id}
-            onMouseDown={(e) => {
-              if (shape.type === "text") {
-                const { offsetX, offsetY } = e.nativeEvent;
-                setIsDragging(true);
-                setSelectedShapeId(shape.id);
-                setDragOffset({ dx: offsetX - (shape.x || 0), dy: offsetY - (shape.y || 0) });
-                e.stopPropagation();
-              }
-            }}
-            onDoubleClick={(e) => {
-              if (shape.type === "text") {
-                setSelectedShapeId(shape.id);
-                setEditingId(shape.id);
-                const containerRect = containerRef.current.getBoundingClientRect();
-                const svgRect = svgRef.current.getBoundingClientRect();
-                const left = svgRect.left - containerRect.left + (shape.x || 0);
-                const top = svgRect.top - containerRect.top + (shape.y || 0);
-                setTextareaPos({ left, top });
-                setTextareaValue(shape.text || "");
-                e.stopPropagation();
-              }
-            }}
-          >
+        {shapes.map((shape) => (
+          <g key={shape.id}>
+            {/* EDIT MODE */}
             <Shape {...shape} />
-            {selectedShapeId === shape.id && shape.type === "text" && (
+            {editingId === shape.id && shape.type === "text" ? (
+              <foreignObject
+                x={shape.x || 0}
+                y={shape.y || 0}
+                width={Math.max(40, shape.width || 200)}
+                height={Math.max(24, shape.height || 32)}
+              >
+                <textarea
+                  ref={textareaRef}
+                  value={textareaValue}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    fontSize: "16px",
+                    border: "1px solid #1e90ff",
+                    resize: "none",
+                    background: "transparent",
+                    color: "white",
+                    zIndex: 100,
+                  }}
+                  onChange={(e) => {
+                    setTextareaValue(e.target.value);
+                  }}
+                  onBlur={() => {
+                    updateShape(shape.id, { text: text });
+                    setEditingId(null); // exit edit mode
+                  }}
+                />
+              </foreignObject>
+            ) : (
               <>
-                {/* four corner resize handles */}
-                <rect
-                  x={(shape.x || 0) - 8}
-                  y={(shape.y || 0) - 8}
-                  width={16}
-                  height={16}
-                  fill="#1e90ff"
-                  stroke="#0b5cb7"
-                  onMouseDown={(e) => {
-                    setSelectedShapeId(shape.id);
-                    setIsResizing(true);
-                    setResizeCorner('tl');
-                    e.stopPropagation();
-                  }}
-                />
-                <rect
-                  x={(shape.x || 0) + Math.max(40, shape.width || 200) - 8}
-                  y={(shape.y || 0) - 8}
-                  width={16}
-                  height={16}
-                  fill="#1e90ff"
-                  stroke="#0b5cb7"
-                  onMouseDown={(e) => {
-                    setSelectedShapeId(shape.id);
-                    setIsResizing(true);
-                    setResizeCorner('tr');
-                    e.stopPropagation();
-                  }}
-                />
-                <rect
-                  x={(shape.x || 0) - 8}
-                  y={(shape.y || 0) + Math.max(24, shape.height || 32) - 8}
-                  width={16}
-                  height={16}
-                  fill="#1e90ff"
-                  stroke="#0b5cb7"
-                  onMouseDown={(e) => {
-                    setSelectedShapeId(shape.id);
-                    setIsResizing(true);
-                    setResizeCorner('bl');
-                    e.stopPropagation();
-                  }}
-                />
-                <rect
-                  x={(shape.x || 0) + Math.max(40, shape.width || 200) - 8}
-                  y={(shape.y || 0) + Math.max(24, shape.height || 32) - 8}
-                  width={16}
-                  height={16}
-                  fill="#1e90ff"
-                  stroke="#0b5cb7"
-                  onMouseDown={(e) => {
-                    setSelectedShapeId(shape.id);
-                    setIsResizing(true);
-                    setResizeCorner('br');
-                    e.stopPropagation();
-                  }}
-                />
-              </>
-            )}
-            {editingId === shape.id && showCaret && (
-              (() => {
-                const text = shape.text || "";
-                const lines = text.split("\n");
-                const maxWidth = Math.max(40, shape.width || 160) - 12; // padding 6+6
-                const fontPx = shape.fontSize || 16;
-                const lineHeight = fontPx * 1.2;
-                // compute caret position by walking characters
-                let remaining = caretIndex;
-                let caretLine = 0;
-                let caretX = shape.x + 6;
-                let caretY = shape.y + 6;
-                for (let i = 0; i < lines.length; i++) {
-                  const line = lines[i];
-                  const chars = line.split("");
-                  let x = 0;
-                  for (let j = 0; j <= chars.length; j++) {
-                    if (remaining === 0) {
-                      caretLine = i;
-                      caretX = shape.x + 6 + x;
-                      caretY = shape.y + (fontPx || 16) + 6 + i * lineHeight - fontPx; // top of line box
-                      break;
-                    }
-                    const ch = chars[j] || "";
-                    const w = measureTextWidth(ch, fontPx, shape.fontFamily, shape.bold, shape.italic);
-                    x += w;
-                    remaining--;
-                  }
-                  if (remaining === 0) break;
-                }
-                const caretHeight = fontPx;
-                return (
-                  <rect
-                    x={caretX}
-                    y={caretY}
-                    width={1}
-                    height={caretHeight}
-                    fill={shape.color || "#000"}
-                    opacity={0.9}
-                  />
-                );
-              })()
+                {/* VIEW MODE */}
+                <text x={shape.x || 0} y={shape.y || 0}>
+                  {shape.text}
+                </text>
+                    {/* TL handle */}
+                    <rect
+                      x={(shape.x || 0) - 8}
+                      y={(shape.y || 0) - 8}
+                      width={8}
+                      height={8}
+                      fill="#1e90ff"
+                      stroke="#0b5cb7"
+                      onMouseDown={(e) => {
+                        setSelectedShapeId(shape.id);
+                        setIsResizing(true);
+                        setResizeCorner("tl");
+                        e.stopPropagation();
+                      }}
+                    />
+                    {/* TR handle */}
+                    <rect
+                      x={(shape.x || 0) + Math.max(40, shape.width || 200) - 8}
+                      y={(shape.y || 0) - 8}
+                      width={8}
+                      height={8}
+                      fill="#1e90ff"
+                      stroke="#0b5cb7"
+                      onMouseDown={(e) => {
+                        setSelectedShapeId(shape.id);
+                        setIsResizing(true);
+                        setResizeCorner("tr");
+                        e.stopPropagation();
+                      }}
+                    />
+                    {/* BL handle */}
+                    <rect
+                      x={(shape.x || 0) - 8}
+                      y={(shape.y || 0) + Math.max(24, shape.height || 32) - 8}
+                      width={8}
+                      height={8}
+                      fill="#1e90ff"
+                      stroke="#0b5cb7"
+                      onMouseDown={(e) => {
+                        setSelectedShapeId(shape.id);
+                        setIsResizing(true);
+                        setResizeCorner("bl");
+                        e.stopPropagation();
+                      }}
+                    />
+                    {/* BR handle */}
+                    <rect
+                      x={(shape.x || 0) + Math.max(40, shape.width || 200) - 8}
+                      y={(shape.y || 0) + Math.max(24, shape.height || 32) - 8}
+                      width={8}
+                      height={8}
+                      fill="#1e90ff"
+                      stroke="#0b5cb7"
+                      onMouseDown={(e) => {
+                        setSelectedShapeId(shape.id);
+                        setIsResizing(true);
+                        setResizeCorner("br");
+                        e.stopPropagation();
+                      }}
+                    />
+                  </>
+        
             )}
           </g>
-        )) }
+        ))}
       </svg>
       {/* no textarea overlay in pure-SVG editor */}
     </div>
   );
 }
-function SaveButton({ title}) {
+function SaveButton({ title }) {
   // const [editor] = useLexicalComposerContext();
   const [isSaved, setIsSaved] = useState(false);
   const shapes = useStore((s) => s.shapes);
   const selectedNote = localStorage.getItem("selectedNote");
   const handleSaveNewNote = (e) => {
     const notes = JSON.parse(localStorage.getItem("notes")) || [];
-     
+
     const newNote = {
       id: Date.now().toString(), // unique id
       title,
@@ -790,109 +971,43 @@ function SaveButton({ title}) {
 
     alert("Note saved successfully!");
   };
-  const editNote = (e)=>{
+  const editNote = (e) => {
     console.log(title);
     const notes = localStorage.getItem("notes");
     const notesArray = JSON.parse(notes);
     const selectedNoteObj = JSON.parse(selectedNote);
-    const updatedNotes = notesArray.map((note)=>{
-      if(note.id == selectedNoteObj.id){
-        return {...selectedNoteObj,title,shapes};
+    const updatedNotes = notesArray.map((note) => {
+      if (note.id == selectedNoteObj.id) {
+        return { ...selectedNoteObj, title, shapes };
       }
       return note;
     });
-    localStorage.setItem("notes",JSON.stringify(updatedNotes));
+    localStorage.setItem("notes", JSON.stringify(updatedNotes));
     alert("Done!");
-  }
-  // // const getTextContent = () => {
-  //   let text = "";
-  //   editor.getEditorState().read(() => {
-  //     text = $getRoot().getTextContent();
-  //   });
-  //   return text;
-  // };
-  // const isNewNote = !localStorage.getItem("selectedTaskId") && !shareId;
-  // const handleEditNote = () => {
-  //   const selectedTaskId = localStorage.getItem("selectedTaskId");
-  //   const content = getTextContent();
-  //   const text = content;
-  //   let tasks = [];
-  //   try {
-  //     const stored = localStorage.getItem("tasks");
-  //     if (stored) tasks = JSON.parse(stored);
-  //   } catch (e) {
-  //     tasks = [];
-  //   }
-  //   const selectedTask = tasks.filter(
-  //     (t) => t.id === Number(selectedTaskId)
-  //   )[0];
-  //   const otherTasks = tasks.filter((t) => t.id !== Number(selectedTaskId));
-  //   otherTasks.push({
-  //     ...selectedTask,
-  //     title: title,
-  //     content: text,
-  //     lastModified: new Date().toISOString(),
-  //   });
-  //   localStorage.setItem("tasks", JSON.stringify(otherTasks));
-  //   setIsSaved(true);
-  //   setTimeout(() => setIsSaved(false), 1000);
-
-  //   React.useEffect(() => {
-  //     setIsSaved(false);
-  //   }, [saveTrigger, title]);
-  // };
-  //const handleSaveNewNote = () => {
-  // const content = getTextContent();
-  // const text = content;
-  // const newTask = {
-  //   id: Date.now(),
-  //   title: title || "Untitled",
-  //   content: text,
-  //   lastModified: new Date().toISOString(),
-  // };
-  // let tasks = [];
-  // try {
-  //   const stored = localStorage.getItem("tasks");
-  //   if (stored) tasks = JSON.parse(stored);
-  // } catch (e) {
-  //   tasks = [];
-  // }
-  // tasks.push(newTask);
-  // localStorage.setItem("tasks", JSON.stringify(tasks));
-  // setIsSaved(true);
-  // setTimeout(() => setIsSaved(false), 1000);
-  // setIsSaved(true);
-  // React.useEffect(() => {
-  //   setIsSaved(false);
-  // }, [title]);
-  //};
-  // onClick={
-  //   handleSaveNewNote
-  // }
+  };
   return (
     <button
-      onClick={selectedNote? editNote : handleSaveNewNote}
+      onClick={selectedNote ? editNote : handleSaveNewNote}
       style={{
         position: "absolute",
-        top: "0px",
+        top: "15px",
         right: "30px",
         height: 40,
         minWidth: 80,
         padding: "25px 18px",
         fontWeight: 500,
-        color: isSaved ? "blue" : "black",
-        background: "transparent",
-        border: `2px solid ${isSaved ? "blue" : "black"}`,
+        color: "white",
+        background: "teal",
+        // border: `2px solid ${isSaved ? "blue" : "black"}`,
+        border: "none",
         borderRadius: 12,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         cursor: isSaved ? "default" : "pointer",
         transition: "color 0.3s ease, border-color 0.3s ease",
-        zIndex:100
+        zIndex: 100,
       }}
-      onMouseEnter={(e) => !isSaved && (e.currentTarget.style.color = "blue")}
-      onMouseLeave={(e) => !isSaved && (e.currentTarget.style.color = "black")}
     >
       {isSaved ? "Saved" : "Save"}
     </button>
@@ -1262,7 +1377,6 @@ function SharePlugin({
         />
         {/* <ShareButton getTextContent={getTextContent} noteTitle={title} /> */}
       </div>
-
     );
   } catch (e) {
     console.log(e);
@@ -1270,6 +1384,32 @@ function SharePlugin({
 }
 // ---- TOOLBAR ----
 function Toolbar() {
+  const setShapes = useStore((s) => s.setShapes);
+  const freehandType = useStore((s) => s.freehandType);
+  // Image upload state
+  const fileInputRef = useRef();
+
+  // Add image to canvas
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      // Add image as a new shape (centered, default size)
+      addShape({
+        id: nanoid(),
+        type: "image",
+        src: ev.target.result,
+        x: 200,
+        y: 200,
+        width: 180,
+        height: 120,
+      });
+    };
+    reader.readAsDataURL(file);
+    // Reset input value so same file can be uploaded again
+    e.target.value = "";
+  };
   const shapes = useStore((s) => s.shapes);
   const addShape = useStore((s) => s.addShape);
   const updateShape = useStore((s) => s.updateShape);
@@ -1277,35 +1417,195 @@ function Toolbar() {
   const selectedTool = useStore((s) => s.selectedTool);
   const textStyle = useStore((s) => s.textStyle);
   const setTextStyle = useStore((s) => s.setTextStyle);
+  const setFreehandType = useStore((s) => s.setFreehandType);
   const setTool = useStore((s) => s.setTool);
+  // Eraser stroke size state
+  const [eraserSize, setEraserSize] = useState(20);
+  const freehandTools = [
+    { id: "pen", icon: <Pen />, title: "Pen" },
+    { id: "pencil", icon: <Pencil />, title: "Pencil" },
+    { id: "brush", icon: <Brush />, title: "Brush" },
+    { id: "color", icon: <Droplet />, title: "Color" },
+    { id: "thickness", icon: <SlidersHorizontal />, title: "Thickness" },
+  ];
   return (
-    <div className="w-[33vw] flex justify-center gap-2 p-2 bg-gray-200 absolute top-2 z-50">
-      <button onClick={() => setTool("freehand")} className="text-black p-2 drop-shadow-sm">✏️ Freehand</button>
-      <button onClick={() => setTool("rect")} className="text-black p-2 drop-shadow-sm">▭ Shapes</button>
-      <button onClick={() => setTool("text")} className="text-black p-2 drop-shadow-sm">🔤 Text</button>
-      {selectedTool === "text" && (
+    <div
+      className="flex flex-col gap-1 bg-gray-400 absolute rounded-t-2xl
+       rounded-b-2xl border-2 border-cyan-500/20 bg-gradient-to-r from-gray-900/90 to-gray-800/80 backdrop-blur-lg shadow-2xl z-50 p-2 border-none
+       w-25"
+      style={{ top: "20vh", left: "40px" }}
+    >
+      <button
+        onClick={() => setTool("freehand")}
+        className="p-5 rounded-xl flex items-center justify-center border transition-all duration-300 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20 text-minimal-primary"
+        title="Freehand"
+      >
+        <PencilLine />
+      </button>
+      <button
+        onClick={() => setTool("rect")}
+        className="text-minimal-primary rounded-xl flex items-center justify-center p-5 drop-shadow-sm border transition-all duration-300 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20"
+        title="Shapes"
+      >
+        <RectangleHorizontal />
+      </button>
+      <button
+        onClick={() => setTool("text")}
+        className="text-minimal-primary p-5 drop-shadow-sm border transition-all duration-300 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20 rounded-xl"
+        title="Text"
+      >
+        <RemoveFormatting />
+      </button>
+
+      {/* Add Image button */}
+      <button
+        onClick={() => fileInputRef.current && fileInputRef.current.click()}
+        className="text-minimal-primary p-5 drop-shadow-sm border transition-all duration-300 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20 rounded-xl"
+        title="Add Image"
+      >
+        <Image />
+      </button>
+      <input
+        type="file"
+        accept="image/*"
+        ref={fileInputRef}
+        style={{ display: "none" }}
+        onChange={handleImageUpload}
+      />
+      <button
+        onClick={() => setTool("eraser")}
+        className="text-minimal-primary p-5 drop-shadow-sm border transition-all duration-300 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20 rounded-xl"
+        title="Eraser"
+      >
+        <Eraser />
+      </button>
+      {/* Eraser vertical panel */}
+      {/* {selectedTool === "eraser" && (
         <div
           style={{
             position: "absolute",
             left: "-500px",
             top: 100,
             display: "flex",
-            flexDirection: "column", // 👈 stack vertically
-            gap: 12,
-            padding: 12,
-            zIndex: 100,
-            borderRadius: 6,
-            background: "white",
+            flexDirection: "column",
+            gap: 10,
+            padding: 0,
+            zIndex: 200,
+            borderRadius: 8,
+            background: "#fff",
             boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-            minWidth: 180,
+            width: 50,
+            height: 200,
+            alignItems: "center",
           }}
         >
-          <div className="flex flex-col gap-1 text-black">
-            <label className="text-sm font-medium text-black">Font</label>
+          <label style={{ fontWeight: 500, fontSize: "2rem", marginBottom: 8 }}>
+            🧹
+          </label>
+          <input
+            type="range"
+            min={5}
+            max={150}
+            value={eraserSize}
+            onChange={(e) => setEraserSize(Number(e.target.value))}
+            className="rotate-[-90deg] w-32 relative top-[50px]"
+            style={{ accentColor: "gray" }}
+          />
+          <div style={{ fontSize: 14, marginTop: 4 }}>{eraserSize}px</div>
+        </div>
+      )} */}
+      {/* Undo/Redo buttons */}
+      <button
+        onClick={() => Canvas.handleUndo && Canvas.handleUndo()}
+        className="text-minimal-primary p-5 drop-shadow-sm border transition-all duration-300 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20 rounded-xl"
+        title="Undo"
+      >
+        ↶
+      </button>
+      <button
+        onClick={() => Canvas.handleRedo && Canvas.handleRedo()}
+        className="text-minimal-primary p-5 drop-shadow-sm border transition-all duration-300 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20 rounded-xl"
+        title="Redo"
+      >
+        ↷
+      </button>
+      {selectedTool === "freehand" && (
+        <div
+          className="flex flex-col gap-3 bg-gray-600 rounded-t-2xl rounded-b-2xl p-2"
+          style={{ position: "absolute", left: "90px", width: "60px" }}
+          id="freehandDiv"
+        >
+          {freehandTools.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => {
+                setFreehandType(t.id);
+              }}
+              className={`flex justify-center items-center p-2 rounded-xl text-lg
+            ${
+              selectedTool === t.id
+                ? "bg-blue-500 text-white"
+                : "bg-teal-600 text-white"
+            }`}
+              title={t.title}
+            >
+              {t.icon}
+            </button>
+          ))}
+        </div>
+      )}
+      {selectedTool === "text" && (
+        <div
+          style={{
+            position: "absolute",
+            left: "90px",
+            top: 100,
+            display: "flex",
+            flexDirection: "column",
+            gap: 12,
+            padding: 14,
+            zIndex: 100,
+            minWidth: 240,
+            background: "#0c2e32",
+            border: "2px solid #20e3d7",
+            borderRadius: 12,
+            boxShadow: "0 6px 20px rgba(0,0,0,0.35)",
+            color: "#e0f7f6",
+          }}
+        >
+          <div
+            style={{
+              fontWeight: 600,
+              fontSize: 16,
+              textAlign: "left",
+              color: "#a5f1ea",
+              marginBottom: 4,
+            }}
+          >
+            Text Style
+          </div>
+
+          {/* Font Family */}
+          <div className="flex flex-col gap-1">
+            <label className="text-sm" style={{ color: "#a5f1ea" }}>
+              Font
+            </label>
             <select
               value={textStyle.fontFamily}
-              onChange={(e) => setTextStyle({ fontFamily: e.target.value })}
-              className="border border-gray-400 rounded px-2 py-1 bg-white text-black"
+              onChange={(e) =>
+                setTextStyle((prev) => ({
+                  ...prev,
+                  fontFamily: e.target.value,
+                }))
+              }
+              style={{
+                background: "#043138",
+                color: "#c5f9ee",
+                border: "1px solid #20e3d7",
+                borderRadius: 8,
+                padding: "8px 10px",
+                outline: "none",
+              }}
             >
               <option>Arial</option>
               <option>Times New Roman</option>
@@ -1314,65 +1614,138 @@ function Toolbar() {
             </select>
           </div>
 
-          {/* Font Size  + Color*/}
-          <div className="flex flex-row gap-4 text-black">
+          {/* Font Size + Color */}
+          <div className="flex flex-row gap-4">
             {/* Font Size */}
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium">Size</label>
+              <label className="text-sm" style={{ color: "#a5f1ea" }}>
+                Size
+              </label>
               <input
                 type="number"
                 value={textStyle.fontSize}
                 min={8}
                 max={200}
                 onChange={(e) =>
-                  setTextStyle({ fontSize: Number(e.target.value) })
+                  setTextStyle((prev) => ({
+                    ...prev,
+                    fontSize: Number(e.target.value),
+                  }))
                 }
-                className="w-20 border border-gray-400 rounded px-2 py-1 bg-white"
+                style={{
+                  width: 90,
+                  background: "#043138",
+                  color: "#c5f9ee",
+                  border: "1px solid #20e3d7",
+                  borderRadius: 8,
+                  padding: "8px 10px",
+                  outline: "none",
+                }}
               />
             </div>
 
             {/* Text Color */}
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium">Color</label>
+              <label className="text-sm" style={{ color: "#a5f1ea" }}>
+                Color
+              </label>
               <input
                 type="color"
                 value={textStyle.color}
-                onChange={(e) => setTextStyle({ color: e.target.value })}
-                className="w-12 h-9 p-0 border border-gray-400 rounded bg-white"
+                onChange={(e) =>
+                  setTextStyle((prev) => ({ ...prev, color: e.target.value }))
+                }
+                style={{
+                  width: 48,
+                  height: 36,
+                  background: "#043138",
+                  border: "1px solid #20e3d7",
+                  borderRadius: 8,
+                  padding: 0,
+                  cursor: "pointer",
+                }}
                 title="Text color"
               />
             </div>
           </div>
 
-          {/* Bold */}
-          <div className="flex flex-col gap-1 text-black">
-            <label className="text-sm font-medium">Bold</label>
-            <button
-              onClick={() => setTextStyle({ bold: !textStyle.bold })}
-              className={`border border-gray-400 rounded px-2 py-1 font-bold ${
-                textStyle.bold ? "bg-gray-300" : ""
-              }`}
-            >
-              B
-            </button>
-          </div>
+          {/* Bold + Italic */}
+          <div className="flex flex-row gap-3">
+            {/* Bold */}
+            <div className="flex flex-col gap-1">
+              <label className="text-sm" style={{ color: "#a5f1ea" }}>
+                Bold
+              </label>
+              <button
+                onClick={() =>
+                  setTextStyle((prev) => ({ ...prev, bold: !prev.bold }))
+                }
+                style={{
+                  border: `2px solid ${textStyle.bold ? "#00fff7" : "#20e3d7"}`,
+                  background: textStyle.bold
+                    ? "rgba(15, 249, 204, 0.15)"
+                    : "transparent",
+                  color: "#c5f9ee",
+                  borderRadius: 8,
+                  padding: "6px 10px",
+                  fontWeight: 800,
+                  transition:
+                    "background-color 0.2s ease, border-color 0.2s ease",
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor =
+                    "rgba(15, 249, 204, 0.15)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = textStyle.bold
+                    ? "rgba(15, 249, 204, 0.15)"
+                    : "transparent")
+                }
+              >
+                B
+              </button>
+            </div>
 
-          {/* Italic */}
-          <div className="flex flex-col gap-1 text-black">
-            <label className="text-sm font-medium">Italic</label>
-            <button
-              onClick={() => setTextStyle({ italic: !textStyle.italic })}
-              className={`border border-gray-400 rounded px-2 py-1 italic ${
-                textStyle.italic ? "bg-gray-300" : ""
-              }`}
-            >
-              I
-            </button>
+            {/* Italic */}
+            <div className="flex flex-col gap-1">
+              <label className="text-sm" style={{ color: "#a5f1ea" }}>
+                Italic
+              </label>
+              <button
+                onClick={() =>
+                  setTextStyle((prev) => ({ ...prev, italic: !prev.italic }))
+                }
+                style={{
+                  border: `2px solid ${
+                    textStyle.italic ? "#00fff7" : "#20e3d7"
+                  }`,
+                  background: textStyle.italic
+                    ? "rgba(15, 249, 204, 0.15)"
+                    : "transparent",
+                  color: "#c5f9ee",
+                  borderRadius: 8,
+                  padding: "6px 10px",
+                  fontStyle: "italic",
+                  transition:
+                    "background-color 0.2s ease, border-color 0.2s ease",
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor =
+                    "rgba(15, 249, 204, 0.15)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = textStyle.italic
+                    ? "rgba(15, 249, 204, 0.15)"
+                    : "transparent")
+                }
+              >
+                I
+              </button>
+            </div>
           </div>
         </div>
       )}
       {selectedTool == "rect" && <ShapesPanel />}
-      {/* {selectedTool == "freehand" &&  } */}
     </div>
   );
 }
@@ -1380,14 +1753,14 @@ function Toolbar() {
 function LexicalEditor() {
   const [title, setTitle] = useState("Title");
   const h1Ref = useRef(null);
-   const shapes = useStore((s) => s.shapes);
-   const setShapes = useStore((s) => s.setShapes); 
-   const selectedNote = localStorage.getItem("selectedNote");
+  const shapes = useStore((s) => s.shapes);
+  const setShapes = useStore((s) => s.setShapes);
+  const selectedNote = localStorage.getItem("selectedNote");
   const handleInput = (e) => {
     setTitle(e.currentTarget.textContent);
   };
   useEffect(() => {
-    useStore.getState().setShapes([]); 
+    useStore.getState().setShapes([]);
     // Step 1: Get the selectedNote from localStorage
     if (selectedNote) {
       try {
@@ -1422,47 +1795,53 @@ function LexicalEditor() {
     }
   }, [title]);
   return (
-        <div className="bg-white relative">
-            <div className="h-[95vh] flex flex-col items-center relative bg-white top-[5vh] border-black">
+    <div className="relative">
       <div
-        className="h-auto w-auto border rounded-md pt-2 absolute top-[5px] left-[40px] z-10 flex flex-col"
-        style={{
-          border: "2px solid black",
-          marginBottom: "20px",
-          minWidth: "100px",          
-        }}
+        className="flex flex-col items-center relative border-black
+      border border-cyan-900/60 bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200"
       >
-        <h1
-          className="editable-title mb-2"
-          ref={h1Ref}
-          contentEditable
-          suppressContentEditableWarning={true}
-          spellCheck={false}
-          onKeyDown={(e) => handleInput(e)}
+        <div class="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
+        <div class="absolute inset-0 opacity-40 pointer-events-none bg-gradient-to-br from-black to-black"></div>
+        <UpdatedDashboard2 />
+        <div
+          className="h-auto w-auto border rounded-md pt-2 absolute top-[15px] left-[40px] z-50 flex flex-col"
           style={{
-            cursor: "text",
-            textAlign: "center",
-            fontSize: "1.3rem",
-            fontWeight: 400,
-            fontFamily: "sans-serif",
-            color: "black",
-            padding: "0 16px",
-            borderRadius: "0px", // 👈 no rounded corners
-            border: "none", // 👈 removed border
-            outline: "none",
-            userSelect: "text",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
+            border: "2px solid #23b5b5",
+            marginBottom: "20px",
+            minWidth: "100px",
           }}
-          aria-label="Notes Title"
-        />
-      </div>
-      <SharePlugin title={title}/>
-      <Toolbar/>
-      <Canvas />
-    </div>
+        >
+          <h1
+            className="editable-title mb-2"
+            ref={h1Ref}
+            contentEditable
+            suppressContentEditableWarning={true}
+            spellCheck={false}
+            onKeyDown={(e) => handleInput(e)}
+            style={{
+              cursor: "text",
+              textAlign: "center",
+              fontSize: "1.3rem",
+              fontWeight: 400,
+              fontFamily: "sans-serif",
+              color: "#23b5b5",
+              padding: "0 16px",
+              borderRadius: "0px", // 👈 no rounded corners
+              border: "none", // 👈 removed border
+              outline: "none",
+              userSelect: "text",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+            aria-label="Notes Title"
+          />
         </div>
+        <SharePlugin title={title} />
+        <Toolbar />
+        <Canvas />
+      </div>
+    </div>
   );
 }
 
