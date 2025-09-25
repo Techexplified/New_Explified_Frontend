@@ -122,13 +122,19 @@ const ExpliDashboard = () => {
         `}
         style={{ minHeight: "56px", background: "transparent" }}
       >
-        <div className="flex items-start justify-between w-full">
-          <div className="flex items-center gap-2 pt-1 ml-auto">
+        <div className="flex items-center justify-between w-full">
+          <div
+            className={`flex items-center gap-2 pt-1 transition-all duration-300 ${
+              isSidebarOpen || sidebarPinned ? "ml-60" : "ml-auto"
+            }`}
+          >
             <ExpliIntegration
               setShowIntegrationsModal={setShowIntegrationsModal}
               isSidebarOpen={isSidebarOpen}
               sidebarPinned={sidebarPinned}
             />
+          </div>
+          <div className="flex items-center gap-2 pt-1 ">
             {/* Grid Icon */}
             {(() => {
               const tool = {
