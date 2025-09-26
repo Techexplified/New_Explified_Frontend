@@ -22,7 +22,7 @@ const promptSuggestions = [
 ];
 
 const webhookUrl =
-  "https://invgauravkaushik.app.n8n.cloud/webhook/69cf9b73-d9a8-4151-b743-46c5f97e533c";
+  "https://productexplified.app.n8n.cloud/webhook/d4b49ce1-2117-4f7e-ab66-c890a6d7fe79";
 
 const CarPartsAssistant = () => {
   const [listening, setListening] = useState(false);
@@ -106,9 +106,20 @@ const CarPartsAssistant = () => {
       if (!res.ok) throw new Error(`Error: ${res.status} ${res.statusText}`);
 
       const data = await res.json();
-      const parsed = parseBotResponse(data[0]?.output || "");
+      console.log("Webhook response:", data);
+      const output = data[0]?.output || data.output || JSON.stringify(data);
+      const parsed = parseBotResponse(output);
+      console.log("Parsed bot response:", parsed);
 
-      setChat((prev) => [...prev, { sender: "bot", ...parsed }]);
+      // Fallback: if parsed.raw is empty, use output or data as raw
+      setChat((prev) => [
+        ...prev,
+        {
+          sender: "bot",
+          ...parsed,
+          raw: parsed.raw || output || JSON.stringify(data),
+        },
+      ]);
     } catch (err) {
       setError(err.message || "Something went wrong");
     } finally {
@@ -177,78 +188,44 @@ const CarPartsAssistant = () => {
                     : "bg-gray-800 text-gray-100"
                 }`}
               >
-                {msg.sender === "bot" && (msg.item || msg.part || msg.price) ? (
-                  <div>
-                    {msg.item && (
-                      <p>
-                        <span className="text-[#23b5b5]/60 font-semibold">
-                          Item Name:
-                        </span>{" "}
-                        <span className="font-medium">{msg.item}</span>
-                      </p>
-                    )}
-                    {msg.part && (
-                      <p>
-                        <span className="text-[#23b5b5]/60 font-semibold">
-                          Part Number:
-                        </span>{" "}
-                        <span className="font-medium">{msg.part}</span>
-                      </p>
-                    )}
-                    {msg.price && (
-                      <p className="mt-2 px-3 py-1 inline-block bg-[#23b5b5] text-white rounded-full font-semibold text-sm">
-                        Price: {msg.price}
-                      </p>
-                    )}
-                    <div className="mt-2 prose prose-invert prose-sm max-w-none">
-                      <ReactMarkdown
-                        components={{
-                          strong: ({ ...props }) => (
-                            <strong
-                              className="text-[#23b5b5] font-semibold"
-                              {...props}
-                            />
-                          ),
-                          ul: ({ ...props }) => (
-                            <ul
-                              className="list-disc list-inside ml-4"
-                              {...props}
-                            />
-                          ),
-                          p: ({ ...props }) => (
-                            <p className="mb-2" {...props} />
-                          ),
-                        }}
-                      >
-                        {msg.raw}
-                      </ReactMarkdown>
+                  {msg.sender === "bot" ? (
+                    <div>
+                      {/* Show item/part/price if present */}
+                      {msg.item && (
+                        <p>
+                          <span className="text-[#23b5b5]/60 font-semibold">Item Name:</span>{" "}
+                          <span className="font-medium">{msg.item}</span>
+                        </p>
+                      )}
+                      {msg.part && (
+                        <p>
+                          <span className="text-[#23b5b5]/60 font-semibold">Part Number:</span>{" "}
+                          <span className="font-medium">{msg.part}</span>
+                        </p>
+                      )}
+                      {msg.price && (
+                        <p className="mt-2 px-3 py-1 inline-block bg-[#23b5b5] text-white rounded-full font-semibold text-sm">Price: {msg.price}</p>
+                      )}
+                      {/* Always show bot response (raw or text) */}
+                      <div className="mt-2 prose prose-invert prose-sm max-w-none">
+                        <ReactMarkdown
+                          components={{
+                            strong: ({ ...props }) => (
+                              <strong className="text-[#23b5b5] font-semibold" {...props} />
+                            ),
+                            ul: ({ ...props }) => (
+                              <ul className="list-disc list-inside ml-4" {...props} />
+                            ),
+                            p: ({ ...props }) => <p className="mb-2" {...props} />,
+                          }}
+                        >
+                          {msg.raw || msg.text || ""}
+                        </ReactMarkdown>
+                      </div>
                     </div>
-                  </div>
-                ) : msg.sender === "bot" ? (
-                  <div className="prose prose-invert prose-sm max-w-none">
-                    <ReactMarkdown
-                      components={{
-                        strong: ({ ...props }) => (
-                          <strong
-                            className="text-[#23b5b5] font-semibold"
-                            {...props}
-                          />
-                        ),
-                        ul: ({ ...props }) => (
-                          <ul
-                            className="list-disc list-inside ml-4"
-                            {...props}
-                          />
-                        ),
-                        p: ({ ...props }) => <p className="mb-2" {...props} />,
-                      }}
-                    >
-                      {msg.raw}
-                    </ReactMarkdown>
-                  </div>
-                ) : (
-                  msg.text
-                )}
+                  ) : (
+                    msg.text
+                  )}
               </div>
             </div>
           ))}

@@ -51,7 +51,7 @@ const InventoryComp = () => {
 
       try {
         const response = await axios.post(
-          "http://localhost:3000/api/upload",
+          "https://explified-app.web.app/api/upload",
           formData,
           {
             onUploadProgress: (progressEvent) => {

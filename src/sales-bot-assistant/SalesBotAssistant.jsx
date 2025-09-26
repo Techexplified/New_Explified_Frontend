@@ -149,9 +149,7 @@ const SalesAssistant = () => {
           <div className="max-w-4xl w-full text-center space-y-10">
             <div>
               <h1 className="text-4xl md:text-5xl font-extralight text-white leading-tight font-serif">
-                <span className="bg-gradient-to-r from-white via-[#23b5b5]/80 to-[#23b5b5]/80 text-transparent bg-clip-text font-semibold">
-                  Sales Automation Assistant
-                </span>
+              
                 <br />
                 <span className="text-white font-light">
                   How can we assist you today?
