@@ -124,8 +124,8 @@ const ExpliDashboard = () => {
       >
         <div className="flex items-center justify-between w-full">
           <div
-            className={`flex items-center gap-2 pt-1 transition-all duration-300 ${
-              isSidebarOpen || sidebarPinned ? "ml-60" : "ml-auto"
+            className={`flex items-center justify-between gap-2 pt-1 transition-all duration-300 ${
+              isSidebarOpen || sidebarPinned ? "ml-60" : ""
             }`}
           >
             <ExpliIntegration

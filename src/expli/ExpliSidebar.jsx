@@ -126,7 +126,7 @@ function ExpliSidebar({
               className="absolute inset-0 bg-gradient-to-r from-minimal-primary/0 to-minimal-primary/10 
                 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
             />
-            <div className="relative text-sm flex items-center justify-center gap-3">
+            <div className="relative text-sm flex items-center justify-center gap-2">
               <MessageSquare size={14} />
               <span>New Chat</span>
             </div>
@@ -261,7 +261,7 @@ function ExpliSidebar({
                       key={item.id}
                       onClick={() => handleHistoryClick(item)}
                       className="group bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700/30 
-    hover:border-minimal-primary/30 rounded-lg px-3 pt-1 pb-1.5 transition-all duration-200 cursor-pointer"
+    hover:border-minimal-primary/30 rounded-lg px-2 pt-1 pb-1.5 transition-all duration-200 cursor-pointer"
                     >
                       {/* Top row: question + 3-dot menu */}
                       <div className="flex items-center justify-between">
@@ -272,6 +272,24 @@ function ExpliSidebar({
                           className="text-sm text-gray-300 group-hover:text-white truncate "
                         />
 
+                        {/* Bottom row: tool icons */}
+                        <div className="flex gap-2 mt-1">
+                          {item.answers.map((ans) => (
+                            <span
+                              key={ans.tool}
+                              className="text-[10px] px-1.5 py-0.5 rounded bg-gray-700 text-gray-300 flex items-center justify-center"
+                            >
+                              {ans.tool === "expli" && <Plus size={10} />}
+                              {ans.tool === "openai" && (
+                                <AiOutlineOpenAI size={10} />
+                              )}
+                              {ans.tool === "gemini" && (
+                                <RiGeminiLine size={10} />
+                              )}
+                            </span>
+                          ))}
+                        </div>
+
                         {/* 3-dot dropdown menu */}
                         <div className="relative">
                           <button
@@ -281,7 +299,7 @@ function ExpliSidebar({
                                 menuOpen === item.id ? null : item.id
                               );
                             }}
-                            className="p-1 rounded hover:bg-gray-700/50 text-gray-400 hover:text-white"
+                            className="pl-1 rounded hover:bg-gray-700/50 text-gray-400 hover:text-white"
                           >
                             <MoreVertical size={16} />
                           </button>
@@ -325,22 +343,22 @@ function ExpliSidebar({
                       </div>
 
                       {/* Bottom row: tool icons */}
-                      <div className="flex gap-2 mt-1">
+                      {/* <div className="flex gap-2 mt-1">
                         {item.answers.map((ans) => (
                           <span
                             key={ans.tool}
                             className="text-[10px] px-1.5 py-0.5 rounded bg-gray-700 text-gray-300 flex items-center justify-center"
                           >
-                            {ans.tool === "expli" && <Plus size={15} />}
+                            {ans.tool === "expli" && <Plus size={10} />}
                             {ans.tool === "openai" && (
-                              <AiOutlineOpenAI size={15} />
+                              <AiOutlineOpenAI size={10} />
                             )}
                             {ans.tool === "gemini" && (
-                              <RiGeminiLine size={15} />
+                              <RiGeminiLine size={10} />
                             )}
                           </span>
                         ))}
-                      </div>
+                      </div> */}
                     </div>
                   ))}
                 </div>

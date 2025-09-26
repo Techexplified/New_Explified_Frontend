@@ -655,7 +655,7 @@ function Trone({
           {/* Chat Containers Row */}
           <div
             className={`flex gap-4 ${
-              onlyExpliOpen ? "w-[70%] mx-auto" : "flex-1"
+              onlyExpliOpen ? "w-full sm:w-[70%] mx-auto" : "flex-1"
             } pt-20 h-full overflow-x-auto flex-nowrap [&>*]:min-w-[350px]`}
           >
             <ChatContainer

@@ -140,7 +140,7 @@ function ChatContainer({
             style={{ animationDelay: `${index * 0.1}s` }}
           >
             <div
-              className={`relative px-6 py-4 rounded-2xl text-sm break-words whitespace-pre-wrap backdrop-blur-sm shadow-xl border transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] ${
+              className={`relative px-6 py-4 rounded-2xl text-sm break-words whitespace-pre-wrap backdrop-blur-sm shadow-xl border transition-all duration-300 hover:shadow-2xl  ${
                 msg.isError
                   ? "border-red-500/50 bg-gradient-to-br from-red-500/20 to-red-600/10 text-red-200 shadow-red-500/20"
                   : msg.sender === "user"

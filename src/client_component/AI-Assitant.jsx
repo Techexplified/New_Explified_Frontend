@@ -22,19 +22,20 @@ const promptSuggestions = [
 ];
 
 const webhookUrl =
-  "https://invgauravkaushik.app.n8n.cloud/webhook/69cf9b73-d9a8-4151-b743-46c5f97e533c";
+  "https://productexplified.app.n8n.cloud/webhook/d4b49ce1-2117-4f7e-ab66-c890a6d7fe79";
 
 const CarPartsAssistant = () => {
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef(null);
 
   useEffect(() => {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
+      const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = false;
-      recognitionRef.current.lang = 'en-US';
+      recognitionRef.current.lang = "en-US";
 
       recognitionRef.current.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
@@ -106,9 +107,20 @@ const CarPartsAssistant = () => {
       if (!res.ok) throw new Error(`Error: ${res.status} ${res.statusText}`);
 
       const data = await res.json();
-      const parsed = parseBotResponse(data[0]?.output || "");
+      console.log("Webhook response:", data);
+      const output = data[0]?.output || data.output || JSON.stringify(data);
+      const parsed = parseBotResponse(output);
+      console.log("Parsed bot response:", parsed);
 
-      setChat((prev) => [...prev, { sender: "bot", ...parsed }]);
+      // Fallback: if parsed.raw is empty, use output or data as raw
+      setChat((prev) => [
+        ...prev,
+        {
+          sender: "bot",
+          ...parsed,
+          raw: parsed.raw || output || JSON.stringify(data),
+        },
+      ]);
     } catch (err) {
       setError(err.message || "Something went wrong");
     } finally {
@@ -177,8 +189,9 @@ const CarPartsAssistant = () => {
                     : "bg-gray-800 text-gray-100"
                 }`}
               >
-                {msg.sender === "bot" && (msg.item || msg.part || msg.price) ? (
+                {msg.sender === "bot" ? (
                   <div>
+                    {/* Show item/part/price if present */}
                     {msg.item && (
                       <p>
                         <span className="text-[#23b5b5]/60 font-semibold">
@@ -200,6 +213,7 @@ const CarPartsAssistant = () => {
                         Price: {msg.price}
                       </p>
                     )}
+                    {/* Always show bot response (raw or text) */}
                     <div className="mt-2 prose prose-invert prose-sm max-w-none">
                       <ReactMarkdown
                         components={{
@@ -220,31 +234,9 @@ const CarPartsAssistant = () => {
                           ),
                         }}
                       >
-                        {msg.raw}
+                        {msg.raw || msg.text || ""}
                       </ReactMarkdown>
                     </div>
-                  </div>
-                ) : msg.sender === "bot" ? (
-                  <div className="prose prose-invert prose-sm max-w-none">
-                    <ReactMarkdown
-                      components={{
-                        strong: ({ ...props }) => (
-                          <strong
-                            className="text-[#23b5b5] font-semibold"
-                            {...props}
-                          />
-                        ),
-                        ul: ({ ...props }) => (
-                          <ul
-                            className="list-disc list-inside ml-4"
-                            {...props}
-                          />
-                        ),
-                        p: ({ ...props }) => <p className="mb-2" {...props} />,
-                      }}
-                    >
-                      {msg.raw}
-                    </ReactMarkdown>
                   </div>
                 ) : (
                   msg.text
@@ -269,66 +261,67 @@ const CarPartsAssistant = () => {
       </div>
 
       {/* Input Area */}
-    {/* Input Area */}
-<div className="w-full fixed bottom-0 left-0 bg-gray-900 border-t border-gray-800 z-50 px-4 py-3">
-  <div className="max-w-3xl mx-auto">
-    <div className="bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 flex flex-col shadow-sm">
-      {/* Top row: textarea + send/mic */}
-      <div className="flex items-end gap-2">
-        <textarea
-          rows="3"
-          placeholder="Type your message..."
-          className="flex-1 resize-none text-sm bg-transparent text-gray-200 placeholder-gray-500 focus:outline-none leading-5 max-h-28"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) =>
-            e.key === "Enter" &&
-            !e.shiftKey &&
-            (e.preventDefault(), handleSend())
-          }
-          maxLength={1000}
-          disabled={loading}
-        ></textarea>
+      {/* Input Area */}
+      <div className="w-full fixed bottom-0 left-0 bg-gray-900 border-t border-gray-800 z-50 px-4 py-3">
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 flex flex-col shadow-sm">
+            {/* Top row: textarea + send/mic */}
+            <div className="flex items-end gap-2">
+              <textarea
+                rows="3"
+                placeholder="Type your message..."
+                className="flex-1 resize-none text-sm bg-transparent text-gray-200 placeholder-gray-500 focus:outline-none leading-5 max-h-28"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) =>
+                  e.key === "Enter" &&
+                  !e.shiftKey &&
+                  (e.preventDefault(), handleSend())
+                }
+                maxLength={1000}
+                disabled={loading}
+              ></textarea>
 
-        <div className="flex items-center gap-2 pb-1">
-          <button
-            onClick={handleMicClick}
-            className={`p-2 rounded-full transition ${
-              listening ? "bg-[#23b5b5]" : "bg-gray-700 hover:bg-[#23b5b5]/40"
-            } text-white`}
-            aria-label="Voice input"
-            disabled={loading || listening}
-          >
-            <FiMic size={18} />
-          </button>
-          <button
-            onClick={handleSend}
-            disabled={loading || !input.trim()}
-            className="p-2 bg-[#23b5b5]/80 hover:bg-[#23b5b5]/70 text-white rounded-full transition disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <FiSend size={18} />
-          </button>
+              <div className="flex items-center gap-2 pb-1">
+                <button
+                  onClick={handleMicClick}
+                  className={`p-2 rounded-full transition ${
+                    listening
+                      ? "bg-[#23b5b5]"
+                      : "bg-gray-700 hover:bg-[#23b5b5]/40"
+                  } text-white`}
+                  aria-label="Voice input"
+                  disabled={loading || listening}
+                >
+                  <FiMic size={18} />
+                </button>
+                <button
+                  onClick={handleSend}
+                  disabled={loading || !input.trim()}
+                  className="p-2 bg-[#23b5b5]/80 hover:bg-[#23b5b5]/70 text-white rounded-full transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <FiSend size={18} />
+                </button>
+              </div>
+            </div>
+
+            {/* Bottom row: attachments + counter */}
+            <div className="flex items-center justify-between mt-2 text-xs text-gray-400">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1 cursor-pointer hover:text-gray-200">
+                  <FiPaperclip size={14} />
+                  <span>Attachment</span>
+                </div>
+                <div className="flex items-center gap-1 cursor-pointer hover:text-gray-200">
+                  <FiImage size={14} />
+                  <span>Image</span>
+                </div>
+              </div>
+              <span>{input.length}/1000</span>
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* Bottom row: attachments + counter */}
-      <div className="flex items-center justify-between mt-2 text-xs text-gray-400">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1 cursor-pointer hover:text-gray-200">
-            <FiPaperclip size={14} />
-            <span>Attachment</span>
-          </div>
-          <div className="flex items-center gap-1 cursor-pointer hover:text-gray-200">
-            <FiImage size={14} />
-            <span>Image</span>
-          </div>
-        </div>
-        <span>{input.length}/1000</span>
-      </div>
-    </div>
-  </div>
-</div>
-
     </div>
   );
 };
