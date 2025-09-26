@@ -17,7 +17,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 export default function RecentActionsPage() {
-    const [isOpen,setIsOpen ] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [toolsDropdown, setToolsDropdown] = useState(false);
   const navigate = useNavigate();
@@ -112,29 +112,44 @@ export default function RecentActionsPage() {
       </div>
 
       <div className="relative px-6 mt-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2 cursor-pointer" onClick={() => setIsOpen(!isOpen)}>
-          <span className="text-white">Recents</span>
-          <ChevronDown size={16} color="white" className={`transition-transform ${isOpen ? "rotate-180" : ""}`} />
+        <div className="flex items-center justify-between">
+          <div
+            className="flex items-center space-x-2 cursor-pointer"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            <span className="text-white">Recents</span>
+            <ChevronDown
+              size={16}
+              color="white"
+              className={`transition-transform ${isOpen ? "rotate-180" : ""}`}
+            />
+          </div>
+          {/* Grid Menu Icon can go here */}
         </div>
-        {/* Grid Menu Icon can go here */}
-      </div>
 
-      {isOpen && (
-        <div className="absolute left-6 mt-2 w-48 bg-[#23b5b5]/90 text-black border border-gray-700 rounded-md shadow-lg z-10">
-          <ul className="text-white divide-y divide-gray-700">
-            <li className="px-4 py-2 hover:bg-[#23b5b5] hover:text-black cursor-pointer">Most Active Tools</li>
-            <li className="px-4 py-2 hover:bg-[#23b5b5] hover:text-black cursor-pointer">Last Accessed Extensions</li>
-            <li className="px-4 py-2 hover:bg-[#23b5b5] hover:text-black cursor-pointer">Tool Activity Timeline</li>
-            <li className="px-4 py-2 hover:bg-[#23b5b5] hover:text-black cursor-pointer">Quick Launch Tools</li>
-          </ul>
-        </div>
-      )}
-    </div>
+        {isOpen && (
+          <div className="absolute left-6 mt-2 w-48 bg-[#23b5b5]/90 text-black border border-gray-700 rounded-md shadow-lg z-10">
+            <ul className="text-white divide-y divide-gray-700">
+              <li className="px-4 py-2 hover:bg-[#23b5b5] hover:text-black cursor-pointer">
+                Most Active Tools
+              </li>
+              <li className="px-4 py-2 hover:bg-[#23b5b5] hover:text-black cursor-pointer">
+                Last Accessed Extensions
+              </li>
+              <li className="px-4 py-2 hover:bg-[#23b5b5] hover:text-black cursor-pointer">
+                Tool Activity Timeline
+              </li>
+              <li className="px-4 py-2 hover:bg-[#23b5b5] hover:text-black cursor-pointer">
+                Quick Launch Tools
+              </li>
+            </ul>
+          </div>
+        )}
+      </div>
 
       {/* Search Bar */}
       <div className="p-6 flex justify-center w-full">
-        <div className="relative w-full max-w-xl border border-gray-700 rounded-md">
+        <div className="relative w-full max-w-xl border border-gray-500 rounded-lg overflow-hidden">
           <input
             type="text"
             placeholder="Search"

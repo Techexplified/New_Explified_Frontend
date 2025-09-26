@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import { FiMic, FiPaperclip, FiSend } from "react-icons/fi";
 
 function ExpliInput({
@@ -8,17 +9,24 @@ function ExpliInput({
   isTyping,
   handleMicClick,
   isRecording,
-  currentTool,
-  setCurrentTool,
-  providerKeys,
 }) {
+  const [selectedFile, setSelectedFile] = useState(null); // ✅ store selected file
+  const fileInputRef = useRef(null); // ✅ ref for hidden file input
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      console.log("Selected file:", file);
+    }
+  };
+
   return (
-    <div className=" w-full z-10">
-      {/* Main Input Container */}
+    <div className="w-full z-10">
       <div className="rounded-2xl max-w-2xl mx-auto border-2 border-cyan-500/20 bg-gradient-to-r from-gray-900/90 to-gray-800/80 backdrop-blur-lg shadow-2xl">
         <div className="p-4">
-          {/* Input Field */}
-          <div className="flex items-center gap-4 ">
+          <div className="flex items-center gap-4">
+            {/* Input Field */}
             <div className="flex-1 relative">
               <input
                 type="text"
@@ -58,10 +66,23 @@ function ExpliInput({
                 />
               </button>
 
-              {/* Magic/Sparkle Button */}
-              <button className="w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border border-cyan-500/30 flex items-center justify-center hover:from-cyan-500/30 hover:to-cyan-600/20 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20 group">
+              {/* File Upload */}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current.click()} // ✅ trigger file input
+                className="w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border border-cyan-500/30 flex items-center justify-center hover:from-cyan-500/30 hover:to-cyan-600/20 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20 group"
+                title="Attach file"
+              >
                 <FiPaperclip className="text-lg text-minimal-primary" />
               </button>
+
+              {/* Hidden File Input */}
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                onChange={handleFileChange}
+              />
 
               {/* Send Button */}
               <button
@@ -79,27 +100,13 @@ function ExpliInput({
             </div>
           </div>
 
-          {/* Enhanced Action Buttons */}
-          {/* <div className="flex justify-end">
-            <div className="flex items-center justify-center gap-2">
-              <p className=" text-sm text-gray-300">Powered by</p>
-
-              <select
-                value={currentTool}
-                onChange={(e) => setCurrentTool(e.target.value)}
-                className="bg-gray-800 py-1.5 px-3  rounded-full bg-gradient-to-r from-cyan-500/10 to-cyan-600/5 border border-cyan-500/20 text-xs sm:text-sm text-gray-200 backdrop-blur focus:outline-none"
-              >
-                <option value="default" className="text-gray-200 rounded-lg">
-                  default
-                </option>
-                {Object.keys(providerKeys).map((tool) => (
-                  <option key={tool} value={tool} className="text-gray-200">
-                    {tool}
-                  </option>
-                ))}
-              </select>
+          {/* ✅ Show selected file preview */}
+          {selectedFile && (
+            <div className="mt-2 text-xs text-gray-400">
+              Selected file:{" "}
+              <span className="text-white">{selectedFile.name}</span>
             </div>
-          </div> */}
+          )}
         </div>
       </div>
     </div>

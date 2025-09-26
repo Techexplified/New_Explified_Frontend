@@ -1,17 +1,14 @@
-import {
-  FiStar,
-  FiCpu,
-  FiZap,
-  FiLayers,
-  FiCloud,
-  FiGitBranch,
-} from "react-icons/fi";
+import { AiOutlineOpenAI } from "react-icons/ai";
+import { RiAnthropicFill, RiGeminiLine } from "react-icons/ri";
+import GrokLogo from "../../assets/logos/grok.svg";
+import CohereLogo from "../../assets/logos/cohere.svg";
+import MistralLogo from "../../assets/logos/mistral.svg";
 
 export const INTEGRATION_PROVIDERS = [
   {
     id: "gemini",
     name: "Gemini",
-    icon: FiStar,
+    icon: <RiGeminiLine className="text-white" size={20} />,
     byok: true,
     description: "Google's Gemini models for text, chat and multimodal tasks.",
     apiUrl: "https://generativelanguage.googleapis.com/v1beta/", // Google AI Studio API
@@ -20,7 +17,8 @@ export const INTEGRATION_PROVIDERS = [
   {
     id: "openai",
     name: "OpenAI",
-    icon: FiCpu,
+    icon: <AiOutlineOpenAI className="text-white" size={20} />,
+    // icon: AiOutlineOpenAI,
     byok: true,
     description: "OpenAI GPT models for powerful text and chat experiences.",
     apiUrl: "https://api.openai.com/v1/",
@@ -29,7 +27,8 @@ export const INTEGRATION_PROVIDERS = [
   {
     id: "grok",
     name: "Grok",
-    icon: FiZap,
+    icon: <img src={GrokLogo} alt="Grok" className="w-5 h-5" />,
+    // icon: FiZap,
     byok: true,
     description: "xAI Grok models for reasoning and fast responses.",
     apiUrl: "https://api.x.ai/v1/", // xAI Grok API
@@ -38,7 +37,8 @@ export const INTEGRATION_PROVIDERS = [
   {
     id: "anthropic",
     name: "Anthropic",
-    icon: FiLayers,
+    icon: <RiAnthropicFill className="text-white" size={20} />,
+    // icon: RiAnthropicFill,
     byok: true,
     description: "Claude models by Anthropic for safe, helpful outputs.",
     apiUrl: "https://api.anthropic.com/v1/",
@@ -47,7 +47,7 @@ export const INTEGRATION_PROVIDERS = [
   {
     id: "mistral",
     name: "Mistral",
-    icon: FiCloud,
+    icon: <img src={MistralLogo} alt="Grok" className="w-5 h-5" />,
     byok: true,
     description: "Mistral small, medium and mixtral models.",
     apiUrl: "https://api.mistral.ai/v1/",
@@ -56,7 +56,7 @@ export const INTEGRATION_PROVIDERS = [
   {
     id: "cohere",
     name: "Cohere",
-    icon: FiGitBranch,
+    icon: <img src={CohereLogo} alt="Grok" className="w-5 h-5" />,
     byok: true,
     description: "Cohere Command and Embed models for text and vectors.",
     apiUrl: "https://api.cohere.ai/v1/",

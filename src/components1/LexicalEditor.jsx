@@ -1,107 +1,969 @@
-import React, { useState } from "react";
-import {
-  $getSelection,
-  $isRangeSelection,
-  FORMAT_TEXT_COMMAND,
-  UNDO_COMMAND,
-  REDO_COMMAND,
-  $isTextNode,
-} from "lexical";
-import { LexicalComposer } from "@lexical/react/LexicalComposer";
-import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
-import { ContentEditable } from "@lexical/react/LexicalContentEditable";
-import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
-import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
-import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
-import { HeadingNode, QuoteNode } from "@lexical/rich-text";
-import { ListItemNode, ListNode } from "@lexical/list";
-import { LinkNode } from "@lexical/link";
-import { CodeNode } from "@lexical/code";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { create } from "zustand";
+import { nanoid } from "nanoid";
 import { useEffect } from "react";
-import {
-  Bold,
-  Italic,
-  Underline,
-  Undo,
-  ArrowLeft,
-  Redo,
-  Type,
-  Pencil,
-  Sparkle,
-  ArrowUpRight,
-  Link2,
-  Download,
-  Brush,
-  Highlighter,
-  Eraser,
-  Droplet,
-  Trash2,
-} from "lucide-react";
-import SidebarOnHover2 from "../reusable_components/SidebarOnHover2";
-import SimpleChatbot from "../reusable_components/SimpleChatbot";
-import { v4 as uuidv4 } from "uuid";
-import { $getRoot } from "lexical";
-import { $createParagraphNode, $createTextNode } from "lexical";
-// import SimpleChatbot from "../reusable_components/SimpleChatbot";
-// Theme configuration
-const theme = {
-  text: {
-    bold: "font-bold",
-    italic: "italic",
-    underline: "underline",
-    strikethrough: "line-through",
-    code: "bg-gray-100 px-1 py-0.5 rounded text-sm font-mono",
+import React from "react";
+// ---- STORE ----
+const useStore = create((set, get) => ({
+  shapes: [],
+  selectedTool: "freehand", // default tool
+  setTool: (tool) => set({ selectedTool: tool }),
+  setShapes: (shapesFromPreviousNote) =>
+    set({ shapes: shapesFromPreviousNote }),
+  addShape: (shape) => {
+    set((state) => ({ shapes: [...state.shapes, shape] }));
   },
-  heading: {
-    h1: "text-3xl font-bold mb-4",
-    h2: "text-2xl font-bold mb-3",
-    h3: "text-xl font-bold mb-2",
+
+  updateShape: (id, updater) => {
+    set((state) => ({
+      shapes: state.shapes.map((s) =>
+        s.id === id
+          ? { ...s, ...(typeof updater === "function" ? updater(s) : updater) }
+          : s
+      ),
+    }));
   },
-  list: {
-    nested: {
-      listitem: "ml-4",
-    },
-    ol: "list-decimal ml-6",
-    ul: "list-disc ml-6",
+  removeShape: (id) =>
+    set((state) => ({
+      shapes: state.shapes.filter((s) => s.id !== id),
+    })),
+  selectedShapeId: null,
+  setSelectedShapeId: (id) => set({ selectedShapeId: id }),
+  textStyle: {
+    fontFamily: "Arial",
+    fontSize: 20,
+    bold: false,
+    italic: false,
+    color: "#000000",
   },
-  quote: "border-l-4 border-gray-300 pl-4 italic bg-gray-50 py-2",
-  code: "bg-gray-900 text-white p-4 rounded-lg font-mono text-sm overflow-x-auto",
-  link: "text-blue-600 underline hover:text-blue-800",
-};
+  setTextStyle: (partial) =>
+    set((state) => ({ textStyle: { ...state.textStyle, ...partial } })),
+}));
 
-/**
- * Helper function to apply inline styles to selected text nodes.
- */
-function applyStyleToSelection(editor, styleObj) {
-  editor.update(() => {
-    const selection = $getSelection();
-    if ($isRangeSelection(selection)) {
-      const nodes = selection.getNodes();
-      nodes.forEach((node) => {
-        if ($isTextNode(node)) {
-          // Merge styles as a CSS string
-          const existingStyle = node.getStyle() || "";
-          const styleMap = Object.fromEntries(
-            existingStyle
-              .split(";")
-              .filter(Boolean)
-              .map((s) => s.split(":").map((x) => x.trim()))
-          );
+function ShapesPanel() {
+  const selectedTool = useStore((state) => state.selectedTool);
+  const setTool = useStore((state) => state.setTool);
 
-          const newStyleMap = { ...styleMap, ...styleObj };
-          const newStyleString = Object.entries(newStyleMap)
-            .map(([k, v]) => `${k}:${v}`)
-            .join("; ");
+  const tools = [
+    { id: "rectangle", label: "Rectangle" },
+    { id: "circle", label: "Circle" },
+    { id: "line", label: "Line" },
+  ];
 
-          node.setStyle(newStyleString);
-        }
-      });
-    }
-  });
+  return (
+    <div
+      className="p-2 bg-white rounded-md flex flex-col gap-2 w-60"
+      style={{
+        position: "absolute",
+        left: "-500px",
+        top: 100,
+        marginLeft: 12,
+        zIndex: 100,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+      }}
+    >
+      {tools.map((t) => (
+        <button
+          key={t.id}
+          onClick={() => setTool(t.id)}
+          className={`appearance-none px-3 py-1 rounded w-full text-left border-2 border-black ${
+            selectedTool === t.id
+              ? "bg-blue-500 text-white"
+              : "bg-white text-black"
+          }`}
+        >
+          {t.label}
+        </button>
+      ))}
+    </div>
+  );
 }
 
+// ---- SHAPE RENDERER ----
+function Shape({
+  id,
+  type,
+  points,
+  x,
+  y,
+  width,
+  height,
+  text,
+  fontFamily,
+  fontSize,
+  bold,
+  italic,
+  color,
+  strokeWidth,
+  x1,
+  y1,
+  x2,
+  y2,
+  r,
+  cx,
+  cy,
+}) {
+  if (type === "freehand") {
+    if (!points || points.length < 2) return null;
+    const pathData = points
+      .map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`)
+      .join(" ");
+    return (
+      <path
+        d={pathData}
+        stroke={color}
+        strokeWidth={strokeWidth ?? 2}
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    );
+  }
+  if (type === "rect") {
+    return (
+      <rect
+        key={id}
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        stroke="black"
+        fill="transparent"
+      />
+    );
+  } else if (type === "circle") {
+    return (
+      <circle
+        key={id}
+        cx={cx}
+        cy={cy}
+        r={r}
+        stroke="black"
+        fill="transparent"
+      />
+    );
+  } else if (type === "line") {
+    return <line key={id} x1={x1} y1={y1} x2={x2} y2={y2} stroke="black" />;
+  }
+  if (type === "text") {
+    const boxW = Math.max(40, width || 160);
+    const boxH = Math.max(24, height || (fontSize ? fontSize * 1.6 : 28));
+    const clipId = `clip-${id}`;
+    const lines = (text || "").split("\n");
+    const lineHeight = (fontSize || 16) * 1.2;
+    return (
+      <g key={id}>
+        <defs>
+          <clipPath id={clipId}>
+            <rect x={x} y={y} width={boxW} height={boxH} />
+          </clipPath>
+        </defs>
+        {(text && (
+          <>
+            <rect
+              x={x}
+              y={y}
+              width={boxW}
+              height={boxH}
+              fill="none"
+              stroke="rgba(0,0,0,0.25)"
+              strokeDasharray="4 4"
+            />
+            <g clipPath={`url(#${clipId})`}>
+              <text
+                x={x + 6}
+                y={y + (fontSize || 16) + 6}
+                fill={color || "#000"}
+                fontFamily={fontFamily}
+                fontSize={fontSize}
+                fontWeight={bold ? "700" : "400"}
+                fontStyle={italic ? "italic" : "normal"}
+              >
+                {lines.map((line, idx) => (
+                  <tspan key={idx} x={x + 6} dy={idx === 0 ? 0 : lineHeight}>
+                    {line}
+                  </tspan>
+                ))}
+              </text>
+            </g>
+          </>
+        )) ||
+          null}
+      </g>
+    );
+  }
+  return null;
+}
+
+// ---- CANVAS ----
+function Canvas() {
+  const shapes = useStore((s) => s.shapes);
+  const addShape = useStore((s) => s.addShape);
+  const updateShape = useStore((s) => s.updateShape);
+  const removeShape = useStore((s) => s.removeShape);
+  const selectedTool = useStore((s) => s.selectedTool);
+  const textStyle = useStore((s) => s.textStyle);
+  const selectedShapeId = useStore((s) => s.selectedShapeId);
+  const setSelectedShapeId = useStore((s) => s.setSelectedShapeId);
+  const [currentShapeId, setCurrentShapeId] = useState(null);
+  const [editingId, setEditingId] = useState(null);
+  const [caretIndex, setCaretIndex] = useState(0);
+  const [showCaret, setShowCaret] = useState(true);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ dx: 0, dy: 0 });
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizeCorner, setResizeCorner] = useState(null); // 'tl' | 'tr' | 'bl' | 'br'
+  const [isCreatingTextBox, setIsCreatingTextBox] = useState(false);
+  const containerRef = useRef(null);
+  const measureCanvasRef = useRef(null);
+  const svgRef = useRef(null);
+  // caret blink
+  useEffect(() => {
+    const t = setInterval(() => setShowCaret((v) => !v), 600);
+    return () => clearInterval(t);
+  }, []);
+  // global key handling when editing
+  useEffect(() => {
+    const handler = (e) => {
+      if (!editingId) return;
+      const shape = shapes.find((s) => s.id === editingId);
+      if (!shape) return;
+      let text = shape.text || "";
+      const insertChar = (ch) => {
+        const before = text.slice(0, caretIndex);
+        const after = text.slice(caretIndex);
+        text = before + ch + after;
+        setCaretIndex(caretIndex + ch.length);
+      };
+      if (e.key === "Backspace") {
+        e.preventDefault();
+        if (caretIndex > 0) {
+          const before = text.slice(0, caretIndex - 1);
+          const after = text.slice(caretIndex);
+          text = before + after;
+          setCaretIndex(caretIndex - 1);
+        }
+      } else if (e.key === "Delete") {
+        e.preventDefault();
+        const before = text.slice(0, caretIndex);
+        const after = text.slice(caretIndex + 1);
+        text = before + after;
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        insertChar("\n");
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        if (caretIndex > 0) setCaretIndex(caretIndex - 1);
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        if (caretIndex < text.length) setCaretIndex(caretIndex + 1);
+      } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        insertChar(e.key);
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        setEditingId(null);
+        return;
+      } else {
+        return;
+      }
+      updateShape(editingId, { text });
+      // reflow columns after each edit step
+      reflowColumns(editingId);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [editingId, caretIndex, shapes, updateShape]);
+  // text measurement helper
+  const measureTextWidth = (text, fontSize, fontFamily, bold, italic) => {
+    let canvas = measureCanvasRef.current;
+    if (!canvas) {
+      canvas = document.createElement("canvas");
+      measureCanvasRef.current = canvas;
+    }
+    const ctx = canvas.getContext("2d");
+    const weight = bold ? "700" : "400";
+    const style = italic ? "italic" : "normal";
+    ctx.font = `${style} ${weight} ${fontSize || 16}px ${
+      fontFamily || "Arial"
+    }`;
+    return ctx.measureText(text || "").width;
+  };
+  const wrapTextToWidth = (
+    text,
+    maxWidth,
+    fontSize,
+    fontFamily,
+    bold,
+    italic
+  ) => {
+    const paragraphs = (text || "").split("\n");
+    const lines = [];
+    for (const para of paragraphs) {
+      const words = para.split(/(\s+)/); // keep spaces
+      let line = "";
+      for (const token of words) {
+        const candidate = line + token;
+        const w = measureTextWidth(
+          candidate,
+          fontSize,
+          fontFamily,
+          bold,
+          italic
+        );
+        if (w <= maxWidth || line === "") {
+          line = candidate;
+        } else {
+          lines.push(line);
+          line = token.trimStart();
+        }
+      }
+      lines.push(line);
+    }
+    return lines;
+  };
+
+  const getLineHeight = (fontSize) => (fontSize || 16) * 1.2;
+
+  // Reflow text across multiple columns (additional sibling shapes)
+  const reflowColumns = (sourceId) => {
+    const state = useStore.getState();
+    const all = state.shapes;
+    const src = all.find((s) => s.id === sourceId);
+    if (!src || src.type !== "text") return;
+    const rootId = src.parentId || src.id;
+    const root = all.find((s) => s.id === rootId);
+    if (!root) return;
+
+    const gap = 16;
+    const padding = 12;
+    const maxTextWidth = Math.max(0, (root.width || 0) - padding);
+    const lineHeight = getLineHeight(root.fontSize);
+    const lines = wrapTextToWidth(
+      root.text || "",
+      maxTextWidth,
+      root.fontSize,
+      root.fontFamily,
+      root.bold,
+      root.italic
+    );
+    const capacity = Math.max(
+      1,
+      Math.floor(Math.max(24, root.height || 24) - padding) / lineHeight
+    );
+
+    // compute columns needed
+    const columns = [];
+    let idx = 0;
+    while (idx < lines.length) {
+      columns.push(lines.slice(idx, idx + capacity));
+      idx += capacity;
+    }
+    if (columns.length === 0) columns.push([""]);
+
+    // gather existing children for this root
+    const children = all.filter(
+      (s) => s.parentId === rootId && s.type === "text"
+    );
+
+    // update/create columns
+    columns.forEach((colLines, colIndex) => {
+      const text = colLines.join("\n");
+      const y = root.y + colIndex * ((root.height || 0) + gap);
+      const x = root.x;
+      if (colIndex === 0) {
+        updateShape(root.id, { text });
+      } else {
+        const existing = children.find((c) => c.columnIndex === colIndex);
+        if (existing) {
+          updateShape(existing.id, {
+            x,
+            y,
+            width: root.width,
+            height: root.height,
+            text,
+          });
+        } else {
+          addShape({
+            id: nanoid(),
+            type: "text",
+            parentId: rootId,
+            columnIndex: colIndex,
+            x,
+            y,
+            width: root.width,
+            height: root.height,
+            text,
+            fontFamily: root.fontFamily,
+            fontSize: root.fontSize,
+            bold: root.bold,
+            italic: root.italic,
+            color: root.color,
+          });
+        }
+      }
+    });
+
+    // remove extra children beyond needed
+    children.forEach((c) => {
+      if (c.columnIndex >= columns.length) removeShape(c.id);
+    });
+  };
+
+  // Auto-grow text box height while typing to fit wrapped content
+  useEffect(() => {
+    if (!editingId) return;
+    const shape = shapes.find((s) => s.id === editingId);
+    if (!shape) return;
+    const minH = 24;
+    const maxTextWidth = Math.max(0, (shape.width || 0) - 12);
+    const lines = wrapTextToWidth(
+      shape.text || "",
+      maxTextWidth,
+      shape.fontSize,
+      shape.fontFamily,
+      shape.bold,
+      shape.italic
+    );
+    const lineHeight = (shape.fontSize || 16) * 1.2;
+    const neededH = Math.max(
+      minH,
+      lines.length > 0 ? lineHeight * lines.length + 12 : minH
+    );
+    if (!shape.height || neededH > shape.height) {
+      updateShape(editingId, { height: neededH });
+    }
+  }, [editingId, shapes, updateShape]);
+
+  const handleMouseDown = (e) => {
+    const { offsetX, offsetY } = e.nativeEvent;
+    const svg = svgRef.current;
+    if (!svg) return;
+    const rect = svg.getBoundingClientRect();
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+    // coords inside svg in pixels (approx)
+    if (selectedTool === "text") {
+      // If we're already editing a text box, first commit it or remove if empty
+      if (editingId) {
+        const current = shapes.find((s) => s.id === editingId);
+        const trimmed = (current?.text || "").replace(/\n+$/, "").trim();
+        if (!trimmed) {
+          removeShape(editingId);
+        } else {
+          updateShape(editingId, {
+            fontFamily: textStyle.fontFamily,
+            fontSize: textStyle.fontSize,
+            bold: textStyle.bold,
+            italic: textStyle.italic,
+            color: textStyle.color,
+          });
+        }
+        setEditingId(null);
+        setCaretIndex(0);
+      }
+      // create a new empty text shape and drag to set width/height
+      const id = nanoid();
+      addShape({
+        id,
+        type: "text",
+        x: offsetX,
+        y: offsetY,
+        text: "",
+        width: 0,
+        height: Math.max(24, (textStyle.fontSize || 16) * 1.6),
+        fontFamily: textStyle.fontFamily,
+        fontSize: textStyle.fontSize,
+        bold: textStyle.bold,
+        italic: textStyle.italic,
+        color: textStyle.color,
+      });
+      setSelectedShapeId(id);
+      setCurrentShapeId(id);
+      setIsCreatingTextBox(true);
+      e.stopPropagation();
+    }
+    if (selectedTool === "freehand") {
+      const newShape = {
+        id: nanoid(),
+        type: "freehand",
+        points: [{ x: offsetX, y: offsetY }],
+        color: "black",
+        strokeWidth: 2,
+      };
+      addShape(newShape);
+      setCurrentShapeId(newShape.id);
+    }
+    if (selectedTool === "rectangle") {
+      const newShape = {
+        id: nanoid(),
+        type: "rect",
+        x: offsetX,
+        y: offsetY,
+        width: 0,
+        height: 0,
+        color: "black",
+        strokeWidth: 2,
+      };
+      addShape(newShape);
+      setCurrentShapeId(newShape.id);
+    }
+    if (selectedTool === "line") {
+      const newShape = {
+        id: nanoid(),
+        type: "line",
+        x1: offsetX,
+        y1: offsetY,
+        x2: offsetX,
+        y2: offsetY,
+        color: "black",
+        strokeWidth: 2,
+      };
+      addShape(newShape);
+      setCurrentShapeId(newShape.id);
+    }
+    if (selectedTool === "circle") {
+      const newShape = {
+        id: nanoid(),
+        type: "circle",
+        cx: offsetX,
+        cy: offsetY,
+        r: 0,
+        width: 0,
+        height: 0,
+        color: "black",
+        strokeWidth: 2,
+      };
+      addShape(newShape);
+      setCurrentShapeId(newShape.id);
+    }
+  };
+
+  const handleMouseMove = (e) => {
+    const { offsetX, offsetY } = e.nativeEvent;
+    // Creating new text box by drag
+    if (isCreatingTextBox && currentShapeId) {
+      updateShape(currentShapeId, (prev) => {
+        const newW = Math.max(40, offsetX - prev.x);
+        const maxTextWidth = Math.max(0, newW - 12);
+        const lines = wrapTextToWidth(
+          prev.text || "",
+          maxTextWidth,
+          prev.fontSize,
+          prev.fontFamily,
+          prev.bold,
+          prev.italic
+        );
+        const lineHeight = (prev.fontSize || 16) * 1.2;
+        const newH = Math.max(
+          prev.height || 24,
+          lines.length > 0 ? lineHeight * lines.length + 12 : prev.height
+        );
+        return { width: newW, height: newH };
+      });
+      reflowColumns(currentShapeId);
+      return;
+    }
+    if (isResizing && selectedShapeId) {
+      updateShape(selectedShapeId, (prev) => {
+        let nx = prev.x;
+        let ny = prev.y;
+        let nw = prev.width || 0;
+        let nh = prev.height || 24;
+        const minW = 40;
+        const minH = 24;
+        if (resizeCorner === "br") {
+          nw = Math.max(minW, offsetX - prev.x);
+          nh = Math.max(minH, offsetY - prev.y);
+        } else if (resizeCorner === "tr") {
+          nw = Math.max(minW, offsetX - prev.x);
+          nh = Math.max(minH, prev.y + (prev.height || 0) - offsetY);
+          ny = Math.min(prev.y + (prev.height || 0) - minH, offsetY);
+        } else if (resizeCorner === "bl") {
+          nw = Math.max(minW, prev.x + (prev.width || 0) - offsetX);
+          nx = Math.min(prev.x + (prev.width || 0) - minW, offsetX);
+          nh = Math.max(minH, offsetY - prev.y);
+        } else if (resizeCorner === "tl") {
+          nw = Math.max(minW, prev.x + (prev.width || 0) - offsetX);
+          nx = Math.min(prev.x + (prev.width || 0) - minW, offsetX);
+          nh = Math.max(minH, prev.y + (prev.height || 0) - offsetY);
+          ny = Math.min(prev.y + (prev.height || 0) - minH, offsetY);
+        }
+        // Auto height grow to fit current text
+        const maxTextWidth = Math.max(0, nw - 12);
+        const lines = wrapTextToWidth(
+          prev.text || "",
+          maxTextWidth,
+          prev.fontSize,
+          prev.fontFamily,
+          prev.bold,
+          prev.italic
+        );
+        const lineHeight = (prev.fontSize || 16) * 1.2;
+        const neededH = Math.max(
+          minH,
+          lines.length > 0 ? lineHeight * lines.length + 12 : minH
+        );
+        nh = Math.max(nh, neededH);
+        return { x: nx, y: ny, width: nw, height: nh };
+      });
+      reflowColumns(selectedShapeId);
+      return;
+    }
+    if (isDragging && selectedShapeId) {
+      updateShape(selectedShapeId, (prev) => ({
+        x: offsetX - dragOffset.dx,
+        y: offsetY - dragOffset.dy,
+      }));
+      return;
+    }
+    if (!currentShapeId) return;
+
+    updateShape(currentShapeId, (prev) => {
+      if (prev.type === "freehand") {
+        return { points: [...prev.points, { x: offsetX, y: offsetY }] };
+      }
+      if (prev.type === "rect") {
+        return { width: offsetX - prev.x, height: offsetY - prev.y };
+      }
+      if (prev.type === "circle") {
+        const dx = offsetX - prev.cx;
+        const dy = offsetY - prev.cy;
+        const radius = Math.sqrt(dx * dx + dy * dy);
+        return { r: radius };
+      }
+      if (prev.type === "line") {
+        return { x2: offsetX, y2: offsetY };
+      }
+      return {};
+    });
+  };
+
+  const handleMouseUp = () => {
+    setCurrentShapeId(null);
+    setIsDragging(false);
+    setIsResizing(false);
+    if (isCreatingTextBox) {
+      setIsCreatingTextBox(false);
+      // start editing the newly created box
+      if (selectedShapeId) {
+        setEditingId(selectedShapeId);
+        setCaretIndex(0);
+      }
+    }
+  };
+  const commitText = () => {
+    if (!editingId) return;
+    const shape = shapes.find((s) => s.id === editingId);
+    const trimmed = (shape?.text || "").replace(/\n+$/, "").trim();
+    if (!trimmed) removeShape(editingId);
+    setEditingId(null);
+  };
+
+  const cancelText = () => {
+    if (!editingId) return;
+    removeShape(editingId);
+    setEditingId(null);
+  };
+
+  const onTextareaKeyDown = () => {};
+  return (
+    <div
+      ref={containerRef}
+      style={{
+        position: "relative",
+        width: "100vw",
+        height: "100%",
+        border: "1px solid #ddd",
+      }}
+    >
+      <svg
+        ref={svgRef}
+        className="w-[100%] h-[100%] bg-white border"
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+      >
+        {shapes.map((shape) => (
+          <g
+            key={shape.id}
+            onMouseDown={(e) => {
+              if (shape.type === "text") {
+                const { offsetX, offsetY } = e.nativeEvent;
+                setIsDragging(true);
+                setSelectedShapeId(shape.id);
+                setDragOffset({
+                  dx: offsetX - (shape.x || 0),
+                  dy: offsetY - (shape.y || 0),
+                });
+                e.stopPropagation();
+              }
+            }}
+            onDoubleClick={(e) => {
+              if (shape.type === "text") {
+                setSelectedShapeId(shape.id);
+                setEditingId(shape.id);
+                const containerRect =
+                  containerRef.current.getBoundingClientRect();
+                const svgRect = svgRef.current.getBoundingClientRect();
+                const left = svgRect.left - containerRect.left + (shape.x || 0);
+                const top = svgRect.top - containerRect.top + (shape.y || 0);
+                setTextareaPos({ left, top });
+                setTextareaValue(shape.text || "");
+                e.stopPropagation();
+              }
+            }}
+          >
+            <Shape {...shape} />
+            {selectedShapeId === shape.id && shape.type === "text" && (
+              <>
+                {/* four corner resize handles */}
+                <rect
+                  x={(shape.x || 0) - 8}
+                  y={(shape.y || 0) - 8}
+                  width={16}
+                  height={16}
+                  fill="#1e90ff"
+                  stroke="#0b5cb7"
+                  onMouseDown={(e) => {
+                    setSelectedShapeId(shape.id);
+                    setIsResizing(true);
+                    setResizeCorner("tl");
+                    e.stopPropagation();
+                  }}
+                />
+                <rect
+                  x={(shape.x || 0) + Math.max(40, shape.width || 200) - 8}
+                  y={(shape.y || 0) - 8}
+                  width={16}
+                  height={16}
+                  fill="#1e90ff"
+                  stroke="#0b5cb7"
+                  onMouseDown={(e) => {
+                    setSelectedShapeId(shape.id);
+                    setIsResizing(true);
+                    setResizeCorner("tr");
+                    e.stopPropagation();
+                  }}
+                />
+                <rect
+                  x={(shape.x || 0) - 8}
+                  y={(shape.y || 0) + Math.max(24, shape.height || 32) - 8}
+                  width={16}
+                  height={16}
+                  fill="#1e90ff"
+                  stroke="#0b5cb7"
+                  onMouseDown={(e) => {
+                    setSelectedShapeId(shape.id);
+                    setIsResizing(true);
+                    setResizeCorner("bl");
+                    e.stopPropagation();
+                  }}
+                />
+                <rect
+                  x={(shape.x || 0) + Math.max(40, shape.width || 200) - 8}
+                  y={(shape.y || 0) + Math.max(24, shape.height || 32) - 8}
+                  width={16}
+                  height={16}
+                  fill="#1e90ff"
+                  stroke="#0b5cb7"
+                  onMouseDown={(e) => {
+                    setSelectedShapeId(shape.id);
+                    setIsResizing(true);
+                    setResizeCorner("br");
+                    e.stopPropagation();
+                  }}
+                />
+              </>
+            )}
+            {editingId === shape.id &&
+              showCaret &&
+              (() => {
+                const text = shape.text || "";
+                const lines = text.split("\n");
+                const maxWidth = Math.max(40, shape.width || 160) - 12; // padding 6+6
+                const fontPx = shape.fontSize || 16;
+                const lineHeight = fontPx * 1.2;
+                // compute caret position by walking characters
+                let remaining = caretIndex;
+                let caretLine = 0;
+                let caretX = shape.x + 6;
+                let caretY = shape.y + 6;
+                for (let i = 0; i < lines.length; i++) {
+                  const line = lines[i];
+                  const chars = line.split("");
+                  let x = 0;
+                  for (let j = 0; j <= chars.length; j++) {
+                    if (remaining === 0) {
+                      caretLine = i;
+                      caretX = shape.x + 6 + x;
+                      caretY =
+                        shape.y + (fontPx || 16) + 6 + i * lineHeight - fontPx; // top of line box
+                      break;
+                    }
+                    const ch = chars[j] || "";
+                    const w = measureTextWidth(
+                      ch,
+                      fontPx,
+                      shape.fontFamily,
+                      shape.bold,
+                      shape.italic
+                    );
+                    x += w;
+                    remaining--;
+                  }
+                  if (remaining === 0) break;
+                }
+                const caretHeight = fontPx;
+                return (
+                  <rect
+                    x={caretX}
+                    y={caretY}
+                    width={1}
+                    height={caretHeight}
+                    fill={shape.color || "#000"}
+                    opacity={0.9}
+                  />
+                );
+              })()}
+          </g>
+        ))}
+      </svg>
+      {/* no textarea overlay in pure-SVG editor */}
+    </div>
+  );
+}
+function SaveButton({ title }) {
+  // const [editor] = useLexicalComposerContext();
+  const [isSaved, setIsSaved] = useState(false);
+  const shapes = useStore((s) => s.shapes);
+  const selectedNote = localStorage.getItem("selectedNote");
+  const handleSaveNewNote = (e) => {
+    const notes = JSON.parse(localStorage.getItem("notes")) || [];
+
+    const newNote = {
+      id: Date.now().toString(), // unique id
+      title,
+      lastModified: new Date().toISOString(),
+      shapes, // <-- your canvas state
+    };
+
+    // Add new note to notes array
+    notes.push(newNote);
+
+    // Save back to localStorage
+    localStorage.setItem("notes", JSON.stringify(notes));
+
+    alert("Note saved successfully!");
+  };
+  const editNote = (e) => {
+    console.log(title);
+    const notes = localStorage.getItem("notes");
+    const notesArray = JSON.parse(notes);
+    const selectedNoteObj = JSON.parse(selectedNote);
+    const updatedNotes = notesArray.map((note) => {
+      if (note.id == selectedNoteObj.id) {
+        return { ...selectedNoteObj, title, shapes };
+      }
+      return note;
+    });
+    localStorage.setItem("notes", JSON.stringify(updatedNotes));
+    alert("Done!");
+  };
+  // // const getTextContent = () => {
+  //   let text = "";
+  //   editor.getEditorState().read(() => {
+  //     text = $getRoot().getTextContent();
+  //   });
+  //   return text;
+  // };
+  // const isNewNote = !localStorage.getItem("selectedTaskId") && !shareId;
+  // const handleEditNote = () => {
+  //   const selectedTaskId = localStorage.getItem("selectedTaskId");
+  //   const content = getTextContent();
+  //   const text = content;
+  //   let tasks = [];
+  //   try {
+  //     const stored = localStorage.getItem("tasks");
+  //     if (stored) tasks = JSON.parse(stored);
+  //   } catch (e) {
+  //     tasks = [];
+  //   }
+  //   const selectedTask = tasks.filter(
+  //     (t) => t.id === Number(selectedTaskId)
+  //   )[0];
+  //   const otherTasks = tasks.filter((t) => t.id !== Number(selectedTaskId));
+  //   otherTasks.push({
+  //     ...selectedTask,
+  //     title: title,
+  //     content: text,
+  //     lastModified: new Date().toISOString(),
+  //   });
+  //   localStorage.setItem("tasks", JSON.stringify(otherTasks));
+  //   setIsSaved(true);
+  //   setTimeout(() => setIsSaved(false), 1000);
+
+  //   React.useEffect(() => {
+  //     setIsSaved(false);
+  //   }, [saveTrigger, title]);
+  // };
+  //const handleSaveNewNote = () => {
+  // const content = getTextContent();
+  // const text = content;
+  // const newTask = {
+  //   id: Date.now(),
+  //   title: title || "Untitled",
+  //   content: text,
+  //   lastModified: new Date().toISOString(),
+  // };
+  // let tasks = [];
+  // try {
+  //   const stored = localStorage.getItem("tasks");
+  //   if (stored) tasks = JSON.parse(stored);
+  // } catch (e) {
+  //   tasks = [];
+  // }
+  // tasks.push(newTask);
+  // localStorage.setItem("tasks", JSON.stringify(tasks));
+  // setIsSaved(true);
+  // setTimeout(() => setIsSaved(false), 1000);
+  // setIsSaved(true);
+  // React.useEffect(() => {
+  //   setIsSaved(false);
+  // }, [title]);
+  //};
+  // onClick={
+  //   handleSaveNewNote
+  // }
+  return (
+    <button
+      onClick={selectedNote ? editNote : handleSaveNewNote}
+      style={{
+        position: "absolute",
+        top: "0px",
+        right: "30px",
+        height: 40,
+        minWidth: 80,
+        padding: "25px 18px",
+        fontWeight: 500,
+        color: isSaved ? "blue" : "black",
+        background: "transparent",
+        border: `2px solid ${isSaved ? "blue" : "black"}`,
+        borderRadius: 12,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        cursor: isSaved ? "default" : "pointer",
+        transition: "color 0.3s ease, border-color 0.3s ease",
+        zIndex: 100,
+      }}
+      onMouseEnter={(e) => !isSaved && (e.currentTarget.style.color = "blue")}
+      onMouseLeave={(e) => !isSaved && (e.currentTarget.style.color = "black")}
+    >
+      {isSaved ? "Saved" : "Save"}
+    </button>
+  );
+}
 // Share Button component
 function ShareButton({ getTextContent, noteTitle }) {
   const [showMenu, setShowMenu] = useState(false);
@@ -109,7 +971,7 @@ function ShareButton({ getTextContent, noteTitle }) {
   const [exportPdf, setExportPdf] = useState(false);
   const [exportJpg, setExportJpg] = useState(false);
   const [shareLink, setShareLink] = useState("");
-
+  const [disableShare, setDisableShare] = useState(false);
   // Generate sharable link only once when menu opens
   const generateLink = () => {
     const content = getTextContent();
@@ -194,8 +1056,6 @@ function ShareButton({ getTextContent, noteTitle }) {
     if (shareId) {
       // Prefer combined payload if available (local)
       const combined = localStorage.getItem(`shared_note_${shareId}`);
-      console.log("Found shared note data:", combined);
-
       if (combined) {
         try {
           const parsed = JSON.parse(combined);
@@ -219,37 +1079,7 @@ function ShareButton({ getTextContent, noteTitle }) {
         } catch (e) {
           console.warn("Failed to parse shared payload:", e);
         }
-      } else {
-        // Fallback: try URL payload for cross-device share
-        try {
-          const params = new URLSearchParams(window.location.search);
-          const dataParam = params.get("data");
-          console.log("Trying URL payload, data param:", dataParam);
-
-          if (dataParam) {
-            const decoded = decodeURIComponent(dataParam);
-            const json = decodeURIComponent(escape(atob(decoded)));
-            const parsed = JSON.parse(json);
-            console.log("Parsed URL payload:", parsed);
-
-            if (parsed && parsed.penDataUrl) {
-              const overlay = document.createElement("img");
-              overlay.src = parsed.penDataUrl;
-              overlay.alt = "shared-pen-overlay";
-              overlay.style.position = "fixed";
-              overlay.style.top = "150px";
-              overlay.style.left = "290px";
-              overlay.style.width = "50vw";
-              overlay.style.height = "50vh";
-              overlay.style.pointerEvents = "none";
-              overlay.style.zIndex = "59";
-              document.body.appendChild(overlay);
-              console.log("Added pen overlay from URL payload");
-            }
-          }
-        } catch (e) {
-          console.warn("Failed to parse URL payload:", e);
-        }
+        setDisableShare(true);
       }
     }
   }, []);
@@ -291,16 +1121,25 @@ function ShareButton({ getTextContent, noteTitle }) {
     setTimeout(() => setCopied(false), 1500);
   };
 
-  const handleDownload = () => {
-    let filename = "notes.txt";
-    let blob = new Blob([getTextContent()], { type: "text/plain" });
+  const handleDownload = async () => {
+    const filename = "notes.txt";
+    const blob = new Blob([getTextContent()], { type: "text/plain" });
 
     if (exportPdf) {
-      filename = "notes.pdf";
-      // TODO: Use jsPDF to properly generate a PDF
-    } else if (exportJpg) {
-      filename = "notes.jpg";
-      // TODO: Use html-to-image or dom-to-image to generate JPG
+      const doc = new jsPDF();
+      doc.text(getTextContent(), 10, 10);
+      doc.save("notes.pdf");
+      return;
+    }
+
+    if (exportJpg) {
+      const node = document.getElementById("notes-container");
+      const dataUrl = await toJpeg(node);
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = "notes.jpg";
+      a.click();
+      return;
     }
 
     const url = URL.createObjectURL(blob);
@@ -339,6 +1178,7 @@ function ShareButton({ getTextContent, noteTitle }) {
         }}
         onMouseEnter={(e) => (e.currentTarget.style.color = "#00fff7")}
         onMouseLeave={(e) => (e.currentTarget.style.color = "#a5f1ea")}
+        disabled={disableShare}
       >
         Share
         <ArrowUpRight size={20} style={{ marginLeft: 8, color: "#63e3db" }} />
@@ -487,813 +1327,203 @@ function ShareButton({ getTextContent, noteTitle }) {
   );
 }
 
-function SaveButton({ saveTrigger, title }) {
-  const [editor] = useLexicalComposerContext();
-  const [isSaved, setIsSaved] = useState(false);
-
-  const getTextContent = () => {
-    let text = "";
-    editor.getEditorState().read(() => {
-      text = $getRoot().getTextContent();
-    });
-    return text;
-  };
-
-  const handleSave = () => {
-    const content = getTextContent();
-    const text = content;
-    const newTask = {
-      id: Date.now(),
-      title: title || "Untitled",
-      content: text,
-      lastModified: new Date().toISOString(),
-    };
-    let tasks = [];
-    try {
-      const stored = localStorage.getItem("tasks");
-      if (stored) tasks = JSON.parse(stored);
-    } catch (e) {
-      tasks = [];
-    }
-    tasks.push(newTask);
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-    setIsSaved(true);
-  };
-
-  React.useEffect(() => {
-    setIsSaved(false);
-  }, [saveTrigger, title]);
-
-  return (
-    <button
-      onClick={handleSave}
-      disabled={isSaved}
-      style={{
-        height: 40,
-        minWidth: 80,
-        padding: "0 18px",
-        fontWeight: 500,
-        color: isSaved ? "#22ee99" : "#a5f1ea",
-        background: "transparent",
-        border: `2px solid ${isSaved ? "#22ee99" : "#20e3d7"}`,
-        borderRadius: 12,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        cursor: isSaved ? "default" : "pointer",
-        transition: "color 0.3s ease, border-color 0.3s ease",
-      }}
-      onMouseEnter={(e) =>
-        !isSaved && (e.currentTarget.style.color = "#00fff7")
-      }
-      onMouseLeave={(e) =>
-        !isSaved && (e.currentTarget.style.color = "#a5f1ea")
-      }
-    >
-      {isSaved ? "Saved" : "Save"}
-    </button>
-  );
-}
-
-function SharePlugin({ title, saveTrigger }) {
-  const [editor] = useLexicalComposerContext();
-  const getTextContent = () => {
-    let text = "";
-    editor.getEditorState().read(() => {
-      text = $getRoot().getTextContent();
-    });
-    return text;
-  };
-  return (
-    <div
-      style={{
-        display: "flex",
-        gap: "12px",
-        borderRadius: 12,
-        padding: 8,
-        position: "fixed",
-        top: 80,
-        right: 200,
-        zIndex: 1000,
-        alignItems: "center",
-      }}
-    >
-      <SaveButton saveTrigger={saveTrigger} title={title} />
-      <ShareButton getTextContent={getTextContent} noteTitle={title} />
-    </div>
-  );
-}
-
-function TextOptionsBar({
-  fontFamily,
-  setFontFamily,
-  fontSize,
-  setFontSize,
-  fontColor,
-  setFontColor,
-  formatBold,
-  formatItalic,
-  formatUnderline,
-  undo,
-  redo,
-  editor,
+function SharePlugin({
+  title,
+  // saveTrigger,
+  // isLoggedIn,
+  // displayModal,
+  // shareId,
 }) {
-  const onChangeFont = (e) => {
-    const value = e.target.value;
-    setFontFamily(value);
-    applyStyleToSelection(editor, { "font-family": value });
-  };
-  const onChangeFontSize = (e) => {
-    const value = e.target.value;
-    setFontSize(value);
-    applyStyleToSelection(editor, { "font-size": `${value}px` });
-  };
-  const onChangeFontColor = (e) => {
-    const value = e.target.value;
-    setFontColor(value);
-    applyStyleToSelection(editor, { color: value });
-  };
-
-  return (
-    <div
-      className="flex items-center gap-3 px-4 py-2 rounded-xl border fixed left-1/2 transform -translate-x-1/2 shadow-2xl"
-      style={{
-        minWidth: 520,
-        backgroundColor: "rgba(12, 46, 50, 0.9)", // dark teal translucent background
-        borderColor: "#20e3d7", // bright cyan border
-        bottom: 90,
-        zIndex: 6000,
-        // subtle cyan glow shadow
-      }}
-    >
+  try {
+    // const [editor] = useLexicalComposerContext();
+    // const getTextContent = () => {
+    //   let text = "";
+    //   editor.getEditorState().read(() => {
+    //     text = $getRoot().getTextContent();
+    //   });
+    //   return text;
+    // };
+    return (
       <div
-        className="flex items-center gap-2 rounded-lg px-2 py-1"
         style={{
-          backgroundColor: "rgba(4, 49, 56, 0.7)", // slightly lighter dark teal bg
-          border: "1px solid #20e3d7", // bright cyan border
-        }}
-      >
-        <select
-          value={fontFamily}
-          onChange={onChangeFont}
-          className="bg-transparent border-none rounded px-2 py-1 focus:outline-none"
-          title="Font family"
-          style={{
-            color: "#a5f1ea", // light cyan text
-          }}
-        >
-          {[
-            "Arial",
-            "Georgia",
-            "Times New Roman",
-            "Courier New",
-            "Monospace",
-            "sans-serif",
-            "serif",
-          ].map((font) => (
-            <option key={font} className="bg-[#043138]" value={font}>
-              {font}
-            </option>
-          ))}
-        </select>
-        <div style={{ width: 1, height: 24, backgroundColor: "#20e3d7" }} />
-
-        <select
-          value={fontSize}
-          onChange={onChangeFontSize}
-          className="bg-transparent border-none rounded px-2 py-1 focus:outline-none"
-          title="Font size"
-          style={{
-            color: "#a5f1ea",
-          }}
-        >
-          {[12, 14, 16, 18, 20, 24, 28, 32].map((size) => (
-            <option key={size} className="bg-[#043138]" value={size}>
-              {size}
-            </option>
-          ))}
-        </select>
-        <div style={{ width: 1, height: 24, backgroundColor: "#20e3d7" }} />
-
-        <input
-          type="color"
-          title="Font color"
-          value={fontColor}
-          onChange={onChangeFontColor}
-          aria-label="Font color picker"
-          className="w-8 h-8 p-0 border-none rounded cursor-pointer bg-transparent"
-          style={{
-            border: "1px solid #20e3d7",
-            cursor: "pointer",
-          }}
-        />
-      </div>
-
-      <div style={{ width: 1, height: 32, backgroundColor: "#20e3d7" }} />
-
-      <div
-        className="flex items-center gap-1 rounded-lg p-1"
-        style={{
-          backgroundColor: "rgba(4, 49, 56, 0.7)",
-          border: "1px solid #20e3d7",
-        }}
-      >
-        <button
-          onClick={undo}
-          className="p-2 rounded-lg text-white"
-          title="Undo"
-          style={{ backgroundColor: "transparent", color: "#a5f1ea" }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = "#0ff9cc33")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "transparent")
-          }
-        >
-          <Undo size={18} />
-        </button>
-        <button
-          onClick={redo}
-          className="p-2 rounded-lg text-white"
-          title="Redo"
-          style={{ backgroundColor: "transparent", color: "#a5f1ea" }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = "#0ff9cc33")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "transparent")
-          }
-        >
-          <Redo size={18} />
-        </button>
-      </div>
-
-      <div style={{ width: 1, height: 32, backgroundColor: "#20e3d7" }} />
-
-      <div
-        className="flex items-center gap-1 rounded-lg p-1"
-        style={{
-          backgroundColor: "rgba(4, 49, 56, 0.7)",
-          border: "1px solid #20e3d7",
-        }}
-      >
-        <button
-          onClick={formatBold}
-          className="px-3 py-2 rounded-lg font-semibold text-white"
-          title="Bold"
-          style={{
-            backgroundColor: "transparent",
-            color: "#a5f1ea",
-          }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = "#0ff9cc33")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "transparent")
-          }
-        >
-          B
-        </button>
-        <button
-          onClick={formatItalic}
-          className="px-3 py-2 rounded-lg italic text-white"
-          title="Italic"
-          style={{
-            backgroundColor: "transparent",
-            color: "#a5f1ea",
-          }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = "#0ff9cc33")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "transparent")
-          }
-        >
-          I
-        </button>
-        <button
-          onClick={formatUnderline}
-          className="px-3 py-2 rounded-lg underline text-white"
-          title="Underline"
-          style={{
-            backgroundColor: "transparent",
-            color: "#a5f1ea",
-          }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = "#0ff9cc33")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "transparent")
-          }
-        >
-          U
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function PenTool() {
-  const canvasRef = useRef(null);
-  const ctxRef = useRef(null);
-
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [tool, setTool] = useState("pen"); // pen | eraser | highlighter
-  const [color, setColor] = useState("#ffffff");
-  const [thickness, setThickness] = useState(3);
-
-  const [history, setHistory] = useState([]); // undo/redo stack
-  const [redoStack, setRedoStack] = useState([]);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-
-    // ✅ Match canvas resolution to CSS size
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * window.devicePixelRatio;
-    canvas.height = rect.height * window.devicePixelRatio;
-    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctxRef.current = ctx;
-  }, []);
-
-  const saveState = () => {
-    const canvas = canvasRef.current;
-    const data = canvas.toDataURL();
-    setHistory((prev) => [...prev, data]);
-    setRedoStack([]); // clear redo when new draw happens
-  };
-
-  const undo = () => {
-    if (history.length === 0) return;
-    const canvas = canvasRef.current;
-    const ctx = ctxRef.current;
-    const last = history[history.length - 1];
-
-    setRedoStack((prev) => [...prev, canvas.toDataURL()]);
-    setHistory((prev) => prev.slice(0, -1));
-
-    const img = new Image();
-    img.src = last;
-    img.onload = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(
-        img,
-        0,
-        0,
-        canvas.width / window.devicePixelRatio,
-        canvas.height / window.devicePixelRatio
-      );
-    };
-  };
-
-  const redo = () => {
-    if (redoStack.length === 0) return;
-    const canvas = canvasRef.current;
-    const ctx = ctxRef.current;
-    const last = redoStack[redoStack.length - 1];
-
-    setHistory((prev) => [...prev, last]);
-    setRedoStack((prev) => prev.slice(0, -1));
-
-    const img = new Image();
-    img.src = last;
-    img.onload = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(
-        img,
-        0,
-        0,
-        canvas.width / window.devicePixelRatio,
-        canvas.height / window.devicePixelRatio
-      );
-    };
-  };
-
-  const startDrawing = (e) => {
-    const ctx = ctxRef.current;
-    ctx.beginPath();
-    ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-    setIsDrawing(true);
-  };
-
-  const draw = (e) => {
-    if (!isDrawing) return;
-    const ctx = ctxRef.current;
-
-    if (tool === "pen") {
-      ctx.globalCompositeOperation = "source-over";
-      ctx.strokeStyle = color;
-      ctx.globalAlpha = 1.0;
-    } else if (tool === "highlighter") {
-      ctx.globalCompositeOperation = "multiply";
-      ctx.strokeStyle = color;
-      ctx.globalAlpha = 0.3;
-    } else if (tool === "eraser") {
-      ctx.globalCompositeOperation = "destination-out";
-      ctx.strokeStyle = "rgba(0,0,0,1)";
-      ctx.globalAlpha = 1.0;
-    }
-
-    ctx.lineWidth = thickness;
-    ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-    ctx.stroke();
-  };
-
-  const stopDrawing = () => {
-    if (!isDrawing) return;
-    const ctx = ctxRef.current;
-    ctx.closePath();
-    setIsDrawing(false);
-    saveState(); // ✅ save snapshot after finishing stroke
-  };
-
-  // Cursor style per tool
-  const cursorStyle =
-    tool === "pen"
-      ? "url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22><text y=%2215%22 font-size=%2216%22>✏️</text></svg>') 0 16, auto"
-      : tool === "highlighter"
-      ? "url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22><text y=%2215%22 font-size=%2216%22>🖍</text></svg>') 0 16, auto"
-      : "url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22><text y=%2215%22 font-size=%2216%22>🧽</text></svg>') 0 16, auto";
-
-  return (
-    <div className="absolute inset-0">
-      {/* Controls */}
-      <div
-        className=" fixed left-1/2  transform -translate-x-1/2"
-        style={{
-          position: "fixed",
-          background: "rgba(12, 46, 50, 0.95)", // deep dark teal bg
-          padding: "10px 12px",
-          borderRadius: "12px",
           display: "flex",
+          gap: "12px",
+          borderRadius: 12,
+          padding: 8,
+          position: "absolute",
+          top: 5,
+          right: 170,
           alignItems: "center",
-          gap: "10px",
-          border: "1px solid #20e3d7", // bright cyan border
-          // cyan glow shadow
-          zIndex: 6000,
-          bottom: 80,
+          zIndex: 1000,
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            gap: 6,
-            background: "#043138", // darker teal for button group bg
-            padding: "6px",
-            borderRadius: 10,
-          }}
-        >
-          {["pen", "highlighter", "eraser"].map((toolType) => {
-            const iconMap = {
-              pen: <Brush size={18} color="#a5f1ea" />,
-              highlighter: <Highlighter size={18} color="#a5f1ea" />,
-              eraser: <Eraser size={18} color="#a5f1ea" />,
-            };
-            const isActive = tool === toolType;
-            return (
-              <button
-                key={toolType}
-                onClick={() => setTool(toolType)}
-                title={toolType[0].toUpperCase() + toolType.slice(1)}
-                style={{
-                  padding: 8,
-                  borderRadius: 8,
-                  backgroundColor: isActive ? "#0ff9cc" : "transparent",
-                  border: isActive
-                    ? "1px solid #0cc8b0"
-                    : "1px solid transparent",
-                  color: "#e5e7eb",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  transition: "background-color 0.3s, border-color 0.3s",
-                  cursor: "pointer",
-                }}
-              >
-                {iconMap[toolType]}
-              </button>
-            );
-          })}
-        </div>
-
-        <div style={{ width: 1, height: 28, background: "#20e3d7" }} />
-
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Droplet size={16} color="#20e3d7" />
-          <input
-            type="color"
-            value={color}
-            onChange={(e) => setColor(e.target.value)}
-            disabled={tool === "eraser"}
-            style={{
-              width: 28,
-              height: 28,
-              border: "none",
-              background: "transparent",
-              cursor: tool === "eraser" ? "not-allowed" : "pointer",
-            }}
-            title="Color"
-          />
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            minWidth: 160,
-          }}
-        >
-          <span style={{ color: "#20e3d7", fontSize: 12, width: 50 }}>
-            Size {thickness}
-          </span>
-          <input
-            type="range"
-            min="1"
-            max="30"
-            value={thickness}
-            onChange={(e) => setThickness(e.target.value)}
-            title="Brush size"
-            style={{
-              cursor: "pointer",
-              accentColor: "#0ff9cc",
-            }}
-          />
-        </div>
-
-        <div style={{ width: 1, height: 28, background: "#20e3d7" }} />
-
-        <div style={{ display: "flex", gap: 6 }}>
-          <button
-            onClick={undo}
-            title="Undo"
-            style={{
-              padding: 8,
-              borderRadius: 8,
-              color: "#a5f1ea",
-              background: "#043138",
-              border: "1px solid #0cc8b0",
-              cursor: "pointer",
-            }}
-          >
-            ↩️
-          </button>
-          <button
-            onClick={redo}
-            title="Redo"
-            style={{
-              padding: 8,
-              borderRadius: 8,
-              color: "#a5f1ea",
-              background: "#043138",
-              border: "1px solid #0cc8b0",
-              cursor: "pointer",
-            }}
-          >
-            ↪️
-          </button>
-          <button
-            title="Clear canvas"
-            onClick={() => {
-              const canvas = canvasRef.current;
-              const ctx = ctxRef.current;
-              if (!canvas || !ctx) return;
-              ctx.clearRect(0, 0, canvas.width, canvas.height);
-              setHistory([]);
-              setRedoStack([]);
-            }}
-            style={{
-              padding: 8,
-              borderRadius: 8,
-              color: "#fca5a5",
-              background: "#2a1b1b",
-              border: "1px solid #7f1d1d",
-              cursor: "pointer",
-            }}
-          >
-            <Trash2 size={18} />
-          </button>
-        </div>
+        <SaveButton
+          // saveTrigger={saveTrigger}
+          title={title}
+          // isLoggedIn={isLoggedIn}
+          // displayModal={displayModal}
+          // shareId={shareId}
+        />
+        {/* <ShareButton getTextContent={getTextContent} noteTitle={title} /> */}
       </div>
+    );
+  } catch (e) {
+    console.log(e);
+  }
+}
+// ---- TOOLBAR ----
+function Toolbar() {
+  const shapes = useStore((s) => s.shapes);
+  const addShape = useStore((s) => s.addShape);
+  const updateShape = useStore((s) => s.updateShape);
+  const removeShape = useStore((s) => s.removeShape);
+  const selectedTool = useStore((s) => s.selectedTool);
+  const textStyle = useStore((s) => s.textStyle);
+  const setTextStyle = useStore((s) => s.setTextStyle);
+  const setTool = useStore((s) => s.setTool);
+  return (
+    <div className="w-[33vw] flex justify-center gap-2 p-2 bg-gray-200 absolute top-2 z-50">
+      <button
+        onClick={() => setTool("freehand")}
+        className="text-black p-2 drop-shadow-sm"
+      >
+        ✏️ Freehand
+      </button>
+      <button
+        onClick={() => setTool("rect")}
+        className="text-black p-2 drop-shadow-sm"
+      >
+        ▭ Shapes
+      </button>
+      <button
+        onClick={() => setTool("text")}
+        className="text-black p-2 drop-shadow-sm"
+      >
+        🔤 Text
+      </button>
+      {selectedTool === "text" && (
+        <div
+          style={{
+            position: "absolute",
+            left: "-500px",
+            top: 100,
+            display: "flex",
+            flexDirection: "column", // 👈 stack vertically
+            gap: 12,
+            padding: 12,
+            zIndex: 100,
+            borderRadius: 6,
+            background: "white",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+            minWidth: 180,
+          }}
+        >
+          <div className="flex flex-col gap-1 text-black">
+            <label className="text-sm font-medium text-black">Font</label>
+            <select
+              value={textStyle.fontFamily}
+              onChange={(e) => setTextStyle({ fontFamily: e.target.value })}
+              className="border border-gray-400 rounded px-2 py-1 bg-white text-black"
+            >
+              <option>Arial</option>
+              <option>Times New Roman</option>
+              <option>Georgia</option>
+              <option>Courier New</option>
+            </select>
+          </div>
 
-      {/* Canvas main */}
-      <canvas
-        className="absolute inset-0 h-full w-full"
-        ref={canvasRef}
-        style={{
-          cursor: cursorStyle,
-          zIndex: 60,
-          background: "transparent",
-        }}
-        data-pen-canvas="true"
-        onMouseDown={startDrawing}
-        onMouseMove={draw}
-        onMouseUp={stopDrawing}
-        onMouseLeave={stopDrawing}
-      />
+          {/* Font Size  + Color*/}
+          <div className="flex flex-row gap-4 text-black">
+            {/* Font Size */}
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium">Size</label>
+              <input
+                type="number"
+                value={textStyle.fontSize}
+                min={8}
+                max={200}
+                onChange={(e) =>
+                  setTextStyle({ fontSize: Number(e.target.value) })
+                }
+                className="w-20 border border-gray-400 rounded px-2 py-1 bg-white"
+              />
+            </div>
+
+            {/* Text Color */}
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium">Color</label>
+              <input
+                type="color"
+                value={textStyle.color}
+                onChange={(e) => setTextStyle({ color: e.target.value })}
+                className="w-12 h-9 p-0 border border-gray-400 rounded bg-white"
+                title="Text color"
+              />
+            </div>
+          </div>
+
+          {/* Bold */}
+          <div className="flex flex-col gap-1 text-black">
+            <label className="text-sm font-medium">Bold</label>
+            <button
+              onClick={() => setTextStyle({ bold: !textStyle.bold })}
+              className={`border border-gray-400 rounded px-2 py-1 font-bold ${
+                textStyle.bold ? "bg-gray-300" : ""
+              }`}
+            >
+              B
+            </button>
+          </div>
+
+          {/* Italic */}
+          <div className="flex flex-col gap-1 text-black">
+            <label className="text-sm font-medium">Italic</label>
+            <button
+              onClick={() => setTextStyle({ italic: !textStyle.italic })}
+              className={`border border-gray-400 rounded px-2 py-1 italic ${
+                textStyle.italic ? "bg-gray-300" : ""
+              }`}
+            >
+              I
+            </button>
+          </div>
+        </div>
+      )}
+      {selectedTool == "rect" && <ShapesPanel />}
+      {/* {selectedTool == "freehand" &&  } */}
     </div>
   );
 }
-
-function ToolbarPlugin({ openChatbot, closeChatbot }) {
-  const [editor] = useLexicalComposerContext();
-  const getTextContent = () => {
-    let text = "";
-    editor.getEditorState().read(() => {
-      // Instead of toJSON traversal, use lexical root API:
-      const root = editor._editor.getRoot(); // or $getRoot() inside .read if you have access
-      if (root) {
-        text = root.getTextContent();
-      }
-    });
-    return text;
-  };
-
-  const [fontFamily, setFontFamily] = useState("Arial");
-  const [fontSize, setFontSize] = useState("16");
-  const [fontColor, setFontColor] = useState("#FFFFFF");
-  const [activeBar, setActiveBar] = useState(null);
-
-  // formatting commands for bold/italic/underline
-  const formatBold = () => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
-  const formatItalic = () =>
-    editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
-  const formatUnderline = () =>
-    editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
-  const undo = () => editor.dispatchCommand(UNDO_COMMAND, undefined);
-  const redo = () => editor.dispatchCommand(REDO_COMMAND, undefined);
-
-  // Apply inline styles for font-family, font-size, color
-  const onFontFamilyChange = (value) => {
-    setFontFamily(value);
-    applyStyleToSelection(editor, { "font-family": value });
-  };
-  const onFontSizeChange = (value) => {
-    setFontSize(value);
-    applyStyleToSelection(editor, { "font-size": `${value}px` });
-  };
-  const onFontColorChange = (value) => {
-    setFontColor(value);
-    applyStyleToSelection(editor, { color: value });
-  };
-
-  // On button click:
-  const handleToolbarClick = (type) => {
-    setActiveBar((prev) => {
-      if (type === "effect") {
-        if (prev === "effect") {
-          if (closeChatbot) closeChatbot();
-          return null;
-        } else {
-          if (openChatbot) openChatbot();
-          return "effect";
-        }
-      } else {
-        if (prev === "effect" && closeChatbot) closeChatbot();
-        return prev === type ? null : type;
-      }
-    });
-  };
-
-  return (
-    <>
-      {/* Text Options Bar */}
-      {activeBar === "text" && (
-        <TextOptionsBar
-          fontFamily={fontFamily}
-          setFontFamily={onFontFamilyChange}
-          fontSize={fontSize}
-          setFontSize={onFontSizeChange}
-          fontColor={fontColor}
-          setFontColor={onFontColorChange}
-          formatBold={formatBold}
-          formatItalic={formatItalic}
-          formatUnderline={formatUnderline}
-          undo={undo}
-          redo={redo}
-          editor={editor}
-        />
-      )}
-
-      {/* Pen Tool Options */}
-      <div className="w-full h-full">{activeBar === "pen" && <PenTool />}</div>
-      <div
-        className="flex justify-center items-center gap-4 px-4 py-2 rounded-2xl fixed"
-        style={{
-          minWidth: 160, // increased from 120
-          backgroundColor: "rgba(12, 46, 50, 0.85)",
-          border: "1px solid #20e3d7",
-          bottom: "18px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          zIndex: 100,
-        }}
-      >
-        {/* Text Options Button */}
-        <button
-          onClick={() => handleToolbarClick("text")}
-          className="flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 hover:scale-[1.16] hover:shadow-[0_0_4px_#0ff9cc55]"
-          style={{
-            fontSize: 18,
-            backgroundColor: activeBar === "text" ? "#0ff9cc" : "transparent",
-            color: activeBar === "text" ? "#003534" : "#a5f1ea",
-            boxShadow: activeBar === "text" ? "0 0 8px #0ff9ccaa" : "none",
-          }}
-          title="Text options"
-        >
-          <Type size={22} />
-        </button>
-
-        {/* Pen Tool Button */}
-        <button
-          onClick={() => handleToolbarClick("pen")}
-          className="flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 hover:scale-[1.16] hover:shadow-[0_0_4px_#0ff9cc55]"
-          style={{
-            fontSize: 18,
-            backgroundColor: activeBar === "pen" ? "#0ff9cc" : "transparent",
-            color: activeBar === "pen" ? "#003534" : "#a5f1ea",
-            boxShadow: activeBar === "pen" ? "0 0 8px #0ff9ccaa" : "none",
-          }}
-          title="Pen Tool"
-        >
-          <Pencil size={22} />
-        </button>
-
-        {/* Effects Button (Disabled) */}
-        <button
-          onClick={() => handleToolbarClick("effect")}
-          className="flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 hover:scale-[1.16] hover:shadow-[0_0_4px_#0ff9cc55]"
-          style={{
-            fontSize: 18,
-            backgroundColor: activeBar === "effect" ? "#0ff9cc" : "transparent",
-            color: activeBar === "effect" ? "#003534" : "#a5f1ea",
-            boxShadow: activeBar === "effect" ? "0 0 4px #0ff9cc88" : "none",
-          }}
-        >
-          <Sparkle size={22} />
-        </button>
-      </div>
-    </>
-  );
-}
-
-function AutoFocusPlugin() {
-  const [editor] = useLexicalComposerContext();
-  React.useEffect(() => {
-    editor.focus();
-  }, [editor]);
-  return null;
-}
-
-const initialConfig = {
-  namespace: "MyEditor",
-  theme,
-  nodes: [HeadingNode, ListNode, ListItemNode, QuoteNode, CodeNode, LinkNode],
-  onError: (error) => {
-    console.error("Lexical error:", error);
-  },
-};
-
-function SaveToLocalStoragePlugin() {
-  const [editor] = useLexicalComposerContext();
-
-  useEffect(() => {
-    return editor.registerUpdateListener(({ editorState }) => {
-      editorState.read(() => {
-        // Correct: use $getRoot() inside read()
-        const plainText = $getRoot().getTextContent();
-
-        // Save to localStorage
-        localStorage.setItem("editorContent", plainText);
-      });
-    });
-  }, [editor]);
-
-  return null;
-}
-
+// ---- APP ----
 function LexicalEditor() {
-  const [editor, setEditorState] = useState("");
   const [title, setTitle] = useState("Title");
-  const [ispenactive, setpenactive] = useState(true);
-  const [showChatbot, setShowChatbot] = useState(false);
-  const [showPenTool, setShowPenTool] = useState(false);
-  const [saveTrigger, setSaveTrigger] = useState(0);
-  const [scribbleUrl, setScribbleUrl] = useState("");
-
-  const onChange = (editorState) => {
-    editorState.read(() => {
-      setEditorState(JSON.stringify(editorState.toJSON(), null, 2));
-      setSaveTrigger((trigger) => trigger + 1);
-    });
-  };
-
   const h1Ref = useRef(null);
+  const shapes = useStore((s) => s.shapes);
+  const setShapes = useStore((s) => s.setShapes);
+  const selectedNote = localStorage.getItem("selectedNote");
+  const handleInput = (e) => {
+    setTitle(e.currentTarget.textContent);
+  };
+  useEffect(() => {
+    useStore.getState().setShapes([]);
+    // Step 1: Get the selectedNote from localStorage
+    if (selectedNote) {
+      try {
+        if (selectedNote) {
+          // Step 2: Convert string to JS object
+          const noteObj = JSON.parse(selectedNote);
+          setTitle(noteObj.title);
+          // Step 3: Extract shapes
+          const savedShapes = noteObj.shapes || [];
 
+          // Step 4: Set to your canvas state
+          setShapes(savedShapes);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }, []);
   useEffect(() => {
     if (h1Ref.current) {
       h1Ref.current.textContent = typeof title === "string" ? title : "";
@@ -1309,292 +1539,47 @@ function LexicalEditor() {
       }
     }
   }, [title]);
-
-  const handleInput = (e) => {
-    setTitle(e.currentTarget.textContent);
-    setSaveTrigger((trigger) => trigger + 1);
-  };
-
-  // Load shared note data if shareId is present
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const shareId = params.get("shareId");
-    console.log("Loading shared note data, shareId:", shareId);
-
-    if (shareId) {
-      const combined = localStorage.getItem(`shared_note_${shareId}`);
-      console.log("Loading from localStorage:", combined);
-
-      if (combined) {
-        try {
-          const parsed = JSON.parse(combined);
-          console.log("Loaded shared data:", parsed);
-
-          if (parsed) {
-            // Fix: Set title as-is, not reversed
-            if (typeof parsed.title === "string") {
-              console.log("Setting title from shared data:", parsed.title);
-              setTitle(parsed.title);
-            }
-            if (typeof parsed.penDataUrl === "string") {
-              console.log("Setting scribble URL from shared data");
-              setScribbleUrl(parsed.penDataUrl);
-            }
-          }
-        } catch (e) {
-          console.warn("Failed to parse shared note data:", e);
-        }
-      } else {
-        // Fallback to URL-embedded payload
-        const dataParam = params.get("data");
-        console.log("Trying URL payload for title/scribble:", dataParam);
-
-        if (dataParam) {
-          try {
-            const decoded = decodeURIComponent(dataParam);
-            const json = decodeURIComponent(escape(atob(decoded)));
-            const parsed = JSON.parse(json);
-            console.log("Loaded from URL payload:", parsed);
-
-            if (parsed) {
-              if (typeof parsed.title === "string") {
-                console.log("Setting title from URL payload:", parsed.title);
-                setTitle(parsed.title);
-              }
-              if (typeof parsed.penDataUrl === "string") {
-                console.log("Setting scribble URL from URL payload");
-                setScribbleUrl(parsed.penDataUrl);
-              }
-            }
-          } catch (e) {
-            console.warn("Failed to parse URL payload for title/scribble:", e);
-          }
-        }
-      }
-    }
-  }, []);
-
-  const params = new URLSearchParams(window.location.search);
-  const shareId = params.get("shareId");
-
-  const initialText = React.useMemo(() => {
-    const isNew =
-      new URLSearchParams(window.location.search).get("new") === "1";
-    console.log("Loading initial text, isNew:", isNew, "shareId:", shareId);
-
-    if (isNew) {
-      // Fresh note request: clear any persisted editor content for a clean start
-      try {
-        localStorage.removeItem("editorContent");
-      } catch {}
-      return "";
-    }
-
-    if (shareId) {
-      const combined = localStorage.getItem(`shared_note_${shareId}`);
-      console.log("Loading text from combined data:", combined);
-
-      if (combined) {
-        try {
-          const parsed = JSON.parse(combined);
-          if (parsed && typeof parsed.text === "string") {
-            console.log("Loaded text from combined data:", parsed.text);
-            return parsed.text;
-          }
-        } catch (e) {
-          console.warn("Failed to parse combined data for text:", e);
-        }
-      }
-
-      const textOnly = localStorage.getItem(`shared_content_${shareId}`);
-      console.log("Loading text from text-only data:", textOnly);
-
-      if (typeof textOnly === "string") {
-        console.log("Loaded text from text-only data:", textOnly);
-        return textOnly;
-      }
-
-      // Fallback to URL-embedded data
-      try {
-        const params = new URLSearchParams(window.location.search);
-        const dataParam = params.get("data");
-        console.log("Trying URL payload for text:", dataParam);
-
-        if (dataParam) {
-          const decoded = decodeURIComponent(dataParam);
-          const json = decodeURIComponent(escape(atob(decoded)));
-          const parsed = JSON.parse(json);
-          if (parsed && typeof parsed.text === "string") {
-            console.log("Loaded text from URL payload:", parsed.text);
-            return parsed.text;
-          }
-        }
-      } catch (e) {
-        console.warn("Failed to parse URL payload for text:", e);
-      }
-    }
-
-    const saved = localStorage.getItem("editorContent");
-    console.log("Loading saved editor content:", saved);
-    return typeof saved === "string" ? saved : "";
-  }, [shareId]);
-
-  const editorInitialConfig = React.useMemo(
-    () => ({
-      ...initialConfig,
-      editorState: (editorInstance) => {
-        editorInstance.update(() => {
-          const root = $getRoot();
-          root.clear();
-          const paragraph = $createParagraphNode();
-          const textNode = $createTextNode(initialText);
-          paragraph.append(textNode);
-          root.append(paragraph);
-        });
-      },
-    }),
-    [initialText]
-  );
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const shareId = params.get("shareId");
-
-    if (shareId) {
-      const storedContent = localStorage.getItem(`shared_content_${shareId}`);
-      if (storedContent) {
-        // Instead of auto-download, you can render this content in a viewer page
-        console.log("Shared Note:", storedContent);
-      }
-    }
-  }, []);
-
   return (
-    <div
-      className="flex opacity-80 bg-gradient-to-br from-transparent via-cyan-800 to-transparent"
-      style={{
-        minHeight: "100vh",
-        minWidth: "100vw",
-
-        color: "#e8fffe", // Very light cyan for main text
-      }}
-    >
-      {/* Main editor wrapper */}
-      <div
-        className="relative flex flex-col items-center overflow-hidden w-full"
-        style={{
-          background: "rgba(6, 26, 36, 0.4)",
-          boxShadow: "0 0 60px 0 rgba(15, 249, 204, 0.25)", // semi-transparent bright cyan glow
-        }}
-      >
-        <SidebarOnHover2 />
-        <div className="absolute gap-2 top-20 left-10 flex items-center">
-          <a
-            href="/tasks"
-            className="font-medium transition-colors"
-            style={{ color: "#22d2c6" }} // Teal cyan
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#16b0a6")} // Darker teal on hover
-            onMouseLeave={(e) => (e.currentTarget.style.color = "#22d2c6")}
-          >
-            <ArrowLeft size={18} />
-          </a>
-          <p
-            className="font-medium drop-shadow-md"
-            style={{ color: "#15f1cf" }} // Light cyan
-          >
-            {title}
-          </p>
-        </div>
-
-        {/* Editable <h1> */}
-        <h1
-          className="editable-title"
-          ref={h1Ref}
-          contentEditable
-          suppressContentEditableWarning={true}
-          spellCheck={false}
-          onInput={handleInput}
+    <div className="bg-white relative">
+      <div className="h-[95vh] flex flex-col items-center relative bg-white top-[5vh] border-black">
+        <div
+          className="h-auto w-auto border rounded-md pt-2 absolute top-[5px] left-[40px] z-10 flex flex-col"
           style={{
-            position: "fixed",
-            top: "80px",
-            left: "340px",
-            zIndex: 50,
-            cursor: "text",
-            fontSize: "1.5rem",
-            fontWeight: 600,
-            fontFamily: "sans-serif",
-            color: "#0ff9cc", // Bright cyan
-            backgroundColor: "rgba(15, 52, 96, 0.95)", // Semi-transparent dark blue
-            padding: "8px 16px",
-            borderRadius: "12px",
-            // semi-transparent bright cyan glow
-            border: "1px solid #1ae5d2", // Cyan blue border
-            overflow: "hidden",
-            whiteSpace: "nowrap",
-            textOverflow: "ellipsis",
-            outline: "none",
-            userSelect: "text",
+            border: "2px solid black",
+            marginBottom: "20px",
+            minWidth: "100px",
           }}
-          aria-label="Notes Title"
-        />
-
-        <div className=" mb-20 mt-36 px-10 w-full">
-          <div
-            className="w-full max-w-4xl mx-auto border rounded-md pt-10 relative z-10"
+        >
+          <h1
+            className="editable-title mb-2"
+            ref={h1Ref}
+            contentEditable
+            suppressContentEditableWarning={true}
+            spellCheck={false}
+            onKeyDown={(e) => handleInput(e)}
             style={{
-              background: "rgba(6, 26, 36, 0.4)", // Semi-transparent very dark blue
-              // semi-transparent bright cyan glow
-              border: "2px solid #20e3d7", // Light cyan blue border
+              cursor: "text",
+              textAlign: "center",
+              fontSize: "1.3rem",
+              fontWeight: 400,
+              fontFamily: "sans-serif",
+              color: "black",
+              padding: "0 16px",
+              borderRadius: "0px", // 👈 no rounded corners
+              border: "none", // 👈 removed border
+              outline: "none",
+              userSelect: "text",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
             }}
-          >
-            {ispenactive && (
-              <div
-                className="rounded-lg shadow-lg relative px-10"
-                style={{ border: "none" }} // Very dark blue background
-              >
-                <LexicalComposer initialConfig={editorInitialConfig}>
-                  <div className="relative">
-                    <RichTextPlugin
-                      contentEditable={
-                        <ContentEditable
-                          className="min-h-[350px] max-h-[60vh] overflow-y-auto text-xl font-normal outline-none resize-none px-1"
-                          style={{
-                            color: "#e4ffff", // Light cyan alternative
-                            // Bright cyan caret
-                            // Semi-transparent very dark blue
-                          }}
-                        />
-                      }
-                      placeholder={
-                        <h2
-                          className="absolute top-0 left-4 pointer-events-none text-lg"
-                          // Very light cyan
-                        >
-                          {"Let's Start"}
-                        </h2>
-                      }
-                      ErrorBoundary={LexicalErrorBoundary}
-                    />
-                    <SaveToLocalStoragePlugin />
-                    <HistoryPlugin />
-                    <AutoFocusPlugin />
-                    <OnChangePlugin onChange={onChange} />
-                    <ToolbarPlugin
-                      onTogglePenTool={() => setShowPenTool((prev) => !prev)}
-                      onToggleChatbot={() => setShowChatbot((prev) => !prev)}
-                    />
-                  </div>
-                  <SharePlugin title={title} saveTrigger={saveTrigger} />
-                </LexicalComposer>
-              </div>
-            )}
-          </div>
+            aria-label="Notes Title"
+          />
         </div>
+        <SharePlugin title={title} />
+        <Toolbar />
+        <Canvas />
       </div>
-
-      {/* Only render PenTool if state is true */}
-      <div>{showPenTool && <PenTool />}</div>
-      <SimpleChatbot open={showChatbot} onClose={() => setShowChatbot(false)} />
     </div>
   );
 }

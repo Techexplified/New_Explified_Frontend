@@ -9,9 +9,12 @@ import { Zap } from "lucide-react";
 import { AiOutlineOpenAI } from "react-icons/ai";
 import { RiGeminiLine } from "react-icons/ri";
 import { FaPlus } from "react-icons/fa6";
+import ExpliSidebar from "../expli/ExpliSidebar";
+import { INTEGRATION_PROVIDERS } from "../utils/data/TroneData";
 
 function Trone() {
   const [prompt, setPrompt] = useState("");
+  const [showIntegrationsModal, setShowIntegrationsModal] = useState(false);
   const [enabledProviders, setEnabledProviders] = useState({
     expli: true,
     openai: true,
@@ -22,19 +25,22 @@ function Trone() {
     openai: false,
     gemini: false,
   });
+  const [closedChats, setClosedChats] = useState(() => {
+    try {
+      const raw = localStorage.getItem("trone_closed_chats");
+      return raw ? JSON.parse(raw) : { openai: false, gemini: false };
+    } catch {
+      return { openai: false, gemini: false };
+    }
+  });
+
+  const [selectedTool, setSelectedTool] = useState("Expli");
 
   const [chatHistory, setChatHistory] = useState(() => {
-    const raw = localStorage.getItem("trone_chat_sessions");
+    const raw = localStorage.getItem("trone_chat_sessions1");
     return raw ? JSON.parse(raw) : [];
   });
-  const [chatHistoryGemini, setChatHistoryGemini] = useState(() => {
-    const raw = localStorage.getItem("gemini_chat_sessions");
-    return raw ? JSON.parse(raw) : [];
-  });
-  const [chatHistoryOpenAI, setChatHistoryOpenAI] = useState(() => {
-    const raw = localStorage.getItem("openai_chat_sessions");
-    return raw ? JSON.parse(raw) : [];
-  });
+
   const [currentMessages, setCurrentMessages] = useState([]); // active session messages
   const [currentMessagesOpenAI, setCurrentMessagesOpenAI] = useState([]); // active session messages
   const [currentMessagesGemini, setCurrentMessagesGemini] = useState([]); // active session messages
@@ -56,7 +62,6 @@ function Trone() {
   // Voice recognition
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [providerKeys, setProviderKeys] = useState(() => {
     try {
@@ -68,7 +73,15 @@ function Trone() {
     }
   });
 
-  const [currentTool, setCurrentTool] = useState("default");
+  const [currentTool, setCurrentTool] = useState("expli");
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("trone_closed_chats", JSON.stringify(closedChats));
+    } catch (err) {
+      console.error("Failed to save closedChats:", err);
+    }
+  }, [closedChats]);
 
   useEffect(() => {
     if (!prevDrawerState.current && isDrawerOpen) {
@@ -83,31 +96,11 @@ function Trone() {
   // Persist sessions to localStorage whenever they change
   useEffect(() => {
     try {
-      localStorage.setItem("trone_chat_sessions", JSON.stringify(chatHistory));
+      localStorage.setItem("trone_chat_sessions1", JSON.stringify(chatHistory));
     } catch (e) {
       console.log(e);
     }
   }, [chatHistory]);
-  useEffect(() => {
-    try {
-      localStorage.setItem(
-        "gemini_chat_sessions",
-        JSON.stringify(chatHistoryGemini)
-      );
-    } catch (e) {
-      console.log(e);
-    }
-  }, [chatHistoryGemini]);
-  useEffect(() => {
-    try {
-      localStorage.setItem(
-        "openai_chat_sessions",
-        JSON.stringify(chatHistoryOpenAI)
-      );
-    } catch (e) {
-      console.log(e);
-    }
-  }, [chatHistoryOpenAI]);
 
   // Removed auto-syncing current messages from localStorage to prevent overwriting sessions
 
@@ -171,16 +164,24 @@ function Trone() {
         const tool = currentTool;
         const apiKey = providerKeys[tool] || "";
 
-        if (!apiKey && tool !== "default")
+        if (!apiKey && tool !== "expli")
           throw new Error(`No API key found for ${tool}.`);
 
-        if (tool === "default" && enabledProviders.expli) {
+        if (tool === "expli" && enabledProviders.expli) {
           await handleDefault(userMessage, contextPrompt);
         }
-        if (providerKeys?.gemini && enabledProviders.gemini) {
+        if (
+          providerKeys?.gemini &&
+          enabledProviders.gemini &&
+          !closedChats.gemini
+        ) {
           await handleGemini(userMessage, contextPrompt);
         }
-        if (providerKeys?.openai && enabledProviders.openai) {
+        if (
+          providerKeys?.openai &&
+          enabledProviders.openai &&
+          !closedChats.openai
+        ) {
           await handleOpenAI(userMessage, contextPrompt);
         }
       } catch (err) {
@@ -234,15 +235,29 @@ function Trone() {
 
       setCurrentMessages((prev) => [...prev, botMessage]);
 
-      const sessionRecord = {
-        id: sessionId,
-        startedAt: sessionStartedAt || Date.now(),
-        endedAt: Date.now(),
-        messages: [userMessage, botMessage],
-      };
       setChatHistory((prev) => {
-        const next = [...prev, sessionRecord];
-        return next.slice(-3);
+        // check if last entry was same question
+        const last = prev[prev.length - 1];
+        if (last && last.question === userMessage.text) {
+          // append Expli answer to same session
+          return [
+            ...prev.slice(0, -1),
+            {
+              ...last,
+              answers: [...last.answers, { tool: "expli", text: botText }],
+            },
+          ];
+        }
+        // else start new session
+        return [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            question: userMessage.text,
+            answers: [{ tool: "expli", text: botText }],
+            timestamp: new Date().toISOString(),
+          },
+        ];
       });
     } catch (err) {
       console.error("Error details:", err);
@@ -311,15 +326,29 @@ function Trone() {
 
       setCurrentMessagesOpenAI((prev) => [...prev, botMessage]);
 
-      const sessionRecord = {
-        id: sessionId,
-        startedAt: sessionStartedAt || Date.now(),
-        endedAt: Date.now(),
-        messages: [userMessage, botMessage],
-      };
-      setChatHistoryOpenAI((prev) => {
-        const next = [...prev, sessionRecord];
-        return next.slice(-3);
+      setChatHistory((prev) => {
+        // check if last entry was same question
+        const last = prev[prev.length - 1];
+        if (last && last.question === userMessage.text) {
+          // append Expli answer to same session
+          return [
+            ...prev.slice(0, -1),
+            {
+              ...last,
+              answers: [...last.answers, { tool: "openai", text: botText }],
+            },
+          ];
+        }
+        // else start new session
+        return [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            question: userMessage.text,
+            answers: [{ tool: "openai", text: botText }],
+            timestamp: new Date().toISOString(),
+          },
+        ];
       });
     } catch (err) {
       console.error("Error details:", err);
@@ -393,15 +422,29 @@ function Trone() {
 
       setCurrentMessagesGemini((prev) => [...prev, botMessage]);
 
-      const sessionRecord = {
-        id: sessionId,
-        startedAt: sessionStartedAt || Date.now(),
-        endedAt: Date.now(),
-        messages: [userMessage, botMessage],
-      };
-      setChatHistoryGemini((prev) => {
-        const next = [...prev, sessionRecord];
-        return next.slice(-3);
+      setChatHistory((prev) => {
+        // check if last entry was same question
+        const last = prev[prev.length - 1];
+        if (last && last.question === userMessage.text) {
+          // append Expli answer to same session
+          return [
+            ...prev.slice(0, -1),
+            {
+              ...last,
+              answers: [...last.answers, { tool: "gemini", text: botText }],
+            },
+          ];
+        }
+        // else start new session
+        return [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            question: userMessage.text,
+            answers: [{ tool: "gemini", text: botText }],
+            timestamp: new Date().toISOString(),
+          },
+        ];
       });
     } catch (err) {
       console.error("Error details:", err);
@@ -520,44 +563,82 @@ function Trone() {
     }
     setProviderKeys(next);
   };
+  const activeChats = Object.entries(closedChats)
+    .filter(([key, closed]) => !closed && providerKeys[key])
+    .map(([key]) => key);
 
   return (
-    <div className="bg-black relative text-white h-screen">
-      <div className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
+    <div className="flex bg-black relative text-white h-screen">
+      <div className="absolute inset-0  opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-400 to-transparent"></div>
 
-      <SidebarOnHover
+      <ExpliSidebar
         onAddClick={newChat}
         chatHistory={chatHistory}
-        chatHistoryOpenAI={chatHistoryOpenAI}
-        chatHistoryGemini={chatHistoryGemini}
+        setChatHistory={setChatHistory}
         setCurrentMessages={setCurrentMessages}
         setCurrentMessagesGemini={setCurrentMessagesGemini}
         setCurrentMessagesOpenAI={setCurrentMessagesOpenAI}
-        onOpenChange={(open) => setIsSidebarOpen(open)}
         link={"https://explified.com/expli/"}
-        toolName={"Expli(+)"}
         tools={providerKeys}
-        setCurrentTool={setCurrentTool}
+        setShowIntegrationsModal={setShowIntegrationsModal}
+        closedChats={closedChats}
+        setClosedChats={setClosedChats}
       />
 
-      <div className="flex-1 flex flex-col items-center  overflow-x-auto justify-center pt-12 w-screen">
-        <div
-          className={`fixed top-4 z-40 transition-all duration-300 ${
-            isSidebarOpen ? "left-72" : "left-8"
-          }`}
-        ></div>
-
-        <h1 className="text-2xl font-bold text-left w-full max-w-4xl mx-auto px-2 bg-gradient-to-r from-teal-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent mb-4">
-          Expli(+)
-        </h1>
-
+      <div className="overflow-x-auto h-screen w-screen flex flex-col">
         {/* Chat + Input inside same box */}
-        <div className="min-w-[1000px] max-w-3xl xl:max-w-5xl 2xl:max-w-7xl mx-auto rounded-xl border border-cyan-900/60 shadow-[0_0_0_1px_rgba(0,255,255,0.06),0_0_24px_rgba(0,255,255,0.07)] bg-transparent p-4 sm:p-5 flex flex-col gap-4 min-h-[80vh] relative">
+        <div className="w-full flex-1 border border-cyan-900/60 shadow-[0_0_0_1px_rgba(0,255,255,0.06),0_0_24px_rgba(0,255,255,0.07)] bg-gradient-to-br from-black via-[#23b5b5] to-black p-4 sm:p-5 flex flex-col gap-4 relative">
           {/* Background Pattern */}
-          <div className="absolute inset-0 rounded-xl opacity-50 pointer-events-none bg-gradient-to-br from-black to-black"></div>
+          <div className="absolute inset-0 opacity-40 pointer-events-none bg-gradient-to-br from-black to-black"></div>
+
+          {/* Select tool */}
+          {/* Show select only if one chat is open */}
+          {activeChats.length <= 1 && (
+            <div className="text-2xl font-bold text-left w-full px-4 py-1 text-[#23b5b5]">
+              <select
+                value={selectedTool}
+                onChange={(e) => {
+                  const selected = e.target.value;
+
+                  if (selected === "expli") {
+                    setSelectedTool(selected);
+                    setClosedChats({ openai: true, gemini: true });
+                    return;
+                  }
+
+                  if (providerKeys[selected]) {
+                    // open only the selected chat, close others
+                    setSelectedTool(selected);
+                    setClosedChats({
+                      openai: selected !== "openai",
+                      gemini: selected !== "gemini",
+                    });
+                  } else {
+                    setShowIntegrationsModal(true);
+                    e.target.value = selectedTool; // keep previous if not integrated
+                  }
+                }}
+                className="relative z-50 bg-gray-800/80 text-white text-xs rounded-lg px-3 py-1.5 border border-gray-600/50 
+      focus:border-minimal-primary/50 focus:outline-none transition-colors duration-200"
+              >
+                <option value="expli">Expli</option>
+                {INTEGRATION_PROVIDERS.map((tool) => (
+                  <option key={tool.id} value={tool.id}>
+                    {tool.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* Chat Containers Row */}
-          <div className="flex gap-4 flex-1 h-full">
+          <div
+            className={`flex gap-4  ${
+              closedChats?.openai && closedChats?.gemini
+                ? "w-[70%] mx-auto"
+                : "flex-1"
+            }  pt-12 h-full`}
+          >
             <ChatContainer
               messages={currentMessages}
               isTyping={isTyping.expli}
@@ -567,9 +648,10 @@ function Trone() {
               setEnabled={(val) =>
                 setEnabledProviders((prev) => ({ ...prev, expli: val }))
               }
+              providerKeys={providerKeys}
             />
 
-            {providerKeys?.openai && (
+            {providerKeys?.openai && !closedChats.openai && (
               <ChatContainer
                 messages={currentMessagesOpenAI}
                 isTyping={isTyping.openai}
@@ -580,11 +662,13 @@ function Trone() {
                 setEnabled={(val) =>
                   setEnabledProviders((prev) => ({ ...prev, openai: val }))
                 }
-                handleCloseChat={handleCloseChat}
+                handleCloseChat={(pid) =>
+                  setClosedChats((prev) => ({ ...prev, [pid]: true }))
+                }
               />
             )}
 
-            {providerKeys?.gemini && (
+            {providerKeys?.gemini && !closedChats.gemini && (
               <ChatContainer
                 messages={currentMessagesGemini}
                 isTyping={isTyping.gemini}
@@ -595,7 +679,9 @@ function Trone() {
                 setEnabled={(val) =>
                   setEnabledProviders((prev) => ({ ...prev, gemini: val }))
                 }
-                handleCloseChat={handleCloseChat}
+                handleCloseChat={(pid) =>
+                  setClosedChats((prev) => ({ ...prev, [pid]: true }))
+                }
               />
             )}
           </div>
@@ -609,17 +695,15 @@ function Trone() {
             isTyping={isTyping.expli}
             handleMicClick={handleMicClick}
             isRecording={isRecording}
-            currentTool={currentTool}
-            setCurrentTool={setCurrentTool}
-            providerKeys={providerKeys}
           />
         </div>
       </div>
 
       <ExpliIntegration
-        currentTool={currentTool}
         providerKeys={providerKeys}
         setProviderKeys={setProviderKeys}
+        showIntegrationsModal={showIntegrationsModal}
+        setShowIntegrationsModal={setShowIntegrationsModal}
       />
     </div>
   );

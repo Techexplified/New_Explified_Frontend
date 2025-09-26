@@ -6,10 +6,15 @@ import {
 } from "../utils/data/TroneData";
 import { FiChevronDown, FiSearch, FiX } from "react-icons/fi";
 import { Lock, Zap } from "lucide-react";
-function ExpliIntegration({ providerKeys, setCurrentTool, setProviderKeys }) {
+function ExpliIntegration({
+  providerKeys,
+  setProviderKeys,
+  showIntegrationsModal,
+  setShowIntegrationsModal,
+}) {
   const [showIntegrationHint, setShowIntegrationHint] = useState(true);
   const [isHoveringIntegration, setIsHoveringIntegration] = useState(false);
-  const [showIntegrationsModal, setShowIntegrationsModal] = useState(false);
+  // const [showIntegrationsModal, setShowIntegrationsModal] = useState(false);
   const [integrationTab, setIntegrationTab] = useState("my"); // "my" | "add"
   const [integrationSearch, setIntegrationSearch] = useState("");
 
@@ -60,23 +65,58 @@ function ExpliIntegration({ providerKeys, setCurrentTool, setProviderKeys }) {
     <>
       <div className="fixed bottom-6 right-6 z-40">
         <div
-          className="relative"
+          className="relative group"
           onMouseEnter={() => setIsHoveringIntegration(true)}
           onMouseLeave={() => setIsHoveringIntegration(false)}
         >
+          {/* Animated tooltip */}
           {(showIntegrationHint || isHoveringIntegration) && (
-            <div className="absolute -top-14 right-0 bg-[#191a1c] border border-[#2a2a2a] text-gray-200 text-xs px-3 py-2 rounded-lg shadow-lg whitespace-nowrap">
-              Integrate your own API key
-              <div className="absolute -bottom-1 right-4 w-3 h-3 bg-[#191a1c] rotate-45 border-r border-b border-[#2a2a2a]" />
+            <div className="absolute -top-16 right-0 transform transition-all duration-300 ease-out animate-in slide-in-from-bottom-2 fade-in-0">
+              <div className="bg-black/95 backdrop-blur-sm border border-[#23b5b5]/30 text-white text-xs px-4 py-2 rounded-xl shadow-2xl whitespace-nowrap">
+                <span className="text-[#23b5b5] font-medium">Integrate</span>{" "}
+                your own API key
+                {/* Animated tooltip arrow */}
+                <div className="absolute -bottom-1 right-5 w-3 h-3 bg-black/95 rotate-45 border-r border-b border-[#23b5b5]/30 transform transition-transform duration-200" />
+              </div>
             </div>
           )}
+
+          {/* Animated glow ring */}
+          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#23b5b5] to-[#1a9999] opacity-80 group-hover:opacity-20 transition-opacity duration-500 blur-sm scale-110" />
+
+          {/* Main button */}
           <button
             type="button"
-            className="w-12 h-12 rounded-lg bg-[#191a1c] hover:bg-[#1f2023] border border-[#2a2a2a] text-gray-200 text-[10px] font-medium flex items-center justify-center shadow-lg"
+            className="relative w-14 h-14 rounded-xl bg-black/90 backdrop-blur-sm border border-[#23b5b5]/20 text-[#23b5b5] text-[10px] font-medium flex items-center justify-center shadow-xl
+                 hover:bg-black/95 hover:border-[#23b5b5]/40 hover:shadow-2xl hover:shadow-[#23b5b5]/10
+                 active:scale-95 active:shadow-lg
+                 transition-all duration-300 ease-out
+                 before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-br before:from-[#23b5b5]/10 before:to-transparent before:opacity-0 before:transition-opacity before:duration-300
+                 hover:before:opacity-100"
             title="Integrations"
             onClick={() => setShowIntegrationsModal(true)}
           >
-            <Zap />
+            {/* Animated background pulse */}
+            <div className="absolute inset-0 rounded-xl bg-[#23b5b5]/8 animate-pulse opacity-100 group-hover:opacity-100 transition-opacity duration-300" />
+
+            {/* Icon with hover animation */}
+            <div className="relative z-10 transform transition-transform duration-200 group-hover:scale-110 group-active:scale-95">
+              <Zap className="w-5 h-5 drop-shadow-sm" />
+            </div>
+
+            {/* Enhanced shine effect with continuous animation */}
+            <div
+              className="absolute inset-0 rounded-xl opacity-30 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -skew-x-12 animate-pulse group-hover:animate-none group-hover:opacity-50 group-hover:translate-x-[-100%] group-hover:transition-transform group-hover:duration-1000"
+              style={{ animationDuration: "3s" }}
+            />
+
+            {/* Rotating border accent */}
+            <div className="absolute inset-0 rounded-xl overflow-hidden">
+              <div
+                className="absolute inset-0 bg-gradient-to-r from-[#23b5b5]/20 via-transparent to-[#23b5b5]/20 animate-spin opacity-60"
+                style={{ animationDuration: "6s" }}
+              />
+            </div>
           </button>
         </div>
       </div>
@@ -161,7 +201,7 @@ function ExpliIntegration({ providerKeys, setCurrentTool, setProviderKeys }) {
                     >
                       <div className="flex items-center justify-between mb-4">
                         <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-700 rounded-lg flex items-center justify-center text-white text-xl shadow-lg group-hover:scale-110 transition-transform duration-200">
-                          {Icon && <Icon className="text-white" size={20} />}
+                          {Icon}
                         </div>
                         <div className="flex">
                           {!(p.id === "openai" || p.id === "gemini") && (
@@ -177,7 +217,6 @@ function ExpliIntegration({ providerKeys, setCurrentTool, setProviderKeys }) {
                             onClick={(e) => {
                               e.stopPropagation();
                               handleOpenProvider(p.id);
-                              setCurrentTool(p.id);
                             }}
                             className="w-8 h-8 bg-gradient-to-r from-teal-500 to-teal-600 rounded-full flex items-center justify-center text-white transition-all duration-200 transform hover:scale-110 shadow-lg"
                           >
@@ -240,7 +279,7 @@ function ExpliIntegration({ providerKeys, setCurrentTool, setProviderKeys }) {
                             className="w-8 h-8 rounded-md flex items-center justify-center"
                             style={{ background: "#23b5b5" }}
                           >
-                            <Icon className="text-black/80" size={18} />
+                            {Icon}
                           </div>
                         )}
                         <h4 className="text-white text-base font-semibold">
@@ -291,7 +330,7 @@ function ExpliIntegration({ providerKeys, setCurrentTool, setProviderKeys }) {
                                 className="w-6 h-6 rounded-md flex items-center justify-center"
                                 style={{ background: "#23b5b5" }}
                               >
-                                <Icon className="text-black/80" size={14} />
+                                {Icon}
                               </div>
                             )}
                             <h5 className="text-white text-sm font-medium">
@@ -331,7 +370,6 @@ function ExpliIntegration({ providerKeys, setCurrentTool, setProviderKeys }) {
                           className="px-3 py-2 rounded-lg bg-teal-600 hover:bg-teal-500 text-white"
                           onClick={() => {
                             handleSaveProviderKey(selectedProviderId, true);
-                            setCurrentTool(selectedProviderId);
                           }}
                         >
                           Save & Use

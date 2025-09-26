@@ -45,7 +45,20 @@ import {
   getRecentTools,
   removeRecentTool,
 } from "../../utils/recentTools.js";
-
+import {
+  SiGmail,
+  SiGooglesheets,
+  SiGoogledrive,
+  SiGooglecalendar,
+  SiZoom,
+  SiSlack,
+  SiTrello,
+  SiNotion,
+  SiDropbox,
+  SiWhatsapp,
+  SiGoogleanalytics,
+} from "react-icons/si";
+import { MdBusiness } from "react-icons/md";
 const navItems = [
   { name: "Recent", icon: null, active: false, badge: null },
   { name: "Start", icon: null, active: false, badge: null },
@@ -54,18 +67,191 @@ const navItems = [
   { name: "Integrations", icon: null, active: false, badge: null },
   { name: "Search", icon: Search, active: true, badge: null },
 ];
+
 const sampleWorkflows = [
   {
-    id: "zoom-gdrive",
-    title:
-      "Receive New Zoom Cloud Recordings Automatically Uploaded to Google Drive",
+    id: "GoogleSheets-Gmail",
+    title: "Email Drip Campaigns",
     description:
-      "Automatically save your Zoom cloud recordings to Google Drive whenever a new recording is available. Perfect for keeping meeting records organized and accessible.",
+      "Send personalized and automated follow-up emails directly from Google Sheets using Gmail to manage outreach campaigns efficiently.",
     tools: [
-      { name: "Zoom", icon: "🔵", bgColor: "bg-minimal-primary" }, // Zoom blue
-      { name: "Google Drive", icon: "📁", bgColor: "bg-minimal-gray-600" }, // Google Drive green
+      {
+        name: "Google Sheets",
+        icon: <SiGooglesheets />,
+        bgColor: "bg-green-500/30",
+      },
+      { name: "Gmail", icon: <SiGmail />, bgColor: "bg-red-500/30" },
     ],
     category: "Marketing",
+    recommended: true,
+  },
+  {
+    id: "Zoom-GoogleDrive",
+    title: "Data Cleaning Pipelines",
+    description:
+      "Automatically store Zoom recordings in Google Drive, where files can be cleaned, processed, and organized for analytics.",
+    tools: [
+      { name: "Zoom", icon: <SiZoom />, bgColor: "bg-blue-500/30" },
+      {
+        name: "Google Drive",
+        icon: <SiGoogledrive />,
+        bgColor: "bg-yellow-500/30",
+      },
+    ],
+    category: "Productivity",
+    recommended: true,
+  },
+  {
+    id: "Slack-GoogleCalendar",
+    title: "Google Ads Spend Monitor",
+    description:
+      "Monitor Google Ads spending and instantly notify your team on Slack while scheduling reviews in Google Calendar.",
+    tools: [
+      { name: "Slack", icon: <SiSlack />, bgColor: "bg-purple-500/30" },
+      {
+        name: "Google Calendar",
+        icon: <SiGooglecalendar />,
+        bgColor: "bg-blue-400/30",
+      },
+    ],
+    category: "Marketing",
+    recommended: true,
+  },
+  {
+    id: "Trello-WhatsApp",
+    title: "Daily/Weekly Summary Emails on WhatsApp",
+    description:
+      "Generate automated task summaries from Trello and send them as digest messages via WhatsApp for quick team updates.",
+    tools: [
+      { name: "Trello", icon: <SiTrello />, bgColor: "bg-cyan-600/30" },
+      { name: "WhatsApp", icon: <SiWhatsapp />, bgColor: "bg-green-600/30" },
+    ],
+    category: "Project Management",
+    recommended: false,
+  },
+  {
+    id: "Notion-Slack",
+    title: "Customer Onboarding",
+    description:
+      "Track and document customer onboarding steps in Notion while sending real-time Slack updates to the team.",
+    tools: [
+      { name: "Notion", icon: <SiNotion />, bgColor: "bg-black" },
+      { name: "Slack", icon: <SiSlack />, bgColor: "bg-purple-500/30" },
+    ],
+    category: "Collaboration",
+    recommended: true,
+  },
+  {
+    id: "GoogleAnalytics-WhatsApp",
+    title: "Google Analytics (GA4) report on WhatsApp and Gmail",
+    description:
+      "Automate Google Analytics GA4 reports and deliver them via Gmail and WhatsApp for accessible, real-time insights.",
+    tools: [
+      {
+        name: "Google Analytics",
+        icon: <SiGoogleanalytics />,
+        bgColor: "bg-orange-500/30",
+      },
+      { name: "WhatsApp", icon: <SiWhatsapp />, bgColor: "bg-green-600/30" },
+      { name: "Gmail", icon: <SiGmail />, bgColor: "bg-red-500/30" },
+    ],
+    category: "Analytics",
+    recommended: true,
+  },
+  {
+    id: "GoogleAnalytics-Slack",
+    title: "Google Ads Spend",
+    description:
+      "Track Google Ads spending using Google Analytics and push instant notifications to Slack channels for budget awareness.",
+    tools: [
+      {
+        name: "Google Analytics",
+        icon: <SiGoogleanalytics />,
+        bgColor: "bg-orange-500/30",
+      },
+      { name: "Slack", icon: <SiSlack />, bgColor: "bg-purple-500/30" },
+    ],
+    category: "Marketing",
+    recommended: false,
+  },
+  {
+    id: "Dropbox-PowerBI",
+    title: "Power BI Dashboard Auto-Refresh",
+    description:
+      "Sync Dropbox files with Power BI to ensure dashboards are refreshed automatically with the latest data.",
+    tools: [
+      { name: "Dropbox", icon: <SiDropbox />, bgColor: "bg-blue-700/30" },
+      { name: "Power BI", icon: <MdBusiness />, bgColor: "bg-yellow-600/30" },
+    ],
+    category: "Analytics",
+    recommended: true,
+  },
+  {
+    id: "Dropbox-Trello",
+    title: "Doc to Task Manager",
+    description:
+      "Convert documents uploaded to Dropbox into actionable Trello tasks automatically.",
+    tools: [
+      { name: "Dropbox", icon: <SiDropbox />, bgColor: "bg-blue-700/30" },
+      { name: "Trello", icon: <SiTrello />, bgColor: "bg-cyan-600/30" },
+    ],
+    category: "Productivity",
+    recommended: true,
+  },
+  {
+    id: "GoogleSheets-Gmail",
+    title: "CRM Automation",
+    description:
+      "Use Google Sheets as a lightweight CRM and automate customer communication through Gmail.",
+    tools: [
+      {
+        name: "Google Sheets",
+        icon: <SiGooglesheets />,
+        bgColor: "bg-green-500/30",
+      },
+      { name: "Gmail", icon: <SiGmail />, bgColor: "bg-red-500/30" },
+    ],
+    category: "Sales",
+    recommended: true,
+  },
+  {
+    id: "Dropbox-Gmail",
+    title: "Marketing Automation",
+    description:
+      "Automate the flow of marketing content by connecting Dropbox storage with Gmail campaigns.",
+    tools: [
+      { name: "Dropbox", icon: <SiDropbox />, bgColor: "bg-blue-700/30" },
+      { name: "Gmail", icon: <SiGmail />, bgColor: "bg-red-500/30" },
+    ],
+    category: "Marketing",
+    recommended: true,
+  },
+  {
+    id: "Slack-Dropbox",
+    title: "Customer Support Automation",
+    description:
+      "Forward Dropbox support files and documents directly to Slack to notify your support team instantly.",
+    tools: [
+      { name: "Slack", icon: <SiSlack />, bgColor: "bg-purple-500/30" },
+      { name: "Dropbox", icon: <SiDropbox />, bgColor: "bg-blue-700/30" },
+    ],
+    category: "Support",
+    recommended: true,
+  },
+  {
+    id: "Slack-GoogleDrive",
+    title: "Internal Team Workflows",
+    description:
+      "Simplify internal collaboration by syncing Google Drive files and sending updates to Slack channels.",
+    tools: [
+      { name: "Slack", icon: <SiSlack />, bgColor: "bg-purple-500/30" },
+      {
+        name: "Google Drive",
+        icon: <SiGoogledrive />,
+        bgColor: "bg-yellow-500/30",
+      },
+    ],
+    category: "Collaboration",
     recommended: true,
   },
 ];
@@ -867,21 +1053,22 @@ const MainDashboard = () => {
               Workflows
             </p>
             <div className="border-t border-gray-600 w-full mb-6"></div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-[repeat(auto-fit,minmax(0,330px))] gap-6">
               {sampleWorkflows.map((workflow) => {
                 const isMenuOpen = openMenuId === workflow.id;
 
                 return (
                   <div
                     key={workflow.id}
-                    className="group relative bg-minimal-dark-100 rounded-xl p-4 border border-minimal-border hover:border-minimal-primary/50 transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-2xl hover:shadow-minimal-primary/20 cursor-pointer flex flex-col h-64 will-change-transform"
+                    className="group relative px-6 py-4 rounded-2xl bg-gradient-to-br from-gray-950/80 to-gray-900/60 bg-opacity-70 border border-gray-800/40 backdrop-blur-md shadow-lg transition-all duration-200 hover:bg-gray-900/80 hover:shadow-cyan-700/20 hover:scale-[1.02] cursor-pointer flex flex-col h-[210px] w-[330px] will-change-transform"
+                    onClick={() => navigate("/locked")}
                   >
                     {/* Hover gradient overlay */}
                     <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
                     <div className="relative z-10 flex flex-col h-full">
                       {/* Header - Tools Icons and Menu */}
-                      <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center justify-between mb-4 border-minimal-border/50">
                         <div className="flex items-center space-x-3">
                           {/* Tool Icons */}
                           <div className="flex -space-x-2">
@@ -898,21 +1085,6 @@ const MainDashboard = () => {
                               </div>
                             ))}
                           </div>
-
-                          {/* Arrow connector */}
-                          <svg
-                            className="w-6 h-6 text-minimal-muted transition-colors duration-300"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 5l7 7-7 7"
-                            />
-                          </svg>
                         </div>
 
                         {/* Menu Button */}

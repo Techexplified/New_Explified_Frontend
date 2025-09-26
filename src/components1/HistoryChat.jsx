@@ -1,6 +1,14 @@
 // src/pages/HistoryChat.jsx
 import { useState } from "react";
-import { Play, Presentation, Video } from "lucide-react";
+import {
+  Play,
+  Presentation,
+  Video,
+  Send,
+  MessageCircle,
+  Sparkles,
+  Clock,
+} from "lucide-react";
 import History from "../components1/History";
 import SidebarOnHover2 from "../reusable_components/SidebarOnHover2";
 import SidebarOnHover from "../reusable_components/SidebarOnHover";
@@ -72,17 +80,35 @@ export default function HistoryChat() {
     setInput("");
     setLoading(false);
   }
-  
+
   return (
     <div className="min-h-screen text-white flex flex-col items-center p-6">
       <div className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
-      <SidebarOnHover link={"/memory"} toolName={"Memory"} />
-      <div className="pt-8 flex items-center justify-center text-3xl font-semibold mb-4">
-        Chat History
+
+      <SidebarOnHover2 toolName={"Memory"} />
+
+      {/* Enhanced Header */}
+      <div className="relative z-10 pt-8 pb-6">
+        <div className="flex items-center justify-center mb-2">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="p-1.5 sm:p-2 rounded-xl bg-[#23b5b5]/20 border border-[#23b5b5]/30">
+              <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 text-[#23b5b5]" />
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-white to-[#23b5b5] bg-clip-text text-transparent">
+              Memory Chat
+            </h1>
+          </div>
+        </div>
+        <p className="text-center text-gray-400 text-xs sm:text-sm max-w-lg mx-auto px-4">
+          Explore your history and get intelligent insights about your past
+          activities
+        </p>
       </div>
 
       {/* History Component */}
-      <History items={recentItems} />
+      <div className="relative z-10 px-4 sm:px-6 mb-32">
+        <History items={recentItems} />
+      </div>
 
       {/* Gemini Chat Messages */}
       <div className="w-full max-w-2xl mt-6 space-y-3">
@@ -97,14 +123,17 @@ export default function HistoryChat() {
           </div>
         ))}
       </div>
-      {/* Input Box */}
+
+      {/* Enhanced Input Section */}
       <div className="fixed bottom-0 left-0 right-0 w-full max-w-2xl flex mb-6 mx-auto">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          onKeyPress={(e) => e.key === "Enter" && !loading && handleSend()}
           placeholder="Know about history..."
           className="flex-1 p-3 rounded-l-lg bg-black/40 border border-gray-700 focus:outline-none"
+          disabled={loading}
         />
         <button
           onClick={handleSend}

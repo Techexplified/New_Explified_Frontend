@@ -32,7 +32,7 @@ const mockChartData = [
   { time: "Jun", views: 4500, followers: 2100, engagement: 580 },
 ];
 
-const CircularProgress = ({ percentage, label, value, color = "#23b5b5" }) => {
+const CircularProgress = ({ percentage, label, value, color = "#13FEB3" }) => {
   const radius = 45;
   const circumference = 2 * Math.PI * radius;
   const strokeDasharray = `${
@@ -72,18 +72,18 @@ const CircularProgress = ({ percentage, label, value, color = "#23b5b5" }) => {
         </div>
       </div>
       <div className="text-center">
-        <div className="text-sm sm:text-base text-gray-400">{label}</div>
-        <div className="text-sm sm:text-base text-gray-400">{value}</div>
+        <div className="text-sm sm:text-base text-white drop-shadow-sm ">{label}</div>
+        <div className="text-sm sm:text-base text-white drop-shadow-sm ">{value}</div>
       </div>
     </div>
   );
 };
 
-const MiniChart = ({ data, title, percentage, color = "#23b5b5" }) => (
+const MiniChart = ({ data, title, percentage, color = "#13feb3" }) => (
   <div className=" bg-black p-4 sm:p-6 rounded-lg ">
     <div className="flex justify-between items-center mb-3">
-      <span className="text-sm sm:text-base text-gray-400">{title}</span>
-      <span className="text-sm sm:text-base text-green-400">
+      <span className="text-sm sm:text-base text-white drop-shadow-sm ">{title}</span>
+      <span className="text-sm sm:text-base text-[#00FF38] drop-shadow">
         +{percentage}%
       </span>
     </div>
@@ -131,10 +131,11 @@ export default function DetailedCard() {
 
   return (
     <div className="min-h-screen w-full bg-black text-white">
+      <div className="fixed inset-0 rounded-xl opacity-40 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div> 
       {/* Header */}
       <div className="mt-[-30px] flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 sm:p-6 lg:p-8 gap-4 sm:gap-0">
         <button
-          className="p-2  rounded hover:text-[#23b5b5] hover:scale-130 transition-transform duration-200"
+          className="p-2  rounded hover:text-[#13FEB3] hover:scale-130 transition-transform duration-200"
           onClick={() => navigate(-1)}
         >
           <ArrowLeft size={24} className="sm:w-6 sm:h-6" />
@@ -144,15 +145,15 @@ export default function DetailedCard() {
       <div className="mt-[-30px] flex flex-col items-center justify-center space-x-3 mb-6">
         <IconComponent
           size={24}
-          className={`${platformColor} sm:w-12 sm:h-12`}
+          className={`${platformColor} sm:w-12 sm:h-12 z-10`}
         />
-        <span className="mt-2 text-xl sm:text-2xl lg:text-3xl font-semibold">
+        <span className="mt-2 text-xl sm:text-2xl lg:text-3xl text-white drop-shadow-sm font-bold">
           sleepy_srijan
         </span>
       </div>
 
       <div className="flex justify-around items-center space-x-4 relative">
-        <select className="bg-black text-white px-4 py-2 rounded text-base sm:text-lg border border-gray-600 hover:bg-gray-700 transition-transform duration-200">
+        <select className="bg-transparent text-white  px-4 py-2 rounded text-base sm:text-lg border border-gray-400 hover:bg-gray-700 transition-transform duration-200">
           <option>Weekly</option>
           <option>Monthly</option>
           <option>Daily</option>
@@ -160,29 +161,29 @@ export default function DetailedCard() {
         <div className="relative">
           <button
             onClick={() => setShowPosts(!showPosts)}
-            className="bg-black px-6 py-2 rounded text-base sm:text-lg border border-gray-600 hover:bg-gray-700 "
+            className="bg-transparent px-6 py-2 rounded text-base sm:text-lg  border border-white-400 hover:bg-gray-700 text-white drop-shadow-sm"
           >
             Posts
           </button>
 
           {/* Dropdown */}
           {showPosts && (
-            <div className="absolute left-0 mt-2 w-48 bg-black border border-gray-600 rounded-lg shadow-lg z-20">
+            <div className="absolute left-0 mt-2 w-48 bg-black border border-gray-400 rounded-lg shadow-lg z-20">
               <button
-                className="w-full text-white text-left px-4 py-2 hover:bg-[#23b5b5] hover:text-black transition-colors"
+                className="w-full text-white text-left px-4 py-2 hover:bg-[#13FEB3] hover:text-black transition-colors"
                 onClick={() => navigate("/socials/instagram/schedule")}
               >
                 Schedule Post
               </button>
               <button
                 onClick={() => navigate("/socials/instagram/lastPosts")}
-                className="w-full text-white text-left px-4 py-2 hover:bg-[#23b5b5] hover:text-black transition-colors"
+                className="w-full text-white text-left px-4 py-2 hover:bg-[#13FEB3] hover:text-black transition-colors"
               >
                 Last Post
               </button>
               <button
                 onClick={() => navigate("/socials/instagram/draft")}
-                className="w-full text-white text-left px-4 py-2 hover:bg-[#23b5b5] hover:text-black transition-colors"
+                className="w-full text-white text-left px-4 py-2 hover:bg-[#13FEB3] hover:text-black transition-colors"
               >
                 Draft Post
               </button>
@@ -197,34 +198,34 @@ export default function DetailedCard() {
         <div className="grid grid-cols-1 gap-6 lg:gap-8 mb-2 rounded">
           <div className="bg-black p-6 sm:p-8 rounded-lg">
             <div className="flex flex-col lg:flex-row justify-around gap-4">
-              <div className="border border-gray-600 p-4 sm:p-6 rounded-lg">
-                <div className="text-base sm:text-xl text-center text-green-400 mb-3">
+              <div className="border border-gray-400 p-4 sm:p-6 rounded-lg">
+                <div className="text-base sm:text-xl text-center text-[#00FF38] drop-shadow-sm mb-3 ">
                   Positives
                 </div>
-                <div className="text-center space-y-2">
-                  <div>21% rise in comments</div>
-                  <div>2% views increased</div>
-                  <div>10% likes increased</div>
-                  <div>4% saves increased</div>
-                  <div>15% reach increased</div>
+                <div className="text-center text-white drop-shadow-sm space-y-2">
+                  <div><span>21% rise in comments</span></div>
+                  <div><span>2% views increased</span></div>
+                  <div><span>10% likes increased</span></div>
+                  <div><span>4% saves increased</span></div>
+                  <div><span>15% reach increased</span></div>
                 </div>
               </div>
-              <div className="bg-black flex flex-col items-center justify-center p-6 sm:p-8 rounded-lg border border-gray-600 text-center">
-                <div className="text-base sm:text-lg text-gray-400 mb-2">
+              <div className="bg-black flex flex-col items-center justify-center p-6 sm:p-8 rounded-lg border border-gray-400 text-center">
+                <div className="text-base sm:text-lg text-white drop-shadow-sm  mb-2 z-10">
                   Total followers Increased
                 </div>
-                <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-2">
+                <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-2 z-10">
                   5.2k
                 </div>
-                <div className="text-base sm:text-lg text-green-400">
+                <div className="text-base  sm:text-lg text-[#00FF38] drop-shadow-sm">
                   Average views increased: +5.2%
                 </div>
               </div>
-              <div className="border border-gray-600 p-4 sm:p-6 rounded-lg">
-                <div className="text-center text-base sm:text-xl text-red-400 mb-3">
+              <div className="border border-gray-400 p-4 sm:p-6 rounded-lg">
+                <div className="text-center sm:text-xl text-red-400 drop-shadow-sm mb-3 ">
                   Negatives
                 </div>
-                <div className="text-center space-y-2">
+                <div className="text-center space-y-2 text-white drop-shadow-sm ">
                   <div>21% less comments</div>
                   <div>2% views decreased</div>
                   <div>10% likes decreased</div>
@@ -242,18 +243,18 @@ export default function DetailedCard() {
             <h3 className="text-xl sm:text-2xl lg:text-3xl font-semibold">
               Interactions
             </h3>
-            <div className="text-base sm:text-lg text-gray-400">Time →</div>
+            <div className="text-base sm:text-lg text-white drop-shadow-sm ">Time →</div>
           </div>
           <div className="h-64 sm:h-80 lg:h-96">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={mockChartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                <XAxis dataKey="time" stroke="#9CA3AF" fontSize={14} />
-                <YAxis stroke="#9CA3AF" fontSize={14} />
+                <XAxis dataKey="time" stroke="#e5e7eb" fontSize={14} />
+                <YAxis stroke="#e5e7eb" fontSize={14} />
                 <Line
                   type="monotone"
                   dataKey="views"
-                  stroke="#23b5b5"
+                  stroke="#13FEB3"
                   strokeWidth={3}
                   dot={false}
                 />
@@ -264,16 +265,16 @@ export default function DetailedCard() {
 
         <div className="flex space-x-2 mb-4 ">
           <button
-            className={`px-4 py-2 rounded text-sm border border-gray-600 ${
-              week === "last" ? "bg-[#23b5b5] text-black" : "text-gray-400"
+            className={`px-4 py-2 rounded text-sm border border-gray-400 ${
+              week === "last" ? "bg-[#13FEB3] text-black" : "text-white drop-shadow-sm "
             }`}
             onClick={() => setWeek("last")}
           >
             Last Week
           </button>
           <button
-            className={`px-4 py-2 rounded text-sm border border-gray-600 ${
-              week === "this" ? "bg-[#23b5b5] text-black" : "text-gray-400"
+            className={`px-4 py-2 rounded text-sm border border-gray-400 ${
+              week === "this" ? "bg-[#13FEB3] text-black" : "text-white drop-shadow-sm "
             }`}
             onClick={() => setWeek("this")}
           >
@@ -283,8 +284,8 @@ export default function DetailedCard() {
 
         {/* Circular Progress Metrics */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 mb-8 ">
-          <div className="bg-black p-6 sm:p-8 rounded-lg border border-gray-600">
-            <div className="text-base sm:text-lg text-gray-400 mb-4">
+          <div className="bg-black p-6 sm:p-8 rounded-lg border border-gray-400">
+            <div className="text-base sm:text-lg text-white drop-shadow-sm  mb-4">
               Comments
             </div>
             <CircularProgress
@@ -292,20 +293,20 @@ export default function DetailedCard() {
               label="Followers - 43"
               value="Non-followers - 98"
             />
-            <div className="mb-4 text-xs sm:text-sm text-gray-400 text-center">
+            <div className="mb-4 text-xs sm:text-sm text-white drop-shadow-sm  text-center">
               First time viewers - 20
             </div>
 
-            <div className=" mt-2 border-t border-gray-600 rounded-lg">
+            <div className=" mt-2 border-t border-gray-400 rounded-lg">
               <MiniChart
                 data={miniChartData}
                 title="Key Difference From Last Week"
                 percentage="5.2"
-                color="#23b5b5"
+                color="#13feb3"
               />
-              <div className="p-4 text-gray-400 sm:p-6 text-sm sm:text-base mt-[-2rem] flex flex-col items-start">
+              <div className="p-4 text-white drop-shadow-sm  sm:p-6 text-sm sm:text-base mt-[-2rem] flex flex-col items-start">
                 <div>
-                  <span className="text-green-400">Positives</span> : 5.2%
+                  <span className="text-[#00FF38] drop-shadow-sm">Positives</span> : 5.2%
                   increase
                 </div>
                 <div>
@@ -316,8 +317,8 @@ export default function DetailedCard() {
             </div>
           </div>
 
-          <div className="bg-black p-6 sm:p-8 rounded-lg border border-gray-600">
-            <div className="text-base sm:text-lg text-gray-400 mb-4">
+          <div className="bg-black p-6 sm:p-8 rounded-lg border border-gray-400">
+            <div className="text-base sm:text-lg text-white drop-shadow-sm  mb-4">
               Shares
             </div>
             <CircularProgress
@@ -325,19 +326,19 @@ export default function DetailedCard() {
               label="Followers - 43"
               value="Non-followers - 98"
             />
-            <div className="mb-4 text-xs sm:text-sm text-gray-400 text-center">
+            <div className="mb-4 text-xs sm:text-sm text-white drop-shadow-sm  text-center">
               First time viewers - 20
             </div>
-            <div className=" mt-2 border-t border-gray-600 rounded-lg">
+            <div className=" mt-2 border-t border-gray-400 rounded-lg">
               <MiniChart
                 data={miniChartData}
                 title="Key Difference From Last Week"
                 percentage="5.2"
-                color="#23b5b5"
+                color="#13FEB3"
               />
-              <div className="p-4 text-gray-400 sm:p-6 text-sm sm:text-base mt-[-2rem] flex flex-col items-start">
+              <div className="p-4 text-white drop-shadow-sm  sm:p-6 text-sm sm:text-base mt-[-2rem] flex flex-col items-start">
                 <div>
-                  <span className="text-green-400">Positives</span> : 5.2%
+                  <span className="text-[#00FF38] drop-shadow-sm">Positives</span> : 5.2%
                   increase
                 </div>
                 <div>
@@ -348,26 +349,26 @@ export default function DetailedCard() {
             </div>
           </div>
 
-          <div className="bg-black p-6 sm:p-8 rounded-lg border border-gray-600">
-            <div className="text-base sm:text-lg text-gray-400 mb-4">Saves</div>
+          <div className="bg-black p-6 sm:p-8 rounded-lg border border-gray-400">
+            <div className="text-base sm:text-lg text-white drop-shadow-sm  mb-4">Saves</div>
             <CircularProgress
               percentage={85}
               label="Followers - 43"
               value="Non-followers - 98"
             />
-            <div className="mb-4 text-xs sm:text-sm text-gray-400 text-center">
+            <div className="mb-4 text-xs sm:text-sm text-white drop-shadow-sm  text-center">
               First time viewers - 20
             </div>
-            <div className=" mt-2 border-t border-gray-600 rounded-lg">
+            <div className=" mt-2 border-t border-gray-400 rounded-lg">
               <MiniChart
                 data={miniChartData}
                 title="Key Difference From Last Week"
                 percentage="5.2"
                 color="#23b5b5"
               />
-              <div className="p-4 text-gray-400 sm:p-6 text-sm sm:text-base mt-[-2rem] flex flex-col items-start">
+              <div className="p-4 text-white drop-shadow-sm  sm:p-6 text-sm sm:text-base mt-[-2rem] flex flex-col items-start">
                 <div>
-                  <span className="text-green-400">Positives</span> : 5.2%
+                  <span className="text-[#00FF38] drop-shadow-sm">Positives</span> : 5.2%
                   increase
                 </div>
                 <div>
@@ -378,26 +379,26 @@ export default function DetailedCard() {
             </div>
           </div>
 
-          <div className="bg-black p-6 sm:p-8 rounded-lg  border border-gray-600">
-            <div className="text-base sm:text-lg text-gray-400 mb-4">Likes</div>
+          <div className="bg-black p-6 sm:p-8 rounded-lg  border border-gray-400">
+            <div className="text-base sm:text-lg text-white drop-shadow-sm  mb-4 z-1">Likes</div>
             <CircularProgress
               percentage={90}
               label="Followers - 43"
               value="Non-followers - 98"
             />
-            <div className="mb-4 text-xs sm:text-sm text-gray-400 text-center">
+            <div className="mb-4 text-xs sm:text-sm text-white drop-shadow-sm  text-center">
               First time viewers - 20
             </div>
-            <div className=" mt-2 border-t border-gray-600 rounded-lg">
+            <div className=" mt-2 border-t border-gray-400 rounded-lg">
               <MiniChart
                 data={miniChartData}
                 title="Key Difference From Last Week"
                 percentage="5.2"
-                color="#23b5b5"
+                color="#13FEB3"
               />
-              <div className="p-4 text-gray-400 sm:p-6 text-sm sm:text-base mt-[-2rem] flex flex-col items-start">
+              <div className="p-4 text-white drop-shadow-sm  sm:p-6 text-sm sm:text-base mt-[-2rem] flex flex-col items-start">
                 <div>
-                  <span className="text-green-400">Positives</span> : 5.2%
+                  <span className="text-[#00FF38] drop-shadow-sm-400">Positives</span> : 5.2%
                   increase
                 </div>
                 <div>
@@ -410,14 +411,14 @@ export default function DetailedCard() {
         </div>
 
         {/* Ask Questions Section */}
-        <div className="w-3/4 mx-auto bg-black p-2 border border-gray-600 rounded-full">
+        <div className="w-3/4 mx-auto bg-black p-2 border border-gray-400 rounded-full">
           <div className="flex items-center justify-between gap-4 ">
             <input
               type="text"
               placeholder="Ask me questions"
-              className="bg-transparent text-white placeholder-gray-400 flex-1 outline-none text-base sm:text-lg pl-4 py-2"
+              className="bg-transparent text-white placeholder-gray-200 flex-1 outline-none text-base sm:text-lg pl-4 py-2"
             />
-            <button className="text-green-400 hover:text-green-300 p-2 transition-colors">
+            <button className="drop-shadow-sm-300 p-2 transition-colors">
               <svg
                 width="24"
                 height="24"

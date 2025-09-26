@@ -131,10 +131,17 @@ import DiscoverPage from "./components1/DiscoverPage.jsx";
 import LexicalEditor from "./components1/LexicalEditor.jsx";
 import LockedPage from "./reusable_components/Locked.jsx";
 import ImageToVideo from "./pages/explified_tools/image_to_video_convertor/ImageToVideo.jsx";
-import LinkToVideoGenerator from "./components1/LinkToVideoGenerator.jsx";
-import Notes1 from "./components1/Notes1.jsx";
-
+import usePageTracking from "./hooks/usePageTracking.js";
+import CarPartsAssistant from "./client_component/AI-Assitant.jsx";
+import SalesAssistant from "./sales-bot-assistant/SalesBotAssistant.jsx";
+import Admin from "./client_component/AdminComp.jsx";
+import InventoryComp from "./client_component/Inventroy.jsx";
+import PurchaseOrdersComp from "./client_component/PurchaseComp.jsx";
+import FlowstateLogin from "./client_component/FlowstateLogin.jsx";
+import DashboardComp from "./client_component/AI-dashboard.jsx";
+import DiscoverLayout from "./components1/DiscoverLayout.jsx";
 function App() {
+  usePageTracking();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -148,6 +155,7 @@ function App() {
   return (
     <div>
       <ScrollToTop />
+
       <Routes>
         <Route path="/web" element={<MainPage />} />
         <Route path="/result" element={<Result />} />
@@ -245,10 +253,18 @@ function App() {
           <Route path="/socials" element={<SocialsPage />}></Route>
           <Route path="/history" element={<History />}></Route>
           <Route path="/canvas" element={<Canvas />}></Route>
-          <Route path="/link-to-video-ai" element={<LinkToVideoGenerator />} />
+          {/* <Route path="/link-to-video-ai" element={<LinkToVideoGenerator />} /> */}
           <Route path="/text-to-video" element={<TextToVideoGenerator />} />
-          <Route path="/link-to-video" element={<LinkToVideoGenerator />} />
+          {/* <Route path="/link-to-video" element={<LinkToVideoGenerator />} /> */}
           <Route path="/tasks" element={<TaskManagerWithSidebar />} />
+
+          <Route path="/chat" element={<CarPartsAssistant />} />
+          <Route path="/flowstate" element={<DashboardComp />} />
+          <Route path="/flowstate/login" element={<FlowstateLogin />} />
+          <Route path="/flowstate/explified" element={<SalesAssistant />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/inventory" element={<InventoryComp />} />
+          <Route path="/admin/purchaseOrder" element={<PurchaseOrdersComp />} />
 
           <Route path="/history" element={<History />}></Route>
           {/* <Route path="/newlurph" element={<LurphLanding />}></Route> */}
@@ -271,6 +287,8 @@ function App() {
           <Route path="/alltools" element={<AITools />}></Route>
           <Route path="/discover" element={<DiscoverPage />}></Route>
           <Route path="/expli" element={<Trone />} />
+          <Route path="/discovernew" element={<DiscoverLayout />} />
+
           <Route path="/Meme" element={<Meme />} />
           <Route path="/ai-gif-generator" element={<GIFGenerator />} />
           <Route path="/video-meme-generator" element={<AIMemeGenerator />} />
