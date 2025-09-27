@@ -39,7 +39,8 @@ export default function FlowstateLogin() {
       dispatch(loginUser(res.data.user));
 
       // Use React Router state for redirect after login
-      const redirectPath = location.state?.from?.pathname || "/flowsense/explified";
+      const redirectPath =
+        location.state?.from?.pathname || "/flowsense/explified";
       navigate(redirectPath);
     } catch (error) {
       console.error(
@@ -136,7 +137,8 @@ export default function FlowstateLogin() {
                     localStorage.setItem("explified", JSON.stringify(decoded));
                     dispatch(loginUser(decoded));
                     // Use React Router state for redirect after login
-                    const redirectPath = location.state?.from?.pathname || "/flowsense/explified";
+                    const redirectPath =
+                      location.state?.from?.pathname || "/flowsense/explified";
                     navigate(redirectPath);
                   } catch (error) {
                     console.error("Error decoding JWT:", error);

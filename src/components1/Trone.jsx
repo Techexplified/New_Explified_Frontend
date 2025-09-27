@@ -1,19 +1,26 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
-import SidebarOnHover from "../reusable_components/SidebarOnHover";
 import ExpliInput from "../expli/ExpliInput";
 import ExpliIntegration from "../expli/ExpliIntegration";
 import ChatContainer from "../expli/ChatContainer";
-import { Zap } from "lucide-react";
 import { AiOutlineOpenAI } from "react-icons/ai";
 import { RiGeminiLine } from "react-icons/ri";
 import { FaPlus } from "react-icons/fa6";
 import ExpliSidebar from "../expli/ExpliSidebar";
+import IntegrationModal from "../expli/IntegrationModal";
 
-function Trone() {
+function Trone({
+  providerKeys,
+  setProviderKeys,
+  showIntegrationsModal,
+  setShowIntegrationsModal,
+  sidebarPinned,
+  isSidebarOpen,
+  setSidebarPinned,
+  setIsSidebarOpen,
+}) {
   const [prompt, setPrompt] = useState("");
-  const [showIntegrationsModal, setShowIntegrationsModal] = useState(false);
   const [enabledProviders, setEnabledProviders] = useState({
     expli: true,
     openai: true,
@@ -24,13 +31,19 @@ function Trone() {
     openai: false,
     gemini: false,
   });
-  const [closedChats, setClosedChats] = useState({
-    openai: false,
-    gemini: false,
+  const [closedChats, setClosedChats] = useState(() => {
+    try {
+      const raw = localStorage.getItem("trone_closed_chats");
+      return raw ? JSON.parse(raw) : { openai: false, gemini: false };
+    } catch {
+      return { openai: false, gemini: false };
+    }
   });
 
+  // const [selectedTool, setSelectedTool] = useState("expli");
+
   const [chatHistory, setChatHistory] = useState(() => {
-    const raw = localStorage.getItem("trone_chat_sessions1");
+    const raw = localStorage.getItem("expli_chat_sessions");
     return raw ? JSON.parse(raw) : [];
   });
 
@@ -56,17 +69,25 @@ function Trone() {
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef(null);
 
-  const [providerKeys, setProviderKeys] = useState(() => {
-    try {
-      const raw = localStorage.getItem("provider_keys");
-      return raw ? JSON.parse(raw) : {};
-    } catch (e) {
-      console.log(e);
-      return {};
-    }
-  });
+  // const [providerKeys, setProviderKeys] = useState(() => {
+  //   try {
+  //     const raw = localStorage.getItem("provider_keys");
+  //     return raw ? JSON.parse(raw) : {};
+  //   } catch (e) {
+  //     console.log(e);
+  //     return {};
+  //   }
+  // });
 
-  const [currentTool, setCurrentTool] = useState("default");
+  const [currentTool, setCurrentTool] = useState("expli");
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("trone_closed_chats", JSON.stringify(closedChats));
+    } catch (err) {
+      console.error("Failed to save closedChats:", err);
+    }
+  }, [closedChats]);
 
   useEffect(() => {
     if (!prevDrawerState.current && isDrawerOpen) {
@@ -81,7 +102,7 @@ function Trone() {
   // Persist sessions to localStorage whenever they change
   useEffect(() => {
     try {
-      localStorage.setItem("trone_chat_sessions1", JSON.stringify(chatHistory));
+      localStorage.setItem("expli_chat_sessions", JSON.stringify(chatHistory));
     } catch (e) {
       console.log(e);
     }
@@ -104,6 +125,42 @@ function Trone() {
       if (currentMessages.length === 0) {
         setSessionStartedAt(Date.now());
       }
+
+      let apiUrl = "";
+      let payload = {};
+      let headers = { "Content-Type": "application/json" };
+      let parseResponse = () => "No response received.";
+
+      apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${
+        import.meta.env.VITE_TRONE_GEMINI_API_KEY
+      }`;
+      payload = {
+        contents: [
+          {
+            parts: [
+              {
+                text: `Generate summary of this promt within 4-6 words${prompt}`,
+              },
+            ],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 2048,
+        },
+      };
+      parseResponse = (data) =>
+        data.candidates?.[0]?.content?.parts?.[0]?.text ||
+        "No response received.";
+
+      const res = await axios.post(apiUrl, payload, {
+        timeout: 30000,
+        headers,
+      });
+
+      const promptSummary = parseResponse(res.data);
 
       // Add user message only to enabled providers
       if (enabledProviders.expli) {
@@ -149,27 +206,34 @@ function Trone() {
         const tool = currentTool;
         const apiKey = providerKeys[tool] || "";
 
-        if (!apiKey && tool !== "default")
+        if (!apiKey && tool !== "expli")
           throw new Error(`No API key found for ${tool}.`);
 
-        if (tool === "default" && enabledProviders.expli) {
-          await handleDefault(userMessage, contextPrompt);
+        if (tool === "expli" && enabledProviders.expli) {
+          await handleDefault(userMessage, contextPrompt, promptSummary);
         }
-        if (providerKeys?.gemini && enabledProviders.gemini) {
-          await handleGemini(userMessage, contextPrompt);
+        if (
+          providerKeys?.gemini &&
+          enabledProviders.gemini &&
+          !closedChats.gemini
+        ) {
+          await handleGemini(userMessage, contextPrompt, promptSummary);
         }
-        if (providerKeys?.openai && enabledProviders.openai) {
-          await handleOpenAI(userMessage, contextPrompt);
+        if (
+          providerKeys?.openai &&
+          enabledProviders.openai &&
+          !closedChats.openai
+        ) {
+          await handleOpenAI(userMessage, contextPrompt, promptSummary);
         }
       } catch (err) {
         console.error("Error details:", err);
       } finally {
         setPrompt("");
-        // setIsTyping(false);
       }
     }
   };
-  const handleDefault = async (userMessage, contextPrompt) => {
+  const handleDefault = async (userMessage, contextPrompt, promptSummary) => {
     setIsTyping((prev) => ({ ...prev, expli: true }));
     try {
       let apiUrl = "";
@@ -231,6 +295,7 @@ function Trone() {
           {
             id: crypto.randomUUID(),
             question: userMessage.text,
+            promptSummary,
             answers: [{ tool: "expli", text: botText }],
             timestamp: new Date().toISOString(),
           },
@@ -267,7 +332,7 @@ function Trone() {
       setIsTyping((prev) => ({ ...prev, expli: false }));
     }
   };
-  const handleOpenAI = async (userMessage, contextPrompt) => {
+  const handleOpenAI = async (userMessage, contextPrompt, promptSummary) => {
     setIsTyping((prev) => ({ ...prev, openai: true }));
     try {
       let apiUrl = "";
@@ -322,6 +387,7 @@ function Trone() {
           {
             id: crypto.randomUUID(),
             question: userMessage.text,
+            promptSummary,
             answers: [{ tool: "openai", text: botText }],
             timestamp: new Date().toISOString(),
           },
@@ -358,7 +424,7 @@ function Trone() {
       setIsTyping((prev) => ({ ...prev, openai: false }));
     }
   };
-  const handleGemini = async (userMessage, contextPrompt) => {
+  const handleGemini = async (userMessage, contextPrompt, promptSummary) => {
     setIsTyping((prev) => ({ ...prev, gemini: true }));
     try {
       let apiUrl = "";
@@ -418,6 +484,7 @@ function Trone() {
           {
             id: crypto.randomUUID(),
             question: userMessage.text,
+            promptSummary,
             answers: [{ tool: "gemini", text: botText }],
             timestamp: new Date().toISOString(),
           },
@@ -530,8 +597,7 @@ function Trone() {
       `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
     );
   };
-
-  const handleCloseChat = (providerId) => {
+  const handleRemoveProvider = (providerId) => {
     const next = { ...(providerKeys || {}), [providerId]: "" };
     try {
       localStorage.setItem("provider_keys", JSON.stringify(next));
@@ -540,10 +606,14 @@ function Trone() {
     }
     setProviderKeys(next);
   };
+  // True if Expli is the only open chat
+  const onlyExpliOpen =
+    (closedChats.openai || !providerKeys.openai) &&
+    (closedChats.gemini || !providerKeys.gemini);
 
   return (
     <div className="flex bg-black relative text-white h-screen">
-      <div className="absolute inset-0  opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-900 to-transparent"></div>
+      <div className="absolute inset-0  opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-400 to-transparent"></div>
 
       <ExpliSidebar
         onAddClick={newChat}
@@ -554,29 +624,39 @@ function Trone() {
         setCurrentMessagesOpenAI={setCurrentMessagesOpenAI}
         link={"https://explified.com/expli/"}
         tools={providerKeys}
-        setCurrentTool={setCurrentTool}
-        setShowIntegrationsModal={setShowIntegrationsModal}
         closedChats={closedChats}
         setClosedChats={setClosedChats}
+        handleRemoveProvider={handleRemoveProvider}
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+        sidebarPinned={sidebarPinned}
+        setSidebarPinned={setSidebarPinned}
       />
 
       <div className="overflow-x-auto h-screen w-screen flex flex-col">
-        {/* <h1 className="text-2xl font-bold text-left w-full  px-4 py-4 opacity-0  text-[#23b5b5]">
-          Expli
-        </h1> */}
-
         {/* Chat + Input inside same box */}
-        <div className="w-full flex-1 border border-cyan-900/60 shadow-[0_0_0_1px_rgba(0,255,255,0.06),0_0_24px_rgba(0,255,255,0.07)] bg-gradient-to-br from-black via-gray-950 to-black p-4 sm:p-5 flex flex-col gap-4 relative">
+        <div className="w-full  flex-1 border border-cyan-900/60 shadow-[0_0_0_1px_rgba(0,255,255,0.06),0_0_24px_rgba(0,255,255,0.07)] bg-gradient-to-br from-black via-[#23b5b5] to-black p-4 sm:p-5 flex flex-col gap-4 relative">
           {/* Background Pattern */}
-          {/* <div className="absolute inset-0 opacity-40 pointer-events-none bg-gradient-to-br from-black to-black"></div> */}
+          <div className="absolute inset-0 opacity-40 pointer-events-none bg-gradient-to-br from-black to-black"></div>
+          {/* 
+          <ExpliIntegration
+            providerKeys={providerKeys}
+            setProviderKeys={setProviderKeys}
+          /> */}
+
+          {showIntegrationsModal && (
+            <IntegrationModal
+              providerKeys={providerKeys}
+              setProviderKeys={setProviderKeys}
+              setShowIntegrationsModal={setShowIntegrationsModal}
+            />
+          )}
 
           {/* Chat Containers Row */}
           <div
-            className={`flex gap-4  ${
-              closedChats?.openai && closedChats?.gemini
-                ? "w-[70%] mx-auto"
-                : "flex-1"
-            }  pt-12 h-full`}
+            className={`flex gap-4 ${
+              onlyExpliOpen ? "w-full sm:w-[70%] mx-auto" : "flex-1"
+            } pt-20 h-full overflow-x-auto flex-nowrap [&>*]:min-w-[350px]`}
           >
             <ChatContainer
               messages={currentMessages}
@@ -587,7 +667,7 @@ function Trone() {
               setEnabled={(val) =>
                 setEnabledProviders((prev) => ({ ...prev, expli: val }))
               }
-              providerKeys={providerKeys}
+              onlyExpliOpen={onlyExpliOpen}
             />
 
             {providerKeys?.openai && !closedChats.openai && (
@@ -637,14 +717,6 @@ function Trone() {
           />
         </div>
       </div>
-
-      <ExpliIntegration
-        currentTool={currentTool}
-        providerKeys={providerKeys}
-        setProviderKeys={setProviderKeys}
-        showIntegrationsModal={showIntegrationsModal}
-        setShowIntegrationsModal={setShowIntegrationsModal}
-      />
     </div>
   );
 }

@@ -10,25 +10,23 @@ const FlowSenseLanding = () => {
       {/* Header */}
       <header className="flex justify-between items-center px-6 py-6 border-b border-gray-800">
         <h1 className="text-2xl font-bold text-[#23b5b5]">FlowSense</h1>
-        <div className="flex items-center gap-4 pt-6  ">
+        <div className="flex items-center gap-4 pt-2">
+          <a
+            href="/flowsense/admin"
+            className="bg-[#23b5b5] text-black px-5 py-2 rounded-full font-semibold hover:bg-[#1fa3a3] transition shadow-sm text-sm"
+          >
+            Admin
+          </a>
           {isLoggedIn ? (
-            <>
-              <a
-                href="/flowsense/explified/admin"
-                className="bg-[#23b5b5] text-black px-5 py-2 rounded-full font-semibold hover:bg-[#1fa3a3] transition shadow-sm text-sm"
-              >
-                Admin
-              </a>
-              <button
-                onClick={handleLogout}
-                className="bg-[#23b5b5] text-black px-5 py-2 rounded-full font-semibold hover:bg-[#1fa3a3] transition shadow-sm text-sm"
-              >
-                Logout
-              </button>
-            </>
+            <button
+              onClick={handleLogout}
+              className="bg-[#23b5b5] text-black px-5 py-2 rounded-full font-semibold hover:bg-[#1fa3a3] transition shadow-sm text-sm"
+            >
+              Logout
+            </button>
           ) : (
             <a
-              href="/flowsense/explified/admin/login"
+              href="/flowsense/login"
               className="bg-[#23b5b5] text-black px-5 py-2 rounded-full font-semibold hover:bg-[#1fa3a3] transition shadow-sm text-sm"
             >
               Login
@@ -49,13 +47,6 @@ const FlowSenseLanding = () => {
           brochures. Let AI drive your sales conversations — faster, smarter,
           better.
         </p>
-        <a
-          href="/flowsense/chat"
-          className="inline-block bg-[#23b5b5] text-black px-8 py-4 rounded-full font-semibold hover:bg-[#1fa3a3] transition text-lg shadow-md mb-8"
-          style={{ marginTop: "8px" }}
-        >
-          Chat with Us
-        </a>
       </section>
 
       {/* Features Section */}

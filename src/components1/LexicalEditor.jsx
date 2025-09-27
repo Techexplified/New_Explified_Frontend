@@ -1,110 +1,1022 @@
-import React, { useState } from "react";
-import jsPDF from "jspdf";
-import { toJpeg } from "html-to-image";
-import ReactDOM from "react-dom";
-import {
-  $getSelection,
-  $isRangeSelection,
-  FORMAT_TEXT_COMMAND,
-  UNDO_COMMAND,
-  REDO_COMMAND,
-  $isTextNode,
-} from "lexical";
-import { LexicalComposer } from "@lexical/react/LexicalComposer";
-import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
-import { ContentEditable } from "@lexical/react/LexicalContentEditable";
-import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
-import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
-import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
-import { HeadingNode, QuoteNode } from "@lexical/rich-text";
-import { ListItemNode, ListNode } from "@lexical/list";
-import { LinkNode } from "@lexical/link";
-import { CodeNode } from "@lexical/code";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { create } from "zustand";
+import { nanoid } from "nanoid";
 import { useEffect } from "react";
+import React from "react";
+import eraserCursor from "../assets/images/eraser-icon-vector.png";
+import UpdatedDashboard2 from "../components/UpdatedDashboard2";
 import {
-  Bold,
-  Italic,
-  Underline,
-  Undo,
-  ArrowLeft,
-  Redo,
-  Type,
-  Pencil,
-  Sparkle,
-  ArrowUpRight,
-  Link2,
-  Download,
-  Brush,
-  Highlighter,
+  Circle,
+  Minus,
+  RectangleHorizontal,
+  PencilLine,
+  RemoveFormatting,
   Eraser,
+  Image,
+  Pen,
+  Pencil,
+  Brush,
   Droplet,
-  Trash2,
+  SlidersHorizontal,
 } from "lucide-react";
-import SidebarOnHover2 from "../reusable_components/SidebarOnHover2";
-import { v4 as uuidv4 } from "uuid";
-import { $getRoot } from "lexical";
-import { $createParagraphNode, $createTextNode } from "lexical";
-import SimpleChatbot from "../reusable_components/SimpleChatbot";
-import { useNavigate } from "react-router-dom";
-// Theme configuration
-const theme = {
-  text: {
-    bold: "font-bold",
-    italic: "italic",
-    underline: "underline",
-    strikethrough: "line-through",
-    code: "bg-gray-100 px-1 py-0.5 rounded text-sm font-mono",
+// ---- STORE ----
+const useStore = create((set, get) => ({
+  shapes: [],
+  selectedTool: "freehand", // default tool
+  setTool: (tool) => set({ selectedTool: tool }),
+  setShapes: (shapesFromPreviousNote) =>
+    set({ shapes: shapesFromPreviousNote }),
+  addShape: (shape) => {
+    set((state) => ({ shapes: [...state.shapes, shape] }));
   },
-  heading: {
-    h1: "text-3xl font-bold mb-4",
-    h2: "text-2xl font-bold mb-3",
-    h3: "text-xl font-bold mb-2",
+
+  updateShape: (id, updater) => {
+    set((state) => ({
+      shapes: state.shapes.map((s) =>
+        s.id === id
+          ? { ...s, ...(typeof updater === "function" ? updater(s) : updater) }
+          : s
+      ),
+    }));
   },
-  list: {
-    nested: {
-      listitem: "ml-4",
-    },
-    ol: "list-decimal ml-6",
-    ul: "list-disc ml-6",
+  removeShape: (id) =>
+    set((state) => ({
+      shapes: state.shapes.filter((s) => s.id !== id),
+    })),
+  selectedShapeId: null,
+  setSelectedShapeId: (id) => set({ selectedShapeId: id }),
+  textStyle: {
+    fontFamily: "Arial",
+    fontSize: 20,
+    bold: false,
+    italic: false,
+    color: "#23b5b5",
   },
-  quote: "border-l-4 border-gray-300 pl-4 italic bg-gray-50 py-2",
-  code: "bg-gray-900 text-white p-4 rounded-lg font-mono text-sm overflow-x-auto",
-  link: "text-blue-600 underline hover:text-blue-800",
-};
+  setTextStyle: (partial) =>
+    set((state) => ({ textStyle: { ...state.textStyle, ...partial } })),
+  freehandType: "pencil",
+  setFreehandType: (fType) => set({ freehandType: fType }),
+  freehandThickness: 2,
+  setFreehandThickness: (thick) => set({ freehandThickness: thick }),
+  chosenColor: "#23b5b5",
+  setChosenColor: (color) => set({ chosenColor: color }),
+}));
 
-/**
- * Helper function to apply inline styles to selected text nodes.
- */
-function applyStyleToSelection(editor, styleObj) {
-  editor.update(() => {
-    const selection = $getSelection();
-    if ($isRangeSelection(selection)) {
-      const nodes = selection.getNodes();
-      nodes.forEach((node) => {
-        if ($isTextNode(node)) {
-          // Merge styles as a CSS string
-          const existingStyle = node.getStyle() || "";
-          const styleMap = Object.fromEntries(
-            existingStyle
-              .split(";")
-              .filter(Boolean)
-              .map((s) => s.split(":").map((x) => x.trim()))
-          );
+function ShapesPanel() {
+  const selectedTool = useStore((state) => state.selectedTool);
+  const setTool = useStore((state) => state.setTool);
 
-          const newStyleMap = { ...styleMap, ...styleObj };
-          const newStyleString = Object.entries(newStyleMap)
-            .map(([k, v]) => `${k}:${v}`)
-            .join("; ");
+  const tools = [
+    { id: "rectangle", label: "Rectangle" },
+    { id: "circle", label: "Circle" },
+    { id: "line", label: "Line" },
+  ];
 
-          node.setStyle(newStyleString);
-        }
-      });
-    }
-  });
+  return (
+    <div
+      className="flex flex-col gap-3 rounded-t-2xl rounded-b-2xl p-2 bg-gradient-to-r from-gray-900/90 to-gray-800/80 backdrop-blur-lg shadow-2xl"
+      style={{
+        position: "absolute",
+        top: 100,
+        left: 75,
+        width: "60px",
+        marginLeft: 12,
+        zIndex: 100,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+      }}
+    >
+      {tools.map((t) => (
+        <button
+          key={t.id}
+          onClick={() => setTool(t.id)}
+          className={`flex justify-center items-center p-2 rounded-xl text-lg transform hover:scale-105 border transition-all duration-300 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20 text-minimal-primary hover:bg-blue-600
+            ${selectedTool === t.id ? "bg-blue-500 text-white" : ""}`}
+          style={{ fontSize: "1.1rem" }}
+          title={t.label}
+        >
+          {t.label === "Rectangle" ? (
+            <RectangleHorizontal />
+          ) : t.label === "Circle" ? (
+            <Circle />
+          ) : t.label === "Line" ? (
+            <Minus />
+          ) : null}
+        </button>
+      ))}
+    </div>
+  );
 }
 
+// ---- SHAPE RENDERER ----
+function Shape({
+  id,
+  type,
+  points,
+  x,
+  y,
+  width,
+  height,
+  text,
+  fontFamily,
+  fontSize,
+  bold,
+  italic,
+  color,
+  strokeWidth,
+  x1,
+  y1,
+  x2,
+  y2,
+  r,
+  cx,
+  cy,
+  src,
+  strokeW,
+  opacity,
+}) {
+  if (type === "freehand") {
+    if (!points || points.length < 2) return null;
+    const pathData = points
+      .map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`)
+      .join(" ");
+
+    return (
+      <path
+        d={pathData}
+        stroke={color}
+        strokeWidth={strokeW ?? 2}
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        opacity={opacity ?? 1}
+      />
+    );
+  }
+  // Render image shape
+  if (type === "image") {
+    return (
+      <image
+        key={id}
+        href={arguments.src || src}
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        style={{ pointerEvents: "all" }}
+      />
+    );
+  }
+  if (type === "rect") {
+    return (
+      <rect
+        key={id}
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        stroke={color}
+        fill="transparent"
+      />
+    );
+  } else if (type === "circle") {
+    return (
+      <circle
+        key={id}
+        cx={cx}
+        cy={cy}
+        r={r}
+        stroke={color}
+        fill="transparent"
+      />
+    );
+  } else if (type === "line") {
+    return <line key={id} x1={x1} y1={y1} x2={x2} y2={y2} stroke={color} />;
+  }
+  if (type === "text") {
+    const boxW = Math.max(40, width || 160);
+    const boxH = Math.max(24, height || (fontSize ? fontSize * 1.6 : 28));
+    const clipId = `clip-${id}`;
+    const lines = (text || "").split("\n");
+    const lineHeight = (fontSize || 16) * 1.2;
+    return (
+      <g key={id}>
+        <defs>
+          <clipPath id={clipId}>
+            <rect x={x} y={y} width={boxW} height={boxH} />
+          </clipPath>
+        </defs>
+        {/* {(text && (
+          <>
+            <rect
+              x={x}
+              y={y}
+              width={boxW}
+              height={boxH}
+              fill="none"
+              stroke="rgba(0,0,0,0.25)"
+              strokeDasharray="4 4"
+            />
+            <g clipPath={`url(#${clipId})`}>
+              <text
+                x={x + 6}
+                y={y + (fontSize || 16) + 6}
+                fill={color || "#000"}
+                fontFamily={fontFamily}
+                fontSize={fontSize}
+                fontWeight={bold ? "700" : "400"}
+                fontStyle={italic ? "italic" : "normal"}
+              >
+                {lines.map((line, idx) => (
+                  <tspan key={idx} x={x + 6} dy={idx === 0 ? 0 : lineHeight}>
+                    {line}
+                  </tspan>
+                ))}
+              </text>
+            </g>
+          </>
+        )) ||
+          null} */}
+      </g>
+    );
+  }
+  return null;
+}
+
+// ---- CANVAS ----
+function Canvas() {
+  // Get chosenColor from store
+  const chosenColor = useStore((s) => s.chosenColor || "#23b5b5");
+  const shapes = useStore((s) => s.shapes);
+  const setShapes = useStore((s) => s.setShapes);
+  const addShape = useStore((s) => s.addShape);
+  const updateShape = useStore((s) => s.updateShape);
+  const removeShape = useStore((s) => s.removeShape);
+  // Undo/redo history
+  const [history, setHistory] = useState([]);
+  const [historyIndex, setHistoryIndex] = useState(0);
+
+  // Update shapes when historyIndex changes
+  useEffect(() => {
+    if (history[historyIndex]) {
+      setShapes(history[historyIndex]);
+    }
+  }, [historyIndex]);
+
+  // Undo
+  const handleUndo = () => {
+    setHistoryIndex((prev) => Math.max(prev - 1, 0));
+  };
+
+  // Redo
+  const handleRedo = () => {
+    setHistoryIndex((prev) => Math.min(prev + 1, history.length - 1));
+  };
+
+  function getSVGCoords(svg, clientX, clientY) {
+    const pt = svg.createSVGPoint();
+    pt.x = clientX;
+    pt.y = clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+  let clickTimeout;
+  const [textareaValue, setTextareaValue] = useState("");
+  const selectedTool = useStore((s) => s.selectedTool);
+  const textStyle = useStore((s) => s.textStyle);
+  const selectedShapeId = useStore((s) => s.selectedShapeId);
+  const setSelectedShapeId = useStore((s) => s.setSelectedShapeId);
+  const [currentShapeId, setCurrentShapeId] = useState(null);
+  const [editingId, setEditingId] = useState(null);
+  // const [caretIndex, setCaretIndex] = useState(0);
+  const [showCaret, setShowCaret] = useState(true);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isErasing, setIsErasing] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ dx: 0, dy: 0 });
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizeCorner, setResizeCorner] = useState(null); // 'tl' | 'tr' | 'bl' | 'br'
+  const [isCreatingTextBox, setIsCreatingTextBox] = useState(false);
+  const freehandType = useStore((s) => s.freehandType);
+  const containerRef = useRef(null);
+  const measureCanvasRef = useRef(null);
+  const svgRef = useRef(null);
+  const textareaRef = useRef(null);
+
+  useEffect(() => {
+    if (editingId && textareaRef.current) {
+      textareaRef.current.focus();
+      // Move cursor to end
+      textareaRef.current.selectionStart = textareaRef.current.selectionEnd =
+        textareaRef.current.value.length;
+    }
+  }, [editingId]);
+  // Expose undo/redo handlers for Toolbar
+  Canvas.handleUndo = handleUndo;
+  Canvas.handleRedo = handleRedo;
+  // global key handling when editing
+  // useEffect(() => {
+  //   const handler = (e) => {
+  //     if (!editingId) return;
+  //     const shape = shapes.find((s) => s.id === editingId);
+  //     if (!shape) return;
+  //     let text = shape.text || "";
+  //     const insertChar = (ch) => {
+  //       const before = text.slice(0, caretIndex);
+  //       const after = text.slice(caretIndex);
+  //       text = before + ch + after;
+  //       // If inserting a newline, move caret to start of next line
+  //       if (ch === "\n") {
+  //         setCaretIndex(caretIndex + 1);
+  //       } else {
+  //         setCaretIndex(caretIndex + ch.length);
+  //       }
+  //     };
+  //     if (e.key === "Backspace") {
+  //       e.preventDefault();
+  //       if (caretIndex > 0) {
+  //         const before = text.slice(0, caretIndex - 1);
+  //         const after = text.slice(caretIndex);
+  //         text = before + after;
+  //         setCaretIndex(caretIndex - 1);
+  //       }
+  //     } else if (e.key === "Delete") {
+  //       e.preventDefault();
+  //       const before = text.slice(0, caretIndex);
+  //       const after = text.slice(caretIndex + 1);
+  //       text = before + after;
+  //     } else if (e.key === "Enter") {
+  //       e.preventDefault();
+  //       const before = text.slice(0, caretIndex);
+  //       const after = text.slice(caretIndex);
+  //       text = before + "\n" + after;
+  //       const lines = before.split("\n");
+  //       const currentLine = lines[lines.length - 1]; // text before caret in current line
+
+  //       let caretXOffset = 0;
+  //       for (let ch of currentLine) {
+  //         caretXOffset += measureTextWidth(
+  //           ch,
+  //           shape.fontSize,
+  //           shape.fontFamily,
+  //           shape.bold,
+  //           shape.italic
+  //         );
+  //       }
+  //       // Now decide where to place caret in the new line
+  //       const newLine = after.split("\n")[0]; // text immediately after caret, before next \n
+  //       let newCaretIndexInLine = 0;
+  //       let x = 0;
+  //       for (let i = 0; i < newLine.length; i++) {
+  //         const w = measureTextWidth(
+  //           newLine[i],
+  //           shape.fontSize,
+  //           shape.fontFamily,
+  //           shape.bold,
+  //           shape.italic
+  //         );
+  //         if (x + w / 2 >= caretXOffset) {
+  //           break; // found closest spot
+  //         }
+  //         x += w;
+  //         newCaretIndexInLine++;
+  //       }
+  //       const newCaretIndex = before.length + 1 + newCaretIndexInLine;
+  //       setCaretIndex(newCaretIndex);
+  //     } else if (e.key === "ArrowLeft") {
+  //       e.preventDefault();
+  //       if (caretIndex > 0) setCaretIndex(caretIndex - 1);
+  //     } else if (e.key === "ArrowRight") {
+  //       e.preventDefault();
+  //       if (caretIndex < text.length) setCaretIndex(caretIndex + 1);
+  //     } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+  //       e.preventDefault();
+  //       insertChar(e.key);
+  //     } else if (e.key === "Escape") {
+  //       e.preventDefault();
+  //       setEditingId(null);
+  //       return;
+  //     } else {
+  //       return;
+  //     }
+  //     updateShape(editingId, { text });
+  //     // reflow columns after each edit step
+  //     reflowColumns(editingId);
+  //   };
+  //   window.addEventListener("keydown", handler);
+  //   return () => window.removeEventListener("keydown", handler);
+  // }, [editingId, caretIndex, shapes, updateShape]);
+
+  // Hide caret when clicking outside the SVG/textbox
+  // useEffect(() => {
+  //   const handleClick = (e) => {
+  //     // Only hide caret if editing and click is outside SVG
+  //     // if (editingId && svgRef.current && !svgRef.current.contains(e.target)) {
+  //     //   setEditingId(null);
+  //     // }
+  //   };
+  //   document.addEventListener("mousedown", handleClick);
+  //   return () => document.removeEventListener("mousedown", handleClick);
+  // }, [editingId]);
+  // text measurement helper
+  const measureTextWidth = (text, fontSize, fontFamily, bold, italic) => {
+    let canvas = measureCanvasRef.current;
+    if (!canvas) {
+      canvas = document.createElement("canvas");
+      measureCanvasRef.current = canvas;
+    }
+    const ctx = canvas.getContext("2d");
+    const weight = bold ? "700" : "400";
+    const style = italic ? "italic" : "normal";
+    ctx.font = `${style} ${weight} ${fontSize || 16}px ${
+      fontFamily || "Arial"
+    }`;
+    return ctx.measureText(text || "").width;
+  };
+  const wrapTextToWidth = (
+    text,
+    maxWidth,
+    fontSize,
+    fontFamily,
+    bold,
+    italic
+  ) => {
+    const paragraphs = (text || "").split("\n");
+    const lines = [];
+    for (const para of paragraphs) {
+      const words = para.split(/(\s+)/); // keep spaces
+      let line = "";
+      for (const token of words) {
+        const candidate = line + token;
+        const w = measureTextWidth(
+          candidate,
+          fontSize,
+          fontFamily,
+          bold,
+          italic
+        );
+        if (w <= maxWidth || line === "") {
+          line = candidate;
+        } else {
+          lines.push(line);
+          line = token.trimStart();
+        }
+      }
+      lines.push(line);
+    }
+    return lines;
+  };
+
+  const getLineHeight = (fontSize) => (fontSize || 16) * 1.2;
+
+  // Reflow text across multiple columns (additional sibling shapes)
+  const reflowColumns = (sourceId) => {
+    const state = useStore.getState();
+    const all = state.shapes;
+    const src = all.find((s) => s.id === sourceId);
+    if (!src || src.type !== "text") return;
+    const rootId = src.parentId || src.id;
+    const root = all.find((s) => s.id === rootId);
+    if (!root) return;
+
+    const gap = 16;
+    const padding = 12;
+    const maxTextWidth = Math.max(0, (root.width || 0) - padding);
+    const lineHeight = getLineHeight(root.fontSize);
+    const lines = wrapTextToWidth(
+      root.text || "",
+      maxTextWidth,
+      root.fontSize,
+      root.fontFamily,
+      root.bold,
+      root.italic
+    );
+    const newHeight = lines.length * lineHeight + padding;
+    updateShape(root.id, { height: newHeight, text: root.text });
+  };
+
+  // Auto-grow text box height while typing to fit wrapped content
+  useEffect(() => {
+    if (!editingId) return;
+    const shape = shapes.find((s) => s.id === editingId);
+    if (!shape) return;
+    const minH = 24;
+    const maxTextWidth = Math.max(0, (shape.width || 0) - 12);
+    const lines = wrapTextToWidth(
+      shape.text || "",
+      maxTextWidth,
+      shape.fontSize,
+      shape.fontFamily,
+      shape.bold,
+      shape.italic
+    );
+    const lineHeight = (shape.fontSize || 16) * 1.2;
+    const neededH = Math.max(
+      minH,
+      lines.length > 0 ? lineHeight * lines.length + 12 : minH
+    );
+    if (!shape.height || neededH > shape.height) {
+      updateShape(editingId, { height: neededH });
+    }
+  }, [editingId, shapes, updateShape]);
+
+  const handleMouseDown = (e) => {
+    const { offsetX, offsetY } = e.nativeEvent;
+    const svg = svgRef.current;
+    if (!svg) return;
+    const rect = svg.getBoundingClientRect();
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+    // coords inside svg in pixels (approx)
+    if (selectedTool === "text") {
+      // If we're already editing a text box, first commit it or remove if empty
+      if (editingId) {
+        const current = shapes.find((s) => s.id === editingId);
+        const trimmed = (current?.text || "").replace(/\n+$/, "").trim();
+        if (!trimmed) {
+          removeShape(editingId);
+        } else {
+          updateShape(editingId, {
+            fontFamily: textStyle.fontFamily,
+            fontSize: textStyle.fontSize,
+            bold: textStyle.bold,
+            italic: textStyle.italic,
+            color: textStyle.color,
+          });
+        }
+        // setEditingId(null);
+        // setCaretIndex(0);
+      }
+      // create a new empty text shape and drag to set width/height
+      const id = nanoid();
+      addShape({
+        id,
+        type: "text",
+        x: offsetX,
+        y: offsetY,
+        text: "",
+        width: 0,
+        height: Math.max(24, (textStyle.fontSize || 16) * 1.6),
+        fontFamily: textStyle.fontFamily,
+        fontSize: textStyle.fontSize,
+        bold: textStyle.bold,
+        italic: textStyle.italic,
+        color: textStyle.color,
+      });
+      setSelectedShapeId(id);
+      setEditingId(id);
+      setCurrentShapeId(id);
+      setIsCreatingTextBox(true);
+      e.stopPropagation();
+    }
+    if (selectedTool === "eraser") {
+      setIsErasing(true);
+      eraseAt(offsetX, offsetY);
+      e.stopPropagation();
+      return;
+    }
+    if (selectedTool === "freehand") {
+      const freehandThickness = useStore.getState().freehandThickness;
+      let strokeW = freehandThickness || 2;
+      let opacity = 1;
+      
+      // Different tools can have different opacity effects
+      if (freehandType === "brush") {
+        opacity = 0.7; // semi-transparent for brush effect
+      } else if (freehandType === "highlighter") {
+        opacity = 0.4;
+      } else if (freehandType === "marker") {
+        opacity = 0.6;
+      }
+      
+      const newShape = {
+        id: nanoid(),
+        type: "freehand",
+        points: [{ x: offsetX, y: offsetY }],
+        color: chosenColor,
+        strokeW: strokeW,
+        opacity: opacity,
+      };
+      addShape(newShape);
+      setCurrentShapeId(newShape.id);
+    }
+    if (selectedTool === "rectangle") {
+      const newShape = {
+        id: nanoid(),
+        type: "rect",
+        x: offsetX,
+        y: offsetY,
+        width: 0,
+        height: 0,
+        color: "#23b5b5",
+        strokeWidth: 2,
+      };
+      addShape(newShape);
+      setCurrentShapeId(newShape.id);
+    }
+    if (selectedTool === "line") {
+      const newShape = {
+        id: nanoid(),
+        type: "line",
+        x1: offsetX,
+        y1: offsetY,
+        x2: offsetX,
+        y2: offsetY,
+        color: "#23b5b5",
+        strokeWidth: 2,
+      };
+      addShape(newShape);
+      setCurrentShapeId(newShape.id);
+    }
+    if (selectedTool === "circle") {
+      const newShape = {
+        id: nanoid(),
+        type: "circle",
+        cx: offsetX,
+        cy: offsetY,
+        r: 0,
+        width: 0,
+        height: 0,
+        color: "#23b5b5",
+        strokeWidth: 2,
+      };
+      addShape(newShape);
+      setCurrentShapeId(newShape.id);
+    }
+  };
+
+  const handleMouseMove = (e) => {
+    const { offsetX, offsetY } = e.nativeEvent;
+    // Creating new text box by drag
+    if (isCreatingTextBox && currentShapeId) {
+      updateShape(currentShapeId, (prev) => {
+        const newW = Math.max(40, offsetX - prev.x);
+        const maxTextWidth = Math.max(0, newW - 12);
+        const lines = wrapTextToWidth(
+          prev.text || "",
+          maxTextWidth,
+          prev.fontSize,
+          prev.fontFamily,
+          prev.bold,
+          prev.italic
+        );
+        const lineHeight = (prev.fontSize || 16) * 1.2;
+        const newH = Math.max(
+          prev.height || 24,
+          lines.length > 0 ? lineHeight * lines.length + 12 : prev.height
+        );
+        return { width: newW, height: newH };
+      });
+      reflowColumns(currentShapeId);
+      return;
+    }
+    if (isResizing && selectedShapeId) {
+      updateShape(selectedShapeId, (prev) => {
+        let nx = prev.x;
+        let ny = prev.y;
+        let nw = prev.width || 0;
+        let nh = prev.height || 24;
+        const minW = 40;
+        const minH = 24;
+        if (resizeCorner === "br") {
+          nw = Math.max(minW, offsetX - prev.x);
+          nh = Math.max(minH, offsetY - prev.y);
+        } else if (resizeCorner === "tr") {
+          nw = Math.max(minW, offsetX - prev.x);
+          nh = Math.max(minH, prev.y + (prev.height || 0) - offsetY);
+          ny = Math.min(prev.y + (prev.height || 0) - minH, offsetY);
+        } else if (resizeCorner === "bl") {
+          nw = Math.max(minW, prev.x + (prev.width || 0) - offsetX);
+          nx = Math.min(prev.x + (prev.width || 0) - minW, offsetX);
+          nh = Math.max(minH, offsetY - prev.y);
+        } else if (resizeCorner === "tl") {
+          nw = Math.max(minW, prev.x + (prev.width || 0) - offsetX);
+          nx = Math.min(prev.x + (prev.width || 0) - minW, offsetX);
+          nh = Math.max(minH, prev.y + (prev.height || 0) - offsetY);
+          ny = Math.min(prev.y + (prev.height || 0) - minH, offsetY);
+        }
+        // Auto height grow to fit current text
+        const maxTextWidth = Math.max(0, nw - 12);
+        const lines = wrapTextToWidth(
+          prev.text || "",
+          maxTextWidth,
+          prev.fontSize,
+          prev.fontFamily,
+          prev.bold,
+          prev.italic
+        );
+        const lineHeight = (prev.fontSize || 16) * 1.2;
+        const neededH = Math.max(
+          minH,
+          lines.length > 0 ? lineHeight * lines.length + 12 : minH
+        );
+        nh = Math.max(nh, neededH);
+        return { x: nx, y: ny, width: nw, height: nh };
+      });
+      reflowColumns(selectedShapeId);
+      return;
+    }
+    if (selectedTool === "eraser" && isErasing) {
+      eraseAt(offsetX, offsetY);
+      return;
+    }
+    if (isDragging && selectedShapeId) {
+      updateShape(selectedShapeId, (prev) => ({
+        x: offsetX - dragOffset.dx,
+        y: offsetY - dragOffset.dy,
+      }));
+      return;
+    }
+    if (!currentShapeId) return;
+
+    updateShape(currentShapeId, (prev) => {
+      if (prev.type === "freehand") {
+        return { points: [...prev.points, { x: offsetX, y: offsetY }] };
+      }
+      if (prev.type === "rect") {
+        return { width: offsetX - prev.x, height: offsetY - prev.y };
+      }
+      if (prev.type === "circle") {
+        const dx = offsetX - prev.cx;
+        const dy = offsetY - prev.cy;
+        const radius = Math.sqrt(dx * dx + dy * dy);
+        return { r: radius };
+      }
+      if (prev.type === "line") {
+        return { x2: offsetX, y2: offsetY };
+      }
+      return {};
+    });
+  };
+
+  const handleMouseUp = () => {
+    setCurrentShapeId(null);
+    setIsDragging(false);
+    setIsResizing(false);
+    if (selectedTool === "eraser") {
+      setIsErasing(false);
+      return;
+    }
+    if (isCreatingTextBox) {
+      setIsCreatingTextBox(false);
+      // start editing the newly created box
+      if (selectedShapeId) {
+        setEditingId(selectedShapeId);
+        // setCaretIndex(0); // Commented out as setCaretIndex is not defined
+      }
+    }
+    setHistory((prev) => [...prev.slice(0, historyIndex + 1), shapes]); // clear redo history
+    setHistoryIndex((prev) => prev + 1);
+  };
+  const commitText = () => {
+    if (!editingId) return;
+    const shape = shapes.find((s) => s.id === editingId);
+    const trimmed = (shape?.text || "").replace(/\n+$/, "").trim();
+    if (!trimmed) removeShape(editingId);
+    setEditingId(null);
+  };
+
+  const cancelText = () => {
+    if (!editingId) return;
+    removeShape(editingId);
+    setEditingId(null);
+  };
+
+  const onTextareaKeyDown = () => {};
+  function eraseAt(x, y) {
+    shapes.forEach((shape) => {
+      if (isShapeIntersecting(shape, x, y, 20)) {
+        removeShape(shape.id);
+      }
+    });
+  }
+  function isShapeIntersecting(shape, x, y, size) {
+    const radius = size / 2;
+    if (shape.type === "rect") {
+      return (
+        x + radius > shape.x &&
+        x - radius < shape.x + shape.width &&
+        y + radius > shape.y &&
+        y - radius < shape.y + shape.height
+      );
+    }
+    if (shape.type === "circle") {
+      const dist = Math.sqrt((x - shape.cx) ** 2 + (y - shape.cy) ** 2);
+      return dist < shape.r + radius;
+    }
+    if (shape.type === "line") {
+      // Check if eraser circle intersects line segment (approximate)
+      // ...implement line-circle intersection...
+    }
+    if (shape.type === "freehand" && shape.points) {
+      return shape.points.some(
+        (pt) => Math.sqrt((x - pt.x) ** 2 + (y - pt.y) ** 2) < radius
+      );
+    }
+    // For text, use bounding box
+    if (shape.type === "text") {
+      return (
+        x + radius > shape.x &&
+        x - radius < shape.x + (shape.width || 160) &&
+        y + radius > shape.y &&
+        y - radius < shape.y + (shape.height || 28)
+      );
+    }
+    return false;
+  }
+  return (
+    <div
+      ref={containerRef}
+      style={{
+        position: "absolute",
+        width: "100vw",
+        height: "100vh",
+        border: "1px solid #ddd",
+      }}
+    >
+      <svg
+        ref={svgRef}
+        className="w-[100%] h-[100%] border"
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        style={{
+          cursor:
+            selectedTool === "eraser"
+              ? `url(${eraserCursor}), auto`
+              : "crosshair",
+        }}
+      >
+        {shapes.map((shape) => (
+          <g key={shape.id}>
+            {/* EDIT MODE */}
+            <Shape {...shape} />
+            {editingId === shape.id && shape.type === "text" ? (
+              <foreignObject
+                x={shape.x || 0}
+                y={shape.y || 0}
+                width={Math.max(40, shape.width || 200)}
+                height={Math.max(24, shape.height || 32)}
+              >
+                <textarea
+                  ref={textareaRef}
+                  value={textareaValue}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    fontSize: "16px",
+                    border: "1px solid #1e90ff",
+                    resize: "none",
+                    background: "transparent",
+                    color: "white",
+                    zIndex: 100,
+                  }}
+                  onChange={(e) => {
+                    setTextareaValue(e.target.value);
+                  }}
+                  onBlur={() => {
+                    updateShape(shape.id, { text: textareaValue });
+                    setEditingId(null); // exit edit mode
+                  }}
+                />
+              </foreignObject>
+            ) : (
+              <>
+                {/* VIEW MODE */}
+                <text x={shape.x || 0} y={shape.y || 0}>
+                  {shape.text}
+                </text>
+                {/* TL handle */}
+                <rect
+                  x={(shape.x || 0) - 8}
+                  y={(shape.y || 0) - 8}
+                  width={8}
+                  height={8}
+                  fill="#1e90ff"
+                  stroke="#0b5cb7"
+                  onMouseDown={(e) => {
+                    setSelectedShapeId(shape.id);
+                    setIsResizing(true);
+                    setResizeCorner("tl");
+                    e.stopPropagation();
+                  }}
+                />
+                {/* TR handle */}
+                <rect
+                  x={(shape.x || 0) + Math.max(40, shape.width || 200) - 8}
+                  y={(shape.y || 0) - 8}
+                  width={8}
+                  height={8}
+                  fill="#1e90ff"
+                  stroke="#0b5cb7"
+                  onMouseDown={(e) => {
+                    setSelectedShapeId(shape.id);
+                    setIsResizing(true);
+                    setResizeCorner("tr");
+                    e.stopPropagation();
+                  }}
+                />
+                {/* BL handle */}
+                <rect
+                  x={(shape.x || 0) - 8}
+                  y={(shape.y || 0) + Math.max(24, shape.height || 32) - 8}
+                  width={8}
+                  height={8}
+                  fill="#1e90ff"
+                  stroke="#0b5cb7"
+                  onMouseDown={(e) => {
+                    setSelectedShapeId(shape.id);
+                    setIsResizing(true);
+                    setResizeCorner("bl");
+                    e.stopPropagation();
+                  }}
+                />
+                {/* BR handle */}
+                <rect
+                  x={(shape.x || 0) + Math.max(40, shape.width || 200) - 8}
+                  y={(shape.y || 0) + Math.max(24, shape.height || 32) - 8}
+                  width={8}
+                  height={8}
+                  fill="#1e90ff"
+                  stroke="#0b5cb7"
+                  onMouseDown={(e) => {
+                    setSelectedShapeId(shape.id);
+                    setIsResizing(true);
+                    setResizeCorner("br");
+                    e.stopPropagation();
+                  }}
+                />
+              </>
+            )}
+          </g>
+        ))}
+      </svg>
+      {/* no textarea overlay in pure-SVG editor */}
+    </div>
+  );
+}
+function SaveButton({ title }) {
+  // const [editor] = useLexicalComposerContext();
+  const [isSaved, setIsSaved] = useState(false);
+  const shapes = useStore((s) => s.shapes);
+  const selectedNote = localStorage.getItem("selectedNote");
+  const handleSaveNewNote = (e) => {
+    const notes = JSON.parse(localStorage.getItem("notes")) || [];
+
+    const newNote = {
+      id: Date.now().toString(), // unique id
+      title,
+      lastModified: new Date().toISOString(),
+      shapes, // <-- your canvas state
+    };
+
+    // Add new note to notes array
+    notes.push(newNote);
+
+    // Save back to localStorage
+    localStorage.setItem("notes", JSON.stringify(notes));
+
+    alert("Note saved successfully!");
+  };
+  const editNote = (e) => {
+    console.log(title);
+    const notes = localStorage.getItem("notes");
+    const notesArray = JSON.parse(notes);
+    const selectedNoteObj = JSON.parse(selectedNote);
+    const updatedNotes = notesArray.map((note) => {
+      if (note.id == selectedNoteObj.id) {
+        return { ...selectedNoteObj, title, shapes };
+      }
+      return note;
+    });
+    localStorage.setItem("notes", JSON.stringify(updatedNotes));
+    alert("Done!");
+  };
+  return (
+    <button
+      onClick={selectedNote ? editNote : handleSaveNewNote}
+      style={{
+        position: "absolute",
+        top: "15px",
+        right: "30px",
+        height: 40,
+        minWidth: 80,
+        padding: "25px 18px",
+        fontWeight: 500,
+        color: "white",
+        background: "teal",
+        // border: `2px solid ${isSaved ? "blue" : "black"}`,
+        border: "none",
+        borderRadius: 12,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        cursor: isSaved ? "default" : "pointer",
+        transition: "color 0.3s ease, border-color 0.3s ease",
+        zIndex: 100,
+      }}
+    >
+      {isSaved ? "Saved" : "Save"}
+    </button>
+  );
+}
 // Share Button component
 function ShareButton({ getTextContent, noteTitle }) {
   const [showMenu, setShowMenu] = useState(false);
@@ -430,124 +1342,22 @@ function ShareButton({ getTextContent, noteTitle }) {
   );
 }
 
-function SaveButton({ saveTrigger, isLoggedIn, displayModal, title, shareId }) {
-  const [editor] = useLexicalComposerContext();
-  const [isSaved, setIsSaved] = useState(false);
-  const getTextContent = () => {
-    let text = "";
-    editor.getEditorState().read(() => {
-      text = $getRoot().getTextContent();
-    });
-    return text;
-  };
-  const isNewNote = !localStorage.getItem("selectedTaskId") && !shareId;
-  const handleEditNote = () => {
-    const selectedTaskId = localStorage.getItem("selectedTaskId");
-    const content = getTextContent();
-    const text = content;
-    let tasks = [];
-    try {
-      const stored = localStorage.getItem("tasks");
-      if (stored) tasks = JSON.parse(stored);
-    } catch (e) {
-      tasks = [];
-    }
-    const selectedTask = tasks.filter(
-      (t) => t.id === Number(selectedTaskId)
-    )[0];
-    const otherTasks = tasks.filter((t) => t.id !== Number(selectedTaskId));
-    otherTasks.push({
-      ...selectedTask,
-      title: title,
-      content: text,
-      lastModified: new Date().toISOString(),
-    });
-    localStorage.setItem("tasks", JSON.stringify(otherTasks));
-    setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 1000);
-
-    React.useEffect(() => {
-      setIsSaved(false);
-    }, [saveTrigger, title]);
-  };
-  const handleSaveNewNote = () => {
-    const content = getTextContent();
-    const text = content;
-    const newTask = {
-      id: Date.now(),
-      title: title || "Untitled",
-      content: text,
-      lastModified: new Date().toISOString(),
-    };
-    let tasks = [];
-    try {
-      const stored = localStorage.getItem("tasks");
-      if (stored) tasks = JSON.parse(stored);
-    } catch (e) {
-      tasks = [];
-    }
-    tasks.push(newTask);
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-    setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 1000);
-
-    React.useEffect(() => {
-      setIsSaved(false);
-    }, [saveTrigger, title]);
-    //}
-  };
-  return (
-    <button
-      onClick={
-        isLoggedIn
-          ? isNewNote
-            ? handleSaveNewNote
-            : handleEditNote
-          : displayModal
-      }
-      style={{
-        height: 40,
-        minWidth: 80,
-        padding: "0 18px",
-        fontWeight: 500,
-        color: isSaved ? "#22ee99" : "#a5f1ea",
-        background: "transparent",
-        border: `2px solid ${isSaved ? "#22ee99" : "#20e3d7"}`,
-        borderRadius: 12,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        cursor: isSaved ? "default" : "pointer",
-        transition: "color 0.3s ease, border-color 0.3s ease",
-      }}
-      onMouseEnter={(e) =>
-        !isSaved && (e.currentTarget.style.color = "#00fff7")
-      }
-      onMouseLeave={(e) =>
-        !isSaved && (e.currentTarget.style.color = "#a5f1ea")
-      }
-    >
-      {isSaved ? "Saved" : "Save"}
-    </button>
-  );
-}
-
 function SharePlugin({
   title,
-  saveTrigger,
-  isLoggedIn,
-  displayModal,
-  shareId,
+  // saveTrigger,
+  // isLoggedIn,
+  // displayModal,
+  // shareId,
 }) {
   try {
-    const [editor] = useLexicalComposerContext();
-    const getTextContent = () => {
-      let text = "";
-      editor.getEditorState().read(() => {
-        text = $getRoot().getTextContent();
-      });
-      return text;
-    };
+    // const [editor] = useLexicalComposerContext();
+    // const getTextContent = () => {
+    //   let text = "";
+    //   editor.getEditorState().read(() => {
+    //     text = $getRoot().getTextContent();
+    //   });
+    //   return text;
+    // };
     return (
       <div
         style={{
@@ -555,768 +1365,500 @@ function SharePlugin({
           gap: "12px",
           borderRadius: 12,
           padding: 8,
-          position: "fixed",
-          top: 40,
+          position: "absolute",
+          top: 5,
           right: 170,
           alignItems: "center",
           zIndex: 1000,
         }}
       >
         <SaveButton
-          saveTrigger={saveTrigger}
+          // saveTrigger={saveTrigger}
           title={title}
-          isLoggedIn={isLoggedIn}
-          displayModal={displayModal}
-          shareId={shareId}
+          // isLoggedIn={isLoggedIn}
+          // displayModal={displayModal}
+          // shareId={shareId}
         />
-        <ShareButton getTextContent={getTextContent} noteTitle={title} />
+        {/* <ShareButton getTextContent={getTextContent} noteTitle={title} /> */}
       </div>
     );
   } catch (e) {
     console.log(e);
   }
 }
+// ---- TOOLBAR ----
+function Toolbar() {
+  // Add image to canvas (must be before hooks and JSX)
+  function handleImageUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new window.FileReader();
+    reader.onload = function(ev) {
+      addShape({
+        id: nanoid(),
+        type: "image",
+        src: ev.target.result,
+        x: 200,
+        y: 200,
+        width: 180,
+        height: 120
+      });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  }
+  const setShapes = useStore((s) => s.setShapes);
+  const freehandType = useStore((s) => s.freehandType);
+  // Image upload state
+  const fileInputRef = useRef();
 
-function TextOptionsBar({
-  fontFamily,
-  setFontFamily,
-  fontSize,
-  setFontSize,
-  fontColor,
-  setFontColor,
-  formatBold,
-  formatItalic,
-  formatUnderline,
-  undo,
-  redo,
-  editor,
-}) {
-  const onChangeFont = (e) => {
-    const value = e.target.value;
-    setFontFamily(value);
-    applyStyleToSelection(editor, { "font-family": value });
-  };
-  const onChangeFontSize = (e) => {
-    const value = e.target.value;
-    setFontSize(value);
-    applyStyleToSelection(editor, { "font-size": `${value}px` });
-  };
-  const onChangeFontColor = (e) => {
-    const value = e.target.value;
-    setFontColor(value);
-    applyStyleToSelection(editor, { color: value });
-  };
-
+  // Color palette state
+  const [showColorPanel, setShowColorPanel] = useState(false);
+  const chosenColor = useStore((s) => s.chosenColor);
+  const setChosenColor = useStore((s) => s.setChosenColor);
+  const shapes = useStore((s) => s.shapes);
+  const addShape = useStore((s) => s.addShape);
+  const updateShape = useStore((s) => s.updateShape);
+  const removeShape = useStore((s) => s.removeShape);
+  const selectedTool = useStore((s) => s.selectedTool);
+  const textStyle = useStore((s) => s.textStyle);
+  const setTextStyle = useStore((s) => s.setTextStyle);
+  const setFreehandType = useStore((s) => s.setFreehandType);
+  const setTool = useStore((s) => s.setTool);
+  // Eraser stroke size state
+  const [eraserSize, setEraserSize] = useState(20);
+  const [showThicknessPanel, setShowThicknessPanel] = useState(false);
+  const freehandThickness = useStore((s) => s.freehandThickness);
+  const setFreehandThickness = useStore((s) => s.setFreehandThickness);
+  const freehandTools = [
+    { id: "pen", icon: <Pen />, title: "Pen" },
+    { id: "pencil", icon: <Pencil />, title: "Pencil" },
+    { id: "brush", icon: <Brush />, title: "Brush" },
+    { id: "thickness", icon: <SlidersHorizontal />, title: "Thickness" },
+  ];
   return (
     <div
-      className="flex items-center gap-3 px-4 py-2 rounded-xl border absolute bottom-[-85px] left-1/2 transform -translate-x-1/2 z-50 shadow-2xl"
-      style={{
-        minWidth: 520,
-        backgroundColor: "rgba(12, 46, 50, 0.9)", // dark teal translucent background
-        borderColor: "#20e3d7", // bright cyan border
-        // subtle cyan glow shadow
-      }}
+      className="flex flex-col gap-1 bg-gray-400 absolute rounded-t-2xl rounded-b-2xl border-2 border-cyan-500/20 bg-gradient-to-r from-gray-900/90 to-gray-800/80 backdrop-blur-lg shadow-2xl z-50 p-2 border-none w-25"
+      style={{ top: "20vh", left: "40px" }}
     >
-      <div
-        className="flex items-center gap-2 rounded-lg px-2 py-1"
-        style={{
-          backgroundColor: "rgba(4, 49, 56, 0.7)", // slightly lighter dark teal bg
-          border: "1px solid #20e3d7", // bright cyan border
-        }}
+      <button
+        onClick={() => setTool("freehand")}
+  className="p-5 rounded-xl flex items-center justify-center border transition-all duration-200 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary text-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/20 hover:ring-2 hover:ring-cyan-200 hover:border-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-300"
+        title="Freehand"
       >
-        <select
-          value={fontFamily}
-          onChange={onChangeFont}
-          className="bg-transparent border-none rounded px-2 py-1 focus:outline-none"
-          title="Font family"
-          style={{
-            color: "#a5f1ea", // light cyan text
-          }}
+        <PencilLine />
+      </button>
+      <button
+        onClick={() => setTool("rect")}
+  className="text-minimal-primary rounded-xl flex items-center justify-center p-5 drop-shadow-sm border transition-all duration-200 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/20 hover:ring-2 hover:ring-cyan-200 hover:border-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-300"
+        title="Shapes"
+      >
+        <RectangleHorizontal />
+      </button>
+      <button
+        onClick={() => setTool("text")}
+  className="text-minimal-primary p-5 drop-shadow-sm border transition-all duration-200 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/20 hover:ring-2 hover:ring-cyan-200 hover:border-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-300 rounded-xl"
+        title="Text"
+      >
+        <RemoveFormatting />
+      </button>
+
+      {/* Add Image button */}
+      <button
+        onClick={() => fileInputRef.current && fileInputRef.current.click()}
+        className="p-5 rounded-xl flex items-center justify-center border transition-all duration-200 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary text-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/20 hover:ring-2 hover:ring-cyan-200 hover:border-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-300"
+        title="Add Image"
+      >
+        <Image />
+      </button>
+      <input
+        type="file"
+        accept="image/*"
+        ref={fileInputRef}
+        style={{ display: "none" }}
+        onChange={handleImageUpload}
+      />
+      <button
+        onClick={() => setTool("eraser")}
+        className="p-5 rounded-xl flex items-center justify-center border transition-all duration-200 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary text-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/20 hover:ring-2 hover:ring-cyan-200 hover:border-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-300"
+        title="Eraser"
+      >
+        <Eraser />
+      </button>
+
+      {/* Color palette button (last box) */}
+      <div className="relative">
+        <button
+          onClick={() => setShowColorPanel((v) => !v)}
+          className="p-5 rounded-xl flex items-center justify-center border transition-all duration-200 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary text-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/20 hover:ring-2 hover:ring-cyan-200 hover:border-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-300 relative"
+          title="Choose Color"
         >
-          {[
-            "Arial",
-            "Georgia",
-            "Times New Roman",
-            "Courier New",
-            "Monospace",
-            "sans-serif",
-            "serif",
-          ].map((font) => (
-            <option key={font} className="bg-[#043138]" value={font}>
-              {font}
-            </option>
+          <Droplet />
+          <span
+            style={{
+              position: "absolute",
+              bottom: "4px",
+              right: "4px",
+              display: "inline-block",
+              width: 14,
+              height: 14,
+              borderRadius: "50%",
+              background: chosenColor,
+              border: "1px solid #fff",
+              boxShadow: "0 0 2px #0002",
+            }}
+          />
+        </button>
+        {/* Color picker panel */}
+        {showColorPanel && (
+          <div
+            style={{
+              position: "absolute",
+              top: 55,
+              left: 0,
+              background: "#222",
+              border: "2px solid #23b5b5",
+              borderRadius: 10,
+              padding: 10,
+              zIndex: 100,
+              minWidth: 90,
+              boxShadow: "0 2px 8px #0005",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
+            <input
+              type="color"
+              value={chosenColor}
+              onChange={(e) => {
+                setChosenColor(e.target.value);
+                setTextStyle((prev) => ({ ...prev, color: e.target.value }));
+              }}
+              style={{ width: 40, height: 40, border: "none", borderRadius: 8, cursor: "pointer" }}
+            />
+            <button
+              onClick={() => setShowColorPanel(false)}
+              style={{
+                marginTop: 4,
+                padding: "2px 10px",
+                borderRadius: 6,
+                background: "#23b5b5",
+                color: "#fff",
+                border: "none",
+                fontSize: 13,
+                cursor: "pointer",
+              }}
+            >
+              Close
+            </button>
+          </div>
+        )}
+      </div>
+      {/* Undo/Redo buttons */}
+      <button
+        onClick={() => Canvas.handleUndo && Canvas.handleUndo()}
+        className="p-5 rounded-xl flex items-center justify-center border transition-all duration-200 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary text-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/20 hover:ring-2 hover:ring-cyan-200 hover:border-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-300"
+        title="Undo"
+      >
+        ↶
+      </button>
+      <button
+        onClick={() => Canvas.handleRedo && Canvas.handleRedo()}
+        className="p-5 rounded-xl flex items-center justify-center border transition-all duration-200 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary text-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/20 hover:ring-2 hover:ring-cyan-200 hover:border-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-300"
+        title="Redo"
+      >
+        ↷
+      </button>
+      {selectedTool === "freehand" && (
+        <div
+          className="flex flex-col gap-3 rounded-t-2xl rounded-b-2xl p-2 bg-gradient-to-r from-gray-900/90 to-gray-800/80 backdrop-blur-lg shadow-2xl"
+          style={{ position: "absolute", left: "90px", width: "60px" }}
+          id="freehandDiv"
+        >
+          {freehandTools.map((t) => (
+            t.id === "thickness" ? (
+              <div key={t.id} style={{ position: "relative" }}>
+                <button
+                  onClick={() => setShowThicknessPanel((v) => !v)}
+                  className={`flex justify-center items-center p-2 rounded-xl text-lg transform hover:scale-105 border transition-all duration-300 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20 text-minimal-primary hover:bg-blue-600
+                    ${showThicknessPanel ? "bg-blue-500 text-white" : ""}`}
+                  title={t.title}
+                >
+                  {t.icon}
+                </button>
+                {showThicknessPanel && (
+                  <div style={{
+                    position: "absolute",
+                    left: "110%",
+                    top: 0,
+                    background: "#222",
+                    border: "2px solid #23b5b5",
+                    borderRadius: 10,
+                    padding: 14,
+                    zIndex: 100,
+                    minWidth: 120,
+                    boxShadow: "0 2px 8px #0005",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 8,
+                  }}>
+                    <label style={{ color: '#a5f1ea', marginBottom: 6 }}>Thickness</label>
+                    <input
+                      type="range"
+                      min={1}
+                      max={16}
+                      value={freehandThickness}
+                      onChange={e => setFreehandThickness(Number(e.target.value))}
+                      style={{ width: 80, accentColor: '#23b5b5' }}
+                    />
+                    <div style={{ color: '#fff', fontSize: 13, marginTop: 2 }}>{freehandThickness}px</div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                key={t.id}
+                onClick={() => {
+                  setFreehandType(t.id);
+                }}
+                className={`flex justify-center items-center p-2 rounded-xl text-lg transform hover:scale-105 border transition-all duration-300 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20 text-minimal-primary hover:bg-blue-600
+            ${freehandType === t.id ? "bg-blue-500 text-white" : ""}`}
+                title={t.title}
+              >
+                {t.icon}
+              </button>
+            )
           ))}
-        </select>
-        <div style={{ width: 1, height: 24, backgroundColor: "#20e3d7" }} />
-
-        <select
-          value={fontSize}
-          onChange={onChangeFontSize}
-          className="bg-transparent border-none rounded px-2 py-1 focus:outline-none"
-          title="Font size"
-          style={{
-            color: "#a5f1ea",
-          }}
-        >
-          {[12, 14, 16, 18, 20, 24, 28, 32].map((size) => (
-            <option key={size} className="bg-[#043138]" value={size}>
-              {size}
-            </option>
-          ))}
-        </select>
-        <div style={{ width: 1, height: 24, backgroundColor: "#20e3d7" }} />
-
-        <input
-          type="color"
-          title="Font color"
-          value={fontColor}
-          onChange={onChangeFontColor}
-          aria-label="Font color picker"
-          className="w-8 h-8 p-0 border-none rounded cursor-pointer bg-transparent"
-          style={{
-            border: "1px solid #20e3d7",
-            cursor: "pointer",
-          }}
-        />
-      </div>
-
-      <div style={{ width: 1, height: 32, backgroundColor: "#20e3d7" }} />
-
-      <div
-        className="flex items-center gap-1 rounded-lg p-1"
-        style={{
-          backgroundColor: "rgba(4, 49, 56, 0.7)",
-          border: "1px solid #20e3d7",
-        }}
-      >
-        <button
-          onClick={undo}
-          className="p-2 rounded-lg text-white"
-          title="Undo"
-          style={{ backgroundColor: "transparent", color: "#a5f1ea" }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = "#0ff9cc33")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "transparent")
-          }
-        >
-          <Undo size={18} />
-        </button>
-        <button
-          onClick={redo}
-          className="p-2 rounded-lg text-white"
-          title="Redo"
-          style={{ backgroundColor: "transparent", color: "#a5f1ea" }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = "#0ff9cc33")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "transparent")
-          }
-        >
-          <Redo size={18} />
-        </button>
-      </div>
-
-      <div style={{ width: 1, height: 32, backgroundColor: "#20e3d7" }} />
-
-      <div
-        className="flex items-center gap-1 rounded-lg p-1"
-        style={{
-          backgroundColor: "rgba(4, 49, 56, 0.7)",
-          border: "1px solid #20e3d7",
-        }}
-      >
-        <button
-          onClick={formatBold}
-          className="px-3 py-2 rounded-lg font-semibold text-white"
-          title="Bold"
-          style={{
-            backgroundColor: "transparent",
-            color: "#a5f1ea",
-          }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = "#0ff9cc33")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "transparent")
-          }
-        >
-          B
-        </button>
-        <button
-          onClick={formatItalic}
-          className="px-3 py-2 rounded-lg italic text-white"
-          title="Italic"
-          style={{
-            backgroundColor: "transparent",
-            color: "#a5f1ea",
-          }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = "#0ff9cc33")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "transparent")
-          }
-        >
-          I
-        </button>
-        <button
-          onClick={formatUnderline}
-          className="px-3 py-2 rounded-lg underline text-white"
-          title="Underline"
-          style={{
-            backgroundColor: "transparent",
-            color: "#a5f1ea",
-          }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = "#0ff9cc33")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "transparent")
-          }
-        >
-          U
-        </button>
-      </div>
-    </div>
-  );
-}
-const PenTool = React.memo(function () {
-  const canvasRef = useRef(null);
-  const ctxRef = useRef(null);
-
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [tool, setTool] = useState("pen"); // pen | eraser | highlighter
-  const [color, setColor] = useState("#ffffff");
-  const [thickness, setThickness] = useState(3);
-
-  const [history, setHistory] = useState([]); // undo/redo stack
-  const [redoStack, setRedoStack] = useState([]);
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-
-    // ✅ Match canvas resolution to CSS size
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * window.devicePixelRatio;
-    canvas.height = rect.height * window.devicePixelRatio;
-    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctxRef.current = ctx;
-  }, []);
-
-  const saveState = () => {
-    const canvas = canvasRef.current;
-    const data = canvas.toDataURL();
-    setHistory((prev) => [...prev, data]);
-    setRedoStack([]); // clear redo when new draw happens
-  };
-
-  const undo = () => {
-    if (history.length === 0) return;
-    const canvas = canvasRef.current;
-    const ctx = ctxRef.current;
-    const last = history[history.length - 1];
-
-    setRedoStack((prev) => [...prev, canvas.toDataURL()]);
-    setHistory((prev) => prev.slice(0, -1));
-
-    const img = new Image();
-    img.src = last;
-    img.onload = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(
-        img,
-        0,
-        0,
-        canvas.width / window.devicePixelRatio,
-        canvas.height / window.devicePixelRatio
-      );
-    };
-  };
-
-  const redo = () => {
-    if (redoStack.length === 0) return;
-    const canvas = canvasRef.current;
-    const ctx = ctxRef.current;
-    const last = redoStack[redoStack.length - 1];
-
-    setHistory((prev) => [...prev, last]);
-    setRedoStack((prev) => prev.slice(0, -1));
-
-    const img = new Image();
-    img.src = last;
-    img.onload = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(
-        img,
-        0,
-        0,
-        canvas.width / window.devicePixelRatio,
-        canvas.height / window.devicePixelRatio
-      );
-    };
-  };
-
-  const startDrawing = (e) => {
-    const ctx = ctxRef.current;
-    ctx.beginPath();
-    ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-    setIsDrawing(true);
-  };
-
-  const draw = (e) => {
-    if (!isDrawing) return;
-    const ctx = ctxRef.current;
-
-    if (tool === "pen") {
-      ctx.globalCompositeOperation = "source-over";
-      ctx.strokeStyle = color;
-      ctx.globalAlpha = 1.0;
-    } else if (tool === "highlighter") {
-      ctx.globalCompositeOperation = "multiply";
-      ctx.strokeStyle = color;
-      ctx.globalAlpha = 0.3;
-    } else if (tool === "eraser") {
-      ctx.globalCompositeOperation = "destination-out";
-      ctx.strokeStyle = "rgba(0,0,0,1)";
-      ctx.globalAlpha = 1.0;
-    }
-
-    ctx.lineWidth = thickness;
-    ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-    ctx.stroke();
-  };
-
-  const stopDrawing = () => {
-    if (!isDrawing) return;
-    const ctx = ctxRef.current;
-    ctx.closePath();
-    setIsDrawing(false);
-    saveState(); // ✅ save snapshot after finishing stroke
-  };
-
-  // Cursor style per tool
-  const cursorStyle =
-    tool === "pen"
-      ? "url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22><text y=%2215%22 font-size=%2216%22>✏️</text></svg>') 0 16, auto"
-      : tool === "highlighter"
-      ? "url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22><text y=%2215%22 font-size=%2216%22>🖍</text></svg>') 0 16, auto"
-      : "url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22><text y=%2215%22 font-size=%2216%22>🧽</text></svg>') 0 16, auto";
-
-  return (
-    <div className="">
-      {/* Controls */}
-      <div
-        className=""
-        style={{
-          position: "absolute",
-          left: "400px",
-          bottom: "-85px",
-          background: "rgba(12, 46, 50, 0.95)", // deep dark teal bg
-          padding: "10px 12px",
-          borderRadius: "12px",
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-          border: "1px solid #20e3d7", // bright cyan border
-          // cyan glow shadow
-          zIndex: 6000,
-        }}
-      >
+        </div>
+      )}
+      {selectedTool === "text" && (
         <div
           style={{
+            position: "absolute",
+            left: "90px",
+            top: 100,
             display: "flex",
-            gap: 6,
-            background: "#043138", // darker teal for button group bg
-            padding: "6px",
-            borderRadius: 10,
+            flexDirection: "column",
+            gap: 12,
+            padding: 14,
+            zIndex: 100,
+            minWidth: 240,
+            background: "#0c2e32",
+            border: "2px solid #20e3d7",
+            borderRadius: 12,
+            boxShadow: "0 6px 20px rgba(0,0,0,0.35)",
+            color: "#e0f7f6",
           }}
         >
-          {["pen", "highlighter", "eraser"].map((toolType) => {
-            const iconMap = {
-              pen: <Brush size={18} color="#a5f1ea" />,
-              highlighter: <Highlighter size={18} color="#a5f1ea" />,
-              eraser: <Eraser size={18} color="#a5f1ea" />,
-            };
-            const isActive = tool === toolType;
-            return (
-              <button
-                key={toolType}
-                onClick={() => setTool(toolType)}
-                title={toolType[0].toUpperCase() + toolType.slice(1)}
+          <div
+            style={{
+              fontWeight: 600,
+              fontSize: 16,
+              textAlign: "left",
+              color: "#a5f1ea",
+              marginBottom: 4,
+            }}
+          >
+            Text Style
+          </div>
+
+          {/* Font Family */}
+          <div className="flex flex-col gap-1">
+            <label className="text-sm" style={{ color: "#a5f1ea" }}>
+              Font
+            </label>
+            <select
+              value={textStyle.fontFamily}
+              onChange={(e) =>
+                setTextStyle((prev) => ({
+                  ...prev,
+                  fontFamily: e.target.value,
+                }))
+              }
+              style={{
+                background: "#043138",
+                color: "#c5f9ee",
+                border: "1px solid #20e3d7",
+                borderRadius: 8,
+                padding: "8px 10px",
+                outline: "none",
+              }}
+            >
+              <option>Arial</option>
+              <option>Times New Roman</option>
+              <option>Georgia</option>
+              <option>Courier New</option>
+            </select>
+          </div>
+
+          {/* Font Size + Color */}
+          <div className="flex flex-row gap-4">
+            {/* Font Size */}
+            <div className="flex flex-col gap-1">
+              <label className="text-sm" style={{ color: "#a5f1ea" }}>
+                Size
+              </label>
+              <input
+                type="number"
+                value={textStyle.fontSize}
+                min={8}
+                max={200}
+                onChange={(e) =>
+                  setTextStyle((prev) => ({
+                    ...prev,
+                    fontSize: Number(e.target.value),
+                  }))
+                }
                 style={{
-                  padding: 8,
+                  width: 90,
+                  background: "#043138",
+                  color: "#c5f9ee",
+                  border: "1px solid #20e3d7",
                   borderRadius: 8,
-                  backgroundColor: isActive ? "#0ff9cc" : "transparent",
-                  border: isActive
-                    ? "1px solid #0cc8b0"
-                    : "1px solid transparent",
-                  color: "#e5e7eb",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  transition: "background-color 0.3s, border-color 0.3s",
+                  padding: "8px 10px",
+                  outline: "none",
+                }}
+              />
+            </div>
+
+            {/* Text Color */}
+            <div className="flex flex-col gap-1">
+              <label className="text-sm" style={{ color: "#a5f1ea" }}>
+                Color
+              </label>
+              <input
+                type="color"
+                value={textStyle.color}
+                onChange={(e) =>
+                  setTextStyle((prev) => ({ ...prev, color: e.target.value }))
+                }
+                style={{
+                  width: 48,
+                  height: 36,
+                  background: "#043138",
+                  border: "1px solid #20e3d7",
+                  borderRadius: 8,
+                  padding: 0,
                   cursor: "pointer",
                 }}
+                title="Text color"
+              />
+            </div>
+          </div>
+
+          {/* Bold + Italic */}
+          <div className="flex flex-row gap-3">
+            {/* Bold */}
+            <div className="flex flex-col gap-1">
+              <label className="text-sm" style={{ color: "#a5f1ea" }}>
+                Bold
+              </label>
+              <button
+                onClick={() =>
+                  setTextStyle((prev) => ({ ...prev, bold: !prev.bold }))
+                }
+                style={{
+                  border: `2px solid ${textStyle.bold ? "#00fff7" : "#20e3d7"}`,
+                  background: textStyle.bold
+                    ? "rgba(15, 249, 204, 0.15)"
+                    : "transparent",
+                  color: "#c5f9ee",
+                  borderRadius: 8,
+                  padding: "6px 10px",
+                  fontWeight: 800,
+                  transition:
+                    "background-color 0.2s ease, border-color 0.2s ease",
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor =
+                    "rgba(15, 249, 204, 0.15)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = textStyle.bold
+                    ? "rgba(15, 249, 204, 0.15)"
+                    : "transparent")
+                }
               >
-                {iconMap[toolType]}
+                B
               </button>
-            );
-          })}
+            </div>
+
+            {/* Italic */}
+            <div className="flex flex-col gap-1">
+              <label className="text-sm" style={{ color: "#a5f1ea" }}>
+                Italic
+              </label>
+              <button
+                onClick={() =>
+                  setTextStyle((prev) => ({ ...prev, italic: !prev.italic }))
+                }
+                style={{
+                  border: `2px solid ${
+                    textStyle.italic ? "#00fff7" : "#20e3d7"
+                  }`,
+                  background: textStyle.italic
+                    ? "rgba(15, 249, 204, 0.15)"
+                    : "transparent",
+                  color: "#c5f9ee",
+                  borderRadius: 8,
+                  padding: "6px 10px",
+                  fontStyle: "italic",
+                  transition:
+                    "background-color 0.2s ease, border-color 0.2s ease",
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor =
+                    "rgba(15, 249, 204, 0.15)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = textStyle.italic
+                    ? "rgba(15, 249, 204, 0.15)"
+                    : "transparent")
+                }
+              >
+                I
+              </button>
+            </div>
+          </div>
         </div>
-
-        <div style={{ width: 1, height: 28, background: "#20e3d7" }} />
-
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Droplet size={16} color="#20e3d7" />
-          <input
-            type="color"
-            value={color}
-            onChange={(e) => setColor(e.target.value)}
-            disabled={tool === "eraser"}
-            style={{
-              width: 28,
-              height: 28,
-              border: "none",
-              background: "transparent",
-              cursor: tool === "eraser" ? "not-allowed" : "pointer",
-            }}
-            title="Color"
-          />
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            minWidth: 160,
-          }}
-        >
-          <span style={{ color: "#20e3d7", fontSize: 12, width: 50 }}>
-            Size {thickness}
-          </span>
-          <input
-            type="range"
-            min="1"
-            max="30"
-            value={thickness}
-            onChange={(e) => setThickness(e.target.value)}
-            title="Brush size"
-            style={{
-              cursor: "pointer",
-              accentColor: "#0ff9cc",
-            }}
-          />
-        </div>
-
-        <div style={{ width: 1, height: 28, background: "#20e3d7" }} />
-
-        <div style={{ display: "flex", gap: 6 }}>
-          <button
-            onClick={undo}
-            title="Undo"
-            style={{
-              padding: 8,
-              borderRadius: 8,
-              color: "#a5f1ea",
-              background: "#043138",
-              border: "1px solid #0cc8b0",
-              cursor: "pointer",
-            }}
-          >
-            ↩️
-          </button>
-          <button
-            onClick={redo}
-            title="Redo"
-            style={{
-              padding: 8,
-              borderRadius: 8,
-              color: "#a5f1ea",
-              background: "#043138",
-              border: "1px solid #0cc8b0",
-              cursor: "pointer",
-            }}
-          >
-            ↪️
-          </button>
-          <button
-            title="Clear canvas"
-            onClick={() => {
-              const canvas = canvasRef.current;
-              const ctx = ctxRef.current;
-              if (!canvas || !ctx) return;
-              ctx.clearRect(0, 0, canvas.width, canvas.height);
-              setHistory([]);
-              setRedoStack([]);
-            }}
-            style={{
-              padding: 8,
-              borderRadius: 8,
-              color: "#fca5a5",
-              background: "#2a1b1b",
-              border: "1px solid #7f1d1d",
-              cursor: "pointer",
-            }}
-          >
-            <Trash2 size={18} />
-          </button>
-        </div>
-      </div>
-
-      {/* Canvas main */}
-      <canvas
-        className="absolute bottom-[10px] left-[10px] h-[100%] w-[100%]"
-        ref={canvasRef}
-        style={{
-          cursor: cursorStyle,
-          zIndex: 60,
-          background: "transparent",
-        }}
-        data-pen-canvas="true"
-        onMouseDown={startDrawing}
-        onMouseMove={draw}
-        onMouseUp={stopDrawing}
-        onMouseLeave={stopDrawing}
-      />
+      )}
+      {selectedTool == "rect" && <ShapesPanel />}
     </div>
   );
-});
-function ToolbarPlugin({
-  openChatbot,
-  closeChatbot,
-  isLoggedIn,
-  displayModal,
-  isEditable,
-}) {
-  const [editor] = useLexicalComposerContext();
-  const getTextContent = () => {
-    let text = "";
-    editor.getEditorState().read(() => {
-      // Instead of toJSON traversal, use lexical root API:
-      const root = editor._editor.getRoot(); // or $getRoot() inside .read if you have access
-      if (root) {
-        text = root.getTextContent();
-      }
-    });
-    return text;
-  };
-  const [fontFamily, setFontFamily] = useState("Arial");
-  const [fontSize, setFontSize] = useState("16");
-  const [fontColor, setFontColor] = useState("#FFFFFF");
-  const [activeBar, setActiveBar] = useState(null);
-
-  // formatting commands for bold/italic/underline
-  const formatBold = () => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
-  const formatItalic = () =>
-    editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
-  const formatUnderline = () =>
-    editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
-  const undo = () => editor.dispatchCommand(UNDO_COMMAND, undefined);
-  const redo = () => editor.dispatchCommand(REDO_COMMAND, undefined);
-
-  // Apply inline styles for font-family, font-size, color
-  const onFontFamilyChange = (value) => {
-    setFontFamily(value);
-    applyStyleToSelection(editor, { "font-family": value });
-  };
-  const onFontSizeChange = (value) => {
-    setFontSize(value);
-    applyStyleToSelection(editor, { "font-size": `${value}px` });
-  };
-  const onFontColorChange = (value) => {
-    setFontColor(value);
-    applyStyleToSelection(editor, { color: value });
-  };
-
-  // On button click:
-  const handleToolbarClick = (type) => {
-    setActiveBar((prev) => {
-      if (type === "effect") {
-        if (prev === "effect") {
-          if (closeChatbot) closeChatbot();
-          return null;
-        } else {
-          if (openChatbot) openChatbot();
-          return "effect";
-        }
-      } else {
-        if (prev === "effect" && closeChatbot) closeChatbot();
-        return prev === type ? null : type;
-      }
-    });
-  };
-
-  return (
-    <>
-      {/* Text Options Bar */}
-      {activeBar === "text" && (
-        <TextOptionsBar
-          fontFamily={fontFamily}
-          setFontFamily={onFontFamilyChange}
-          fontSize={fontSize}
-          setFontSize={onFontSizeChange}
-          fontColor={fontColor}
-          setFontColor={onFontColorChange}
-          formatBold={formatBold}
-          formatItalic={formatItalic}
-          formatUnderline={formatUnderline}
-          undo={undo}
-          redo={redo}
-          editor={editor}
-        />
-      )}
-
-      {/* Pen Tool Options */}
-      {activeBar === "pen" && <PenTool />}
-      <div
-        className="flex justify-center items-center gap-4 px-4 py-2 rounded-2xl fixed"
-        style={{
-          minWidth: 160, // increased from 120
-          backgroundColor: "rgba(12, 46, 50, 0.85)",
-          border: "1px solid #20e3d7",
-          bottom: "18px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          zIndex: 100,
-        }}
-      >
-        {/* Text Options Button */}
-        <button
-          onClick={isLoggedIn ? () => handleToolbarClick("text") : displayModal}
-          className="flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 hover:scale-[1.16] hover:shadow-[0_0_4px_#0ff9cc55]"
-          style={{
-            fontSize: 18,
-            backgroundColor: activeBar === "text" ? "#0ff9cc" : "transparent",
-            color: activeBar === "text" ? "#003534" : "#a5f1ea",
-            boxShadow: activeBar === "text" ? "0 0 4px #0ff9cc88" : "none",
-          }}
-          title="Text options"
-        >
-          <Type size={22} />
-        </button>
-
-        {/* Pen Tool Button */}
-        <button
-          onClick={isLoggedIn ? () => handleToolbarClick("pen") : displayModal}
-          className="flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 hover:scale-[1.16] hover:shadow-[0_0_4px_#0ff9cc55]"
-          style={{
-            fontSize: 18,
-            backgroundColor: activeBar === "pen" ? "#0ff9cc" : "transparent",
-            color: activeBar === "pen" ? "#003534" : "#a5f1ea",
-            boxShadow: activeBar === "pen" ? "0 0 4px #0ff9cc88" : "none",
-            zIndex: 96,
-          }}
-          title="Pen Tool"
-        >
-          <Pencil size={22} />
-        </button>
-
-        {/* Effects Button */}
-        <button
-          onClick={
-            isLoggedIn ? () => handleToolbarClick("effect") : displayModal
-          }
-          className="flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 hover:scale-[1.16] hover:shadow-[0_0_4px_#0ff9cc55]"
-          style={{
-            fontSize: 18,
-            backgroundColor: activeBar === "effect" ? "#0ff9cc" : "transparent",
-            color: activeBar === "effect" ? "#003534" : "#a5f1ea",
-            boxShadow: activeBar === "effect" ? "0 0 4px #0ff9cc88" : "none",
-          }}
-          title="Effects"
-        >
-          <Sparkle size={22} />
-        </button>
-      </div>
-    </>
-  );
 }
-
-function AutoFocusPlugin() {
-  const [editor] = useLexicalComposerContext();
-  React.useEffect(() => {
-    editor.focus();
-  }, [editor]);
-  return null;
-}
-
-const initialConfig = {
-  namespace: "MyEditor",
-  theme,
-  nodes: [HeadingNode, ListNode, ListItemNode, QuoteNode, CodeNode, LinkNode],
-  onError: (error) => {
-    console.error("Lexical error:", error);
-  },
-};
-
-function SaveToLocalStoragePlugin() {
-  const [editor] = useLexicalComposerContext();
-
-  useEffect(() => {
-    return editor.registerUpdateListener(({ editorState }) => {
-      editorState.read(() => {
-        // Correct: use $getRoot() inside read()
-        const plainText = $getRoot().getTextContent();
-        // Save to localStorage
-        localStorage.setItem("editorContent", plainText);
-      });
-    });
-  }, [editor]);
-
-  return null;
-}
+// ---- APP ----
 function LexicalEditor() {
-  const [editor, setEditorState] = useState("");
   const [title, setTitle] = useState("Title");
-  const [ispenactive, setpenactive] = useState(true);
-  const [showChatbot, setShowChatbot] = useState(false);
-  const [showPenTool, setShowPenTool] = useState(false);
-  const [saveTrigger, setSaveTrigger] = useState(0);
-  const [scribbleUrl, setScribbleUrl] = useState("");
-  const [id, setId] = useState(null);
-  const [showAlertModal, setShowAlertModal] = useState(false);
-  const [isEditable, setIsEditable] = useState(true);
-  const navigate = useNavigate();
-  const loggedIn = () => {
-    const params = new URLSearchParams(window.location.search);
-    const shareId = params.get("shareId");
-    if (shareId) {
-      //No Login
-      if (!localStorage.getItem(`explified`)) {
-        return false;
-      }
-      //Logged in
-      if (
-        localStorage.getItem(`shared_note_${shareId}`) &&
-        localStorage.getItem(`explified`)
-      ) {
-        const logindetails = JSON.parse(localStorage.getItem(`explified`));
-        if (logindetails && logindetails.email) {
-          return true;
-        } else {
-          return false;
+  const h1Ref = useRef(null);
+  const shapes = useStore((s) => s.shapes);
+  const setShapes = useStore((s) => s.setShapes);
+  const selectedNote = localStorage.getItem("selectedNote");
+  const handleInput = (e) => {
+    setTitle(e.currentTarget.textContent);
+  };
+  useEffect(() => {
+    useStore.getState().setShapes([]);
+    // Step 1: Get the selectedNote from localStorage
+    if (selectedNote) {
+      try {
+        if (selectedNote) {
+          // Step 2: Convert string to JS object
+          const noteObj = JSON.parse(selectedNote);
+          setTitle(noteObj.title);
+          // Step 3: Extract shapes
+          const savedShapes = noteObj.shapes || [];
+
+          // Step 4: Set to your canvas state
+          setShapes(savedShapes);
         }
+      } catch (e) {
+        console.error(e);
       }
     }
-    return true;
-  };
-  const isLoggedIn = loggedIn();
-  const onChange = (editorState) => {
-    editorState.read(() => {
-      setEditorState(JSON.stringify(editorState.toJSON(), null, 2));
-      setSaveTrigger((trigger) => trigger + 1);
-    });
-  };
-
-  const h1Ref = useRef(null);
-
+  }, []);
   useEffect(() => {
     if (h1Ref.current) {
       h1Ref.current.textContent = typeof title === "string" ? title : "";
@@ -1332,219 +1874,38 @@ function LexicalEditor() {
       }
     }
   }, [title]);
-
-  const handleInput = (e) => {
-    setTitle(e.currentTarget.textContent);
-    setSaveTrigger((trigger) => trigger + 1);
-  };
-
-  // Load shared note data if shareId is present
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const shareId = params.get("shareId");
-    if (shareId) {
-      const combined = localStorage.getItem(`shared_note_${shareId}`);
-      if (combined) {
-        try {
-          const parsed = JSON.parse(combined);
-          if (parsed) {
-            // Fix: Set title as-is, not reversed
-            if (typeof parsed.title === "string") setTitle(parsed.title);
-            if (typeof parsed.penDataUrl === "string")
-              setScribbleUrl(parsed.penDataUrl);
-          }
-        } catch (e) {}
-      }
-    } else {
-      localStorage.setItem("editorContent", "");
-    }
-  }, []);
-
-  const params = new URLSearchParams(window.location.search);
-  const shareId = params.get("shareId");
-  const selectedTaskId = localStorage.getItem("selectedTaskId");
-  const initialText = React.useMemo(() => {
-    if (shareId) {
-      const combined = localStorage.getItem(`shared_note_${shareId}`);
-      if (combined) {
-        try {
-          const parsed = JSON.parse(combined);
-          if (parsed && typeof parsed.text === "string") {
-            return parsed.text;
-          }
-        } catch {}
-      }
-      const textOnly = localStorage.getItem(`shared_content_${shareId}`);
-      if (typeof textOnly === "string") {
-        return textOnly;
-      }
-    }
-    if (selectedTaskId) {
-      let tasks = [];
-      try {
-        const stored = localStorage.getItem("tasks");
-        if (stored) tasks = JSON.parse(stored);
-      } catch (e) {
-        tasks = [];
-        console.error("Error parsing tasks from localStorage:", e);
-      }
-      const selectedTask = tasks.find(
-        (task) => task.id.toString() == selectedTaskId
-      );
-      try {
-        if (selectedTask && typeof selectedTask.content === "string") {
-          return selectedTask.content;
-        }
-      } catch (e) {
-        console.error("Error parsing selected task content:", e);
-      }
-    }
-    return "";
-  }, [shareId]);
-
-  const editorInitialConfig = React.useMemo(
-    () => ({
-      ...initialConfig,
-      editorState: (editorInstance) => {
-        editorInstance.update(() => {
-          const root = $getRoot();
-          root.clear();
-          const paragraph = $createParagraphNode();
-          const textNode = $createTextNode(initialText);
-          paragraph.append(textNode);
-          root.append(paragraph);
-        });
-      },
-      editable: isEditable,
-    }),
-    [initialText, isEditable]
-  );
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const shareId = params.get("shareId");
-
-    if (shareId) {
-      const storedContent = localStorage.getItem(`shared_content_${shareId}`);
-      if (storedContent) {
-        // Instead of auto-download, you can render this content in a viewer page
-      }
-    }
-    if (selectedTaskId) {
-      let tasks = [];
-      try {
-        const stored = localStorage.getItem("tasks");
-        if (stored) tasks = JSON.parse(stored);
-      } catch (e) {
-        tasks = [];
-      }
-      const selectedTask = tasks.find(
-        (task) => task.id.toString() === selectedTaskId
-      );
-      try {
-        if (selectedTask) {
-          // Fix: Set title as-is, not reversed
-          if (typeof selectedTask.title === "string")
-            setTitle(selectedTask.title);
-          if (typeof selectedTask.penDataUrl === "string")
-            setScribbleUrl(selectedTask.penDataUrl);
-        }
-      } catch (e) {}
-    }
-  }, []);
-  useEffect(() => {
-    return () => {
-      //on unmounting clear localStorage
-      //localStorage.removeItem("selectedTaskId");
-      //localStorage.removeItem("editorContent");
-    };
-  }, []);
-  const displayModal = (e) => {
-    setShowAlertModal(true);
-    setIsEditable(false);
-  };
   return (
-    <div
-      className="bg-black text-white flex flex-col min-h-screen
-     relative overflow-hidden"
-    >
-      <div className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
-      {/* <IndependentChild/> */}
-      {/* Main editor wrapper */}
+    <div className="relative">
       <div
-        className="w-screen h-screen relative flex flex-col justify-center items-center overflow-hidden"
-        style={{
-          background: "rgba(6, 26, 36, 0.4)",
-          boxShadow: "0 0 60px 0 rgba(15, 249, 204, 0.25)", // semi-transparent bright cyan glow
-        }}
+        className="flex flex-col items-center relative border-black
+      border border-cyan-900/60 bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200"
       >
-        <div className="flex items-center fixed top-12 left-10">
-          <a
-            href="/tasks"
-            className="font-medium transition-colors"
-            style={{ color: "#22d2c6" }} // Teal cyan
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#16b0a6")} // Darker teal on hover
-            onMouseLeave={(e) => (e.currentTarget.style.color = "#22d2c6")}
-          >
-            <ArrowLeft size={18} />
-          </a>
-        </div>
-        <SidebarOnHover2 />
-        {showAlertModal && (
-          <div className="fixed inset-0 flex items-center justify-center z-50">
-            <div
-              className="bg-gradient-to-br from-transparent via-cyan-900/30 to-transparent p-8 rounded-xl text-center w-100 drop-shadow-xl"
-              style={{ border: "1px solid #20e3d7" }}
-            >
-              <h2 className="text-[#0ff9cc] text-xl font-semibold mb-4">
-                Login to continue editing <b>{title}</b>
-              </h2>
-              <div className="flex justify-end">
-                <button
-                  onClick={() => setShowAlertModal(false)}
-                  className="mt-4 px-4 py-2 bg-gradient-to-r from-teal-600 to-teal-700 text-white rounded-lg mr-4"
-                >
-                  View Only
-                </button>
-                <button
-                  onClick={() => {
-                    localStorage.setItem("notesShareId", shareId);
-                    navigate("/login");
-                  }}
-                  className="mt-4 px-4 py-2 bg-gradient-to-r from-teal-600 to-teal-700 text-white rounded-lg"
-                >
-                  Login
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+  <div className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
+  <div className="absolute inset-0 opacity-40 pointer-events-none bg-gradient-to-br from-black to-black"></div>
+        <UpdatedDashboard2 />
         <div
-          className="h-auto w-auto border rounded-md pt-2 relative top-[-5px] z-10 flex flex-col"
+          className="h-auto w-auto border rounded-md pt-2 absolute top-[15px] left-[40px] z-50 flex flex-col"
           style={{
-            background: "rgba(6, 26, 36, 0.6)",
-            border: "2px solid #20e3d7",
+            border: "2px solid #23b5b5",
             marginBottom: "20px",
             minWidth: "100px",
           }}
         >
           <h1
-            className="editable-title mb-4"
+            className="editable-title mb-2"
             ref={h1Ref}
-            contentEditable={isEditable}
+            contentEditable
             suppressContentEditableWarning={true}
             spellCheck={false}
-            onKeyDown={
-              isLoggedIn ? (e) => handleInput(e) : () => displayModal()
-            }
+            onKeyDown={(e) => handleInput(e)}
             style={{
               cursor: "text",
               textAlign: "center",
               fontSize: "1.3rem",
               fontWeight: 400,
               fontFamily: "sans-serif",
-              color: "#0ff9cc",
-              backgroundColor: "rgba(6, 26, 36, 0.4)", // 👈 same as box bg
-              padding: "4px 16px 0",
+              color: "#23b5b5",
+              padding: "0 16px",
               borderRadius: "0px", // 👈 no rounded corners
               border: "none", // 👈 removed border
               outline: "none",
@@ -1556,64 +1917,10 @@ function LexicalEditor() {
             aria-label="Notes Title"
           />
         </div>
-        <div
-          className="h-[68%] w-[95%] border rounded-md pt-6 relative z-10 flex flex-col"
-          style={{
-            background: "rgba(6, 26, 36, 0.4)",
-            border: "2px solid #20e3d7",
-            borderTopLeftRadius: 0,
-            borderTopRightRadius: 0,
-          }}
-        >
-          {ispenactive && (
-            <div
-              className="rounded-lg shadow-lg relative px-10"
-              style={{ border: "none" }}
-            >
-              <LexicalComposer initialConfig={editorInitialConfig}>
-                <div className="relative">
-                  <RichTextPlugin
-                    contentEditable={
-                      <ContentEditable
-                        className="h-[380px] text-xl font-normal outline-none resize-none px-1"
-                        style={{ color: "#e4ffff" }}
-                        onKeyDown={isLoggedIn ? null : displayModal}
-                      />
-                    }
-                    placeholder={
-                      <span className="absolute top-0 left-4 pointer-events-none text-lg font-poppins text-cyan-200">
-                        <span className="smooth-typing"></span>
-                      </span>
-                    }
-                    ErrorBoundary={LexicalErrorBoundary}
-                  />
-                  <SaveToLocalStoragePlugin />
-                  <HistoryPlugin />
-                  <AutoFocusPlugin />
-                  <OnChangePlugin onChange={onChange} />
-                  <ToolbarPlugin
-                    openChatbot={() => setShowChatbot(true)}
-                    closeChatbot={() => setShowChatbot(false)}
-                    isLoggedIn={isLoggedIn}
-                    displayModal={displayModal}
-                  />
-                </div>
-                <SharePlugin
-                  title={title}
-                  saveTrigger={saveTrigger}
-                  isLoggedIn={isLoggedIn}
-                  displayModal={displayModal}
-                  shareId={shareId}
-                />
-              </LexicalComposer>
-            </div>
-          )}
-        </div>
+        <SharePlugin title={title} />
+        <Toolbar />
+        <Canvas />
       </div>
-
-      {/* Only render PenTool if state is true */}
-      <div>{showPenTool && <PenTool />}</div>
-      <SimpleChatbot open={showChatbot} onClose={() => setShowChatbot(false)} />
     </div>
   );
 }

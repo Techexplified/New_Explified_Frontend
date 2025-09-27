@@ -364,7 +364,7 @@ const NavBarSection = ({
   highlightMatch,
 }) => (
   <>
-    <div className="w-full pt-[30px] px-6 sm:px-12 lg:px-24 flex flex-col items-center gap-6 animate-fadeIn">
+    <div className="w-full pt-[30px] px-6 sm:px-12 lg:px-24 flex flex-col items-center gap-6 animate-fadeIn ">
       <div className="w-full max-w-screen-lg mx-auto flex flex-col items-center gap-6">
         {/* Heading */}
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-teal-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent mb-2 drop-shadow-lg transition-transform duration-500 hover:scale-105 hover:tracking-wider text-center">
@@ -397,23 +397,25 @@ const NavBarSection = ({
         </div>
 
         {/* Bottom Row - Nav buttons */}
-        <div className="flex gap-3 sm:gap-4 overflow-x-auto flex-nowrap animate-fadeInUp delay-200 w-full px-2 sm:px-4 justify-center">
-          {navItems
-            .filter((item) => item.name !== "Search")
-            .map((item) => (
-              <button
-                key={item.name}
-                type="button"
-                onClick={() => onNavClick(item.name)}
-                className={`px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm md:text-base font-medium transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95 whitespace-nowrap ${
-                  selectedTool === item.name
-                    ? "bg-gradient-to-r from-teal-600 to-teal-700 text-white shadow-lg shadow-teal-500/20 border border-teal-500"
-                    : "bg-black/20 border border-gray-600 text-gray-300 hover:bg-gray-700/60 hover:border-gray-500"
-                }`}
-              >
-                <span>{item.name}</span>
-              </button>
-            ))}
+        <div className="w-full flex justify-center ">
+          <div className="flex gap-3 sm:gap-4 flex-wrap justify-center animate-fadeInUp delay-200">
+            {navItems
+              .filter((item) => item.name !== "Search")
+              .map((item) => (
+                <button
+                  key={item.name}
+                  type="button"
+                  onClick={() => onNavClick(item.name)}
+                  className={`px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm md:text-base font-medium transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95 whitespace-nowrap ${
+                    selectedTool === item.name
+                      ? "bg-gradient-to-r from-teal-600 to-teal-700 text-white shadow-lg shadow-teal-500/20 border border-teal-500"
+                      : "bg-black/20 border border-gray-600 text-gray-300 hover:bg-gray-700/60 hover:border-gray-500"
+                  }`}
+                >
+                  <span>{item.name}</span>
+                </button>
+              ))}
+          </div>
         </div>
       </div>
     </div>
@@ -822,7 +824,7 @@ const MainDashboard = () => {
                 className="tool-card justify-center text-2xl font-bold text-minimal-white transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-minimal-primary/20 will-change-transform"
                 onClick={() => navigate("/expli")}
               >
-                Expli(+)
+                Expli
               </div>
               <div
                 className="tool-card justify-center transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-minimal-primary/20 will-change-transform"
@@ -872,7 +874,7 @@ const MainDashboard = () => {
               >
                 {/* Background overlay */}
                 {/* <div className="absolute inset-0 rounded-xl pointer-events-none bg-gradient-to-br from-black/50 to-black/50"></div> */}
-                <span className="relative z-10">Expli(+)</span>
+                <span className="relative z-10">Expli</span>
               </div>
 
               <div

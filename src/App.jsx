@@ -140,6 +140,7 @@ import PurchaseOrdersComp from "./client_component/PurchaseComp.jsx";
 import FlowstateLogin from "./client_component/FlowstateLogin.jsx";
 import DashboardComp from "./client_component/AI-dashboard.jsx";
 import FlowSenseLanding from "./expli/flowsense.jsx";
+import ExpliDashboard from "./expli/ExpliDashboard.jsx";
 function App() {
   usePageTracking();
   const navigate = useNavigate();
@@ -247,7 +248,7 @@ function App() {
             <Route path="/pdf-tools/sign" element={<Sign />} />
           </Route> */}
         <Route path="/lurph" element={<LurphLanding />}></Route>
-
+        <Route path="/notes" element={<LexicalEditor />} />
         <Route path="/" element={<UpdatedDashboard />}>
           <Route index element={<MainDashboard />}></Route>
           <Route path="/socials" element={<SocialsPage />}></Route>
@@ -257,15 +258,26 @@ function App() {
           <Route path="/tasks" element={<TaskManagerWithSidebar />} />
 
           <Route path="/chat" element={<CarPartsAssistant />} />
+          
           <Route path="/flowstate" element={<DashboardComp />} />
           <Route path="/flowsense/explified" element={<FlowSenseLanding />} />
           <Route path="/flowstate/login" element={<FlowstateLogin />} />
-          <Route path="/flowsense/explified/admin/login" element={<FlowstateLogin />} />
+          <Route
+            path="/flowsense/explified/admin/login"
+            element={<FlowstateLogin />}
+          />
           <Route path="/flowsense/chat" element={<SalesAssistant />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/flowsense/explified/admin" element={<Admin />} />
-          <Route path="flowsense/explified/admin/inventory" element={<InventoryComp />} />
-          <Route path="flowsense/explified/admin/purchaseOrder" element={<PurchaseOrdersComp />} />
+          <Route path="/explified/admin" element={<Admin />} />
+          <Route
+            path="flowsense/explified/admin/inventory"
+            element={<InventoryComp />}
+          />
+          <Route
+            path="flowsense/explified/admin/purchaseOrder"
+            element={<PurchaseOrdersComp />}
+          />
 
           <Route path="/history" element={<History />}></Route>
           {/* <Route path="/newlurph" element={<LurphLanding />}></Route> */}
@@ -287,7 +299,6 @@ function App() {
           <Route path="/socials/:id" element={<DetailedCard />}></Route>
           <Route path="/alltools" element={<AITools />}></Route>
           <Route path="/discover" element={<DiscoverPage />}></Route>
-          <Route path="/expli" element={<Trone />} />
           <Route path="/Meme" element={<Meme />} />
           <Route path="/ai-gif-generator" element={<GIFGenerator />} />
           <Route path="/video-meme-generator" element={<AIMemeGenerator />} />
@@ -383,10 +394,12 @@ function App() {
           <Route path="/zapier" element={<AutomatedVideoGenerator />} />
           <Route path="/*" element={<FlowstateLogin />} />
           <Route path="/notes" element={<LexicalEditor />} />
+          <Route path="/*" element={<ComingSoon />} />
           <Route path="/memory" element={<HistoryChat />} />
           <Route path="/locked" element={<LockedPage />} />
         </Route>
 
+        <Route path="/expli" element={<ExpliDashboard />} />
         {/* Tools Page */}
 
         {/* Landing Page */}

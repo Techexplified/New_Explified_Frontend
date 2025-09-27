@@ -1,5 +1,6 @@
 import { Sparkles, X, Zap, Bot, User, Copy, Check } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { formatText } from "../utils/data/TroneData";
 
 function ChatContainer({
   messages,
@@ -10,7 +11,7 @@ function ChatContainer({
   setEnabled,
   handleCloseChat,
   pid,
-  providerKeys,
+  onlyExpliOpen,
 }) {
   const chatContainerRef = useRef(null);
   const [copiedIndex, setCopiedIndex] = useState(null);
@@ -34,74 +35,24 @@ function ChatContainer({
     }
   };
 
-  // Format text with proper line breaks, code blocks, and lists
-  const formatText = (text) => {
-    if (!text) return "";
-
-    return (
-      text
-        // Handle code blocks (```code```)
-        .replace(
-          /```([\s\S]*?)```/g,
-          "<pre style=\"background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%); padding: 16px; border-radius: 12px; margin: 12px 0; overflow-x: auto; border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);\"><code style=\"font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace; font-size: 0.9em; line-height: 1.4;\">$1</code></pre>"
-        )
-        // Handle inline code (`code`)
-        .replace(
-          /`([^`]+)`/g,
-          "<code style=\"background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%); padding: 3px 8px; border-radius: 6px; font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace; font-size: 0.9em; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 1px 2px rgba(0,0,0,0.2);\">$1</code>"
-        )
-        // Handle bold text (**text** or __text__)
-        .replace(
-          /\*\*(.*?)\*\*/g,
-          "<strong style='font-weight: 600; color: rgba(255,255,255,0.95);'>$1</strong>"
-        )
-        .replace(
-          /__(.*?)__/g,
-          "<strong style='font-weight: 600; color: rgba(255,255,255,0.95);'>$1</strong>"
-        )
-        // Handle italic text (*text* or _text_)
-        .replace(
-          /\*(.*?)\*/g,
-          "<em style='font-style: italic; color: rgba(255,255,255,0.9);'>$1</em>"
-        )
-        .replace(
-          /_(.*?)_/g,
-          "<em style='font-style: italic; color: rgba(255,255,255,0.9);'>$1</em>"
-        )
-        // Handle numbered lists
-        .replace(
-          /^\d+\.\s+(.+)$/gm,
-          '<div style="margin: 6px 0; padding-left: 16px; position: relative;"><span style="position: absolute; left: 0; color: #23b5b5; font-weight: 600;">•</span> $1</div>'
-        )
-        // Handle bullet points
-        .replace(
-          /^[-•*]\s+(.+)$/gm,
-          '<div style="margin: 6px 0; padding-left: 16px; position: relative;"><span style="position: absolute; left: 0; color: #23b5b5; font-weight: 600;">•</span> $1</div>'
-        )
-        // Handle line breaks
-        .replace(/\n\n/g, "<br><br>")
-        .replace(/\n/g, "<br>")
-    );
-  };
-
   return (
     <div
       ref={chatContainerRef}
       className={
-        "flex-1 w-full  flex flex-col px-2 sm:px-3 overflow-y-auto scroll-smooth relative z-10 border border-gray-600 rounded-xl h-full backdrop-blur-md"
+        "flex-1 w-full bg-gradient-to-b from-gray-900/50 to-black/95 backdrop-blur-2xl  flex flex-col px-2 sm:px-3 overflow-y-auto scroll-smooth relative z-10 border border-gray-600 rounded-xl h-full"
       }
       style={{
         scrollBehavior: "smooth",
         paddingTop: "0",
         paddingBottom: "1rem",
-        background:
-          "linear-gradient(180deg, rgba(30,30,30,0.6) 0%, rgba(20,20,20,0.8) 100%)",
+        // background:
+        //   "linear-gradient(180deg, rgba(30,30,30,0.9) 0%, rgba(20,20,20,0.9) 100%)",
         scrollbarWidth: "thin",
         scrollbarColor: "#374151 transparent",
       }}
     >
       {/* Enhanced Header */}
-      <div className="sticky top-0 z-20 bg-gradient-to-r from-gray-900/95 to-gray-800/95 backdrop-blur-xl border-b border-gray-600/50 mb-4 rounded-t-xl -mx-2 sm:-mx-3 px-2 sm:px-3">
+      <div className="sticky top-0 z-20 bg-gradient-to-b from-gray-900/50 to-black/95 backdrop-blur-2xl border-b border-gray-600/50 mb-4 rounded-t-xl -mx-2 sm:-mx-3 px-2 sm:px-3">
         <div className="flex items-center justify-between py-3">
           {/* Left side: Icon + Tool Name */}
           <div className="flex items-center gap-3">
@@ -125,7 +76,7 @@ function ChatContainer({
           </div>
 
           {/* Right side: Controls */}
-          {(providerKeys?.gemini || providerKeys?.openai !== "") && (
+          {!onlyExpliOpen && (
             <div className="flex items-center gap-4">
               {/* Enhanced Toggle */}
               <div className="flex items-center gap-3">
@@ -162,7 +113,7 @@ function ChatContainer({
       </div>
 
       {/* Messages Container */}
-      <div className="w-full flex flex-col gap-6 px-1">
+      <div className="w-full flex flex-col gap-6 px-1 ">
         {(!messages || messages.length === 0) && (
           <div className="flex flex-col items-center justify-center h-full text-center mt-12 animate-fade-in">
             <div className="relative mb-6">
@@ -189,12 +140,12 @@ function ChatContainer({
             style={{ animationDelay: `${index * 0.1}s` }}
           >
             <div
-              className={`relative px-6 py-4 rounded-2xl text-sm break-words whitespace-pre-wrap backdrop-blur-sm shadow-xl border transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] ${
+              className={`relative px-6 py-4 rounded-2xl text-sm break-words whitespace-pre-wrap backdrop-blur-sm shadow-xl border transition-all duration-300 hover:shadow-2xl  ${
                 msg.isError
                   ? "border-red-500/50 bg-gradient-to-br from-red-500/20 to-red-600/10 text-red-200 shadow-red-500/20"
                   : msg.sender === "user"
                   ? "bg-gradient-to-br from-cyan-500/25 to-cyan-600/15 border-cyan-500/40 text-white shadow-cyan-500/20"
-                  : "bg-gradient-to-br from-gray-900/90 to-gray-800/70 border-gray-700/60 text-gray-200 shadow-gray-900/50"
+                  : "bg-gradient-to-br from-sky-500/25 to-sky-600/15 border-sky-500/40 text-white shadow-sky-500/20"
               }`}
               style={{
                 wordBreak: "break-word",
@@ -202,12 +153,12 @@ function ChatContainer({
             >
               {/* Message Header for Bot Messages */}
               {msg.sender === "bot" && (
-                <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-700/30">
+                <div className="flex items-center justify-between  pb-2 border-b border-gray-700/30">
                   <div className="flex items-center gap-2">
-                    <div className="p-1 bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 rounded-lg">
-                      <Bot className="w-3 h-3 text-cyan-400" />
+                    <div className="p-1 bg-gradient-to-br from-sky-500/20 to-sky-600/10 rounded-lg">
+                      <Bot className="w-3 h-3 text-sky-400" />
                     </div>
-                    <span className="text-cyan-400 text-xs font-semibold tracking-wide">
+                    <span className="text-sky-400 text-xs font-semibold tracking-wide">
                       AI ASSISTANT
                     </span>
                   </div>
@@ -228,10 +179,10 @@ function ChatContainer({
               {/* User Message Header */}
               {msg.sender === "user" && (
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="p-1 bg-gradient-to-br from-white/20 to-white/10 rounded-lg">
-                    <User className="w-3 h-3 text-white" />
+                  <div className="p-1 bg-gradient-to-br from-cyan-500/20 to-cyan-400/10 rounded-lg">
+                    <User className="w-3 h-3 text-cyan-400" />
                   </div>
-                  <span className="text-white/80 text-xs font-semibold tracking-wide">
+                  <span className="text-cyan-400 text-xs font-semibold tracking-wide">
                     YOU
                   </span>
                 </div>
