@@ -258,6 +258,7 @@ function App() {
           <Route path="/tasks" element={<TaskManagerWithSidebar />} />
 
           <Route path="/chat" element={<CarPartsAssistant />} />
+
           <Route path="/flowstate" element={<DashboardComp />} />
           <Route path="/flowsense/explified" element={<FlowSenseLanding />} />
           <Route path="/flowstate/login" element={<FlowstateLogin />} />
@@ -268,6 +269,7 @@ function App() {
           <Route path="/flowsense/chat" element={<SalesAssistant />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/flowsense/explified/admin" element={<Admin />} />
+          <Route path="/explified/admin" element={<Admin />} />
           <Route
             path="flowsense/explified/admin/inventory"
             element={<InventoryComp />}
@@ -391,13 +393,14 @@ function App() {
           <Route path="/presentation/create" element={<CreatePresentation />} />
           <Route path="/zapier" element={<AutomatedVideoGenerator />} />
           <Route path="/*" element={<FlowstateLogin />} />
-          <Route path="/notes" element={<LexicalEditor />} />
+
           <Route path="/*" element={<ComingSoon />} />
           <Route path="/memory" element={<HistoryChat />} />
           <Route path="/locked" element={<LockedPage />} />
         </Route>
 
         <Route path="/expli" element={<ExpliDashboard />} />
+        <Route path="/notes" element={<LexicalEditor />} />
         {/* Tools Page */}
 
         {/* Landing Page */}

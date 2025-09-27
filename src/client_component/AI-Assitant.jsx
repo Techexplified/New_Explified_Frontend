@@ -9,7 +9,7 @@ import {
   FiInfo,
   FiMic,
 } from "react-icons/fi";
-import ReactMarkdown from "react-markdown"; // ✅ Added import
+import ReactMarkdown from "react-markdown";
 
 const promptSuggestions = [
   { icon: <FiShoppingCart />, text: "Checking part availability" },
@@ -27,6 +27,10 @@ const webhookUrl =
 const CarPartsAssistant = () => {
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef(null);
+
+  // Admin button logic
+  const isLoggedIn =
+    typeof window !== "undefined" && localStorage.getItem("explified");
 
   useEffect(() => {
     if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
@@ -57,6 +61,7 @@ const CarPartsAssistant = () => {
       recognitionRef.current.start();
     }
   };
+
   const [input, setInput] = useState("");
   const [chat, setChat] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -107,12 +112,9 @@ const CarPartsAssistant = () => {
       if (!res.ok) throw new Error(`Error: ${res.status} ${res.statusText}`);
 
       const data = await res.json();
-      console.log("Webhook response:", data);
       const output = data[0]?.output || data.output || JSON.stringify(data);
       const parsed = parseBotResponse(output);
-      console.log("Parsed bot response:", parsed);
 
-      // Fallback: if parsed.raw is empty, use output or data as raw
       setChat((prev) => [
         ...prev,
         {
@@ -130,43 +132,38 @@ const CarPartsAssistant = () => {
 
   return (
     <div className="min-h-screen w-full bg-gray-900 flex flex-col">
+      {/* Admin Button at Top Right */}
+      <header className="fixed top-0 right-0 z-50 p-6">
+        <div
+          className="fixed z-50"
+          style={{
+            top: "50px", // move down
+            right: "40px", // move right
+          }}
+        >
+          {isLoggedIn && (
+            <a
+              href="/explified/admin"
+              className="bg-[#23b5b5] text-black px-5 py-2 rounded-full font-semibold hover:bg-[#1fa3a3] transition shadow-sm text-sm"
+              style={{ minWidth: 90, textAlign: "center" }}
+            >
+              Admin
+            </a>
+          )}
+        </div>
+      </header>
+
       {!firstMessageSent && (
         <div className="flex flex-1 items-center justify-center px-4 py-8 mt-20">
           <div className="max-w-4xl w-full text-center space-y-10">
             <div>
               <h1 className="text-4xl md:text-5xl font-extralight text-white leading-tight font-serif">
-                <span className="bg-gradient-to-r from-white via-[#23b5b5]/80 to-[#23b5b5]/80 text-transparent bg-clip-text font-semibold">
-                  AI Assistant
-                </span>
+                <span className="bg-gradient-to-r from-white via-[#23b5b5]/80 to-[#23b5b5]/80 text-transparent bg-clip-text font-semibold"></span>
                 <br />
                 <span className="text-white font-light">
-                  What car part do you need?
+                  How can we assist you?
                 </span>
               </h1>
-              <p className="mt-3 text-base text-gray-400 font-serif">
-                Your{" "}
-                <span className="text-[#23b5b5] font-semibold">
-                  smart assistant
-                </span>{" "}
-                for finding and ordering the right car parts.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-              {promptSuggestions.map((item, index) => (
-                <div
-                  key={index}
-                  onClick={() => setInput(item.text)}
-                  className="group flex flex-col items-start gap-3 p-4 bg-gray-800 border border-gray-700 rounded-xl shadow-sm transition hover:shadow-lg hover:border-[#23b5b5]/70 hover:scale-105 cursor-pointer"
-                >
-                  <div className="text-2xl text-[#23b5b5] group-hover:rotate-6 transition-transform">
-                    {item.icon}
-                  </div>
-                  <div className="text-sm font-medium text-gray-100">
-                    {item.text}
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         </div>
@@ -260,7 +257,6 @@ const CarPartsAssistant = () => {
         )}
       </div>
 
-      {/* Input Area */}
       {/* Input Area */}
       <div className="w-full fixed bottom-0 left-0 bg-gray-900 border-t border-gray-800 z-50 px-4 py-3">
         <div className="max-w-3xl mx-auto">
