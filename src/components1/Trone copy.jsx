@@ -1,16 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
-import SidebarOnHover from "../reusable_components/SidebarOnHover";
 import ExpliInput from "../expli/ExpliInput";
 import ExpliIntegration from "../expli/ExpliIntegration";
 import ChatContainer from "../expli/ChatContainer";
-import { Zap } from "lucide-react";
 import { AiOutlineOpenAI } from "react-icons/ai";
 import { RiGeminiLine } from "react-icons/ri";
 import { FaPlus } from "react-icons/fa6";
 import ExpliSidebar from "../expli/ExpliSidebar";
-import { INTEGRATION_PROVIDERS } from "../utils/data/TroneData";
 
 function Trone() {
   const [prompt, setPrompt] = useState("");
@@ -34,10 +31,10 @@ function Trone() {
     }
   });
 
-  const [selectedTool, setSelectedTool] = useState("Expli");
+  // const [selectedTool, setSelectedTool] = useState("expli");
 
   const [chatHistory, setChatHistory] = useState(() => {
-    const raw = localStorage.getItem("trone_chat_sessions1");
+    const raw = localStorage.getItem("expli_chat_sessions");
     return raw ? JSON.parse(raw) : [];
   });
 
@@ -96,7 +93,7 @@ function Trone() {
   // Persist sessions to localStorage whenever they change
   useEffect(() => {
     try {
-      localStorage.setItem("trone_chat_sessions1", JSON.stringify(chatHistory));
+      localStorage.setItem("expli_chat_sessions", JSON.stringify(chatHistory));
     } catch (e) {
       console.log(e);
     }
@@ -119,6 +116,42 @@ function Trone() {
       if (currentMessages.length === 0) {
         setSessionStartedAt(Date.now());
       }
+
+      let apiUrl = "";
+      let payload = {};
+      let headers = { "Content-Type": "application/json" };
+      let parseResponse = () => "No response received.";
+
+      apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${
+        import.meta.env.VITE_TRONE_GEMINI_API_KEY
+      }`;
+      payload = {
+        contents: [
+          {
+            parts: [
+              {
+                text: `Generate summary of this promt within 4-6 words${prompt}`,
+              },
+            ],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 2048,
+        },
+      };
+      parseResponse = (data) =>
+        data.candidates?.[0]?.content?.parts?.[0]?.text ||
+        "No response received.";
+
+      const res = await axios.post(apiUrl, payload, {
+        timeout: 30000,
+        headers,
+      });
+
+      const promptSummary = parseResponse(res.data);
 
       // Add user message only to enabled providers
       if (enabledProviders.expli) {
@@ -168,31 +201,30 @@ function Trone() {
           throw new Error(`No API key found for ${tool}.`);
 
         if (tool === "expli" && enabledProviders.expli) {
-          await handleDefault(userMessage, contextPrompt);
+          await handleDefault(userMessage, contextPrompt, promptSummary);
         }
         if (
           providerKeys?.gemini &&
           enabledProviders.gemini &&
           !closedChats.gemini
         ) {
-          await handleGemini(userMessage, contextPrompt);
+          await handleGemini(userMessage, contextPrompt, promptSummary);
         }
         if (
           providerKeys?.openai &&
           enabledProviders.openai &&
           !closedChats.openai
         ) {
-          await handleOpenAI(userMessage, contextPrompt);
+          await handleOpenAI(userMessage, contextPrompt, promptSummary);
         }
       } catch (err) {
         console.error("Error details:", err);
       } finally {
         setPrompt("");
-        // setIsTyping(false);
       }
     }
   };
-  const handleDefault = async (userMessage, contextPrompt) => {
+  const handleDefault = async (userMessage, contextPrompt, promptSummary) => {
     setIsTyping((prev) => ({ ...prev, expli: true }));
     try {
       let apiUrl = "";
@@ -254,6 +286,7 @@ function Trone() {
           {
             id: crypto.randomUUID(),
             question: userMessage.text,
+            promptSummary,
             answers: [{ tool: "expli", text: botText }],
             timestamp: new Date().toISOString(),
           },
@@ -290,7 +323,7 @@ function Trone() {
       setIsTyping((prev) => ({ ...prev, expli: false }));
     }
   };
-  const handleOpenAI = async (userMessage, contextPrompt) => {
+  const handleOpenAI = async (userMessage, contextPrompt, promptSummary) => {
     setIsTyping((prev) => ({ ...prev, openai: true }));
     try {
       let apiUrl = "";
@@ -345,6 +378,7 @@ function Trone() {
           {
             id: crypto.randomUUID(),
             question: userMessage.text,
+            promptSummary,
             answers: [{ tool: "openai", text: botText }],
             timestamp: new Date().toISOString(),
           },
@@ -381,7 +415,7 @@ function Trone() {
       setIsTyping((prev) => ({ ...prev, openai: false }));
     }
   };
-  const handleGemini = async (userMessage, contextPrompt) => {
+  const handleGemini = async (userMessage, contextPrompt, promptSummary) => {
     setIsTyping((prev) => ({ ...prev, gemini: true }));
     try {
       let apiUrl = "";
@@ -441,6 +475,7 @@ function Trone() {
           {
             id: crypto.randomUUID(),
             question: userMessage.text,
+            promptSummary,
             answers: [{ tool: "gemini", text: botText }],
             timestamp: new Date().toISOString(),
           },
@@ -553,8 +588,7 @@ function Trone() {
       `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
     );
   };
-
-  const handleCloseChat = (providerId) => {
+  const handleRemoveProvider = (providerId) => {
     const next = { ...(providerKeys || {}), [providerId]: "" };
     try {
       localStorage.setItem("provider_keys", JSON.stringify(next));
@@ -563,10 +597,14 @@ function Trone() {
     }
     setProviderKeys(next);
   };
+  // True if Expli is the only open chat
+  const onlyExpliOpen =
+    (closedChats.openai || !providerKeys.openai) &&
+    (closedChats.gemini || !providerKeys.gemini);
 
   return (
     <div className="flex bg-black relative text-white h-screen">
-      <div className="absolute inset-0  opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-900 to-transparent"></div>
+      <div className="absolute inset-0  opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-400 to-transparent"></div>
 
       <ExpliSidebar
         onAddClick={newChat}
@@ -580,54 +618,65 @@ function Trone() {
         setShowIntegrationsModal={setShowIntegrationsModal}
         closedChats={closedChats}
         setClosedChats={setClosedChats}
+        handleRemoveProvider={handleRemoveProvider}
       />
 
       <div className="overflow-x-auto h-screen w-screen flex flex-col">
         {/* Chat + Input inside same box */}
-        <div className="w-full flex-1 border border-cyan-900/60 shadow-[0_0_0_1px_rgba(0,255,255,0.06),0_0_24px_rgba(0,255,255,0.07)] bg-gradient-to-br from-black via-gray-950 to-black p-4 sm:p-5 flex flex-col gap-4 relative">
+        <div className="w-full  flex-1 border border-cyan-900/60 shadow-[0_0_0_1px_rgba(0,255,255,0.06),0_0_24px_rgba(0,255,255,0.07)] bg-gradient-to-br from-black via-[#23b5b5] to-black p-4 sm:p-5 flex flex-col gap-4 relative">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 opacity-40 pointer-events-none bg-gradient-to-br from-black to-black"></div>
+
           {/* Select tool */}
-          <div className="text-2xl font-bold text-left w-full px-4 py-1 text-[#23b5b5]">
-            <select
-              value={selectedTool}
-              onChange={(e) => {
-                const selected = e.target.value;
+          {/* {activeChats.length <= 1 && (
+            <div className="text-2xl font-bold text-left w-full px-4 py-1 text-[#23b5b5]">
+              <select
+                value={selectedTool}
+                onChange={(e) => {
+                  const selected = e.target.value;
 
-                // If user chooses "Expli" → just set directly
-                if (selected === "expli") {
-                  setSelectedTool(selected);
-                  return;
-                }
-                // Check if this provider has a key in providerKeys
-                if (providerKeys[selected]) {
-                  // Already integrated → allow selecting
-                  setSelectedTool(selected);
-                } else {
-                  // Not integrated → open integrations modal instead
-                  setShowIntegrationsModal(true);
+                  if (selected === "expli") {
+                    setSelectedTool(selected);
+                    setClosedChats({ openai: true, gemini: true });
+                    return;
+                  }
 
-                  // Reset dropdown back to previous value so UI doesn’t falsely show it
-                  e.target.value = selectedTool;
-                }
-              }}
-              className="relative z-50 bg-gray-800/80 text-white text-xs rounded-lg px-3 py-1.5 border border-gray-600/50 
-      focus:border-minimal-primary/50 focus:outline-none transition-colors duration-200"
-            >
-              <option value="expli">Expli</option>
-              {INTEGRATION_PROVIDERS.map((tool) => (
-                <option key={tool.id} value={tool.id}>
-                  {tool.name}
-                </option>
-              ))}
-            </select>
-          </div>
+                  if (providerKeys[selected]) {
+                    // open only the selected chat, close others
+                    setSelectedTool(selected);
+                    setClosedChats({
+                      openai: selected !== "openai",
+                      gemini: selected !== "gemini",
+                    });
+                  } else {
+                    setShowIntegrationsModal(true);
+                    e.target.value = selectedTool; // keep previous if not integrated
+                  }
+                }}
+                className="relative z-50 bg-gray-800/80 text-white text-xs rounded-lg px-3 py-1.5 border border-gray-600/50 focus:border-minimal-primary/50 focus:outline-none transition-colors duration-200"
+              >
+                <option value="expli">Expli</option>
+                {INTEGRATION_PROVIDERS.map((tool) => (
+                  <option key={tool.id} value={tool.id}>
+                    {tool.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )} */}
+
+          <ExpliIntegration
+            providerKeys={providerKeys}
+            setProviderKeys={setProviderKeys}
+            showIntegrationsModal={showIntegrationsModal}
+            setShowIntegrationsModal={setShowIntegrationsModal}
+          />
 
           {/* Chat Containers Row */}
           <div
             className={`flex gap-4  ${
-              closedChats?.openai && closedChats?.gemini
-                ? "w-[70%] mx-auto"
-                : "flex-1"
-            }  pt-12 h-full`}
+              onlyExpliOpen ? "w-[70%] mx-auto" : "flex-1"
+            }  pt-20 h-full`}
           >
             <ChatContainer
               messages={currentMessages}
@@ -638,7 +687,7 @@ function Trone() {
               setEnabled={(val) =>
                 setEnabledProviders((prev) => ({ ...prev, expli: val }))
               }
-              providerKeys={providerKeys}
+              onlyExpliOpen={onlyExpliOpen}
             />
 
             {providerKeys?.openai && !closedChats.openai && (
@@ -688,13 +737,6 @@ function Trone() {
           />
         </div>
       </div>
-
-      <ExpliIntegration
-        providerKeys={providerKeys}
-        setProviderKeys={setProviderKeys}
-        showIntegrationsModal={showIntegrationsModal}
-        setShowIntegrationsModal={setShowIntegrationsModal}
-      />
     </div>
   );
 }

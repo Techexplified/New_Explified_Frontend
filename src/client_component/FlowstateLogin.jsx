@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode"; // fixed import (jwtDecode is default export)
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { loginUser } from "../utils/auth_slice/UserSlice";
 import { useDispatch } from "react-redux";
 import Logo from "../reusable_components/Logo";
@@ -14,6 +14,7 @@ const initialState = {
 
 export default function FlowstateLogin() {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
 
   const [formData, setFormData] = useState(initialState);
@@ -37,7 +38,10 @@ export default function FlowstateLogin() {
       localStorage.setItem("explified", JSON.stringify(res.data.user));
       dispatch(loginUser(res.data.user));
 
-      navigate("/");
+      // Use React Router state for redirect after login
+      const redirectPath =
+        location.state?.from?.pathname || "/flowsense/explified";
+      navigate(redirectPath);
     } catch (error) {
       console.error(
         "Error during login:",
@@ -130,8 +134,12 @@ export default function FlowstateLogin() {
                         email: decoded?.email,
                       })
                     );
+                    localStorage.setItem("explified", JSON.stringify(decoded));
                     dispatch(loginUser(decoded));
-                    navigate(`/admin`);
+                    // Use React Router state for redirect after login
+                    const redirectPath =
+                      location.state?.from?.pathname || "/flowsense/explified";
+                    navigate(redirectPath);
                   } catch (error) {
                     console.error("Error decoding JWT:", error);
                   }

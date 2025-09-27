@@ -141,8 +141,17 @@ const UpdatedDashboard = () => {
     }
   }, [sidebarOpen]);
 
-  // Remove global mouse tracking; use a small top hover zone instead
-  // to prevent accidental triggers in the middle of the screen.
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (e.clientY <= 450) {
+        setShowNavbar(true);
+      } else {
+        setShowNavbar(false);
+      }
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
 
   useEffect(() => {
     const pathname = location.pathname;
@@ -182,20 +191,12 @@ const UpdatedDashboard = () => {
   // ---------------- JSX ----------------
   return (
     <div className="min-h-screen bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 flex flex-col overflow-hidden">
-      {/* Top hover zone to reveal navbar */}
-      <div
-        className="fixed top-0 left-0 w-full h-14 z-40"
-        style={{ background: "transparent" }}
-        onMouseEnter={() => setShowNavbar(true)}
-      />
       {/* Header / Navbar */}
       <header
-        className={`fixed border-minimal-border/50 px-6  transition-transform duration-300 z-50 top-0 left-0 w-full
+        className={`fixed border-minimal-border/50 px-6 transition-transform duration-300 z-50 top-0 left-0 w-full
           ${showNavbar ? "translate-y-0" : "-translate-y-full"}
         `}
         style={{ minHeight: "56px", background: "transparent" }}
-        onMouseEnter={() => setShowNavbar(true)}
-        onMouseLeave={() => setShowNavbar(false)}
       >
         <div className="flex items-start justify-between w-full">
           <div className="flex items-center gap-2 pt-1 ml-auto">
@@ -388,11 +389,6 @@ const UpdatedDashboard = () => {
           sidebarOpen ? "ml-80" : "ml-0"
         } w-full transition-all duration-300`}
       >
-        {/* FILTER BAR */}
-
-        {/* MAIN CONTENT SLOT */}
-        
-        <Outlet />
       </div>
     </div>
   );

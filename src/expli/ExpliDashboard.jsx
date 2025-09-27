@@ -1,41 +1,19 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Outlet, useNavigate} from "react-router-dom";
+import { Outlet, useNavigate, useLocation, Link } from "react-router-dom";
 import {
-  Home,
-  History,
   Zap,
   LayoutDashboard,
-  BoomBox,
   PencilRuler,
   Workflow,
   CircleUserRound,
-  MessageSquareQuote,
-  Star,
-  BrainCircuit,
-  Youtube,
-  Captions,
-  Linkedin,
-  Video,
-  ImagePlay,
-  SquarePercent,
-  BotMessageSquare,
   Plus,
-  SectionIcon,
   Grip,
-  Settings,
   File,
   FileText,
-  ArrowDownUp,
   Search,
-  MessageCircleMore,
-  Database,
-  TvMinimalPlay,
-  Users,
 } from "lucide-react";
-
-import logo from "../assets/logos/explified_logo.png";
-import UserModal from "./UserModal";
+import Trone from "../components1/Trone";
+import ExpliIntegration from "./ExpliIntegration";
 
 // ---------------- FILTER ITEMS ----------------
 const navItems = [
@@ -73,76 +51,42 @@ const NavBarSection = ({ selectedTool, onNavClick }) => (
 );
 
 // ---------------- DASHBOARD ----------------
-const UpdatedDashboard = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeNav, setActiveNav] = useState("");
+const ExpliDashboard = () => {
   const [selectedTool, setSelectedTool] = useState("");
-  const [showContent, setShowContent] = useState(true);
   const [showNavbar, setShowNavbar] = useState(true);
-  // const [lastScrollY, setLastScrollY] = useState(0);
-  // const [showUserModal, setShowUserModal] = useState(false);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isToolsOpen, setIsToolsOpen] = useState(false);
-  // const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const [isPlusOpen, setIsPlusOpen] = useState(false);
+  const [showIntegrationsModal, setShowIntegrationsModal] = useState(false);
+  const [sidebarPinned, setSidebarPinned] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [providerKeys, setProviderKeys] = useState(() => {
+    try {
+      const raw = localStorage.getItem("provider_keys");
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) {
+      console.log(e);
+      return {};
+    }
+  });
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  const tools = [
-    { name: "", icon: LayoutDashboard, description: "Shows key metrics" },
-    {
-      name: "Workflows",
-      icon: Workflow,
-      description: "Automates task sequences",
-    },
-  ];
-
-  const plusTools = [{ name: "Files", icon: File, path: "/task-manager" }];
-
-  const aiTools = [
-    { name: "Integrations", icon: Zap, path: "/integrations" },
-    { name: "Workflows", icon: Workflow, path: "/workflows" },
-    { name: "Ai tools", icon: PencilRuler, path: "/aitools" },
-  ];
-
   // ---------------- Handlers ----------------
   function PlusClick() {
-    setIsDrawerOpen((prev) => !prev);
     navigate("/expli");
   }
 
-  function ToolsClick(e) {
-    e.stopPropagation();
-    setIsToolsOpen((prev) => !prev);
-  }
-
-  // ---------------- Effects ----------------
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (
-        !e.target.closest(".tools-dropdown") &&
-        !e.target.closest(".tools-button")
-      ) {
-        setIsToolsOpen(false);
+    const handleMouseMove = (e) => {
+      if (e.clientY <= 450) {
+        setShowNavbar(true);
+      } else {
+        setShowNavbar(false);
       }
     };
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
-
-  useEffect(() => {
-    if (sidebarOpen) {
-      const timer = setTimeout(() => setShowContent(true), 300);
-      return () => clearTimeout(timer);
-    } else {
-      setShowContent(false);
-    }
-  }, [sidebarOpen]);
-
-  // Remove global mouse tracking; use a small top hover zone instead
-  // to prevent accidental triggers in the middle of the screen.
 
   useEffect(() => {
     const pathname = location.pathname;
@@ -168,37 +112,29 @@ const UpdatedDashboard = () => {
     timeoutId = setTimeout(() => setIsOpen(false), 200);
   };
 
-  // ---------------- NavBarClick ----------------
-  const handleNavBarClick = (navName) => {
-    setSelectedTool(navName);
-    if (navName === "Start") navigate("/");
-    else if (navName === "Search") navigate("/");
-    else if (navName === "Recent") navigate("/");
-    else if (navName === "All Apps") navigate("/");
-    else if (navName === "Workflows") navigate("/workflows");
-    else if (navName === "Integrations") navigate("/integrations");
-  };
-
   // ---------------- JSX ----------------
   return (
     <div className="min-h-screen bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 flex flex-col overflow-hidden">
-      {/* Top hover zone to reveal navbar */}
-      <div
-        className="fixed top-0 left-0 w-full h-14 z-40"
-        style={{ background: "transparent" }}
-        onMouseEnter={() => setShowNavbar(true)}
-      />
       {/* Header / Navbar */}
       <header
-        className={`fixed border-minimal-border/50 px-6  transition-transform duration-300 z-50 top-0 left-0 w-full
+        className={`fixed border-minimal-border/50 px-6 transition-transform duration-300 z-50 top-0 left-0 w-full
           ${showNavbar ? "translate-y-0" : "-translate-y-full"}
         `}
         style={{ minHeight: "56px", background: "transparent" }}
-        onMouseEnter={() => setShowNavbar(true)}
-        onMouseLeave={() => setShowNavbar(false)}
       >
-        <div className="flex items-start justify-between w-full">
-          <div className="flex items-center gap-2 pt-1 ml-auto">
+        <div className="flex items-center justify-between w-full">
+          <div
+            className={`flex items-center justify-between gap-2 pt-1 transition-all duration-300 ${
+              isSidebarOpen || sidebarPinned ? "ml-60" : ""
+            }`}
+          >
+            <ExpliIntegration
+              setShowIntegrationsModal={setShowIntegrationsModal}
+              isSidebarOpen={isSidebarOpen}
+              sidebarPinned={sidebarPinned}
+            />
+          </div>
+          <div className="flex items-center gap-2 pt-1 ">
             {/* Grid Icon */}
             {(() => {
               const tool = {
@@ -227,11 +163,7 @@ const UpdatedDashboard = () => {
             })()}
 
             {/* Plus Icon */}
-            <div
-              className="relative"
-              onMouseEnter={() => setIsPlusOpen(true)}
-              onMouseLeave={() => setIsPlusOpen(false)}
-            >
+            <div className="relative">
               <button
                 onClick={PlusClick}
                 className={`flex items-center justify-center rounded-xl transition-all duration-200 transform
@@ -296,7 +228,6 @@ const UpdatedDashboard = () => {
                     {[
                       { icon: Plus, to: "/expli" },
                       { icon: FileText, to: "/tasks" },
-                      // { icon: Zap, to: "/integrations" },
                     ].map(({ icon: Icon, to }, idx) => (
                       <button
                         key={idx}
@@ -315,24 +246,22 @@ const UpdatedDashboard = () => {
 
                   {/* Second row of Quick Tools */}
                   <div className="flex gap-2 w-full mb-3">
-                    {[
-                      // { icon: Database, to: "/memory" },
-                      // { icon: Users, to: "/socials" },
-                      { icon: Search, to: "/discover" },
-                    ].map(({ icon: Icon, to }, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => {
-                          navigate(to);
-                          setIsOpen(false);
-                        }}
-                        className="flex-1 h-9 flex items-center justify-center rounded-lg border border-[#23b5b5]/40 bg-transparent
+                    {[{ icon: Search, to: "/discover" }].map(
+                      ({ icon: Icon, to }, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            navigate(to);
+                            setIsOpen(false);
+                          }}
+                          className="flex-1 h-9 flex items-center justify-center rounded-lg border border-[#23b5b5]/40 bg-transparent
                        hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] hover:shadow-sm hover:shadow-cyan-500/20
                        text-white transition-all duration-200"
-                      >
-                        <Icon className="w-4 h-4" />
-                      </button>
-                    ))}
+                        >
+                          <Icon className="w-4 h-4" />
+                        </button>
+                      )
+                    )}
                   </div>
 
                   {/* Workflows Section */}
@@ -383,19 +312,24 @@ const UpdatedDashboard = () => {
       </header>
 
       {/* CONTENT */}
-      <div
-        className={`${
-          sidebarOpen ? "ml-80" : "ml-0"
-        } w-full transition-all duration-300`}
-      >
+      <div className={` w-full transition-all duration-300`}>
         {/* FILTER BAR */}
 
         {/* MAIN CONTENT SLOT */}
-        
-        <Outlet />
+
+        <Trone
+          providerKeys={providerKeys}
+          setProviderKeys={setProviderKeys}
+          showIntegrationsModal={showIntegrationsModal}
+          setShowIntegrationsModal={setShowIntegrationsModal}
+          isSidebarOpen={isSidebarOpen}
+          sidebarPinned={sidebarPinned}
+          setIsSidebarOpen={setIsSidebarOpen}
+          setSidebarPinned={setSidebarPinned}
+        />
       </div>
     </div>
   );
 };
 
-export default UpdatedDashboard;
+export default ExpliDashboard;

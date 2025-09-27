@@ -24,7 +24,7 @@ function ExpliInput({
   return (
     <div className="w-full z-10">
       <div className="rounded-2xl max-w-2xl mx-auto border-2 border-cyan-500/20 bg-gradient-to-r from-gray-900/90 to-gray-800/80 backdrop-blur-lg shadow-2xl">
-        <div className="p-4">
+        <div className="p-2 sm:p-4">
           <div className="flex items-center gap-4">
             {/* Input Field */}
             <div className="flex-1 relative">
@@ -35,7 +35,7 @@ function ExpliInput({
                 onKeyDown={handleSubmit}
                 onPaste={handlePaste}
                 placeholder="Type your message here..."
-                className="w-full bg-black/50 border border-gray-700/50 rounded-xl px-4 py-3 text-white placeholder-gray-400 text-sm focus:outline-none focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-300"
+                className="w-full bg-black/50 border border-gray-700/50 rounded-xl sm:px-4 sm:py-3 px-3 py-2 text-white placeholder-gray-400 text-sm focus:outline-none focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-300"
                 disabled={isTyping}
                 maxLength={2000}
               />
@@ -50,7 +50,7 @@ function ExpliInput({
               <button
                 type="button"
                 onClick={!isTyping ? handleMicClick : undefined}
-                className={`w-11 h-11 rounded-xl flex items-center justify-center border transition-all duration-300 group ${
+                className={`w-7 h-7 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center border transition-all duration-300 group ${
                   isRecording
                     ? "border-red-500/40 bg-red-500/10"
                     : "bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-cyan-500/30 hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20"
@@ -70,7 +70,7 @@ function ExpliInput({
               <button
                 type="button"
                 onClick={() => fileInputRef.current.click()} // ✅ trigger file input
-                className="w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border border-cyan-500/30 flex items-center justify-center hover:from-cyan-500/30 hover:to-cyan-600/20 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20 group"
+                className="w-7 h-7 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border border-cyan-500/30 flex items-center justify-center hover:from-cyan-500/30 hover:to-cyan-600/20 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20 group"
                 title="Attach file"
               >
                 <FiPaperclip className="text-lg text-minimal-primary" />
@@ -92,7 +92,7 @@ function ExpliInput({
                     handleSubmit({ key: "Enter" });
                   }
                 }}
-                className="w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-600/10  border border-cyan-500/30 flex items-center justify-center hover:from-cyan-500/30 hover:to-cyan-600/20 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20 group"
+                className="w-7 h-7 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-600/10  border border-cyan-500/30 flex items-center justify-center hover:from-cyan-500/30 hover:to-cyan-600/20 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20 group"
                 title="Send"
               >
                 <FiSend className="text-lg text-minimal-primary" />

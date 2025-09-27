@@ -9,17 +9,16 @@ import {
   MoreVertical,
   Share2,
   Edit3,
-  Archive,
+  X,
 } from "lucide-react";
 import { useState, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { INTEGRATION_PROVIDERS } from "../utils/data/TroneData";
+import { Link } from "react-router-dom";
+import { INTEGRATION_PROVIDERS, formatText } from "../utils/data/TroneData";
 import { AiOutlineOpenAI } from "react-icons/ai";
 import { RiGeminiLine } from "react-icons/ri";
 
 function ExpliSidebar({
   link,
-  id,
   chatHistory = [],
   setChatHistory,
   setCurrentMessages,
@@ -29,14 +28,19 @@ function ExpliSidebar({
   tools = [],
   closedChats,
   setClosedChats,
+  handleRemoveProvider,
+  sidebarPinned,
+  isSidebarOpen,
+  setSidebarPinned,
+  setIsSidebarOpen,
 }) {
   // const [selectedProvider, setSelectedProvider] = useState("expli");
-  const [sidebarPinned, setSidebarPinned] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  // const [sidebarPinned, setSidebarPinned] = useState(false);
+  // const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState(""); // ✅ new state
   const [searchProviders, setSearchProviders] = useState(""); // ✅ new state
-  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(null);
+  const [showSearch, setShowSearch] = useState(false);
 
   const filteredHistory = useMemo(() => {
     if (!searchQuery.trim()) return chatHistory;
@@ -75,235 +79,198 @@ function ExpliSidebar({
     });
   };
   return (
-    <>
-      <div
-        onMouseEnter={() => !sidebarPinned && setIsOpen(true)}
-        onMouseLeave={() => !sidebarPinned && setIsOpen(false)}
-        className={`h-screen ${
-          isOpen || sidebarPinned ? "w-72  px-3" : "w-0 px-0 overflow-hidden"
-        } relative z-50 overflow-y-scroll sidebar-scroll bg-gradient-to-b from-gray-900/50 to-black/95 backdrop-blur-2xl 
+    <div
+      onMouseEnter={() => !sidebarPinned && setIsSidebarOpen(true)}
+      onMouseLeave={() => !sidebarPinned && setIsSidebarOpen(false)}
+      className={`h-screen ${
+        isSidebarOpen || sidebarPinned
+          ? "w-72  px-3"
+          : "w-0 px-0 overflow-hidden"
+      } relative z-50 overflow-y-scroll sidebar-scroll bg-gradient-to-b from-gray-900/50 to-black/95 backdrop-blur-2xl 
         border-r border-minimal-primary/30 shadow-2xl shadow-minimal-primary/10
         flex flex-col justify-between transition-all duration-500 ease-in-out`}
-      >
-        {/* Top section */}
-        <div className="mt-4 space-y-4">
+    >
+      {/* Top section */}
+      {isSidebarOpen && (
+        <div>
           {/* Header */}
-          <div className="border-b border-minimal-primary/30 pb-2">
-            <div className="flex items-center justify-between gap-3 mb-2">
-              {isOpen && (
-                <>
-                  <h1 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white via-minimal-primary to-cyan-400 bg-clip-text text-transparent">
-                    Expli
-                  </h1>
-                  <div className="flex items-center justify-between gap-1">
-                    {/* Workflow button */}
-
-                    {/* Pin button */}
-                    <button
-                      onClick={() => {
-                        setSidebarPinned(!sidebarPinned);
-                      }}
-                      className={`p-2 rounded-lg transition-all duration-300 hover:scale-110 ${
-                        sidebarPinned
-                          ? "bg-minimal-primary/20 text-minimal-primary shadow-lg shadow-minimal-primary/25"
-                          : "bg-gray-800/50 text-gray-400 hover:bg-gray-700/50 hover:text-white"
-                      }`}
-                    >
-                      {sidebarPinned ? <PinOff size={15} /> : <Pin size={15} />}
-                    </button>
-                  </div>
-                </>
-              )}
+          <div className="flex items-center justify-between gap-3 border-b border-minimal-primary/30 py-4 mb-4">
+            <h1 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white via-minimal-primary to-cyan-400 bg-clip-text text-transparent">
+              Expli
+            </h1>
+            <div className="flex items-center justify-between gap-1">
+              {/* Pin button */}
+              <button
+                onClick={() => {
+                  setSidebarPinned(!sidebarPinned);
+                }}
+                className={`p-2 rounded-lg transition-all duration-300 hover:scale-110 ${
+                  sidebarPinned
+                    ? "bg-minimal-primary/20 text-minimal-primary shadow-lg shadow-minimal-primary/25"
+                    : "bg-gray-800/50 text-gray-400 hover:bg-gray-700/50 hover:text-white"
+                }`}
+              >
+                {sidebarPinned ? <PinOff size={15} /> : <Pin size={15} />}
+              </button>
             </div>
           </div>
 
-          {/* Only render content when open */}
-          {isOpen && (
-            <div>
-              {/* New Chat */}
-              <div
-                className="w-full  overflow-hidden bg-gradient-to-r from-gray-800/80 to-gray-700/80 
+          <button
+            onClick={onAddClick}
+            className="w-full group relative overflow-hidden bg-gradient-to-r from-gray-800/80 to-gray-700/80 
                 hover:from-minimal-primary/20 hover:to-cyan-500/20 border border-gray-600/50 hover:border-minimal-primary/50
-                text-white font-medium py-2 px-3 rounded-xl transition-all duration-300 hover:scale-105 
-                hover:shadow-lg hover:shadow-minimal-primary/10 flex items-center  gap-3"
-              >
-                <button onClick={onAddClick}>
-                  <MessageSquare size={20} />
-                </button>
+                text-white font-medium py-1.5 px-2 rounded-xl transition-all duration-300 hover:scale-105 
+                hover:shadow-lg hover:shadow-minimal-primary/10"
+          >
+            <div
+              className="absolute inset-0 bg-gradient-to-r from-minimal-primary/0 to-minimal-primary/10 
+                opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            />
+            <div className="relative text-sm flex items-center justify-center gap-2">
+              <MessageSquare size={14} />
+              <span>New Chat</span>
+            </div>
+          </button>
+
+          <div>
+            {/* Available Models */}
+            <div className="mt-6 ">
+              <div className="flex justify-between items-center">
+                <h2 className="text-lg font-semibold mb-1">Active Keys</h2>
                 <button
-                  onClick={() => navigate(`w?id=${id}`, { relative: "path" })}
-                  className="p-2 rounded-md hover:bg-gray-800 transition-colors"
+                  onClick={() => setShowSearch((prev) => !prev)}
+                  className="p-1 rounded hover:bg-gray-700/50 transition"
                 >
-                  <Workflow size={18} className="text-white" />
+                  {showSearch ? (
+                    <X size={14} className="text-gray-400" />
+                  ) : (
+                    <Search size={14} className="text-gray-400" />
+                  )}
                 </button>
               </div>
 
-              {/* Available Models */}
-              <div className="mt-4">
-                <h2 className="text-lg font-semibold mb-3">Active Keys</h2>
-
-                {/* ✅ Input Section (Search Bar) */}
-                <div className="relative mb-2">
+              {/* ✅ Input Section (Search Bar) */}
+              {showSearch && (
+                <div className="relative mb-2 mt-2">
                   <input
                     type="text"
                     value={searchProviders}
                     onChange={(e) => setSearchProviders(e.target.value)}
                     placeholder="Search keys..."
                     className="w-full bg-gray-800/80 text-white text-xs rounded-lg px-3 py-1.5 pr-8 border border-gray-600/50 
-      focus:border-minimal-primary/50 focus:outline-none transition-colors duration-200"
-                  />
-                  <Search
-                    size={14}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
+            focus:border-minimal-primary/50 focus:outline-none transition-colors duration-200"
                   />
                 </div>
+              )}
 
-                {/* ✅ Filter + Render Providers */}
-                <div className="space-y-2">
-                  {INTEGRATION_PROVIDERS.filter((provider) =>
-                    provider.name
-                      .toLowerCase()
-                      .includes(searchProviders.toLowerCase())
-                  )
-                    .slice(0, 2)
-                    .map((provider) => {
-                      const hasKey = Boolean(tools[provider.id]); // key exists in providerKeys
-                      const isClosed = closedChats?.[provider.id]; // state from parent
-                      let state = "disabled"; // default
+              {/* ✅ Filter + Render Providers */}
+              <div className="space-y-2">
+                {INTEGRATION_PROVIDERS.filter((provider) =>
+                  provider.name
+                    .toLowerCase()
+                    .includes(searchProviders.toLowerCase())
+                )
+                  .slice(0, 2)
+                  .map((provider) => {
+                    const hasKey = Boolean(tools[provider.id]); // key exists in providerKeys
+                    const isClosed = closedChats?.[provider.id]; // state from parent
+                    let state = "disabled"; // default
 
-                      if (hasKey && !isClosed) {
-                        state = "active"; // ✅ key present + not closed
-                      } else if (hasKey && isClosed) {
-                        state = "inactive"; // ✅ key present + closed
-                      }
+                    if (hasKey && !isClosed) {
+                      state = "active"; // ✅ key present + not closed
+                    } else if (hasKey && isClosed) {
+                      state = "inactive"; // ✅ key present + closed
+                    }
 
-                      return (
-                        <div
-                          key={provider.id}
-                          className={`flex items-center gap-2 p-2 text-xs rounded-lg border transition-colors
+                    return (
+                      <div
+                        key={provider.id}
+                        className={`flex items-center gap-2 p-2 text-xs rounded-lg border transition-colors
             ${
               state === "active"
                 ? "bg-[#23b5b5]/20 border-[#23b5b5]"
                 : state === "inactive"
-                ? "bg-gray-800/50 border-yellow-500/50"
+                ? "bg-gray-800/50 border-gray-500/50"
                 : "bg-gray-800/50 border-gray-700 opacity-50 cursor-not-allowed"
             }`}
-                        >
-                          {/* name + icon */}
-                          <div className="text-white">{provider.icon}</div>
-                          <div className="text-white">{provider.name}</div>
+                      >
+                        {/* name + icon */}
+                        <div className="text-white">{provider.icon}</div>
+                        <div className="text-white">{provider.name}</div>
 
-                          {/* status */}
-                          <div className="ml-auto flex items-center gap-1">
-                            {state === "active" && (
+                        {/* status */}
+                        <div className="ml-auto flex items-center gap-1">
+                          {state === "active" && (
+                            <>
                               <span className="text-green-400 text-xs font-semibold">
                                 Active
                               </span>
-                            )}
+                              <button
+                                onClick={() =>
+                                  handleRemoveProvider(provider.id)
+                                }
+                                className="ml-1 p-1 rounded-full bg-gray-700 hover:bg-gray-600 transition"
+                              >
+                                <X size={12} className="text-white" />
+                              </button>
+                            </>
+                          )}
 
-                            {state === "inactive" && (
-                              <>
-                                <span className="text-red-400 text-xs font-semibold">
-                                  Inactive
-                                </span>
-                                {/* + button */}
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    // ✅ flip closedChats for this provider
-                                    setClosedChats((prev) => ({
-                                      ...prev,
-                                      [provider.id]: false,
-                                    }));
-                                  }}
-                                  className="ml-1 p-1 rounded-full bg-gray-700 hover:bg-gray-600 transition"
-                                >
-                                  <Plus size={12} className="text-white" />
-                                </button>
-                              </>
-                            )}
-
-                            {state === "disabled" && (
-                              <span className="text-gray-300 text-xs">
-                                Disabled
+                          {state === "inactive" && (
+                            <>
+                              <span className="text-red-400 text-xs font-semibold">
+                                Inactive
                               </span>
-                            )}
-                          </div>
+                              {/* + button */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // ✅ flip closedChats for this provider
+                                  setClosedChats((prev) => ({
+                                    ...prev,
+                                    [provider.id]: false,
+                                  }));
+                                }}
+                                className="ml-1 p-1 rounded-full bg-gray-700 hover:bg-gray-600 transition"
+                              >
+                                <Plus size={12} className="text-white" />
+                              </button>
+                            </>
+                          )}
+
+                          {state === "disabled" && (
+                            <span className="text-gray-300 text-xs">
+                              Disabled
+                            </span>
+                          )}
                         </div>
-                      );
-                    })}
-                </div>
+                      </div>
+                    );
+                  })}
               </div>
+            </div>
 
-              {/* Chat History */}
-              <div className="bg-gray-900/30 rounded-xl p-1 ">
-                {/* Filtered History */}
-                {filteredHistory && filteredHistory.length > 0 ? (
-                  <div className="space-y-2 mt-28">
-                    {filteredHistory.map((item, index) => (
-                      <div
-                        key={item.id}
-                        onClick={() => handleHistoryClick(item)}
-                        className="group bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700/30 
-    hover:border-minimal-primary/30 rounded-lg px-3 pt-1 pb-1.5 transition-all duration-200 cursor-pointer"
-                      >
-                        {/* Top row: question + 3-dot menu */}
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm text-gray-300 group-hover:text-white truncate">
-                            {item.question}
-                          </p>
-
-                          {/* 3-dot dropdown menu */}
-                          <div className="relative">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation(); // prevent triggering history click
-                                setMenuOpen(
-                                  menuOpen === item.id ? null : item.id
-                                );
-                              }}
-                              className="p-1 rounded hover:bg-gray-700/50 text-gray-400 hover:text-white"
-                            >
-                              <MoreVertical size={16} />
-                            </button>
-
-                            {menuOpen === item.id && (
-                              <div className="absolute right-0 mt-2 w-36 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-[100]">
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    console.log("Share clicked:", item);
-                                  }}
-                                  className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-t-lg"
-                                >
-                                  <Share2 size={14} /> Share
-                                </button>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    console.log("Rename clicked:", item);
-                                  }}
-                                  className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-300 hover:bg-gray-700"
-                                >
-                                  <Edit3 size={14} /> Rename
-                                </button>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const updatedHistory = chatHistory.filter(
-                                      (h) => h.id !== item.id
-                                    );
-                                    setChatHistory(updatedHistory);
-                                    setMenuOpen(null);
-                                  }}
-                                  className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-400 hover:bg-red-500/20 rounded-b-lg"
-                                >
-                                  <Trash2 size={14} /> Delete
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        </div>
+            {/* Chat History */}
+            <div className="bg-gray-900/30 mt-14 ">
+              <div className="text-lg font-semibold mb-1"> Chat History</div>
+              {/* Filtered History */}
+              {filteredHistory && filteredHistory.length > 0 ? (
+                <div className="space-y-2">
+                  {filteredHistory.map((item, index) => (
+                    <div
+                      key={item.id}
+                      onClick={() => handleHistoryClick(item)}
+                      className="group bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700/30 
+    hover:border-minimal-primary/30 rounded-lg px-2 pt-1 pb-1.5 transition-all duration-200 cursor-pointer"
+                    >
+                      {/* Top row: question + 3-dot menu */}
+                      <div className="flex items-center justify-between">
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html: formatText(item.promptSummary),
+                          }}
+                          className="text-sm text-gray-300 group-hover:text-white truncate "
+                        />
 
                         {/* Bottom row: tool icons */}
                         <div className="flex gap-2 mt-1">
@@ -312,47 +279,116 @@ function ExpliSidebar({
                               key={ans.tool}
                               className="text-[10px] px-1.5 py-0.5 rounded bg-gray-700 text-gray-300 flex items-center justify-center"
                             >
-                              {ans.tool === "expli" && <Plus size={15} />}
+                              {ans.tool === "expli" && <Plus size={10} />}
                               {ans.tool === "openai" && (
-                                <AiOutlineOpenAI size={15} />
+                                <AiOutlineOpenAI size={10} />
                               )}
                               {ans.tool === "gemini" && (
-                                <RiGeminiLine size={15} />
+                                <RiGeminiLine size={10} />
                               )}
                             </span>
                           ))}
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center h-32 text-gray-500">
-                    <div className="text-center">
-                      <MessageSquare
-                        size={24}
-                        className="mx-auto mb-2 opacity-50"
-                      />
-                      <p className="text-sm">No chat history found</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
 
-        {/* Bottom Section */}
-        {isOpen && (
-          <div className="my-4 space-y-4">
-            <Link to={link}>
-              <div className="underline text-[#23b5b5] flex items-center justify-center gap-2">
-                <span>Learn More</span>
-              </div>
-            </Link>
+                        {/* 3-dot dropdown menu */}
+                        <div className="relative">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation(); // prevent triggering history click
+                              setMenuOpen(
+                                menuOpen === item.id ? null : item.id
+                              );
+                            }}
+                            className="pl-1 rounded hover:bg-gray-700/50 text-gray-400 hover:text-white"
+                          >
+                            <MoreVertical size={16} />
+                          </button>
+
+                          {menuOpen === item.id && (
+                            <div className="absolute right-0 mt-2 w-36 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-[100]">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  console.log("Share clicked:", item);
+                                }}
+                                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 rounded-t-lg"
+                              >
+                                <Share2 size={14} /> Share
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  console.log("Rename clicked:", item);
+                                }}
+                                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-300 hover:bg-gray-700"
+                              >
+                                <Edit3 size={14} /> Rename
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const updatedHistory = chatHistory.filter(
+                                    (h) => h.id !== item.id
+                                  );
+                                  setChatHistory(updatedHistory);
+                                  setMenuOpen(null);
+                                }}
+                                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-400 hover:bg-red-500/20 rounded-b-lg"
+                              >
+                                <Trash2 size={14} /> Delete
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Bottom row: tool icons */}
+                      {/* <div className="flex gap-2 mt-1">
+                        {item.answers.map((ans) => (
+                          <span
+                            key={ans.tool}
+                            className="text-[10px] px-1.5 py-0.5 rounded bg-gray-700 text-gray-300 flex items-center justify-center"
+                          >
+                            {ans.tool === "expli" && <Plus size={10} />}
+                            {ans.tool === "openai" && (
+                              <AiOutlineOpenAI size={10} />
+                            )}
+                            {ans.tool === "gemini" && (
+                              <RiGeminiLine size={10} />
+                            )}
+                          </span>
+                        ))}
+                      </div> */}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-32 text-gray-500">
+                  <div className="text-center">
+                    <MessageSquare
+                      size={24}
+                      className="mx-auto mb-2 opacity-50"
+                    />
+                    <p className="text-sm">No chat history found</p>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        )}
-      </div>
-    </>
+        </div>
+      )}
+
+      {/* Bottom Section */}
+      {isSidebarOpen && (
+        <div className="my-4">
+          <Link to={link}>
+            <div className="underline text-[#23b5b5] flex items-center justify-center gap-2">
+              <span>Learn More</span>
+            </div>
+          </Link>
+        </div>
+      )}
+    </div>
   );
 }
 

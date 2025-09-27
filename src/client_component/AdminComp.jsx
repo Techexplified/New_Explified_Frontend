@@ -20,14 +20,14 @@ const Admin = () => {
       {/* Centered buttons */}
       <div className="flex flex-1 flex-col items-center justify-center gap-10 px-4">
         <Link
-          to="/admin/training"
+          to="/flowsense/explified/admin/training"
           className="w-96 h-36 bg-[#23b5b5] hover:bg-[#1a8a8a] text-white text-3xl font-semibold rounded-xl shadow-lg transition flex items-center justify-center gap-4"
         >
           <LuBrain size={32} />
           Training
         </Link>
         <Link
-          to="/admin/inventory"
+          to="/flowsense/explified/admin/inventory"
           className="w-96 h-36 bg-[#23b5b5] hover:bg-[#1a8a8a] text-white text-3xl font-semibold rounded-xl shadow-lg transition flex items-center justify-center gap-4"
         >
           <FiBox size={32} />
@@ -35,7 +35,7 @@ const Admin = () => {
         </Link>
 
         <Link
-          to="/admin/purchaseOrder"
+          to="/flowsense/explified/admin/purchaseOrder"
           className="w-96 h-36 bg-[#23b5b5] hover:bg-[#1a8a8a] text-white text-3xl font-semibold rounded-xl shadow-lg transition flex items-center justify-center gap-4"
         >
           <FiClipboard size={32} />
