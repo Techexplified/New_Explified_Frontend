@@ -9,6 +9,7 @@ import { RiGeminiLine } from "react-icons/ri";
 import { FaPlus } from "react-icons/fa6";
 import ExpliSidebar from "../expli/ExpliSidebar";
 import IntegrationModal from "../expli/IntegrationModal";
+import { Menu, X } from "lucide-react";
 
 function Trone({
   providerKeys,
@@ -615,6 +616,12 @@ function Trone({
     <div className="flex bg-black relative text-white h-screen">
       <div className="absolute inset-0  opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-400 to-transparent"></div>
 
+      <button
+        onClick={() => setIsSidebarOpen((prev) => !prev)}
+        className="absolute top-3 left-4 z-50 p-2 sm:hidden rounded-lg bg-gray-800/70 hover:bg-gray-700/70 border border-gray-600"
+      >
+        {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
+      </button>
       <ExpliSidebar
         onAddClick={newChat}
         chatHistory={chatHistory}
@@ -633,9 +640,9 @@ function Trone({
         setSidebarPinned={setSidebarPinned}
       />
 
-      <div className="overflow-x-auto h-screen w-screen flex flex-col">
+      <div className="overflow-x-auto relative h-screen w-screen flex flex-col">
         {/* Chat + Input inside same box */}
-        <div className="w-full  flex-1 border border-cyan-900/60 shadow-[0_0_0_1px_rgba(0,255,255,0.06),0_0_24px_rgba(0,255,255,0.07)] bg-gradient-to-br from-black via-[#23b5b5] to-black p-4 sm:p-5 flex flex-col gap-4 relative">
+        <div className="w-full flex-1 border border-cyan-900/60 shadow-[0_0_0_1px_rgba(0,255,255,0.06),0_0_24px_rgba(0,255,255,0.07)] bg-gradient-to-br from-black via-[#136565] to-black p-4 sm:p-5 flex flex-col gap-4 relative">
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-40 pointer-events-none bg-gradient-to-br from-black to-black"></div>
           {/* 
@@ -656,7 +663,7 @@ function Trone({
           <div
             className={`flex gap-4 ${
               onlyExpliOpen ? "w-full sm:w-[70%] mx-auto" : "flex-1"
-            } pt-20 h-full overflow-x-auto flex-nowrap [&>*]:min-w-[350px]`}
+            } pt-20 h-full overflow-x-auto flex-nowrap [&>*]:min-w-[320px]`}
           >
             <ChatContainer
               messages={currentMessages}
@@ -704,18 +711,20 @@ function Trone({
               />
             )}
           </div>
-
-          {/* Input Box Below Chats */}
-          <ExpliInput
-            prompt={prompt}
-            handleInputChange={handleInputChange}
-            handleSubmit={handleSubmit}
-            handlePaste={handlePaste}
-            isTyping={isTyping.expli}
-            handleMicClick={handleMicClick}
-            isRecording={isRecording}
-          />
         </div>
+
+        {/* Input Box Below Chats */}
+        <ExpliInput
+          prompt={prompt}
+          handleInputChange={handleInputChange}
+          handleSubmit={handleSubmit}
+          handlePaste={handlePaste}
+          isTyping={isTyping.expli}
+          handleMicClick={handleMicClick}
+          isRecording={isRecording}
+          isSidebarOpen={isSidebarOpen}
+          sidebarPinned={sidebarPinned}
+        />
       </div>
     </div>
   );
