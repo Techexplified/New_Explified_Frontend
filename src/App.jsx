@@ -141,6 +141,7 @@ import FlowstateLogin from "./client_component/FlowstateLogin.jsx";
 import DashboardComp from "./client_component/AI-dashboard.jsx";
 import FlowSenseLanding from "./expli/flowsense.jsx";
 import ExpliDashboard from "./expli/ExpliDashboard.jsx";
+import TestMain from "./components/subLayoutComponents/TestMain.jsx";
 function App() {
   usePageTracking();
   const navigate = useNavigate();
@@ -251,6 +252,8 @@ function App() {
         <Route path="/notes" element={<LexicalEditor />} />
         <Route path="/" element={<UpdatedDashboard />}>
           <Route index element={<MainDashboard />}></Route>
+          <Route path="/testmain" element={<TestMain />}></Route>
+
           <Route path="/socials" element={<SocialsPage />}></Route>
           <Route path="/history" element={<History />}></Route>
           <Route path="/canvas" element={<Canvas />}></Route>

@@ -60,11 +60,11 @@ import {
 } from "react-icons/si";
 import { MdBusiness } from "react-icons/md";
 const navItems = [
-  { name: "Recent", icon: null, active: false, badge: null },
-  { name: "Start", icon: null, active: false, badge: null },
-  { name: "All Apps", icon: null, active: false, badge: null },
-  { name: "Workflows", icon: null, active: false, badge: null },
-  { name: "Integrations", icon: null, active: false, badge: null },
+  { name: "Recent", icon: FileText, active: false, badge: null },
+  { name: "Start", icon: Play, active: false, badge: null },
+  { name: "All Apps", icon: Database, active: false, badge: null },
+  { name: "Workflows", icon: Zap, active: false, badge: null },
+  { name: "Integrations", icon: Plus, active: false, badge: null },
   { name: "Search", icon: Search, active: true, badge: null },
 ];
 
@@ -301,10 +301,18 @@ const RenderMyIntegrations = () => {
 
   return (
     <>
-      <p className="p-4 w-full text-2xl text-minimal-white tracking-tighter">
+      <p className="p-4 w-full md:text-3xl font-bold bg-gradient-to-tr from-teal-300 to-cyan-900 bg-clip-text text-transparent text-minimal-white tracking-tighter">
         Integrations
       </p>
-      <div className="border-t border-gray-600 w-full mb-6"></div>
+
+      <div className="relative">
+        <div className="flex items-center justify-center w-full mb-6">
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent to-emerald-400"></div>
+
+          <div className="flex-1 h-px bg-gradient-to-l from-transparent to-emerald-400"></div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
         {myIntegrations.map((tool, index) => (
           <div
@@ -364,55 +372,80 @@ const NavBarSection = ({
   highlightMatch,
 }) => (
   <>
-    <div className="w-full pt-[30px] px-6 sm:px-12 lg:px-24 flex flex-col items-center gap-6 animate-fadeIn ">
+    <div className="w-full pt-[30px] px-6 sm:px-12 lg:px-24 flex flex-col items-center gap-6 animate-fadeIn">
       <div className="w-full max-w-screen-lg mx-auto flex flex-col items-center gap-6">
         {/* Heading */}
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-teal-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent mb-2 drop-shadow-lg transition-transform duration-500 hover:scale-105 hover:tracking-wider text-center">
-          Explified
-        </h1>
+        <div className="relative text-center mb-12">
+          {/* <div className="absolute top-4 left-8 w-10 h-10 bg-cyan-400/30 rounded-full blur-sm animate-pulse"></div>
+          <div className="absolute top-12 right-12 w-10 h-10 bg-teal-300/20 rounded-full blur-sm animate-ping"></div>
+          <div className="absolute bottom-8 left-16 w-8 h-8 bg-purple-600/40 rounded-full blur-sm animate-bounce"></div>
+          <div className="absolute bottom-4 right-8 w-12 h-12 bg-cyan-300/25 rounded-full blur-sm animate-pulse"></div>
+          <div className="absolute top-8 left-1/2 w-7 h-7 bg-teal-400/35 rounded-full blur-sm animate-ping"></div> */}
 
-        {/* Top Row - Search */}
-        <div className="flex justify-center w-full px-2">
-          {navItems
-            .filter((item) => item.name === "Search")
-            .map((item) => (
-              <div
-                key={item.name}
-                className="relative w-full max-w-md sm:max-w-lg md:max-w-2xl animate-slideDown"
-              >
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors group-hover:text-teal-400" />
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  value={searchQuery}
-                  onChange={handleSearch}
-                  className={`w-full bg-black/50 border border-gray-600 rounded-2xl pl-12 pr-4 py-3 sm:py-4 text-sm sm:text-base text-white placeholder-gray-400 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-teal-500/10 ${
-                    selectedTool === item.name
-                      ? "bg-[#23b5b5] font-semibold"
-                      : ""
-                  }`}
-                />
-              </div>
-            ))}
+          {/* Professional animated background elements */}
+
+          <div className="absolute top-1/4 left-1/4 w-66 h-66 bg-teal-500/10 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-teal-500/5 rounded-full blur-3xl animate-pulse delay-500" />
+
+          <h1 className="text-6xl font-bold bg-gradient-to-r from-cyan-400 via-teal-300 to-purple-600 bg-clip-text text-transparent mb-4 animate-slideDown">
+            Explified
+          </h1>
+          <p className="text-gray-400 text-lg max-w-2xl mx-auto animate-fadeInUp delay-200">
+            Transform your workflow with AI-powered tools and seamless
+            automation
+          </p>
+        </div>
+
+        {/* Search Bar */}
+        <div className="relative w-[80%] mx-auto mb-8 animate-fadeInUp delay-300">
+          <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search tools, workflows, and integrations..."
+            value={searchQuery}
+            onChange={handleSearch}
+            className="w-full bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 rounded-2xl pl-16 pr-6 py-4 text-white placeholder-gray-400 focus:outline-none focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-300 hover:border-gray-700/80"
+          />
         </div>
 
         {/* Bottom Row - Nav buttons */}
-        <div className="w-full flex justify-center ">
-          <div className="flex gap-3 sm:gap-4 flex-wrap justify-center animate-fadeInUp delay-200">
+        {/* <div className="flex gap-3 sm:gap-4 overflow-x-auto flex-nowrap animate-fadeInUp delay-200 w-full px-2 sm:px-4 justify-center">
+          {navItems
+            .filter((item) => item.name !== "Search")
+            .map((item) => (
+              <button
+                key={item.name}
+                type="button"
+                onClick={() => onNavClick(item.name)}
+                className={`px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm md:text-base font-medium transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95 whitespace-nowrap ${
+                  selectedTool === item.name
+                    ? "bg-gradient-to-r from-teal-600 to-teal-700 text-white shadow-lg shadow-teal-500/20 border border-teal-500"
+                    : "bg-black/20 border border-gray-600 text-gray-300 hover:bg-gray-700/60 hover:border-gray-500"
+                }`}
+              >
+                <span>{item.name}</span>
+              </button>
+            ))}
+        </div> */}
+
+        {/* Navigation */}
+        <div className="flex justify-center mb-8 animate-fadeInUp delay-400">
+          <div className="flex gap-2 bg-gray-900/40 backdrop-blur-sm border border-gray-800/60 rounded-2xl p-2">
             {navItems
               .filter((item) => item.name !== "Search")
               .map((item) => (
                 <button
                   key={item.name}
-                  type="button"
                   onClick={() => onNavClick(item.name)}
-                  className={`px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm md:text-base font-medium transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95 whitespace-nowrap ${
+                  className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
                     selectedTool === item.name
-                      ? "bg-gradient-to-r from-teal-600 to-teal-700 text-white shadow-lg shadow-teal-500/20 border border-teal-500"
-                      : "bg-black/20 border border-gray-600 text-gray-300 hover:bg-gray-700/60 hover:border-gray-500"
+                      ? "bg-gradient-to-r from-cyan-500 to-teal-800 text-white shadow-lg"
+                      : "text-gray-400 hover:text-white hover:bg-gray-800/60"
                   }`}
                 >
-                  <span>{item.name}</span>
+                  {item.icon && <item.icon className="w-4 h-4" />}
+                  {item.name}
                 </button>
               ))}
           </div>
@@ -474,6 +507,54 @@ const MainDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
 
+  // Define start section items for search
+  const startItems = [
+    {
+      title: "Expli(+)",
+      description: "Advanced AI assistant for complex tasks and analysis",
+      route: "/expli",
+      category: "Start",
+      icon: "Sparkles",
+      type: "start",
+    },
+    {
+      title: "Notes",
+      description: "Create and manage your personal notes and documentation",
+      route: "/tasks",
+      category: "Start",
+      icon: "FileText",
+      type: "start",
+    },
+    {
+      title: "Memory",
+      description: "Store and retrieve important information using AI memory",
+      route: "/memory",
+      category: "Start",
+      icon: "Database",
+      type: "start",
+    },
+    {
+      title: "Search",
+      description: "Search across all your tools, workflows, and integrations",
+      route: "/search",
+      category: "Start",
+      icon: "Search",
+      type: "start",
+    },
+  ];
+
+  // Define integration items for search
+  const integrationItems = [
+    {
+      title: "Explified Engine",
+      description: "A platform to share videos and content",
+      route: "/integrations",
+      category: "Integrations",
+      icon: "Youtube",
+      type: "integration",
+    },
+  ];
+
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
@@ -483,20 +564,55 @@ const MainDashboard = () => {
       return;
     }
 
-    // Tools that match in title
-    const titleMatches = allTools.filter((tool) =>
-      tool.title.toLowerCase().includes(query)
+    // Add type property to existing arrays for identification
+    const toolsWithType = allTools.map((tool) => ({ ...tool, type: "tool" }));
+    const workflowsWithType = sampleWorkflows.map((workflow) => ({
+      ...workflow,
+      type: "workflow",
+      route: "/locked", // workflows go to locked page
+    }));
+
+    // Combine all searchable items
+    const allSearchableItems = [
+      ...toolsWithType,
+      ...workflowsWithType,
+      ...startItems,
+      ...integrationItems,
+    ];
+
+    // Search in title first
+    const titleMatches = allSearchableItems.filter((item) =>
+      item.title.toLowerCase().includes(query)
     );
 
-    // Tools that match in description but not already in titleMatches
-    const descriptionMatches = allTools.filter(
-      (tool) =>
-        tool.description.toLowerCase().includes(query) &&
-        !titleMatches.includes(tool)
+    // Search in description but not already in titleMatches
+    const descriptionMatches = allSearchableItems.filter(
+      (item) =>
+        item.description.toLowerCase().includes(query) &&
+        !titleMatches.find(
+          (match) => match.title === item.title && match.type === item.type
+        )
     );
 
-    // Combine results with title matches first
-    const results = [...titleMatches, ...descriptionMatches];
+    // Search in category but not already in previous matches
+    const categoryMatches = allSearchableItems.filter(
+      (item) =>
+        item.category &&
+        item.category.toLowerCase().includes(query) &&
+        !titleMatches.find(
+          (match) => match.title === item.title && match.type === item.type
+        ) &&
+        !descriptionMatches.find(
+          (match) => match.title === item.title && match.type === item.type
+        )
+    );
+
+    // Combine results with title matches first, then description, then category
+    const results = [
+      ...titleMatches,
+      ...descriptionMatches,
+      ...categoryMatches,
+    ];
 
     setSearchResults(results);
   };
@@ -547,6 +663,7 @@ const MainDashboard = () => {
   };
 
   const menuRef = useRef(null);
+
   const onToggleTool = (toolName) => {
     setSelectedTool(toolName);
     if (selectedTool === toolName) {
@@ -740,8 +857,13 @@ const MainDashboard = () => {
 
   return (
     <>
-      <div className="w-full relative px-5 min-h-screen flex flex-col items-center bg-black">
-        <div className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
+      <div className="w-full relative px-5 min-h-screen flex flex-col items-center bg-black pb-10">
+        {/* Animated Background Elements */}
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-teal-500/5 rounded-full blur-3xl animate-pulse delay-500" />
+        </div>
         <div>
           <div
             className="absolute left-0 top-0 h-full w-6 z-30"
@@ -804,17 +926,175 @@ const MainDashboard = () => {
           />
         </div>
 
+        {/* Search Results Section */}
+        {searchQuery && searchResults.length > 0 && (
+          <div className="max-w-[1480px] w-full animate-fadeUp will-change-[opacity,transform] mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-cyan-800 via-teal-700 to-emerald-900 bg-clip-text text-transparent">
+                Search Results for
+                {/* "{searchQuery}" */}
+              </h2>
+              {/* <span className="text-gray-400 text-sm">
+                {searchResults.length} result
+                {searchResults.length !== 1 ? "s" : ""} found
+              </span> */}
+            </div>
+
+            {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {searchResults.map((item, index) => {
+                const IconComponent = iconMap[item.icon];
+
+                // Different styling based on item type
+                const getItemTypeStyle = (type) => {
+                  switch (type) {
+                    case "workflow":
+                      return {
+                        border: "border-purple-500/40",
+                        shadow: "shadow-purple-500/10",
+                        iconBg: "from-purple-500/20 to-purple-600/30",
+                        iconColor: "text-purple-400",
+                        badge: "Workflow",
+                      };
+                    case "start":
+                      return {
+                        border: "border-emerald-500/40",
+                        shadow: "shadow-emerald-500/10",
+                        iconBg: "from-emerald-500/20 to-emerald-600/30",
+                        iconColor: "text-emerald-400",
+                        badge: "Start",
+                      };
+                    case "integration":
+                      return {
+                        border: "border-orange-500/40",
+                        shadow: "shadow-orange-500/10",
+                        iconBg: "from-orange-500/20 to-orange-600/30",
+                        iconColor: "text-orange-400",
+                        badge: "Integration",
+                      };
+                    default: // tool
+                      return {
+                        border: "border-cyan-500/40",
+                        shadow: "shadow-cyan-500/10",
+                        iconBg: "from-cyan-500/20 to-teal-600/30",
+                        iconColor: "text-cyan-400",
+                        badge: "Tool",
+                      };
+                  }
+                };
+
+                const typeStyle = getItemTypeStyle(item.type);
+
+                return (
+                  <div
+                    key={`${item.type}-${index}`}
+                    onClick={() => {
+                      if (item.type === "tool") {
+                        addRecentTool(item);
+                        setRecentTools(getRecentTools());
+                      }
+                      navigate(item.route);
+                    }}
+                    className={`group relative bg-gradient-to-br from-gray-900/60 to-gray-800/40 backdrop-blur-sm border border-gray-700/50 hover:${typeStyle.border} rounded-2xl p-4 hover:shadow-lg hover:${typeStyle.shadow} transition-all duration-300 cursor-pointer hover:scale-[1.02]`}
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-10 h-10 bg-gradient-to-br ${typeStyle.iconBg} rounded-xl flex items-center justify-center ${typeStyle.iconColor}`}
+                        >
+                          {IconComponent && (
+                            <IconComponent className="w-5 h-5" />
+                          )}
+                        </div>
+                        <div>
+                          <h3 className="text-white font-semibold text-sm group-hover:text-cyan-300 transition-colors">
+                            {highlightMatch(item.title, searchQuery)}
+                          </h3>
+                          <div className="flex items-center gap-2">
+                            {item.category && (
+                              <span className="text-xs text-gray-500">
+                                {item.category}
+                              </span>
+                            )}
+                            <span
+                              className={`text-xs px-2 py-1 rounded-full bg-gray-800/60 ${typeStyle.iconColor}`}
+                            >
+                              {typeStyle.badge}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <p
+                      className="text-gray-300 text-xs leading-relaxed mb-3 overflow-hidden"
+                      style={{
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                      }}
+                    >
+                      {highlightMatch(item.description, searchQuery)}
+                    </p>
+
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-gray-500">
+                        {item.usage || item.users || "New"}{" "}
+                        {item.users ? "users" : "users"}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        {item.trending && (
+                          <span className="text-emerald-400 flex items-center gap-1">
+                            <Sparkles className="w-3 h-3" />
+                            Trending
+                          </span>
+                        )}
+                        {item.recommended && (
+                          <span className="text-yellow-400 flex items-center gap-1">
+                            <Sparkles className="w-3 h-3" />
+                            Recommended
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div> */}
+          </div>
+        )}
+
+        {/* Empty Search State */}
+        {searchQuery && searchResults.length === 0 && (
+          <div className="max-w-[1480px] w-full animate-fadeUp will-change-[opacity,transform] mb-8">
+            <div className="text-center py-12 border-2 border-dashed border-gray-700 rounded-xl">
+              <Search className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+              <p className="text-gray-400 mb-2">
+                No results found for "{searchQuery}"
+              </p>
+              <p className="text-gray-500 text-sm">
+                Try searching with different keywords or browse our tools below
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Start Section */}
         {selectedTools === "Start" && (
           <div
             className="max-w-[1480px] w-full animate-fadeUp will-change-[opacity,transform]"
             ref={startRef}
           >
-            <p className="p-4 w-full text-2xl text-minimal-white tracking-tighter">
+            <p className="p-4 w-full md:text-3xl font-bold bg-gradient-to-tr from-teal-300 to-emerald-900 bg-clip-text text-transparent text-minimal-white tracking-tighter">
               Start
             </p>
-            <div className="border-t border-gray-600 w-full mb-6"></div>
 
+            <div className="relative">
+              <div className="flex items-center justify-center w-full mb-6">
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent to-emerald-400"></div>
+
+                <div className="flex-1 h-px bg-gradient-to-l from-transparent to-emerald-400"></div>
+              </div>
+            </div>
             {/* main dashboard */}
             <div
               className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6"
@@ -824,7 +1104,7 @@ const MainDashboard = () => {
                 className="tool-card justify-center text-2xl font-bold text-minimal-white transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-minimal-primary/20 will-change-transform"
                 onClick={() => navigate("/expli")}
               >
-                Expli
+                Expli(+)
               </div>
               <div
                 className="tool-card justify-center transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-minimal-primary/20 will-change-transform"
@@ -860,11 +1140,17 @@ const MainDashboard = () => {
             ref={recentRef}
           >
             {/* Section Header */}
-            <p className="p-4 w-full text-2xl text-minimal-white tracking-tighter">
+            <p className="p-4 w-full md:text-3xl font-bold bg-gradient-to-tr from-teal-300 to-emerald-900 bg-clip-text text-transparent text-minimal-white tracking-tighter">
               Recent
             </p>
-            <div className="border-t border-gray-600 w-full mb-6"></div>
 
+            <div className="relative">
+              <div className="flex items-center justify-center w-full mb-6">
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent to-cyan-400"></div>
+
+                <div className="flex-1 h-px bg-gradient-to-l from-transparent to-emerald-400"></div>
+              </div>
+            </div>
             {/* Grid of Recent Tools */}
             <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
               {/* Special Cards */}
@@ -874,7 +1160,7 @@ const MainDashboard = () => {
               >
                 {/* Background overlay */}
                 {/* <div className="absolute inset-0 rounded-xl pointer-events-none bg-gradient-to-br from-black/50 to-black/50"></div> */}
-                <span className="relative z-10">Expli</span>
+                <span className="relative z-10">Expli(+)</span>
               </div>
 
               <div
@@ -969,11 +1255,19 @@ const MainDashboard = () => {
             className="max-w-[1480px] w-full animate-fadeUp will-change-[opacity,transform]"
             ref={allToolsRef}
           >
-            <p className="p-4 w-full text-2xl text-minimal-white tracking-tighter">
-              All Apps
+            <p className="p-4 w-full md:text-3xl font-bold bg-gradient-to-tr from-teal-300 to-emerald-900 bg-clip-text text-transparent text-minimal-white tracking-tighter">
+              Workflows
             </p>
-            <div className="border-t border-gray-600 w-full mb-6"></div>
 
+            <div className="relative">
+              <div className="flex items-center justify-center w-full mb-6">
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent to-emerald-400"></div>
+                {/* <div className="px-4">
+                  <div className="w-4 h-4 border-2 border-emerald-400 rotate-45 bg-gray-900"></div>
+                </div> */}
+                <div className="flex-1 h-px bg-gradient-to-l from-transparent to-emerald-400"></div>
+              </div>
+            </div>
             <div className="flex gap-4 w-full">
               <div className="h-fit w-full">
                 <div
@@ -1051,10 +1345,19 @@ const MainDashboard = () => {
             className="max-w-[1480px] w-full animate-fadeUp will-change-[opacity,transform]"
             ref={workflowsRef}
           >
-            <p className="p-4 w-full text-2xl text-minimal-white tracking-tighter">
+            <p className="p-4 w-full md:text-3xl font-bold bg-gradient-to-tr from-teal-300 to-emerald-900 bg-clip-text text-transparent text-minimal-white tracking-tighter">
               Workflows
             </p>
-            <div className="border-t border-gray-600 w-full mb-6"></div>
+
+            <div className="relative">
+              <div className="flex items-center justify-center w-full mb-6">
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent to-emerald-400"></div>
+                {/* <div className="px-4">
+                  <div className="w-4 h-4 border-2 border-emerald-400 rotate-45 bg-gray-900"></div>
+                </div> */}
+                <div className="flex-1 h-px bg-gradient-to-l from-transparent to-emerald-400"></div>
+              </div>
+            </div>
             <div className="grid md:grid-cols-[repeat(auto-fit,minmax(0,330px))] gap-6">
               {sampleWorkflows.map((workflow) => {
                 const isMenuOpen = openMenuId === workflow.id;
