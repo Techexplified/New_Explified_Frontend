@@ -181,7 +181,7 @@ const ExpliDashboard = () => {
             </div>
 
             {/* Notes Icon */}
-            <div className="relative">
+            <div className="relative sm:hidden">
               <button
                 onClick={() => navigate("/notes")}
                 className={`flex items-center justify-center rounded-xl transition-all duration-200 transform
@@ -196,10 +196,10 @@ const ExpliDashboard = () => {
             </div>
 
             {/* Profile Dropdown */}
-            {/* <div
+            <div
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
-              className="relative inline-block"
+              className="relative hidden sm:inline-block"
             >
               <button
                 onClick={() => navigate("/profile")}
@@ -211,7 +211,7 @@ const ExpliDashboard = () => {
                   : "text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover"
               }`}
               >
-                <CircleUserRound className="w-5 h-5" />
+                <CircleUserRound className="w-6 h-6" />
               </button>
 
               {isOpen && (
@@ -313,7 +313,7 @@ const ExpliDashboard = () => {
                   </div>
                 </div>
               )}
-            </div> */}
+            </div>
           </div>
         </div>
       </header>
