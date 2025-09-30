@@ -39,28 +39,33 @@ function ChatContainer({
     <div
       ref={chatContainerRef}
       className={
-        "flex-1 w-full bg-gradient-to-b from-gray-900/50 to-black/95 backdrop-blur-2xl  flex flex-col px-2 sm:px-3 overflow-y-auto scroll-smooth relative z-10 border border-gray-600 rounded-xl h-full"
+        "flex-1 w-full bg-gradient-to-br from-gray-900/40 via-gray-950/60 to-black/80 backdrop-blur-xl flex flex-col px-2 sm:px-3 overflow-y-auto scroll-smooth relative z-10 border border-cyan-500/30 rounded-2xl h-full shadow-[0_0_40px_rgba(6,182,212,0.15)] hover:shadow-[0_0_60px_rgba(6,182,212,0.25)] transition-all duration-500"
       }
       style={{
         scrollBehavior: "smooth",
         paddingTop: "0",
         paddingBottom: "1rem",
-        // background:
-        //   "linear-gradient(180deg, rgba(30,30,30,0.9) 0%, rgba(20,20,20,0.9) 100%)",
         scrollbarWidth: "thin",
-        scrollbarColor: "#374151 transparent",
+        scrollbarColor: "#06b6d4 transparent",
       }}
     >
+      {/* Animated Border Glow */}
+      <div className="absolute inset-0 rounded-2xl pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-1/2 h-[2px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent animate-pulse" />
+      </div>
+
       {/* Enhanced Header */}
-      <div className="sticky top-0 z-20 bg-gradient-to-b from-gray-900/50 to-black/95 backdrop-blur-2xl border-b border-gray-600/50 mb-4 rounded-t-xl -mx-2 sm:-mx-3 px-2 sm:px-3">
+      <div className="sticky top-0 z-20 bg-gradient-to-br from-gray-900/90 via-gray-950/80 to-black/70 backdrop-blur-2xl border-b border-cyan-500/30 mb-4 rounded-t-2xl -mx-2 sm:-mx-3 px-2 sm:px-3 shadow-[0_4px_20px_rgba(6,182,212,0.1)]">
         <div className="flex items-center justify-between py-3">
           {/* Left side: Icon + Tool Name */}
           <div className="flex items-center gap-3">
-            <div className="relative p-3 bg-gradient-to-br from-cyan-500/30 to-blue-600/20 rounded-xl border border-cyan-500/40 shadow-lg backdrop-blur-sm">
-              <span className="text-cyan-400 text-xl drop-shadow-sm">
+            <div className="relative p-3 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 rounded-xl border border-cyan-400/40 shadow-[0_0_20px_rgba(6,182,212,0.3)] backdrop-blur-sm hover:scale-105 transition-transform duration-300">
+              <span className="text-cyan-400 text-xl drop-shadow-[0_0_10px_rgba(6,182,212,0.8)]">
                 {icon}
               </span>
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 to-transparent rounded-xl"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 to-transparent rounded-xl animate-pulse"></div>
+              {/* Glow effect */}
+              <div className="absolute -inset-1 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 rounded-xl blur-md -z-10"></div>
             </div>
             <div className="flex flex-col">
               <h1 className="text-lg font-semibold text-white tracking-tight">
@@ -136,21 +141,24 @@ function ChatContainer({
             key={index}
             className={`group transform transition-all duration-500 ease-out ${
               msg.sender === "user" ? "self-end" : "self-start"
-            } max-w-[85%] animate-slide-in`}
+            } max-w-[85%] animate-slide-in hover:scale-[1.02]`}
             style={{ animationDelay: `${index * 0.1}s` }}
           >
             <div
-              className={`relative px-6 py-4 rounded-2xl text-sm break-words whitespace-pre-wrap backdrop-blur-sm shadow-xl border transition-all duration-300 hover:shadow-2xl  ${
+              className={`relative px-6 py-4 rounded-2xl text-sm break-words whitespace-pre-wrap backdrop-blur-xl shadow-2xl border transition-all duration-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.4)]  ${
                 msg.isError
-                  ? "border-red-500/50 bg-gradient-to-br from-red-500/20 to-red-600/10 text-red-200 shadow-red-500/20"
+                  ? "border-red-500/50 bg-gradient-to-br from-red-500/20 to-red-600/10 text-red-200 shadow-red-500/30"
                   : msg.sender === "user"
-                  ? "bg-gradient-to-br from-cyan-500/25 to-cyan-600/15 border-cyan-500/40 text-white shadow-cyan-500/20"
-                  : "bg-gradient-to-br from-sky-500/25 to-sky-600/15 border-sky-500/40 text-white shadow-sky-500/20"
+                  ? "bg-gradient-to-br from-cyan-600/30 via-cyan-500/20 to-blue-600/20 border-cyan-400/50 text-white shadow-[0_0_20px_rgba(6,182,212,0.3)]"
+                  : "bg-gradient-to-br from-blue-600/30 via-purple-500/20 to-blue-600/20 border-blue-400/50 text-white shadow-[0_0_20px_rgba(59,130,246,0.3)]"
               }`}
               style={{
                 wordBreak: "break-word",
               }}
             >
+              {/* Animated Corner Accents */}
+              <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-cyan-400/60 rounded-tl-2xl"></div>
+              <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-cyan-400/60 rounded-br-2xl"></div>
               {/* Message Header for Bot Messages */}
               {msg.sender === "bot" && (
                 <div className="flex items-center justify-between  pb-2 border-b border-gray-700/30">
@@ -218,24 +226,29 @@ function ChatContainer({
         {/* Enhanced Typing Indicator */}
         {isTyping && (
           <div className="self-start max-w-[85%] animate-fade-in">
-            <div className="px-6 py-4 rounded-2xl bg-gradient-to-br from-gray-900/90 to-gray-800/70 border border-gray-700/60 backdrop-blur-sm shadow-xl">
+            <div className="relative px-6 py-4 rounded-2xl bg-gradient-to-br from-blue-600/30 via-purple-500/20 to-blue-600/20 border border-blue-400/50 backdrop-blur-xl shadow-[0_0_30px_rgba(59,130,246,0.4)]">
+              {/* Animated Border */}
+              <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
+                <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-shimmer"></div>
+              </div>
+
               <div className="flex items-center gap-4">
-                <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 rounded-lg">
-                  <Bot className="w-4 h-4 text-cyan-400" />
+                <div className="p-2 bg-gradient-to-br from-cyan-500/30 to-blue-600/20 rounded-lg border border-cyan-400/40 shadow-[0_0_15px_rgba(6,182,212,0.4)]">
+                  <Bot className="w-4 h-4 text-cyan-400 drop-shadow-[0_0_5px_rgba(6,182,212,0.8)]" />
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="flex space-x-2">
-                    <div className="w-2.5 h-2.5 bg-gradient-to-r from-cyan-400 to-cyan-500 rounded-full animate-bounce shadow-sm shadow-cyan-400/50"></div>
+                    <div className="w-3 h-3 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full animate-bounce shadow-[0_0_10px_rgba(6,182,212,0.6)]"></div>
                     <div
-                      className="w-2.5 h-2.5 bg-gradient-to-r from-cyan-400 to-cyan-500 rounded-full animate-bounce shadow-sm shadow-cyan-400/50"
+                      className="w-3 h-3 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full animate-bounce shadow-[0_0_10px_rgba(6,182,212,0.6)]"
                       style={{ animationDelay: "150ms" }}
                     ></div>
                     <div
-                      className="w-2.5 h-2.5 bg-gradient-to-r from-cyan-400 to-cyan-500 rounded-full animate-bounce shadow-sm shadow-cyan-400/50"
+                      className="w-3 h-3 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full animate-bounce shadow-[0_0_10px_rgba(6,182,212,0.6)]"
                       style={{ animationDelay: "300ms" }}
                     ></div>
                   </div>
-                  <span className="text-gray-300 text-sm font-medium">
+                  <span className="text-cyan-100 text-sm font-medium">
                     AI is thinking...
                   </span>
                 </div>
@@ -256,6 +269,19 @@ function ChatContainer({
             opacity: 1;
             transform: translateY(0);
           }
+        }
+
+        @keyframes shimmer {
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(200%);
+          }
+        }
+
+        .animate-shimmer {
+          animation: shimmer 2s ease-in-out infinite;
         }
 
         @keyframes slide-in {

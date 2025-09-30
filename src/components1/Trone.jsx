@@ -44,7 +44,7 @@ function Trone({
   // const [selectedTool, setSelectedTool] = useState("expli");
 
   const [chatHistory, setChatHistory] = useState(() => {
-    const raw = localStorage.getItem("expli_chat_sessions");
+    const raw = localStorage.getItem("expli_chat_sessions1");
     return raw ? JSON.parse(raw) : [];
   });
 
@@ -152,6 +152,16 @@ function Trone({
 
   useEffect(() => {
     try {
+      localStorage.removeItem("expli_chat_sessions");
+      localStorage.removeItem("trone_chat_sessions");
+      localStorage.removeItem("trone_chat_sessions1");
+    } catch (e) {
+      console.log(e);
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
       localStorage.setItem("trone_closed_chats", JSON.stringify(closedChats));
     } catch (err) {
       console.error("Failed to save closedChats:", err);
@@ -171,7 +181,7 @@ function Trone({
   // Persist sessions to localStorage whenever they change
   useEffect(() => {
     try {
-      localStorage.setItem("expli_chat_sessions", JSON.stringify(chatHistory));
+      localStorage.setItem("expli_chat_sessions1", JSON.stringify(chatHistory));
     } catch (e) {
       console.log(e);
     }
@@ -208,7 +218,7 @@ function Trone({
           {
             parts: [
               {
-                text: `Generate summary of this promt within 4-6 words${prompt}`,
+                text: `Generate summary of this promt within 4-6 words.Return just the summerized text. ${prompt}`,
               },
             ],
           },
@@ -725,9 +735,9 @@ function Trone({
 
           {/* Chat Containers Row */}
           <div
-            className={`flex gap-4 ${
+            className={`flex gap-4 mb-20 sm:mb-24 ${
               onlyExpliOpen ? "w-full sm:w-[70%] mx-auto" : "flex-1"
-            } pt-20 h-full overflow-x-auto flex-nowrap [&>*]:min-w-[320px]`}
+            } pt-16 h-full overflow-x-auto flex-nowrap [&>*]:min-w-[320px]`}
           >
             <ChatContainer
               messages={currentMessages}
