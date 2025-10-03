@@ -150,7 +150,7 @@ function Shape({
       <path
         d={pathData}
         stroke={color}
-        strokeWidth={strokeW ?? 2}
+        strokeWidth={strokeWidth ?? 2}
         fill="none"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -226,9 +226,22 @@ function Canvas() {
   const updateShape = useStore((s) => s.updateShape);
   const removeShape = useStore((s) => s.removeShape);
   const freehandColor = useStore((s) => s.freehandColor);
+  const setFreehandStrokeWidth = useStore((s) => s.setFreehandStrokeWidth);
   // Undo/redo history
   const [history, setHistory] = useState([]);
   const [historyIndex, setHistoryIndex] = useState(0);
+
+
+  useEffect(() => {
+    const handleScroll = (e) => {
+      setFreehandStrokeWidth((prev) =>
+        Math.max(1, prev + (e.deltaY > 0 ? 1 : -1))
+      );
+    };
+    window.addEventListener("wheel", handleScroll);
+    return () => window.removeEventListener("wheel", handleScroll);
+  }, [setFreehandStrokeWidth]);
+
 
   // Update shapes when historyIndex changes
   useEffect(() => {
@@ -444,28 +457,24 @@ function Canvas() {
       e.stopPropagation();
       return;
     }
-    if (selectedTool === "freehand") {
-      let strokeW = 1,
-        opacity = 1;
-      if (freehandType === "pencil") {
-        strokeW = 1;
-      } else if (freehandType === "pen") {
-        strokeW = 2;
-      } else if (freehandType === "brush") {
-        strokeW = 6;
-        opacity = 0.7; // semi-transparent for brush effect
-      }
-      const newShape = {
-        id: nanoid(),
-        type: "freehand",
-        points: [{ x: offsetX, y: offsetY }],
-        color: freehandColor,
-        strokeW: strokeW,
-        opacity: opacity,
-      };
-      addShape(newShape);
-      setCurrentShapeId(newShape.id);
-    }
+   if (selectedTool === "freehand") {
+  const strokeW = useStore.getState().freehandStrokeWidth; // use store value directly
+  let opacity = 1;
+  if (freehandType === "brush") {
+    opacity = 0.7;
+  }
+  const newShape = {
+    id: nanoid(),
+    type: "freehand",
+    points: [{ x: offsetX, y: offsetY }],
+    color: freehandColor,
+    strokeWidth: strokeW,
+    opacity: opacity,
+  };
+  addShape(newShape);
+  setCurrentShapeId(newShape.id);
+}
+
     if (selectedTool === "rectangle") {
       const newShape = {
         id: nanoid(),

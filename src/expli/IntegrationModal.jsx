@@ -60,7 +60,7 @@ function IntegrationModal({
         onClick={() => setShowIntegrationsModal(false)}
       />
       <div
-        className={`relative w-full ${
+        className={`relative w-full  ${
           showProviderHelp ? "max-w-3xl" : "max-w-2xl"
         } mx-4 bg-gray-900/95 border border-teal-500/40 rounded-2xl shadow-2xl shadow-teal-500/10 p-6`}
       >

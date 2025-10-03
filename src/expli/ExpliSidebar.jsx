@@ -270,7 +270,7 @@ function ExpliSidebar({
             </div>
 
             {/* Chat History */}
-            <div className="bg-gray-900/30 mt-14 ">
+            <div className="bg-transparent mt-14 ">
               <div className="text-lg font-semibold mb-1"> Chat History</div>
               {/* Filtered History */}
               {filteredHistory && filteredHistory.length > 0 ? (
@@ -293,8 +293,8 @@ function ExpliSidebar({
                         {/* <div>{item?.qa[0]?.promptSummary}</div> */}
 
                         {/* Bottom row: tool icons */}
-                        <div className="flex gap-2 mt-1">
-                          {/* {item.answers.map((ans) => (
+                        <div className="flex  gap-2 mt-1">
+                          {item.qa[0].answers.map((ans) => (
                             <span
                               key={ans.tool}
                               className="text-[10px] px-1.5 py-0.5 rounded bg-gray-700 text-gray-300 flex items-center justify-center"
@@ -307,7 +307,7 @@ function ExpliSidebar({
                                 <RiGeminiLine size={10} />
                               )}
                             </span>
-                          ))} */}
+                          ))}
                         </div>
 
                         {/* 3-dot dropdown menu */}
@@ -363,8 +363,8 @@ function ExpliSidebar({
                       </div>
 
                       {/* Bottom row: tool icons */}
-                      {/* <div className="flex gap-2 mt-1">
-                        {item.answers.map((ans) => (
+                      {/* <div className="flex  gap-2 mt-1">
+                        {item.qa[0].answers.map((ans) => (
                           <span
                             key={ans.tool}
                             className="text-[10px] px-1.5 py-0.5 rounded bg-gray-700 text-gray-300 flex items-center justify-center"

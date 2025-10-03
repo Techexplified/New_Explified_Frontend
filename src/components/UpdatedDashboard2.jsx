@@ -8,45 +8,34 @@ import {
   PencilRuler,
   CircleUserRound,
   Plus,
-  File,
   FileText,
   Search,
-  Star,
   ArrowLeft,
-  Grip,
   Share2,
+  Download,
 } from "lucide-react";
 import { create } from "zustand";
+import { jsPDF } from "jspdf";
+import { Document, Packer, Paragraph, TextRun } from "docx";
 
 // ---------------- ZUSTAND STORE ----------------
 const useStore = create((set) => ({
   shapes: [],
   selectedTool: "freehand",
   setTool: (tool) => set({ selectedTool: tool }),
-  setShapes: (shapesFromPreviousNote) =>
-    set({ shapes: shapesFromPreviousNote }),
+  setShapes: (shapesFromPreviousNote) => set({ shapes: shapesFromPreviousNote }),
   addShape: (shape) => set((state) => ({ shapes: [...state.shapes, shape] })),
   updateShape: (id, updater) =>
     set((state) => ({
       shapes: state.shapes.map((s) =>
-        s.id === id
-          ? { ...s, ...(typeof updater === "function" ? updater(s) : updater) }
-          : s
+        s.id === id ? { ...s, ...(typeof updater === "function" ? updater(s) : updater) } : s
       ),
     })),
-  removeShape: (id) =>
-    set((state) => ({ shapes: state.shapes.filter((s) => s.id !== id) })),
+  removeShape: (id) => set((state) => ({ shapes: state.shapes.filter((s) => s.id !== id) })),
   selectedShapeId: null,
   setSelectedShapeId: (id) => set({ selectedShapeId: id }),
-  textStyle: {
-    fontFamily: "Arial",
-    fontSize: 20,
-    bold: false,
-    italic: false,
-    color: "#23b5b5",
-  },
-  setTextStyle: (partial) =>
-    set((state) => ({ textStyle: { ...state.textStyle, ...partial } })),
+  textStyle: { fontFamily: "Arial", fontSize: 20, bold: false, italic: false, color: "#23b5b5" },
+  setTextStyle: (partial) => set((state) => ({ textStyle: { ...state.textStyle, ...partial } })),
   freehandType: "pencil",
   setFreehandType: (fType) => set({ freehandType: fType }),
 }));
@@ -68,18 +57,21 @@ const UpdatedDashboard = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isPlusOpen, setIsPlusOpen] = useState(false);
   const [title, setTitle] = useState("Title");
+  const [isDownloadOpen, setIsDownloadOpen] = useState(false);
+
   const h1Ref = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
   const timeoutId = useRef(null);
+
   const setShapes = useStore((state) => state.setShapes);
+  const shapes = useStore((state) => state.shapes);
 
   // ---------------- NAVBAR HANDLERS ----------------
   const PlusClick = () => navigate("/expli");
   const handleNavBarClick = (navName) => {
     setSelectedTool(navName);
-    if (["Start", "Search", "Recent", "All Apps"].includes(navName))
-      navigate("/");
+    if (["Start", "Search", "Recent", "All Apps"].includes(navName)) navigate("/");
     else if (navName === "Workflows") navigate("/workflows");
     else if (navName === "Integrations") navigate("/integrations");
   };
@@ -133,31 +125,28 @@ const UpdatedDashboard = () => {
     }
   }, [title]);
 
-  // ---------------- SAVE TITLE + SHAPES ----------------
-  const handleSave = () => {
-    const shapes = useStore.getState().shapes;
-    const notes = JSON.parse(localStorage.getItem("notes") || "[]");
-    const selectedNote = localStorage.getItem("selectedNote");
-    let noteId = selectedNote
-      ? JSON.parse(selectedNote).id
-      : Date.now().toString();
-    const noteToSave = {
-      id: noteId,
-      title,
-      shapes,
-      updatedAt: new Date().toISOString(),
-    };
-    const noteExists = notes.find((n) => n.id === noteId);
-    if (noteExists) {
-      const updatedNotes = notes.map((n) => (n.id === noteId ? noteToSave : n));
-      localStorage.setItem("notes", JSON.stringify(updatedNotes));
-    } else {
-      notes.push(noteToSave);
-      localStorage.setItem("notes", JSON.stringify(notes));
-    }
-    localStorage.setItem("selectedNote", JSON.stringify(noteToSave));
-    alert("Saved!");
-  };
+  // ---------------- AUTO-SAVE TITLE + SHAPES ----------------
+  useEffect(() => {
+    const debounce = setTimeout(() => {
+      const notes = JSON.parse(localStorage.getItem("notes") || "[]");
+      const selectedNote = localStorage.getItem("selectedNote");
+      let noteId = selectedNote ? JSON.parse(selectedNote).id : Date.now().toString();
+
+      const noteToSave = { id: noteId, title, shapes, updatedAt: new Date().toISOString() };
+
+      const noteExists = notes.find((n) => n.id === noteId);
+      if (noteExists) {
+        const updatedNotes = notes.map((n) => (n.id === noteId ? noteToSave : n));
+        localStorage.setItem("notes", JSON.stringify(updatedNotes));
+      } else {
+        notes.push(noteToSave);
+        localStorage.setItem("notes", JSON.stringify(notes));
+      }
+      localStorage.setItem("selectedNote", JSON.stringify(noteToSave));
+    }, 800); // 0.8s debounce
+
+    return () => clearTimeout(debounce);
+  }, [title, shapes]);
 
   // ---------------- ROUTE PATH MAPPING ----------------
   useEffect(() => {
@@ -175,6 +164,58 @@ const UpdatedDashboard = () => {
     };
     setSelectedTool(pathMap[pathname] || "");
   }, [location.pathname]);
+
+  // ---------------- DOWNLOAD FUNCTIONS ----------------
+  const downloadAsPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text(title, 20, 20);
+    doc.setFontSize(12);
+    doc.text(JSON.stringify(shapes, null, 2), 20, 40);
+    doc.save(`${title || "note"}.pdf`);
+  };
+
+  const downloadAsWord = async () => {
+    const doc = new Document({
+      sections: [
+        {
+          children: [
+            new Paragraph({ children: [new TextRun({ text: title, bold: true, size: 32 })] }),
+            new Paragraph(""),
+            new Paragraph(JSON.stringify(shapes, null, 2)),
+          ],
+        },
+      ],
+    });
+
+    const blob = await Packer.toBlob(doc);
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${title || "note"}.docx`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const downloadAsTxt = () => {
+    const blob = new Blob([`${title}\n\n${JSON.stringify(shapes, null, 2)}`], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${title || "note"}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const downloadAsJson = () => {
+    const blob = new Blob([JSON.stringify({ title, shapes }, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${title || "note"}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   // ---------------- JSX ----------------
   return (
@@ -226,15 +267,40 @@ const UpdatedDashboard = () => {
             </div>
           </div>
 
-          {/* Right Section - Share, Save, Grid, Plus, Profile */}
+          {/* Right Section - Share, Dashboard, Plus, Profile, Download */}
           <div className="flex items-center gap-2 pt-1">
+            {/* Download Dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => setIsDownloadOpen(true)}
+              onMouseLeave={() => setIsDownloadOpen(false)}
+            >
+              <button className="flex items-center justify-center w-10 h-10 rounded-xl text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover transition-all duration-200">
+                <Download className="w-5 h-5" />
+              </button>
+              {isDownloadOpen && (
+                <div className="absolute right-0 mt-2 bg-[#0d1418] border border-[#23b5b5]/40 rounded-lg shadow-md p-2 flex flex-col gap-2">
+                  <button onClick={downloadAsPDF} className="text-white hover:text-[#23b5b5]">
+                    📄 PDF
+                  </button>
+                  <button onClick={downloadAsWord} className="text-white hover:text-[#23b5b5]">
+                    📝 Word
+                  </button>
+                  <button onClick={downloadAsTxt} className="text-white hover:text-[#23b5b5]">
+                    📃 TXT
+                  </button>
+                  <button onClick={downloadAsJson} className="text-white hover:text-[#23b5b5]">
+                    🗂 JSON
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Share */}
             <button
               onClick={() => {
                 if (navigator.share) {
-                  navigator.share({
-                    title: document.title,
-                    url: window.location.href,
-                  });
+                  navigator.share({ title: document.title, url: window.location.href });
                 } else {
                   navigator.clipboard.writeText(window.location.href);
                   alert("Link copied to clipboard!");
@@ -245,13 +311,7 @@ const UpdatedDashboard = () => {
               <Share2 className="w-5 h-5" />
             </button>
 
-            <button
-              onClick={handleSave}
-              className="flex items-center justify-center w-10 h-10 rounded-xl text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover transition-all duration-200"
-            >
-              <Star className="w-5 h-5" />
-            </button>
-
+            {/* Dashboard */}
             <button
               onClick={() => navigate("/dashboard")}
               className="flex items-center justify-center w-10 h-10 rounded-xl text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover transition-all duration-200"
@@ -259,6 +319,7 @@ const UpdatedDashboard = () => {
               <LayoutDashboard className="w-6 h-6" />
             </button>
 
+            {/* Plus */}
             <div
               className="relative"
               onMouseEnter={() => setIsPlusOpen(true)}
@@ -272,6 +333,7 @@ const UpdatedDashboard = () => {
               </button>
             </div>
 
+            {/* Profile */}
             <div
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
@@ -285,7 +347,7 @@ const UpdatedDashboard = () => {
               </button>
 
               {isOpen && (
-                <div className="absolute right-0 top-12 min-w-[220px] bg-gradient-to-br from-[#0d1418] to-[#111c20] backdrop-blur-xl border border-[#23b5b5]/40 rounded-xl shadow-lg p-4 flex flex-col items-center z-50 transform transition-all duration-300 ease-out animate-in fade-in-20 scale-in-95">
+                <div className="absolute right-0 top-12 min-w-[220px] bg-gradient-to-br from-[#0d1418] to-[#111c20] backdrop-blur-xl border border-[#23b5b5]/40 rounded-xl shadow-lg p-4 flex flex-col items-center z-50">
                   <Link
                     className="w-full h-9 mb-3 rounded-lg border border-[#23b5b5]/40 text-sm font-medium text-white bg-transparent hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] hover:shadow-md hover:shadow-cyan-500/20 transition-all duration-200 flex items-center justify-center"
                     to="https://explified.com/explified-labs"
@@ -296,21 +358,20 @@ const UpdatedDashboard = () => {
                   </Link>
 
                   <div className="flex gap-2 w-full mb-3">
-                    {[
-                      { icon: Plus, to: "/expli" },
-                      { icon: FileText, to: "/tasks" },
-                    ].map(({ icon: Icon, to }, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => {
-                          navigate(to);
-                          setIsOpen(false);
-                        }}
-                        className="flex-1 h-9 flex items-center justify-center rounded-lg border border-[#23b5b5]/40 bg-transparent hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] hover:shadow-sm hover:shadow-cyan-500/20 text-white transition-all duration-200"
-                      >
-                        <Icon className="w-4 h-4" />
-                      </button>
-                    ))}
+                    {[{ icon: Plus, to: "/expli" }, { icon: FileText, to: "/tasks" }].map(
+                      ({ icon: Icon, to }, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            navigate(to);
+                            setIsOpen(false);
+                          }}
+                          className="flex-1 h-9 flex items-center justify-center rounded-lg border border-[#23b5b5]/40 bg-transparent hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] hover:shadow-sm hover:shadow-cyan-500/20 text-white transition-all duration-200"
+                        >
+                          <Icon className="w-4 h-4" />
+                        </button>
+                      )
+                    )}
                   </div>
                 </div>
               )}
@@ -320,11 +381,7 @@ const UpdatedDashboard = () => {
       </header>
 
       {/* CONTENT */}
-      <div
-        className={`${
-          sidebarOpen ? "ml-80" : "ml-0"
-        } w-full transition-all duration-300`}
-      >
+      <div className={`${sidebarOpen ? "ml-80" : "ml-0"} w-full transition-all duration-300`}>
         {/* Place your Canvas or Editor component here */}
       </div>
     </div>

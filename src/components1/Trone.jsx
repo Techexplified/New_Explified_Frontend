@@ -725,14 +725,6 @@ function Trone({
             setProviderKeys={setProviderKeys}
           /> */}
 
-          {showIntegrationsModal && (
-            <IntegrationModal
-              providerKeys={providerKeys}
-              setProviderKeys={setProviderKeys}
-              setShowIntegrationsModal={setShowIntegrationsModal}
-            />
-          )}
-
           {/* Chat Containers Row */}
           <div
             className={`flex gap-4 mb-20 sm:mb-24 ${
@@ -786,6 +778,14 @@ function Trone({
             )}
           </div>
         </div>
+
+        {showIntegrationsModal && (
+          <IntegrationModal
+            providerKeys={providerKeys}
+            setProviderKeys={setProviderKeys}
+            setShowIntegrationsModal={setShowIntegrationsModal}
+          />
+        )}
 
         {/* Input Box Below Chats */}
         <ExpliInput

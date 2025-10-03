@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Outlet, useNavigate} from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import {
   Home,
   History,
@@ -392,7 +392,7 @@ const UpdatedDashboard = () => {
         {/* FILTER BAR */}
 
         {/* MAIN CONTENT SLOT */}
-        
+
         <Outlet />
       </div>
     </div>
