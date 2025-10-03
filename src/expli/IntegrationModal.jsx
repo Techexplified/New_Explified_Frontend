@@ -54,7 +54,7 @@ function IntegrationModal({
     setProviderKeys(next);
   };
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
+    <div className="fixed inset-0 z-[9999]  flex items-center justify-center backdrop-blur-sm">
       <div
         className="absolute inset-0 bg-gray-900/80"
         onClick={() => setShowIntegrationsModal(false)}

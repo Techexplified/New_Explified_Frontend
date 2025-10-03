@@ -149,8 +149,8 @@ function ChatContainer({
                 msg.isError
                   ? "border-red-500/50 bg-gradient-to-br from-red-500/20 to-red-600/10 text-red-200 shadow-red-500/30"
                   : msg.sender === "user"
-                  ? "bg-gradient-to-br from-cyan-600/30 via-cyan-500/20 to-blue-600/20 border-cyan-400/50 text-white shadow-[0_0_20px_rgba(6,182,212,0.3)]"
-                  : "bg-gradient-to-br from-blue-600/30 via-purple-500/20 to-blue-600/20 border-blue-400/50 text-white shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+                  ? "bg-gradient-to-br from-cyan-500/25 to-cyan-600/15 border-cyan-400/50 text-white shadow-[0_0_20px_rgba(6,182,212,0.3)]"
+                  : "bg-gradient-to-br from-sky-500/25 to-sky-600/15 border-blue-400/50 text-white shadow-[0_0_20px_rgba(59,130,246,0.3)]"
               }`}
               style={{
                 wordBreak: "break-word",

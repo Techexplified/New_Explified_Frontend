@@ -257,16 +257,16 @@ function App() {
           <Route path="/text-to-video" element={<TextToVideoGenerator />} />
           <Route path="/tasks" element={<TaskManagerWithSidebar />} />
 
-          <Route path="/chat" element={<CarPartsAssistant />} />
+          <Route path="/chat" element={<SalesAssistant />} />
 
           <Route path="/flowstate" element={<DashboardComp />} />
-          <Route path="/flowsense/explified" element={<FlowSenseLanding />} />
+          <Route path="/flowsense/explified" element={<CarPartsAssistant />} />
           <Route path="/flowstate/login" element={<FlowstateLogin />} />
           <Route
             path="/flowsense/explified/admin/login"
             element={<FlowstateLogin />}
           />
-          <Route path="/flowsense/chat" element={<SalesAssistant />} />
+          <Route path="/explified/chat" element={<CarPartsAssistant />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/flowsense/explified/admin" element={<Admin />} />
           <Route path="/explified/admin" element={<Admin />} />
