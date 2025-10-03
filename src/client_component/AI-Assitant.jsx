@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FiPaperclip,
   FiImage,
@@ -27,10 +28,13 @@ const webhookUrl =
 const CarPartsAssistant = () => {
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef(null);
+  const navigate = useNavigate();
 
-  // Admin button logic
-  const isLoggedIn =
-    typeof window !== "undefined" && localStorage.getItem("explified");
+  // Admin access handler - direct navigation without login layer
+  const handleAdminAccess = () => {
+    // Direct navigation to admin page without login requirement
+    navigate("/flowsense/explified/admin");
+  };
 
   useEffect(() => {
     if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
@@ -141,15 +145,13 @@ const CarPartsAssistant = () => {
             right: "40px", // move right
           }}
         >
-          {isLoggedIn && (
-            <a
-              href="/explified/admin"
-              className="bg-[#23b5b5] text-black px-5 py-2 rounded-full font-semibold hover:bg-[#1fa3a3] transition shadow-sm text-sm"
-              style={{ minWidth: 90, textAlign: "center" }}
-            >
-              Admin
-            </a>
-          )}
+          <button
+            onClick={handleAdminAccess}
+            className="bg-[#23b5b5] text-black px-5 py-2 rounded-full font-semibold hover:bg-[#1fa3a3] transition shadow-sm text-sm cursor-pointer"
+            style={{ minWidth: 90, textAlign: "center" }}
+          >
+            Admin
+          </button>
         </div>
       </header>
 

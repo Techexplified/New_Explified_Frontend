@@ -100,7 +100,7 @@ function ExpliSidebar({
           : "w-0 px-0 overflow-hidden"
       } absolute sm:relative z-50  overflow-y-scroll sidebar-scroll bg-gradient-to-b from-gray-900/50 to-black/95 backdrop-blur-2xl 
         border-r border-minimal-primary/30 shadow-2xl shadow-minimal-primary/10
-        flex flex-col justify-between transition-all duration-500 ease-in-out`}
+        flex flex-col justify-between transition-all `}
     >
       {/* Top section */}
       {isSidebarOpen && (
