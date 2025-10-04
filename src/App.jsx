@@ -142,6 +142,12 @@ import ProtectedRoute from "./reusable_components/ProtectedRoute.jsx";
 import DashboardComp from "./client_component/AI-dashboard.jsx";
 import FlowSenseLanding from "./expli/flowsense.jsx";
 import ExpliDashboard from "./expli/ExpliDashboard.jsx";
+import FlowsenseAdminLogin from "./client_component/FlowsenseAdminLogin.jsx";
+import Acmecorp from "./client_component/Acmecorp.jsx";
+import AcmecorpAdminLogin from "./client_component/AcmecorpAdminLogin.jsx";
+import AcmecorpPurchaseOrder from "./client_component/AcmecorpPurchaseOrder.jsx";
+import AcmecorpInventory from "./client_component/AcmecorpInventory.jsx";
+import AcmecorpAdmin from "./client_component/AcmecorpAdmin.jsx";
 function App() {
   usePageTracking();
   const navigate = useNavigate();
@@ -261,11 +267,25 @@ function App() {
           <Route path="/chat" element={<SalesAssistant />} />
 
           <Route path="/flowstate" element={<DashboardComp />} />
+          <Route path="/flowsense/acmecorp" element={<Acmecorp />} />
+          <Route path="/flowsense/acmecorp/admin" element={<AcmecorpAdmin />} />
+          <Route
+            path="/flowsense/acmecorp/admin/inventory"
+            element={<AcmecorpInventory />}
+          />
+          <Route
+            path="/flowsense/acmecorp/admin/purchaseOrder"
+            element={<AcmecorpPurchaseOrder />}
+          />
+          <Route
+            path="/flowsense/acmecorp/admin/login"
+            element={<AcmecorpAdminLogin />}
+          />
           <Route path="/flowsense/explified" element={<CarPartsAssistant />} />
           <Route path="/flowstate/login" element={<FlowstateLogin />} />
           <Route
             path="/flowsense/explified/admin/login"
-            element={<FlowstateLogin />}
+            element={<FlowsenseAdminLogin />}
           />
           <Route path="/explified/chat" element={<CarPartsAssistant />} />
           <Route
@@ -276,14 +296,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/flowsense/explified/admin"
-            element={
-              <ProtectedRoute>
-                <Admin />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/flowsense/explified/admin" element={<Admin />} />
           <Route
             path="/explified/admin"
             element={

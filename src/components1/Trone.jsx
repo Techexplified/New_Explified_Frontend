@@ -719,11 +719,6 @@ function Trone({
               }}
             />
           </div>
-          {/* 
-          <ExpliIntegration
-            providerKeys={providerKeys}
-            setProviderKeys={setProviderKeys}
-          /> */}
 
           {/* Chat Containers Row */}
           <div

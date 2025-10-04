@@ -13,10 +13,13 @@ import {
   ArrowLeft,
   Share2,
   Download,
+  FileJson, File, FileType,
 } from "lucide-react";
 import { create } from "zustand";
 import { jsPDF } from "jspdf";
 import { Document, Packer, Paragraph, TextRun } from "docx";
+// Prevent focus loss on every keystroke
+import { flushSync } from "react-dom";
 
 // ---------------- ZUSTAND STORE ----------------
 const useStore = create((set) => ({
@@ -56,8 +59,9 @@ const UpdatedDashboard = () => {
   const [showNavbar, setShowNavbar] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [isPlusOpen, setIsPlusOpen] = useState(false);
-  const [title, setTitle] = useState("Title");
+  const [title, setTitle] = useState("");
   const [isDownloadOpen, setIsDownloadOpen] = useState(false);
+const [showButton, setShowButton] = useState(false);
 
   const h1Ref = useRef(null);
   const navigate = useNavigate();
@@ -66,6 +70,42 @@ const UpdatedDashboard = () => {
 
   const setShapes = useStore((state) => state.setShapes);
   const shapes = useStore((state) => state.shapes);
+
+   const [selectedFormats, setSelectedFormats] = useState([]);
+
+  const handleSelect = (format) => {
+    setSelectedFormats((prev) =>
+      prev.includes(format)
+        ? prev.filter((f) => f !== format)
+        : [...prev, format]
+    );
+  };
+
+  const handleDownload = () => {
+    if (selectedFormats.length === 0) {
+      alert("Please select at least one file format to download!");
+      return;
+    }
+
+    selectedFormats.forEach((format) => {
+      switch (format) {
+        case "PDF":
+          downloadAsPDF();
+          break;
+        case "WORD":
+          downloadAsWord();
+          break;
+        case "TXT":
+          downloadAsTxt();
+          break;
+        case "JSON":
+          downloadAsJson();
+          break;
+        default:
+          break;
+      }
+    });
+  };
 
   // ---------------- NAVBAR HANDLERS ----------------
   const PlusClick = () => navigate("/expli");
@@ -101,7 +141,7 @@ const UpdatedDashboard = () => {
     if (selectedNote) {
       try {
         const noteObj = JSON.parse(selectedNote);
-        setTitle(noteObj.title || "Title");
+        setTitle(noteObj.title || "");
         setShapes(noteObj.shapes || []);
       } catch (e) {
         console.error("Failed to parse selectedNote:", e);
@@ -110,20 +150,7 @@ const UpdatedDashboard = () => {
   }, [setShapes]);
 
   // ---------------- EDITABLE TITLE ----------------
-  useEffect(() => {
-    if (h1Ref.current) {
-      h1Ref.current.textContent = typeof title === "string" ? title : "";
-      const el = h1Ref.current;
-      if (document.activeElement === el) {
-        const range = document.createRange();
-        range.selectNodeContents(el);
-        range.collapse(false);
-        const sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(range);
-      }
-    }
-  }, [title]);
+ 
 
   // ---------------- AUTO-SAVE TITLE + SHAPES ----------------
   useEffect(() => {
@@ -188,6 +215,10 @@ const UpdatedDashboard = () => {
       ],
     });
 
+   
+  
+
+
     const blob = await Packer.toBlob(doc);
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -237,64 +268,164 @@ const UpdatedDashboard = () => {
               <ArrowLeft className="w-5 h-5" />
             </button>
 
-            <div
-              className="h-auto w-auto border rounded-md flex flex-col justify-center"
-              style={{ border: "2px solid #23b5b5", minWidth: "120px" }}
-            >
-              <h1
-                ref={h1Ref}
-                contentEditable
-                suppressContentEditableWarning={true}
-                spellCheck={false}
-                onInput={(e) => setTitle(e.currentTarget.textContent)}
-                style={{
-                  cursor: "text",
-                  textAlign: "center",
-                  fontSize: "1.3rem",
-                  fontWeight: 400,
-                  fontFamily: "sans-serif",
-                  color: "#23b5b5",
-                  padding: "0 16px",
-                  border: "none",
-                  outline: "none",
-                  userSelect: "text",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
-                aria-label="Notes Title"
-              />
-            </div>
+<div className="relative max-w-[270px] input-container">
+  {!showButton ? (
+    <>
+      <input
+        ref={h1Ref}
+        type="text"
+        className="input-field"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder=" "
+        id="note-title"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && title.trim() !== "") {
+            e.preventDefault();
+            setShowButton(true); // show button
+          }
+        }}
+      />
+
+      {/* Floating label */}
+      {title && (
+        <label
+          htmlFor="note-title"
+          className="input-label top-[-20px] text-xs text-[#23b5b5] transition-all duration-300"
+        >
+          Title
+        </label>
+      )}
+
+      {/* Typewriter placeholder */}
+      {!title && (
+        <span className="absolute left-0 top-[10px] text-gray-400 pointer-events-none animate-typing overflow-hidden whitespace-nowrap border-r-2 border-gray-400 pr-2">
+          Enter your title...
+        </span>
+      )}
+
+      <span className="input-highlight"></span>
+    </>
+  ) :  (
+    <h1
+      className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-teal-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent mb-2 drop-shadow-lg transition-transform duration-500 hover:scale-105 hover:tracking-wider cursor-pointer text-center"
+      onClick={() => setShowButton(false)} // go back to input on click
+    >
+      {title}
+    </h1>
+  )}
+</div>
+
+
+
+
+
+
           </div>
 
           {/* Right Section - Share, Dashboard, Plus, Profile, Download */}
           <div className="flex items-center gap-2 pt-1">
-            {/* Download Dropdown */}
-            <div
-              className="relative"
-              onMouseEnter={() => setIsDownloadOpen(true)}
-              onMouseLeave={() => setIsDownloadOpen(false)}
-            >
-              <button className="flex items-center justify-center w-10 h-10 rounded-xl text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover transition-all duration-200">
-                <Download className="w-5 h-5" />
-              </button>
-              {isDownloadOpen && (
-                <div className="absolute right-0 mt-2 bg-[#0d1418] border border-[#23b5b5]/40 rounded-lg shadow-md p-2 flex flex-col gap-2">
-                  <button onClick={downloadAsPDF} className="text-white hover:text-[#23b5b5]">
-                    📄 PDF
-                  </button>
-                  <button onClick={downloadAsWord} className="text-white hover:text-[#23b5b5]">
-                    📝 Word
-                  </button>
-                  <button onClick={downloadAsTxt} className="text-white hover:text-[#23b5b5]">
-                    📃 TXT
-                  </button>
-                  <button onClick={downloadAsJson} className="text-white hover:text-[#23b5b5]">
-                    🗂 JSON
-                  </button>
-                </div>
-              )}
-            </div>
+ {/* Download Dropdown */}
+<div
+  className="relative group"
+  onMouseEnter={() => {
+    clearTimeout(timeoutId.current); // cancel any pending timeout
+    setIsDownloadOpen(true);
+  }}
+   onMouseLeave={() => {
+    timeoutId.current = setTimeout(() => setIsDownloadOpen(false), 800); // delay
+  }}
+>
+  <button className="flex items-center justify-center w-10 h-10 rounded-xl text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover transition-all duration-200">
+    <Download className="w-5 h-5" />
+  </button>
+
+  {isDownloadOpen && (
+    <div
+      className="absolute top-full left-1/2 -translate-x-1/2 mt-2 
+                 bg-[#0d1418] border border-[#23b5b5]/40 rounded-lg 
+                 shadow-md p-4 w-48 flex flex-col gap-3 z-50"
+    >
+      {/* PDF Option */}
+     <label className="flex items-center gap-2 cursor-pointer hover:text-[#23b5b5]">
+  <input
+    type="checkbox"
+    checked={selectedFormats.includes("PDF")}
+    onChange={() => handleSelect("PDF")}
+    className="hidden"
+  />
+  <span className="w-4 h-4 rounded-full border border-[#23b5b5] flex items-center justify-center">
+    {selectedFormats.includes("PDF") && (
+      <span className="w-2 h-2 bg-[#23b5b5] rounded-full"></span>
+    )}
+  </span>
+  <FileText className="w-5 h-5" />
+  <span>PDF</span>
+</label>
+
+<label className="flex items-center gap-2 cursor-pointer hover:text-[#23b5b5]">
+  <input
+    type="checkbox"
+    checked={selectedFormats.includes("WORD")}
+    onChange={() => handleSelect("WORD")}
+    className="hidden"
+  />
+  <span className="w-4 h-4 rounded-full border border-[#23b5b5] flex items-center justify-center">
+    {selectedFormats.includes("WORD") && (
+      <span className="w-2 h-2 bg-[#23b5b5] rounded-full"></span>
+    )}
+  </span>
+  <FileType className="w-5 h-5" />
+  <span>Word</span>
+</label>
+
+<label className="flex items-center gap-2 cursor-pointer hover:text-[#23b5b5]">
+  <input
+    type="checkbox"
+    checked={selectedFormats.includes("TXT")}
+    onChange={() => handleSelect("TXT")}
+    className="hidden"
+  />
+  <span className="w-4 h-4 rounded-full border border-[#23b5b5] flex items-center justify-center">
+    {selectedFormats.includes("TXT") && (
+      <span className="w-2 h-2 bg-[#23b5b5] rounded-full"></span>
+    )}
+  </span>
+  <File className="w-5 h-5" />
+  <span>TXT</span>
+</label>
+
+<label className="flex items-center gap-2 cursor-pointer hover:text-[#23b5b5]">
+  <input
+    type="checkbox"
+    checked={selectedFormats.includes("JSON")}
+    onChange={() => handleSelect("JSON")}
+    className="hidden"
+  />
+  <span className="w-4 h-4 rounded-full border border-[#23b5b5] flex items-center justify-center">
+    {selectedFormats.includes("JSON") && (
+      <span className="w-2 h-2 bg-[#23b5b5] rounded-full"></span>
+    )}
+  </span>
+  <FileJson className="w-5 h-5" />
+  <span>JSON</span>
+</label>
+
+
+      {/* Download Button */}
+      <button
+        onClick={handleDownload}
+        className="bg-[#23b5b5] hover:bg-[#1ea4a4] text-white font-medium rounded-lg py-1.5 mt-2 transition-all duration-200"
+      >
+        Download
+      </button>
+    </div>
+  )}
+</div>
+
+
+
+
 
             {/* Share */}
             <button
