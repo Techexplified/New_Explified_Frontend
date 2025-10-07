@@ -260,38 +260,141 @@ const InventoryComp = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen w-full bg-gray-900 flex flex-col">
+    <div
+      className="w-full h-full flex flex-col items-center relative overflow-hidden text-white"
+      style={{
+        minHeight: "100vh",
+        background:
+          "linear-gradient(135deg, #0a0f12 0%, #0d1418 25%, #111c20 50%, #0d1418 75%, #0a0f12 100%)",
+        backgroundSize: "400% 400%",
+        animation: "gradientShift 3s ease-in-out infinite",
+      }}
+    >
+      {/* Animated background overlays */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-20"
+        style={{ zIndex: 0 }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-[#23b5b5]/20 via-transparent to-[#23b5b5]/10 animate-pulse"></div>
+        <div
+          className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_30%,_rgba(35,181,181,0.15)_0%,_transparent_50%)]"
+          style={{ animation: "float1 2.5s ease-in-out infinite" }}
+        ></div>
+        <div
+          className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_70%,_rgba(35,181,181,0.12)_0%,_transparent_50%)]"
+          style={{ animation: "float2 3s ease-in-out infinite reverse" }}
+        ></div>
+        <div
+          className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_20%,_rgba(35,181,181,0.08)_0%,_transparent_60%)]"
+          style={{ animation: "float3 3.5s ease-in-out infinite" }}
+        ></div>
+      </div>
+      {/* Subtle moving particles */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-30"
+        style={{ zIndex: 1 }}
+      >
+        <div
+          className="absolute top-1/4 left-1/4 w-1 h-1 bg-[#23b5b5] rounded-full animate-ping"
+          style={{ animationDelay: "0s", animationDuration: "1.5s" }}
+        ></div>
+        <div
+          className="absolute top-3/4 right-1/3 w-0.5 h-0.5 bg-[#23b5b5] rounded-full animate-ping"
+          style={{ animationDelay: "0.5s", animationDuration: "2s" }}
+        ></div>
+        <div
+          className="absolute bottom-1/4 left-2/3 w-1 h-1 bg-[#23b5b5] rounded-full animate-ping"
+          style={{ animationDelay: "1s", animationDuration: "1.8s" }}
+        ></div>
+        <div
+          className="absolute top-1/2 right-1/4 w-0.5 h-0.5 bg-[#23b5b5] rounded-full animate-ping"
+          style={{ animationDelay: "0.3s", animationDuration: "2.2s" }}
+        ></div>
+        <div
+          className="absolute top-1/6 right-1/6 w-0.5 h-0.5 bg-[#23b5b5] rounded-full animate-ping"
+          style={{ animationDelay: "0.8s", animationDuration: "1.6s" }}
+        ></div>
+      </div>
+      {/* CSS Keyframes for custom animations */}
+      <style jsx>{`
+        @keyframes gradientShift {
+          0%,
+          100% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+        }
+        @keyframes float1 {
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          50% {
+            transform: translate(10px, -15px) scale(1.1);
+          }
+        }
+        @keyframes float2 {
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          50% {
+            transform: translate(-15px, 10px) scale(0.9);
+          }
+        }
+        @keyframes float3 {
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          50% {
+            transform: translate(5px, -20px) scale(1.05);
+          }
+        }
+      `}</style>
       {/* Top bar */}
-      <div className="p-4 flex items-center border-b border-gray-700 bg-gray-800">
+      <div
+        className="p-4 flex items-center border-b border-[#23b5b5]/30 bg-transparent w-full max-w-6xl mx-auto"
+        style={{ zIndex: 2 }}
+      >
         <button
           onClick={() => navigate("/admin")}
-          className="text-gray-300 hover:text-white transition flex items-center gap-2 px-3 py-2 rounded-md border border-transparent hover:border-[#23b5b5] bg-gray-900 hover:bg-[#23b5b5]/20 focus:outline-none focus:ring-2 focus:ring-[#23b5b5]"
+          className="text-[#23b5b5] hover:text-white transition flex items-center gap-2 px-3 py-2 rounded-md border border-[#23b5b5] bg-transparent hover:bg-[#23b5b5]/20 focus:outline-none focus:ring-2 focus:ring-[#23b5b5] font-semibold"
         >
           <FiArrowLeft size={24} />
           Back
         </button>
+        <h1 className="ml-6 text-2xl font-bold text-white tracking-wide">
+          Inventory Management
+        </h1>
       </div>
-
       {/* Error Display */}
       {error && (
-        <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-2 mx-6 mt-4 rounded-lg">
+        <div
+          className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-2 mx-6 mt-4 rounded-lg shadow"
+          style={{ zIndex: 2 }}
+        >
           {error}
         </div>
       )}
-
       {/* Main content: 2 columns */}
-      <div className="flex flex-1 w-full">
+      <div className="flex flex-1 w-full max-w-6xl mx-auto relative z-10">
         {/* Left: Text stack with scrollable area, input pinned at bottom */}
-        <div className="flex flex-col flex-1 max-w-xl px-6 py-8">
-          <h2 className="text-white text-xl font-semibold mb-4">
+        <div className="flex flex-col flex-1 max-w-xl px-8 py-10">
+          <h2 className="text-white text-2xl font-bold mb-6 flex items-center gap-2">
+            <span className="inline-block w-2 h-6 bg-[#23b5b5] rounded-full mr-2"></span>
             Text Stack{" "}
             {loading && (
-              <span className="text-sm text-gray-400">(Loading...)</span>
+              <span className="text-base text-gray-400 font-normal">
+                (Loading...)
+              </span>
             )}
           </h2>
           <div className="flex-1 min-h-0 flex flex-col">
             <div
-              className="flex-1 overflow-y-auto pr-2 space-y-2"
+              className="flex-1 overflow-y-auto pr-2 space-y-3"
               style={{ maxHeight: "calc(100vh - 260px)" }}
             >
               {textStack.length > 0 ? (
@@ -299,12 +402,11 @@ const InventoryComp = () => {
                   // Handle both string and object formats
                   const text =
                     typeof textEntry === "string" ? textEntry : textEntry.text;
-
                   return (
                     <div
                       key={textEntry.id || textEntry._id || idx}
-                      className="bg-[#182c36] text-white px-4 py-2 rounded-lg shadow text-lg flex items-center justify-between gap-2 border border-transparent transition-all duration-200 group hover:border-[#23b5b5] hover:bg-[#22394a] hover:scale-[1.03] hover:shadow-lg animate-fadein"
-                      style={{ boxShadow: "0 2px 8px 0 rgba(35,181,181,0.10)" }}
+                      className="bg-[#181f23] text-white px-4 py-2 rounded-lg text-base flex items-center justify-between gap-2 border border-[#23b5b5]/10 transition-colors duration-150 group hover:border-[#23b5b5] hover:bg-[#181f23]/90"
+                      style={{ maxWidth: "100%" }}
                     >
                       {editIndex === idx ? (
                         <>
@@ -312,13 +414,13 @@ const InventoryComp = () => {
                             type="text"
                             value={editValue}
                             onChange={(e) => setEditValue(e.target.value)}
-                            className="flex-1 px-2 py-1 rounded bg-gray-100 text-gray-900 text-lg mr-2 border border-[#23b5b5] focus:outline-none focus:ring-2 focus:ring-[#23b5b5]"
+                            className="flex-1 px-2 py-1 rounded bg-gray-100 text-gray-900 text-base mr-2 border border-[#23b5b5] focus:outline-none focus:ring-2 focus:ring-[#23b5b5]"
                             disabled={loading}
                           />
                           <button
                             onClick={() => handleEditSave(idx)}
                             disabled={loading}
-                            className="bg-[#312e81] hover:bg-[#1e1b4b] text-white px-3 py-1 rounded shadow transition-colors duration-150 mr-2 border border-[#312e81] hover:border-[#1e1b4b] disabled:opacity-50"
+                            className="bg-[#23b5b5] hover:bg-[#1a8a8a] text-white px-3 py-1 rounded border border-[#23b5b5] hover:border-[#1a8a8a] disabled:opacity-50 font-medium"
                           >
                             {loading ? "..." : "Save"}
                           </button>
@@ -328,27 +430,27 @@ const InventoryComp = () => {
                               setEditValue("");
                             }}
                             disabled={loading}
-                            className="bg-gray-800 hover:bg-gray-900 text-white px-3 py-1 rounded shadow border border-gray-800 hover:border-gray-900 transition-colors duration-150 disabled:opacity-50"
+                            className="bg-gray-700 hover:bg-gray-900 text-white px-3 py-1 rounded border border-gray-700 hover:border-gray-900 disabled:opacity-50 font-medium"
                           >
                             Cancel
                           </button>
                         </>
                       ) : (
                         <>
-                          <span className="flex-1 font-medium group-hover:text-white transition-colors duration-150 overflow-hidden text-ellipsis whitespace-nowrap min-w-0">
+                          <span className="flex-1 font-medium group-hover:text-white transition-colors duration-150 overflow-hidden text-ellipsis whitespace-nowrap min-w-0 text-base">
                             {text}
                           </span>
                           <button
                             onClick={() => handleEditText(idx)}
                             disabled={loading}
-                            className="bg-[#334155] hover:bg-[#1e293b] text-white font-semibold px-3 py-1 rounded shadow border border-[#334155] hover:border-[#1e293b] transition-colors duration-150 mr-2 disabled:opacity-50"
+                            className="bg-[#232b2f] hover:bg-[#23b5b5] text-white font-medium px-3 py-1 rounded border border-[#232b2f] hover:border-[#23b5b5] transition-colors duration-150 mr-2 disabled:opacity-50"
                           >
                             Edit
                           </button>
                           <button
                             onClick={() => handleDeleteText(idx)}
                             disabled={loading}
-                            className="bg-[#0f172a] hover:bg-[#1e293b] text-white px-3 py-1 rounded shadow border border-[#0f172a] hover:border-[#1e293b] transition-colors duration-150 disabled:opacity-50"
+                            className="bg-[#181f23] hover:bg-red-600 text-white px-3 py-1 rounded border border-[#181f23] hover:border-red-600 transition-colors duration-150 disabled:opacity-50 font-medium"
                           >
                             {loading ? "..." : "Delete"}
                           </button>
@@ -358,26 +460,26 @@ const InventoryComp = () => {
                   );
                 })
               ) : (
-                <div className="text-gray-400">
+                <div className="text-gray-400 text-base font-medium">
                   {loading ? "Loading text entries..." : "No texts added yet."}
                 </div>
               )}
             </div>
             {/* Input box pinned at the bottom of left column */}
-            <form onSubmit={handleTextSubmit} className="pt-4">
-              <div className="flex gap-2">
+            <form onSubmit={handleTextSubmit} className="pt-6">
+              <div className="flex gap-3">
                 <input
                   type="text"
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   placeholder="Enter text and press Enter"
-                  className="flex-1 px-4 py-2 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-[#23b5b5] text-lg"
+                  className="flex-1 px-5 py-3 rounded-lg bg-[#232b2f] text-white border border-[#23b5b5]/30 focus:outline-none focus:border-[#23b5b5] text-lg"
                   disabled={loading}
                 />
                 <button
                   type="submit"
                   disabled={loading || !inputText.trim()}
-                  className="bg-[#23b5b5] hover:bg-[#1a8a8a] text-white font-semibold px-6 py-2 rounded-lg text-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-[#23b5b5] hover:bg-[#1a8a8a] text-white font-bold px-7 py-3 rounded-lg text-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? "Adding..." : "Add"}
                 </button>
@@ -385,13 +487,12 @@ const InventoryComp = () => {
             </form>
           </div>
         </div>
-
         {/* Right: File upload and Excel preview */}
-        <div className="flex flex-col flex-1 px-6 py-8 border-l border-gray-800 min-w-[350px]">
-          <div className="mb-6">
+        <div className="flex flex-col flex-1 px-8 py-10 border-l border-[#23b5b5]/20 min-w-[350px] bg-transparent">
+          <div className="mb-8">
             <label
               htmlFor="file-upload"
-              className="cursor-pointer w-48 h-10 bg-[#23b5b5] hover:bg-[#1a8a8a] text-white text-base font-semibold rounded-lg shadow flex items-center justify-center transition px-4"
+              className="cursor-pointer w-56 h-12 bg-[#23b5b5] hover:bg-[#1a8a8a] text-white text-lg font-bold rounded-lg flex items-center justify-center transition px-6"
             >
               Upload Excel Files
             </label>
@@ -404,15 +505,16 @@ const InventoryComp = () => {
               className="hidden"
             />
           </div>
-
           {/* Progress Bars */}
           {uploadingFiles.length > 0 && (
-            <div className="w-full max-w-xl space-y-4 mb-6">
+            <div className="w-full max-w-xl space-y-4 mb-8">
               {uploadingFiles.map((fileName) => {
                 const progress = uploadProgress[fileName] ?? 0;
                 return (
                   <div key={fileName}>
-                    <div className="text-gray-200 mb-1">{fileName}</div>
+                    <div className="text-gray-200 mb-1 font-semibold">
+                      {fileName}
+                    </div>
                     <div className="w-full bg-gray-700 rounded-full h-4 overflow-hidden">
                       <div
                         className={`h-full transition-all duration-500 ease-in-out ${
@@ -431,21 +533,20 @@ const InventoryComp = () => {
               })}
             </div>
           )}
-
           {/* Uploaded Files Links (scrollable) */}
           {uploadedFiles.length > 0 && (
             <div
-              className="w-full max-w-xl mt-8 overflow-y-auto mb-6"
+              className="w-full max-w-xl mt-8 overflow-y-auto mb-8"
               style={{ maxHeight: "200px" }}
             >
-              <h3 className="text-lg text-white font-semibold mb-3">
+              <h3 className="text-lg text-white font-bold mb-3">
                 ✅ Uploaded Files
               </h3>
               <ul className="space-y-2">
                 {uploadedFiles.map((file, idx) => (
                   <li
                     key={idx}
-                    className="text-gray-300 hover:text-white underline transition"
+                    className="text-[#23b5b5] hover:text-white underline transition font-semibold"
                   >
                     <a
                       href={file.url}
@@ -459,7 +560,6 @@ const InventoryComp = () => {
               </ul>
             </div>
           )}
-
           {/* Excel Previews */}
           {excelPreviews.length > 0 && (
             <div className="w-full max-w-6xl mt-10 space-y-8">
@@ -468,15 +568,18 @@ const InventoryComp = () => {
                 return (
                   <div
                     key={preview.fileName}
-                    className="bg-gray-800 rounded-lg border border-gray-700 shadow-lg"
+                    className="bg-[#181f23] rounded-lg border border-[#23b5b5]/20"
                   >
-                    <div className="flex justify-between items-center px-4 py-3 border-b border-gray-700">
+                    <div className="flex justify-between items-center px-4 py-3 border-b border-[#23b5b5]/20">
                       <button
                         onClick={() => toggleCollapse(preview.fileName)}
-                        className="flex items-center gap-2 text-white font-semibold"
+                        className="flex items-center gap-2 text-white font-bold"
                       >
                         {isCollapsed ? <FiChevronRight /> : <FiChevronDown />}
-                        {preview.fileName} ({preview.data.length} rows)
+                        {preview.fileName}{" "}
+                        <span className="ml-2 text-[#23b5b5] font-semibold">
+                          ({preview.data.length} rows)
+                        </span>
                       </button>
                       <button
                         onClick={() => removePreview(preview.fileName)}
@@ -488,19 +591,23 @@ const InventoryComp = () => {
                     </div>
                     {!isCollapsed && (
                       <div className="overflow-auto p-4">
-                        <table className="min-w-full border-collapse border border-gray-700 text-white">
+                        <table className="min-w-full border-collapse border border-[#23b5b5]/20 text-white rounded-lg overflow-hidden">
                           <tbody>
                             {preview.data.map((row, rowIndex) => (
                               <tr
                                 key={rowIndex}
-                                className={rowIndex === 0 ? "bg-[#23b5b5]" : ""}
+                                className={
+                                  rowIndex === 0
+                                    ? "bg-[#23b5b5] text-black"
+                                    : ""
+                                }
                               >
                                 {row.map((cell, cellIndex) => (
                                   <td
                                     key={cellIndex}
-                                    className={`border border-gray-700 px-3 py-1 text-sm ${
+                                    className={`border border-[#23b5b5]/20 px-3 py-1 text-sm ${
                                       rowIndex === 0
-                                        ? "font-semibold text-white"
+                                        ? "font-bold text-black"
                                         : "text-white"
                                     }`}
                                   >
