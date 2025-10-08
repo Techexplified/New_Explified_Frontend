@@ -11,7 +11,9 @@ import {
   File,
   FileText,
   Search,
+  LucideClipboardPen,
 } from "lucide-react";
+import { LuClipboardPen } from "react-icons/lu";
 import Trone from "../components1/Trone";
 import ExpliIntegration from "./ExpliIntegration";
 
@@ -72,9 +74,6 @@ const ExpliDashboard = () => {
   const location = useLocation();
 
   // ---------------- Handlers ----------------
-  function PlusClick() {
-    navigate("/expli");
-  }
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -114,7 +113,7 @@ const ExpliDashboard = () => {
 
   // ---------------- JSX ----------------
   return (
-    <div className="min-h-screen bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 flex flex-col overflow-hidden">
+    <div className="min-h-screen bg-red-400 flex flex-col overflow-hidden">
       {/* Header / Navbar */}
       <header
         className={`fixed border-minimal-border/50 px-6 transition-transform duration-300 z-50 top-0 left-0 w-full
@@ -125,7 +124,7 @@ const ExpliDashboard = () => {
         <div className="flex items-center justify-between w-full">
           <div
             className={`flex items-center justify-between gap-2 pt-1 transition-all duration-300 ${
-              isSidebarOpen || sidebarPinned ? "ml-60" : ""
+              isSidebarOpen || sidebarPinned ? "ml-60" : "ml-12 sm:ml-0"
             }`}
           >
             <ExpliIntegration
@@ -165,7 +164,7 @@ const ExpliDashboard = () => {
             {/* Plus Icon */}
             <div className="relative">
               <button
-                onClick={PlusClick}
+                onClick={() => navigate("/expli")}
                 className={`flex items-center justify-center rounded-xl transition-all duration-200 transform
                   ${
                     location.pathname === "/expli"
@@ -181,13 +180,27 @@ const ExpliDashboard = () => {
               </button>
             </div>
 
+            {/* Notes Icon */}
+            <div className="relative sm:hidden">
+              <button
+                onClick={() => navigate("/notes")}
+                className={`flex items-center justify-center rounded-xl transition-all duration-200 transform
+                  ${
+                    location.pathname === "/notes"
+                      ? "w-12 h-12 scale-110 text-[#23b5b5] bg-minimal-primary/20 border border-[#23b5b5]/30"
+                      : "w-10 h-10 text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover"
+                  }`}
+              >
+                <LucideClipboardPen className="w-6 h-6" />
+              </button>
+            </div>
+
             {/* Profile Dropdown */}
             <div
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
-              className="relative inline-block"
+              className="relative hidden sm:inline-block"
             >
-              {/* Profile Avatar Button */}
               <button
                 onClick={() => navigate("/profile")}
                 className={`flex items-center justify-center 
@@ -198,10 +211,9 @@ const ExpliDashboard = () => {
                   : "text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover"
               }`}
               >
-                <CircleUserRound className="w-5 h-5" />
+                <CircleUserRound className="w-6 h-6" />
               </button>
 
-              {/* Dropdown */}
               {isOpen && (
                 <div
                   className="absolute right-0 top-12 min-w-[220px]
@@ -211,7 +223,6 @@ const ExpliDashboard = () => {
                  transform transition-all duration-300 ease-out
                  animate-in fade-in-20 scale-in-95"
                 >
-                  {/* Profile Button */}
                   <Link
                     className="w-full h-9 mb-3 rounded-lg border border-[#23b5b5]/40 text-sm font-medium text-white
                    bg-transparent hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] 
@@ -223,7 +234,6 @@ const ExpliDashboard = () => {
                     For Enterprises
                   </Link>
 
-                  {/* Quick Tools (row) */}
                   <div className="flex gap-2 w-full mb-3">
                     {[
                       { icon: Plus, to: "/expli" },
@@ -244,7 +254,6 @@ const ExpliDashboard = () => {
                     ))}
                   </div>
 
-                  {/* Second row of Quick Tools */}
                   <div className="flex gap-2 w-full mb-3">
                     {[{ icon: Search, to: "/discover" }].map(
                       ({ icon: Icon, to }, idx) => (
@@ -264,7 +273,6 @@ const ExpliDashboard = () => {
                     )}
                   </div>
 
-                  {/* Workflows Section */}
                   <div className="mb-3 w-full">
                     <h3 className="text-white text-xs font-semibold opacity-80 mb-2">
                       Workflows
@@ -290,7 +298,6 @@ const ExpliDashboard = () => {
                     </div>
                   </div>
 
-                  {/* All Tools Section */}
                   <div className="w-full mb-1">
                     <h3 className="text-white text-xs font-semibold opacity-80 mb-2">
                       All Tools

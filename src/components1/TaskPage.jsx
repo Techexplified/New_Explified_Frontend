@@ -2,80 +2,44 @@ import { useState, useEffect } from "react";
 import { Plus, Edit3, Clock, Search, Pin, PinOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import Sidebar from "../reusable_components/SidebarOnHover2"; // your Sidebar.jsx
+import Sidebar from "../reusable_components/SidebarOnHover2";
+
 export default function TaskManager() {
   const [notes, setNotes] = useState([]);
+  const [openDropdownId, setOpenDropdownId] = useState(null); // Track which note's dropdown is open
+
   const [searchTerm, setSearchTerm] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarPinned, setIsSidebarPinned] = useState(false);
-  const [editingTaskId, setEditingTaskId] = useState(null);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
+
   const navigate = useNavigate();
-  const genAI = new GoogleGenerativeAI(import.meta.env.GEMINI_API_KEY); // <-- put your key here
+  const genAI = new GoogleGenerativeAI(import.meta.env.GEMINI_API_KEY);
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
   const handleNewNote = () => {
     localStorage.removeItem("selectedNote");
     navigate("/notes");
   };
-  // Load tasks from localStorage
+
   useEffect(() => {
     try {
       const storedNotes = JSON.parse(localStorage.getItem("notes") || "[]");
       const normalizedNotes = storedNotes.map((t, index) => ({
         id: t.id || Date.now() + index,
         title: t.title || "",
+        content: t.content || "",
         shapes: t.shapes || "",
         lastModified: t.lastModified || new Date().toISOString(),
+        pinned: t.pinned || false,
       }));
-
       setNotes(normalizedNotes);
-
-      // Generate titles for missing ones
-      // normalizedTasks.forEach(async (task) => {
-      //   if (!task.title && task.content) {
-      //     const title = await generateTitle(task.content);
-      //     updateTaskTitle(task.id, title);
-      //   }
-      // });
     } catch {
-      setTasks([]);
+      setNotes([]);
     }
-    if (localStorage.getItem("selectedNote")) {
+    if (localStorage.getItem("selectedNote"))
       localStorage.removeItem("selectedNote");
-    }
   }, []);
-
-  // Gemini title generator
-  // const generateTitle = async (content) => {
-  //   try {
-  //     const prompt = `From the following note, pick one short significant word or concise 2-3 word phrase as its title. Avoid punctuation. Note: "${content}"`;
-  //     const result = await model.generateContent(prompt);
-  //     const text = result.response.text().trim();
-  //     return text || "Untitled";
-  //   } catch {
-  //     return "Untitled";
-  //   }
-  // };
-
-  // const updateTaskTitle = (id, title) => {
-  //   setTasks((prev) => {
-  //     const updated = prev.map((task) =>
-  //       task.id === id ? { ...task, title } : task
-  //     );
-  //     localStorage.setItem("tasks", JSON.stringify(updated));
-  //     return updated;
-  //   });
-  // };
-
-  // const updateTaskContent = (id, content) => {
-  //   const updatedTasks = tasks.map((task) =>
-  //     task.id === id
-  //       ? { ...task, content, lastModified: new Date().toISOString() }
-  //       : task
-  //   );
-  //   setTasks(updatedTasks);
-  //   localStorage.setItem("tasks", JSON.stringify(updatedTasks));
-  // };
 
   const deleteNote = (id) => {
     const updatedNotes = notes.filter((note) => note.id !== id);
@@ -83,9 +47,27 @@ export default function TaskManager() {
     localStorage.setItem("notes", JSON.stringify(updatedNotes));
   };
 
-  const filteredNotes = notes.filter((note) =>
-    (note.content || "").toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const togglePin = (id) => {
+    const updatedNotes = notes.map((note) =>
+      note.id === id ? { ...note, pinned: !note.pinned } : note
+    );
+    setNotes(updatedNotes);
+    localStorage.setItem("notes", JSON.stringify(updatedNotes));
+  };
+
+  const filteredNotes = notes.filter((note) => {
+    const search = searchTerm.toLowerCase();
+    return (
+      (note.title || "").toLowerCase().includes(search) ||
+      (note.content || "").toLowerCase().includes(search)
+    );
+  });
+
+  const sortedNotes = [...filteredNotes].sort((a, b) => {
+    if (a.pinned === b.pinned)
+      return new Date(b.lastModified) - new Date(a.lastModified);
+    return a.pinned ? -1 : 1;
+  });
 
   const formatDate = (dateString) => {
     if (!dateString) return "Unknown date";
@@ -97,117 +79,176 @@ export default function TaskManager() {
     );
   };
 
-  //const selectedNote = notes.find((note) => task.id === selectedNoteId);
-
   const handleNotesView = (note) => {
     localStorage.setItem("selectedNote", JSON.stringify(note));
     navigate("/notes");
   };
+
   return (
-    <div className="flex h-screen opacity-80 bg-gradient-to-br from-transparent via-cyan-900 to-transparent">
-      {/* Sidebar */}
-      <Sidebar
-        isSidebarOpen={isSidebarOpen}
-        setIsSidebarOpen={setIsSidebarOpen}
-        isSidebarPinned={isSidebarPinned}
-        setIsSidebarPinned={setIsSidebarPinned}
-        tasks={filteredNotes}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        setSelectedTaskId={setSelectedTaskId}
-        formatDate={formatDate}
+    <div className="min-h-screen w-full relative bg-black">
+      {/* Ocean Abyss Background with Top Glow */}
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(6, 182, 212, 0.25), transparent 70%), #000000",
+        }}
       />
 
-      {/* Main Content */}
-      <main
-        className={`flex-1 p-8 overflow-y-auto transition-all duration-300 ${
-          isSidebarOpen || isSidebarPinned ? "ml-72" : "ml-0"
-        }`}
-      >
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl font-bold text-white mb-2">Your Notes</h2>
-            {/* <p className="text-teal-200">Capture your thoughts and ideas</p> */}
-          </div>
+      {/* Main App Content */}
+      <div className="relative z-10 flex h-screen opacity-80">
+        {/* Sidebar */}
+        <Sidebar
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+          isSidebarPinned={isSidebarPinned}
+          setIsSidebarPinned={setIsSidebarPinned}
+          tasks={filteredNotes}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          setSelectedTaskId={setSelectedTaskId}
+          formatDate={formatDate}
+        />
 
-          {/* Notes Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 overflow-y-hidden">
-            <button
-              onClick={handleNewNote}
-              className="bg-gradient-to-r from-teal-600 to-teal-400 text-white px-6 py-3 rounded-xl font-medium transition-all shadow-lg flex items-center gap-2 max-h-[90px] hover:from-teal-700 hover:to-teal-500"
-            >
-              <Plus className="w-5 h-5" />
-              New Note
-            </button>
+        {/* Main Content */}
+        <main
+          className={`flex-1 p-8 overflow-y-auto transition-all duration-300 ${
+            isSidebarOpen || isSidebarPinned ? "ml-72" : "ml-0"
+          }`}
+        >
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-3xl font-bold text-white mb-2">Your Notes</h2>
+            </div>
 
-            {[...filteredNotes].reverse().map((note) => (
-              <div
-                key={note.id}
-                className="group bg-slate-800/40 border border-teal-600/20 rounded-2xl p-5 hover:border-teal-400/40 hover:bg-slate-800/60 transition-all duration-300 overflow-y-hidden backdrop-blur-sm"
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-white font-semibold text-sm">
-                    {note.title || "Untitled"}
-                  </h3>
-                  <Edit3
-                    className="absolute right-[40px] w-4 h-4 text-teal-400 mt-1 cursor-pointer hover:text-teal-300"
-                    onClick={() => handleNotesView(note)}
-                  />
-
-                  <button
-                    onClick={() => deleteNote(note.id)}
-                    className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 transition-all text-sm"
-                  >
-                    ✕
-                  </button>
-                </div>
-
-                {/* {editingTaskId === task.id ? (
-                  <textarea
-                    value={task.content}
-                    onChange={(e) => updateNoteContent(task.id, e.target.value)}
-                    onBlur={() => setEditingTaskId(null)}
-                    className="w-full bg-transparent text-teal-50 resize-none focus:outline-none text-sm leading-relaxed min-h-[120px] placeholder-teal-300"
-                    autoFocus
-                  />
-                ) : (
-                  <p
-                    className="text-teal-50 text-sm leading-relaxed cursor-pointer"
-                    onClick={() => setSelectedTaskId(task.id)}
-                  >
-                    {task.content}
-                  </p>
-                )} */}
-
-                <div className="mt-4 pt-3 border-t border-teal-600/20">
-                  <p className="text-xs text-teal-300 flex items-center">
-                    <Clock className="w-3 h-3 mr-1" />
-                    Modified {formatDate(note.lastModified)}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Selected Note Modal */}
-          {/* {selectedNote && (
-            <div className="fixed inset-0 flex items-center justify-center bg-slate-900/80 z-50 backdrop-blur-sm">
-              <div className="relative w-full max-w-md p-6 bg-slate-800/90 backdrop-blur-lg border border-teal-600/30 rounded-2xl shadow-2xl">
+            {/* New Note + Search Bar */}
+            <div className="flex justify-center mb-12">
+              <div className="flex items-center gap-3 w-full max-w-[600px]">
                 <button
-                  onClick={() => setSelectedNoteId(null)}
-                  className="absolute top-3 right-3 text-teal-200 hover:text-white transition-colors"
+                  onClick={handleNewNote}
+                  className="h-12 px-6 bg-gradient-to-r from-teal-600 to-teal-400 text-white 
+                             rounded-xl font-medium transition-all shadow-lg flex items-center 
+                             gap-2 hover:from-teal-700 hover:to-teal-500"
                 >
-                  ✕
+                  <Plus className="w-5 h-5" />
+                  New Note
                 </button>
-                <h3 className="text-xl font-bold text-white mb-4">
-                  {selectedTask.title || "Untitled"}
-                </h3>
-                <p className="text-teal-100">{selectedTask.content}</p>
+
+                <div
+                  className="flex items-center h-12 bg-slate-800/50 border border-teal-600/20 
+                                rounded-xl px-4 shadow-sm flex-1
+                                hover:bg-slate-800/60 hover:border-teal-400/40 transition-all duration-300"
+                >
+                  <Search className="w-5 h-5 text-teal-400 mr-2" />
+                  <input
+                    type="text"
+                    placeholder="Search notes..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="bg-transparent text-teal-100 placeholder-teal-400 focus:outline-none w-full"
+                  />
+                </div>
               </div>
             </div>
-          )} */}
-        </div>
-      </main>
+
+            {/* Notes Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 overflow-y-hidden">
+              {sortedNotes.map((note) => (
+                <div
+                  key={note.id}
+                  onClick={() => handleNotesView(note)}
+                  className="group relative bg-slate-800/40 border border-teal-600/20 rounded-2xl p-5 
+                             hover:border-teal-400/40 hover:bg-slate-800/60 transition-all 
+                             duration-300 overflow-hidden backdrop-blur-sm cursor-pointer"
+                >
+                  {/* Header Row */}
+                  <div className="relative flex items-start justify-between mb-3 group">
+                    <h3 className="text-white font-semibold text-sm truncate max-w-[70%]">
+                      {note.title || "Untitled"}
+                    </h3>
+
+                    <div className="flex items-center gap-2">
+                      {/* Pen remains as-is */}
+                      <Edit3
+                        className="w-4 h-4 text-teal-400 mt-1 cursor-pointer hover:text-teal-300"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleNotesView(note);
+                        }}
+                      />
+
+                      {/* 3-dots dropdown (isolated hover only on button OR dropdown) */}
+                      <div className="relative">
+                        <div className="peer text-teal-400 hover:text-teal-300 flex items-center justify-center w-4 h-4 cursor-pointer">
+                          ⋮
+                        </div>
+
+                        {/* Dropdown appears when hovering button OR dropdown */}
+                        <div
+                          className="absolute right-0 mt-2 w-24 bg-slate-900/90 border border-teal-700/30 
+               rounded-lg shadow-md flex flex-col backdrop-blur-sm overflow-hidden z-20
+               opacity-0 invisible 
+               peer-hover:opacity-100 peer-hover:visible
+               hover:opacity-100 hover:visible
+               transition-all duration-200"
+                        >
+                          <button
+                            className="text-teal-100 hover:bg-teal-600/10 px-3 py-1 text-left text-sm transition-colors duration-200"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              togglePin(note.id);
+                            }}
+                          >
+                            {note.pinned ? "Unpin" : "Pin"}
+                          </button>
+                          <button
+                            className="text-red-400 hover:bg-red-600/10 px-3 py-1 text-left text-sm transition-colors duration-200"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteNote(note.id);
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Pin Icon in top-left, tilted right, only if pinned */}
+                    {note.pinned && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          togglePin(note.id);
+                        }}
+                        className="absolute top-0 left-0 text-teal-400 hover:text-teal-300 transform -translate-y-1/2 -translate-x-1/2 rotate-12"
+                      >
+                        <PinOff className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Content */}
+                  <div
+                    className="text-xs text-teal-200 opacity-0 group-hover:opacity-100 
+                               max-h-0 group-hover:max-h-40 overflow-hidden transition-all duration-300"
+                  >
+                    {note.content || "No content available"}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="mt-4 pt-3 border-t border-teal-600/20">
+                    <p className="text-xs text-teal-300 flex items-center">
+                      <Clock className="w-3 h-3 mr-1" />
+                      Modified {formatDate(note.lastModified)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

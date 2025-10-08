@@ -84,6 +84,10 @@
   border-radius: 10%;
 }
 
+.modal {
+  z-index: 9999 !important;
+}
+
 /* Custom Scrollbar */
 /* ::-webkit-scrollbar {
   width: 8px;

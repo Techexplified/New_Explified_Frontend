@@ -49,34 +49,46 @@ function ExpliSidebar({
     );
   }, [searchQuery, chatHistory]);
 
-  const handleHistoryClick = (item) => {
+  const handleHistoryClick = (session) => {
     // Reset all panels
     setCurrentMessages([]);
     setCurrentMessagesOpenAI([]);
     setCurrentMessagesGemini([]);
 
-    // Load question + answers into respective bots
-    const userMsg = {
-      sender: "user",
-      text: item.question,
-      timestamp: item.timestamp,
-    };
+    // Temporary arrays for each tool
+    const messagesExpli = [];
+    const messagesOpenAI = [];
+    const messagesGemini = [];
 
-    item.answers.forEach((ans) => {
-      const botMsg = {
-        sender: "bot",
-        text: ans.text,
-        timestamp: item.timestamp,
+    // Loop through all Q&A in that session
+    session.qa.forEach((qaItem) => {
+      const userMsg = {
+        sender: "user",
+        text: qaItem.question,
+        timestamp: qaItem.timestamp,
       };
 
-      if (ans.tool === "expli") {
-        setCurrentMessages([userMsg, botMsg]);
-      } else if (ans.tool === "openai") {
-        setCurrentMessagesOpenAI([userMsg, botMsg]);
-      } else if (ans.tool === "gemini") {
-        setCurrentMessagesGemini([userMsg, botMsg]);
-      }
+      qaItem.answers.forEach((ans) => {
+        const botMsg = {
+          sender: "bot",
+          text: ans.text,
+          timestamp: qaItem.timestamp,
+        };
+
+        if (ans.tool === "expli") {
+          messagesExpli.push(userMsg, botMsg);
+        } else if (ans.tool === "openai") {
+          messagesOpenAI.push(userMsg, botMsg);
+        } else if (ans.tool === "gemini") {
+          messagesGemini.push(userMsg, botMsg);
+        }
+      });
     });
+
+    // Update states
+    setCurrentMessages(messagesExpli);
+    setCurrentMessagesOpenAI(messagesOpenAI);
+    setCurrentMessagesGemini(messagesGemini);
   };
   return (
     <div
@@ -86,9 +98,9 @@ function ExpliSidebar({
         isSidebarOpen || sidebarPinned
           ? "w-72  px-3"
           : "w-0 px-0 overflow-hidden"
-      } relative z-50 overflow-y-scroll sidebar-scroll bg-gradient-to-b from-gray-900/50 to-black/95 backdrop-blur-2xl 
+      } absolute sm:relative z-50  overflow-y-scroll sidebar-scroll bg-gradient-to-b from-gray-900/50 to-black/95 backdrop-blur-2xl 
         border-r border-minimal-primary/30 shadow-2xl shadow-minimal-primary/10
-        flex flex-col justify-between transition-all duration-500 ease-in-out`}
+        flex flex-col justify-between transition-all `}
     >
       {/* Top section */}
       {isSidebarOpen && (
@@ -104,13 +116,20 @@ function ExpliSidebar({
                 onClick={() => {
                   setSidebarPinned(!sidebarPinned);
                 }}
-                className={`p-2 rounded-lg transition-all duration-300 hover:scale-110 ${
+                className={`p-2 hidden sm:inline-block rounded-lg transition-all duration-300 hover:scale-110 ${
                   sidebarPinned
                     ? "bg-minimal-primary/20 text-minimal-primary shadow-lg shadow-minimal-primary/25"
                     : "bg-gray-800/50 text-gray-400 hover:bg-gray-700/50 hover:text-white"
                 }`}
               >
                 {sidebarPinned ? <PinOff size={15} /> : <Pin size={15} />}
+              </button>
+              {/* Cross button */}
+              <button
+                onClick={() => setIsSidebarOpen(false)}
+                className={`p-2 sm:hidden rounded-lg transition-all duration-300 hover:scale-110 bg-gray-800/50 text-gray-400 hover:bg-gray-700/50 hover:text-white`}
+              >
+                <X size={15} />
               </button>
             </div>
           </div>
@@ -251,7 +270,7 @@ function ExpliSidebar({
             </div>
 
             {/* Chat History */}
-            <div className="bg-gray-900/30 mt-14 ">
+            <div className="bg-transparent mt-14 ">
               <div className="text-lg font-semibold mb-1"> Chat History</div>
               {/* Filtered History */}
               {filteredHistory && filteredHistory.length > 0 ? (
@@ -267,14 +286,15 @@ function ExpliSidebar({
                       <div className="flex items-center justify-between">
                         <div
                           dangerouslySetInnerHTML={{
-                            __html: formatText(item.promptSummary),
+                            __html: formatText(item?.qa[0]?.promptSummary),
                           }}
                           className="text-sm text-gray-300 group-hover:text-white truncate "
                         />
+                        {/* <div>{item?.qa[0]?.promptSummary}</div> */}
 
                         {/* Bottom row: tool icons */}
-                        <div className="flex gap-2 mt-1">
-                          {item.answers.map((ans) => (
+                        <div className="flex  gap-2 mt-1">
+                          {item.qa[0].answers.map((ans) => (
                             <span
                               key={ans.tool}
                               className="text-[10px] px-1.5 py-0.5 rounded bg-gray-700 text-gray-300 flex items-center justify-center"
@@ -343,8 +363,8 @@ function ExpliSidebar({
                       </div>
 
                       {/* Bottom row: tool icons */}
-                      {/* <div className="flex gap-2 mt-1">
-                        {item.answers.map((ans) => (
+                      {/* <div className="flex  gap-2 mt-1">
+                        {item.qa[0].answers.map((ans) => (
                           <span
                             key={ans.tool}
                             className="text-[10px] px-1.5 py-0.5 rounded bg-gray-700 text-gray-300 flex items-center justify-center"

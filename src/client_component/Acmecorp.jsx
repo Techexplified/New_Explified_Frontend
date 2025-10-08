@@ -23,9 +23,9 @@ const promptSuggestions = [
 ];
 
 const webhookUrl =
-  "https://infogaurav.app.n8n.cloud/webhook/7cf23db3-e0c0-40b2-bb8f-77c8399e2e85";
+  "https://productexplified.app.n8n.cloud/webhook/d4b49ce1-2117-4f7e-ab66-c890a6d7fe79";
 
-const CarPartsAssistant = () => {
+const Acmecorp = () => {
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef(null);
   const navigate = useNavigate();
@@ -33,7 +33,7 @@ const CarPartsAssistant = () => {
   // Admin access handler - direct navigation without login layer
   const handleAdminAccess = () => {
     // Direct navigation to admin page without login requirement
-    navigate("/flowsense/explified/admin/login");
+    navigate("/flowsense/acmecorp/admin/login");
   };
 
   useEffect(() => {
@@ -110,17 +110,13 @@ const CarPartsAssistant = () => {
       const res = await fetch(webhookUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: userMessage }),
+        body: JSON.stringify({ prompt: userMessage }),
       });
-      console.log("Response:", res);
 
       if (!res.ok) throw new Error(`Error: ${res.status} ${res.statusText}`);
 
       const data = await res.json();
-      const output =
-        Array.isArray(data) && data[0] && data[0].output
-          ? data[0].output
-          : data.output || JSON.stringify(data);
+      const output = data[0]?.output || data.output || JSON.stringify(data);
       const parsed = parseBotResponse(output);
 
       setChat((prev) => [
@@ -328,4 +324,4 @@ const CarPartsAssistant = () => {
   );
 };
 
-export default CarPartsAssistant;
+export default Acmecorp;

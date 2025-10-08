@@ -1,191 +1,251 @@
-import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Outlet, useNavigate} from "react-router-dom";
+// UpdatedDashboard.jsx
+import { useState, useEffect, useRef } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
-  Home,
-  History,
-  Zap,
   LayoutDashboard,
-  BoomBox,
-  PencilRuler,
   Workflow,
+  Zap,
+  PencilRuler,
   CircleUserRound,
-  MessageSquareQuote,
-  Star,
-  BrainCircuit,
-  Youtube,
-  Captions,
-  Linkedin,
-  Video,
-  ImagePlay,
-  SquarePercent,
-  BotMessageSquare,
   Plus,
-  SectionIcon,
-  Grip,
-  Settings,
-  File,
   FileText,
-  ArrowDownUp,
   Search,
-  MessageCircleMore,
-  Database,
-  TvMinimalPlay,
-  Users,
+  ArrowLeft,
+  Share2,
+  Download,
+  FileJson, File, FileType,
 } from "lucide-react";
+import { create } from "zustand";
+import { jsPDF } from "jspdf";
+import { Document, Packer, Paragraph, TextRun } from "docx";
+// Prevent focus loss on every keystroke
+import { flushSync } from "react-dom";
 
-import logo from "../assets/logos/explified_logo.png";
-import UserModal from "./UserModal";
+// ---------------- ZUSTAND STORE ----------------
+const useStore = create((set) => ({
+  shapes: [],
+  selectedTool: "freehand",
+  setTool: (tool) => set({ selectedTool: tool }),
+  setShapes: (shapesFromPreviousNote) => set({ shapes: shapesFromPreviousNote }),
+  addShape: (shape) => set((state) => ({ shapes: [...state.shapes, shape] })),
+  updateShape: (id, updater) =>
+    set((state) => ({
+      shapes: state.shapes.map((s) =>
+        s.id === id ? { ...s, ...(typeof updater === "function" ? updater(s) : updater) } : s
+      ),
+    })),
+  removeShape: (id) => set((state) => ({ shapes: state.shapes.filter((s) => s.id !== id) })),
+  selectedShapeId: null,
+  setSelectedShapeId: (id) => set({ selectedShapeId: id }),
+  textStyle: { fontFamily: "Arial", fontSize: 20, bold: false, italic: false, color: "#23b5b5" },
+  setTextStyle: (partial) => set((state) => ({ textStyle: { ...state.textStyle, ...partial } })),
+  freehandType: "pencil",
+  setFreehandType: (fType) => set({ freehandType: fType }),
+}));
 
-// ---------------- FILTER ITEMS ----------------
+// ---------------- NAV ITEMS ----------------
 const navItems = [
-  { name: "Search", icon: Search, active: true, badge: null },
-  { name: "Recent", icon: null, active: false, badge: null },
-  { name: "Start", icon: null, active: false, badge: null },
-  { name: "All Apps", icon: null, active: false, badge: null },
-  { name: "Workflows", icon: null, active: false, badge: null },
-  { name: "Integrations", icon: null, active: false, badge: null },
+  { name: "Search", icon: Search, active: true },
+  { name: "Recent", icon: null, active: false },
+  { name: "Start", icon: null, active: false },
+  { name: "All Apps", icon: null, active: false },
+  { name: "Workflows", icon: null, active: false },
+  { name: "Integrations", icon: null, active: false },
 ];
 
-// ---------------- FILTER BAR ----------------
-const NavBarSection = ({ selectedTool, onNavClick }) => (
-  <div className="flex gap-4 items-center flex-nowrap w-auto py-2 px-6 bg-transparent">
-    {navItems.map((item) => (
-      <div key={item.name} className="flex flex-col items-center relative">
-        <button
-          type="button"
-          onClick={() => onNavClick(item.name)}
-          className={
-            selectedTool === item.name || item.active
-              ? "flex items-center justify-center bg-[#23b5b5] text-white min-w-[100px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base font-semibold"
-              : "flex items-center justify-center bg-transparent text-white min-w-[100px] h-8 px-4 rounded-[22px] border border-[#7ce4de] text-base hover:bg-[#7c8e91]/60"
-          }
-        >
-          {item.name === "Search" && item.icon ? (
-            <Search className="w-5 h-5" />
-          ) : (
-            <span>{item.name}</span>
-          )}
-        </button>
-      </div>
-    ))}
-  </div>
-);
-
-// ---------------- DASHBOARD ----------------
 const UpdatedDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeNav, setActiveNav] = useState("");
   const [selectedTool, setSelectedTool] = useState("");
-  const [showContent, setShowContent] = useState(true);
   const [showNavbar, setShowNavbar] = useState(true);
-  // const [lastScrollY, setLastScrollY] = useState(0);
-  // const [showUserModal, setShowUserModal] = useState(false);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isToolsOpen, setIsToolsOpen] = useState(false);
-  // const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isPlusOpen, setIsPlusOpen] = useState(false);
+  const [title, setTitle] = useState("");
+  const [isDownloadOpen, setIsDownloadOpen] = useState(false);
+const [showButton, setShowButton] = useState(false);
 
+  const h1Ref = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const timeoutId = useRef(null);
 
-  const tools = [
-    { name: "", icon: LayoutDashboard, description: "Shows key metrics" },
-    {
-      name: "Workflows",
-      icon: Workflow,
-      description: "Automates task sequences",
-    },
-  ];
+  const setShapes = useStore((state) => state.setShapes);
+  const shapes = useStore((state) => state.shapes);
 
-  const plusTools = [{ name: "Files", icon: File, path: "/task-manager" }];
+   const [selectedFormats, setSelectedFormats] = useState([]);
 
-  const aiTools = [
-    { name: "Integrations", icon: Zap, path: "/integrations" },
-    { name: "Workflows", icon: Workflow, path: "/workflows" },
-    { name: "Ai tools", icon: PencilRuler, path: "/aitools" },
-  ];
+  const handleSelect = (format) => {
+    setSelectedFormats((prev) =>
+      prev.includes(format)
+        ? prev.filter((f) => f !== format)
+        : [...prev, format]
+    );
+  };
 
-  // ---------------- Handlers ----------------
-  function PlusClick() {
-    setIsDrawerOpen((prev) => !prev);
-    navigate("/expli");
-  }
-
-  function ToolsClick(e) {
-    e.stopPropagation();
-    setIsToolsOpen((prev) => !prev);
-  }
-
-  // ---------------- Effects ----------------
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (
-        !e.target.closest(".tools-dropdown") &&
-        !e.target.closest(".tools-button")
-      ) {
-        setIsToolsOpen(false);
-      }
-    };
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-  }, []);
-
-  useEffect(() => {
-    if (sidebarOpen) {
-      const timer = setTimeout(() => setShowContent(true), 300);
-      return () => clearTimeout(timer);
-    } else {
-      setShowContent(false);
+  const handleDownload = () => {
+    if (selectedFormats.length === 0) {
+      alert("Please select at least one file format to download!");
+      return;
     }
-  }, [sidebarOpen]);
 
+    selectedFormats.forEach((format) => {
+      switch (format) {
+        case "PDF":
+          downloadAsPDF();
+          break;
+        case "WORD":
+          downloadAsWord();
+          break;
+        case "TXT":
+          downloadAsTxt();
+          break;
+        case "JSON":
+          downloadAsJson();
+          break;
+        default:
+          break;
+      }
+    });
+  };
+
+  // ---------------- NAVBAR HANDLERS ----------------
+  const PlusClick = () => navigate("/expli");
+  const handleNavBarClick = (navName) => {
+    setSelectedTool(navName);
+    if (["Start", "Search", "Recent", "All Apps"].includes(navName)) navigate("/");
+    else if (navName === "Workflows") navigate("/workflows");
+    else if (navName === "Integrations") navigate("/integrations");
+  };
+
+  // ---------------- PROFILE DROPDOWN ----------------
+  const handleMouseEnter = () => {
+    clearTimeout(timeoutId.current);
+    setIsOpen(true);
+  };
+  const handleMouseLeave = () => {
+    timeoutId.current = setTimeout(() => setIsOpen(false), 200);
+  };
+
+  // ---------------- MOUSE EFFECTS ----------------
   useEffect(() => {
     const handleMouseMove = (e) => {
-      if (e.clientY <= 450) {
-        setShowNavbar(true);
-      } else {
-        setShowNavbar(false);
-      }
+      if (e.clientY <= 450) setShowNavbar(true);
+      else setShowNavbar(false);
     };
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
+  // ---------------- LOAD SELECTED NOTE ----------------
+  useEffect(() => {
+    const selectedNote = localStorage.getItem("selectedNote");
+    if (selectedNote) {
+      try {
+        const noteObj = JSON.parse(selectedNote);
+        setTitle(noteObj.title || "");
+        setShapes(noteObj.shapes || []);
+      } catch (e) {
+        console.error("Failed to parse selectedNote:", e);
+      }
+    }
+  }, [setShapes]);
+
+  // ---------------- EDITABLE TITLE ----------------
+ 
+
+  // ---------------- AUTO-SAVE TITLE + SHAPES ----------------
+  useEffect(() => {
+    const debounce = setTimeout(() => {
+      const notes = JSON.parse(localStorage.getItem("notes") || "[]");
+      const selectedNote = localStorage.getItem("selectedNote");
+      let noteId = selectedNote ? JSON.parse(selectedNote).id : Date.now().toString();
+
+      const noteToSave = { id: noteId, title, shapes, updatedAt: new Date().toISOString() };
+
+      const noteExists = notes.find((n) => n.id === noteId);
+      if (noteExists) {
+        const updatedNotes = notes.map((n) => (n.id === noteId ? noteToSave : n));
+        localStorage.setItem("notes", JSON.stringify(updatedNotes));
+      } else {
+        notes.push(noteToSave);
+        localStorage.setItem("notes", JSON.stringify(notes));
+      }
+      localStorage.setItem("selectedNote", JSON.stringify(noteToSave));
+    }, 800); // 0.8s debounce
+
+    return () => clearTimeout(debounce);
+  }, [title, shapes]);
+
+  // ---------------- ROUTE PATH MAPPING ----------------
   useEffect(() => {
     const pathname = location.pathname;
-    if (pathname === "/") setSelectedTool("Dashboard");
-    else if (pathname === "/workflows") setSelectedTool("Workflows");
-    else if (pathname === "/socials") setSelectedTool("Socials");
-    else if (pathname === "/favorites") setSelectedTool("Favorites");
-    else if (pathname === "/search") setSelectedTool("Search");
-    else if (pathname === "/recent") setSelectedTool("Recent");
-    else if (pathname === "/start") setSelectedTool("Start");
-    else if (pathname === "/all-apps") setSelectedTool("All Apps");
-    else if (pathname === "/integrations") setSelectedTool("Integrations");
-    else setSelectedTool("");
+    const pathMap = {
+      "/": "Dashboard",
+      "/workflows": "Workflows",
+      "/socials": "Socials",
+      "/favorites": "Favorites",
+      "/search": "Search",
+      "/recent": "Recent",
+      "/start": "Start",
+      "/all-apps": "All Apps",
+      "/integrations": "Integrations",
+    };
+    setSelectedTool(pathMap[pathname] || "");
   }, [location.pathname]);
 
-  // ---------------- Navbar Hover ----------------
-  let timeoutId;
-  const handleMouseEnter = () => {
-    clearTimeout(timeoutId);
-    setIsOpen(true);
-  };
-  const handleMouseLeave = () => {
-    timeoutId = setTimeout(() => setIsOpen(false), 200);
+  // ---------------- DOWNLOAD FUNCTIONS ----------------
+  const downloadAsPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text(title, 20, 20);
+    doc.setFontSize(12);
+    doc.text(JSON.stringify(shapes, null, 2), 20, 40);
+    doc.save(`${title || "note"}.pdf`);
   };
 
-  // ---------------- NavBarClick ----------------
-  const handleNavBarClick = (navName) => {
-    setSelectedTool(navName);
-    if (navName === "Start") navigate("/");
-    else if (navName === "Search") navigate("/");
-    else if (navName === "Recent") navigate("/");
-    else if (navName === "All Apps") navigate("/");
-    else if (navName === "Workflows") navigate("/workflows");
-    else if (navName === "Integrations") navigate("/integrations");
+  const downloadAsWord = async () => {
+    const doc = new Document({
+      sections: [
+        {
+          children: [
+            new Paragraph({ children: [new TextRun({ text: title, bold: true, size: 32 })] }),
+            new Paragraph(""),
+            new Paragraph(JSON.stringify(shapes, null, 2)),
+          ],
+        },
+      ],
+    });
+
+   
+  
+
+
+    const blob = await Packer.toBlob(doc);
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${title || "note"}.docx`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const downloadAsTxt = () => {
+    const blob = new Blob([`${title}\n\n${JSON.stringify(shapes, null, 2)}`], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${title || "note"}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const downloadAsJson = () => {
+    const blob = new Blob([JSON.stringify({ title, shapes }, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${title || "note"}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   // ---------------- JSX ----------------
@@ -193,41 +253,204 @@ const UpdatedDashboard = () => {
     <div className="min-h-screen bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 flex flex-col overflow-hidden">
       {/* Header / Navbar */}
       <header
-        className={`fixed border-minimal-border/50 px-6 transition-transform duration-300 z-50 top-0 left-0 w-full
-          ${showNavbar ? "translate-y-0" : "-translate-y-full"}
-        `}
+        className={`fixed border-minimal-border/50 px-6 transition-transform duration-300 z-50 top-0 left-0 w-full ${
+          showNavbar ? "translate-y-0" : "-translate-y-full"
+        }`}
         style={{ minHeight: "56px", background: "transparent" }}
       >
-        <div className="flex items-start justify-between w-full">
-          <div className="flex items-center gap-2 pt-1 ml-auto">
-            {/* Grid Icon */}
-            {(() => {
-              const tool = {
-                name: "",
-                icon: LayoutDashboard,
-                description: "Shows key metrics",
-              };
-              const Icon = tool.icon;
-              const isActive = selectedTool === tool.name;
-              return (
-                <button
-                  onClick={() => {
-                    setSelectedTool(isActive ? null : tool.name);
-                    navigate(`/${tool.name.toLowerCase()}`);
-                  }}
-                  className={`flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-200 transform
-                  ${
-                    location.pathname === `/${tool.name.toLowerCase()}`
-                      ? "w-10 h-10 scale-110 text-[#23b5b5] bg-minimal-primary/20 border border-[#23b5b5]/30"
-                      : "w-10 h-10 text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover"
-                  }`}
-                >
-                  <Icon className="w-6 h-6" />
-                </button>
-              );
-            })()}
+        <div className="flex items-center justify-between w-full">
+          {/* Left Section - Back Button + Title */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center justify-center w-10 h-10 rounded-xl text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover transition-all duration-200"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
 
-            {/* Plus Icon */}
+<div className="relative max-w-[270px] input-container">
+  {!showButton ? (
+    <>
+      <input
+        ref={h1Ref}
+        type="text"
+        className="input-field"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder=" "
+        id="note-title"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && title.trim() !== "") {
+            e.preventDefault();
+            setShowButton(true); // show button
+          }
+        }}
+      />
+
+      {/* Floating label */}
+      {title && (
+        <label
+          htmlFor="note-title"
+          className="input-label top-[-20px] text-xs text-[#23b5b5] transition-all duration-300"
+        >
+          Title
+        </label>
+      )}
+
+      {/* Typewriter placeholder */}
+      {!title && (
+        <span className="absolute left-0 top-[10px] text-gray-400 pointer-events-none animate-typing overflow-hidden whitespace-nowrap border-r-2 border-gray-400 pr-2">
+          Enter your title...
+        </span>
+      )}
+
+      <span className="input-highlight"></span>
+    </>
+  ) :  (
+    <h1
+      className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-teal-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent mb-2 drop-shadow-lg transition-transform duration-500 hover:scale-105 hover:tracking-wider cursor-pointer text-center"
+      onClick={() => setShowButton(false)} // go back to input on click
+    >
+      {title}
+    </h1>
+  )}
+</div>
+
+
+
+
+
+
+          </div>
+
+          {/* Right Section - Share, Dashboard, Plus, Profile, Download */}
+          <div className="flex items-center gap-2 pt-1">
+ {/* Download Dropdown */}
+<div
+  className="relative group"
+  onMouseEnter={() => {
+    clearTimeout(timeoutId.current); // cancel any pending timeout
+    setIsDownloadOpen(true);
+  }}
+   onMouseLeave={() => {
+    timeoutId.current = setTimeout(() => setIsDownloadOpen(false), 800); // delay
+  }}
+>
+  <button className="flex items-center justify-center w-10 h-10 rounded-xl text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover transition-all duration-200">
+    <Download className="w-5 h-5" />
+  </button>
+
+  {isDownloadOpen && (
+    <div
+      className="absolute top-full left-1/2 -translate-x-1/2 mt-2 
+                 bg-[#0d1418] border border-[#23b5b5]/40 rounded-lg 
+                 shadow-md p-4 w-48 flex flex-col gap-3 z-50"
+    >
+      {/* PDF Option */}
+     <label className="flex items-center gap-2 cursor-pointer hover:text-[#23b5b5]">
+  <input
+    type="checkbox"
+    checked={selectedFormats.includes("PDF")}
+    onChange={() => handleSelect("PDF")}
+    className="hidden"
+  />
+  <span className="w-4 h-4 rounded-full border border-[#23b5b5] flex items-center justify-center">
+    {selectedFormats.includes("PDF") && (
+      <span className="w-2 h-2 bg-[#23b5b5] rounded-full"></span>
+    )}
+  </span>
+  <FileText className="w-5 h-5" />
+  <span>PDF</span>
+</label>
+
+<label className="flex items-center gap-2 cursor-pointer hover:text-[#23b5b5]">
+  <input
+    type="checkbox"
+    checked={selectedFormats.includes("WORD")}
+    onChange={() => handleSelect("WORD")}
+    className="hidden"
+  />
+  <span className="w-4 h-4 rounded-full border border-[#23b5b5] flex items-center justify-center">
+    {selectedFormats.includes("WORD") && (
+      <span className="w-2 h-2 bg-[#23b5b5] rounded-full"></span>
+    )}
+  </span>
+  <FileType className="w-5 h-5" />
+  <span>Word</span>
+</label>
+
+<label className="flex items-center gap-2 cursor-pointer hover:text-[#23b5b5]">
+  <input
+    type="checkbox"
+    checked={selectedFormats.includes("TXT")}
+    onChange={() => handleSelect("TXT")}
+    className="hidden"
+  />
+  <span className="w-4 h-4 rounded-full border border-[#23b5b5] flex items-center justify-center">
+    {selectedFormats.includes("TXT") && (
+      <span className="w-2 h-2 bg-[#23b5b5] rounded-full"></span>
+    )}
+  </span>
+  <File className="w-5 h-5" />
+  <span>TXT</span>
+</label>
+
+<label className="flex items-center gap-2 cursor-pointer hover:text-[#23b5b5]">
+  <input
+    type="checkbox"
+    checked={selectedFormats.includes("JSON")}
+    onChange={() => handleSelect("JSON")}
+    className="hidden"
+  />
+  <span className="w-4 h-4 rounded-full border border-[#23b5b5] flex items-center justify-center">
+    {selectedFormats.includes("JSON") && (
+      <span className="w-2 h-2 bg-[#23b5b5] rounded-full"></span>
+    )}
+  </span>
+  <FileJson className="w-5 h-5" />
+  <span>JSON</span>
+</label>
+
+
+      {/* Download Button */}
+      <button
+        onClick={handleDownload}
+        className="bg-[#23b5b5] hover:bg-[#1ea4a4] text-white font-medium rounded-lg py-1.5 mt-2 transition-all duration-200"
+      >
+        Download
+      </button>
+    </div>
+  )}
+</div>
+
+
+
+
+
+            {/* Share */}
+            <button
+              onClick={() => {
+                if (navigator.share) {
+                  navigator.share({ title: document.title, url: window.location.href });
+                } else {
+                  navigator.clipboard.writeText(window.location.href);
+                  alert("Link copied to clipboard!");
+                }
+              }}
+              className="flex items-center justify-center w-10 h-10 rounded-xl text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover transition-all duration-200"
+            >
+              <Share2 className="w-5 h-5" />
+            </button>
+
+            {/* Dashboard */}
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="flex items-center justify-center w-10 h-10 rounded-xl text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover transition-all duration-200"
+            >
+              <LayoutDashboard className="w-6 h-6" />
+            </button>
+
+            {/* Plus */}
             <div
               className="relative"
               onMouseEnter={() => setIsPlusOpen(true)}
@@ -235,56 +458,29 @@ const UpdatedDashboard = () => {
             >
               <button
                 onClick={PlusClick}
-                className={`flex items-center justify-center rounded-xl transition-all duration-200 transform
-                  ${
-                    location.pathname === "/expli"
-                      ? "w-12 h-12 scale-110 text-[#23b5b5] bg-minimal-primary/20 border border-[#23b5b5]/30"
-                      : "w-10 h-10 text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover"
-                  }`}
+                className="flex items-center justify-center w-10 h-10 rounded-xl text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover transition-all duration-200"
               >
-                <Plus
-                  className={
-                    location.pathname === "/expli" ? "w-6 h-6" : "w-5 h-5"
-                  }
-                />
+                <Plus className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Profile Dropdown */}
+            {/* Profile */}
             <div
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
               className="relative inline-block"
             >
-              {/* Profile Avatar Button */}
               <button
                 onClick={() => navigate("/profile")}
-                className={`flex items-center justify-center 
-              w-10 h-10 rounded-xl transition-all duration-200 transform
-              ${
-                location.pathname === "/profile"
-                  ? "scale-110 text-[#23b5b5] bg-minimal-primary/20 border border-[#23b5b5]/40"
-                  : "text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover"
-              }`}
+                className="flex items-center justify-center w-10 h-10 rounded-xl text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover transition-all duration-200"
               >
                 <CircleUserRound className="w-5 h-5" />
               </button>
 
-              {/* Dropdown */}
               {isOpen && (
-                <div
-                  className="absolute right-0 top-12 min-w-[220px]
-                 bg-gradient-to-br from-[#0d1418] to-[#111c20] 
-                 backdrop-blur-xl border border-[#23b5b5]/40 rounded-xl shadow-lg
-                 p-4 flex flex-col items-center z-50
-                 transform transition-all duration-300 ease-out
-                 animate-in fade-in-20 scale-in-95"
-                >
-                  {/* Profile Button */}
+                <div className="absolute right-0 top-12 min-w-[220px] bg-gradient-to-br from-[#0d1418] to-[#111c20] backdrop-blur-xl border border-[#23b5b5]/40 rounded-xl shadow-lg p-4 flex flex-col items-center z-50">
                   <Link
-                    className="w-full h-9 mb-3 rounded-lg border border-[#23b5b5]/40 text-sm font-medium text-white
-                   bg-transparent hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] 
-                   hover:shadow-md hover:shadow-cyan-500/20 transition-all duration-200 flex items-center justify-center"
+                    className="w-full h-9 mb-3 rounded-lg border border-[#23b5b5]/40 text-sm font-medium text-white bg-transparent hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] hover:shadow-md hover:shadow-cyan-500/20 transition-all duration-200 flex items-center justify-center"
                     to="https://explified.com/explified-labs"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -292,89 +488,21 @@ const UpdatedDashboard = () => {
                     For Enterprises
                   </Link>
 
-                  {/* Quick Tools (row) */}
                   <div className="flex gap-2 w-full mb-3">
-                    {[
-                      { icon: Plus, to: "/expli" },
-                      { icon: FileText, to: "/tasks" },
-                      // { icon: Zap, to: "/integrations" },
-                    ].map(({ icon: Icon, to }, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => {
-                          navigate(to);
-                          setIsOpen(false);
-                        }}
-                        className="flex-1 h-9 flex items-center justify-center rounded-lg border border-[#23b5b5]/40 bg-transparent
-                       hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] hover:shadow-sm hover:shadow-cyan-500/20
-                       text-white transition-all duration-200"
-                      >
-                        <Icon className="w-4 h-4" />
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Second row of Quick Tools */}
-                  <div className="flex gap-2 w-full mb-3">
-                    {[
-                      // { icon: Database, to: "/memory" },
-                      // { icon: Users, to: "/socials" },
-                      { icon: Search, to: "/discover" },
-                    ].map(({ icon: Icon, to }, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => {
-                          navigate(to);
-                          setIsOpen(false);
-                        }}
-                        className="flex-1 h-9 flex items-center justify-center rounded-lg border border-[#23b5b5]/40 bg-transparent
-                       hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] hover:shadow-sm hover:shadow-cyan-500/20
-                       text-white transition-all duration-200"
-                      >
-                        <Icon className="w-4 h-4" />
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Workflows Section */}
-                  <div className="mb-3 w-full">
-                    <h3 className="text-white text-xs font-semibold opacity-80 mb-2">
-                      Workflows
-                    </h3>
-                    <div className="flex gap-2 w-full">
-                      {[
-                        { icon: Workflow, to: "/workflows" },
-                        { icon: Zap, to: "/integrations" },
-                      ].map(({ icon: Icon, to }, idx) => (
+                    {[{ icon: Plus, to: "/expli" }, { icon: FileText, to: "/tasks" }].map(
+                      ({ icon: Icon, to }, idx) => (
                         <button
                           key={idx}
                           onClick={() => {
                             navigate(to);
                             setIsOpen(false);
                           }}
-                          className="flex-1 h-9 flex items-center justify-center rounded-lg border border-[#23b5b5]/40 bg-transparent
-                         hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] hover:shadow-sm hover:shadow-cyan-500/20
-                         text-white transition-all duration-200"
+                          className="flex-1 h-9 flex items-center justify-center rounded-lg border border-[#23b5b5]/40 bg-transparent hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] hover:shadow-sm hover:shadow-cyan-500/20 text-white transition-all duration-200"
                         >
                           <Icon className="w-4 h-4" />
                         </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* All Tools Section */}
-                  <div className="w-full mb-1">
-                    <h3 className="text-white text-xs font-semibold opacity-80 mb-2">
-                      All Tools
-                    </h3>
-                    <button
-                      onClick={() => navigate("/alltools")}
-                      className="flex items-center justify-center w-12 h-12 mx-auto rounded-lg border border-[#23b5b5]/40 
-                     text-white bg-transparent hover:bg-[#23b5b5]/15 hover:border-[#23b5b5]
-                     hover:shadow-md hover:shadow-cyan-500/20 transition-all duration-200"
-                    >
-                      <Grip className="w-5 h-5" />
-                    </button>
+                      )
+                    )}
                   </div>
                 </div>
               )}
@@ -384,11 +512,8 @@ const UpdatedDashboard = () => {
       </header>
 
       {/* CONTENT */}
-      <div
-        className={`${
-          sidebarOpen ? "ml-80" : "ml-0"
-        } w-full transition-all duration-300`}
-      >
+      <div className={`${sidebarOpen ? "ml-80" : "ml-0"} w-full transition-all duration-300`}>
+        {/* Place your Canvas or Editor component here */}
       </div>
     </div>
   );
