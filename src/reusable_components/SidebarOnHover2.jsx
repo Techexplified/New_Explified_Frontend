@@ -63,7 +63,9 @@ function SidebarOnHover2({ toolName, onToggle }) {
     const newTitle = prompt("Edit note title:", task.title);
     if (newTitle !== null) {
       const updatedTasks = tasks.map((t) =>
-        t.id === task.id ? { ...t, title: newTitle, lastModified: new Date() } : t
+        t.id === task.id
+          ? { ...t, title: newTitle, lastModified: new Date() }
+          : t
       );
       setTasks(updatedTasks);
       localStorage.setItem("tasks", JSON.stringify(updatedTasks));
@@ -91,12 +93,12 @@ function SidebarOnHover2({ toolName, onToggle }) {
 
       {/* Sidebar */}
       <div
-  className={`fixed top-0 left-0 h-full bg-black/95 backdrop-blur-xl border-r border-minimal-primary/20
+        className={`fixed top-0 left-0 h-full bg-black/95 backdrop-blur-xl border-r border-minimal-primary/20
   flex flex-col justify-between transition-all duration-300 z-50 overflow-y-auto
   ${sidebarOpen || sidebarPinned ? "w-72 px-6" : "w-0 px-0 overflow-hidden"}`}
-  onMouseEnter={() => !sidebarPinned && setSidebarOpen(true)}
-  onMouseLeave={() => !sidebarPinned && setSidebarOpen(false)}
->
+        onMouseEnter={() => !sidebarPinned && setSidebarOpen(true)}
+        onMouseLeave={() => !sidebarPinned && setSidebarOpen(false)}
+      >
         {/* Top Section */}
         <div className="mt-8 flex flex-col gap-6">
           {/* Header + Pin */}
@@ -117,16 +119,15 @@ function SidebarOnHover2({ toolName, onToggle }) {
 
           {/* Search */}
           <div className="relative w-[200px] mr-4">
-  <input
-    type="text"
-    placeholder="Search notes..."
-    value={searchTerm}
-    onChange={(e) => setSearchTerm(e.target.value)}
-    className="w-full bg-black border border-minimal-primary/20 rounded-lg py-2 pl-3 pr-10 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-minimal-primary/40"
-  />
-  <Search className="absolute right-3 top-2.5 w-3 h-4 text-minimal-primary" />
-</div>
-
+            <input
+              type="text"
+              placeholder="Search notes..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-black border border-minimal-primary/20 rounded-lg py-2 pl-3 pr-10 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-minimal-primary/40"
+            />
+            <Search className="absolute right-3 top-2.5 w-3 h-4 text-minimal-primary" />
+          </div>
 
           {/* Floating + Button */}
           <button
@@ -138,8 +139,10 @@ function SidebarOnHover2({ toolName, onToggle }) {
           </button>
 
           {/* Notes list */}
-          <div className="flex-1 h-screen overflow-y-auto space-y-3 pr-2 pb-6 
-  scrollbar-thin scrollbar-thumb-minimal-primary/40 scrollbar-track-black">
+          <div
+            className="flex-1 h-screen overflow-y-auto space-y-3 pr-2 pb-6 
+  scrollbar-thin scrollbar-thumb-minimal-primary/40 scrollbar-track-black"
+          >
             {filteredTasks.map((task) => {
               const isSelected = String(task.id) === selectedId;
               return (
@@ -163,7 +166,9 @@ function SidebarOnHover2({ toolName, onToggle }) {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          setMenuOpenId(menuOpenId === task.id ? null : task.id);
+                          setMenuOpenId(
+                            menuOpenId === task.id ? null : task.id
+                          );
                         }}
                         className="text-gray-400 hover:text-minimal-primary opacity-0 group-hover:opacity-100"
                         title="More actions"
