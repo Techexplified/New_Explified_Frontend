@@ -20,40 +20,39 @@ const MostPopular = () => {
   // Sample workflow data with tool icons
   const sampleWorkflows = [
     {
-      id: "zoom-gdrive",
-      title:
-        "Receive New Zoom Cloud Recordings Automatically Uploaded to Google Drive",
+      id: "email-drip",
+      title: "Email Drip Campaign Automation",
       description:
-        "Automatically save your Zoom cloud recordings to Google Drive whenever a new recording is available. Perfect for keeping meeting records organized and accessible.",
+        "Automatically send personalized email sequences based on customer behavior and interactions. Perfect for nurturing leads and maintaining engagement.",
       tools: [
-        { name: "Zoom", icon: "🔵", bgColor: "bg-minimal-primary" }, // Zoom blue
-        { name: "Google Drive", icon: "📁", bgColor: "bg-minimal-gray-600" }, // Google Drive green
+        { name: "Gmail", icon: "�", bgColor: "bg-red-500" },
+        { name: "CRM", icon: "�", bgColor: "bg-blue-500" },
       ],
       category: "Marketing",
       recommended: true,
     },
     {
-      id: "slack-trello",
-      title: "Create Trello Cards from Slack Messages",
+      id: "data-cleaning",
+      title: "Data Cleaning Pipeline",
       description:
-        "Transform important Slack messages into actionable Trello cards instantly. Keep track of tasks and follow-ups without leaving your chat.",
+        "Automatically clean, validate, and transform your data from multiple sources. Remove duplicates, fix formatting, and ensure data quality.",
       tools: [
-        { name: "Slack", icon: "💬", bgColor: "bg-minimal-gray-700" },
-        { name: "Trello", icon: "📋", bgColor: "bg-minimal-primary" },
+        { name: "Database", icon: "�️", bgColor: "bg-purple-500" },
+        { name: "Excel", icon: "�", bgColor: "bg-green-500" },
       ],
-      category: "Content",
+      category: "Data Management",
       recommended: true,
     },
     {
-      id: "gmail-notion",
-      title: "Save Gmail Attachments to Notion Database",
+      id: "google-ads-monitor",
+      title: "Google Ads Spend Monitor",
       description:
-        "Automatically extract and organize email attachments into your Notion workspace. Great for document management and team collaboration.",
+        "Track your Google Ads spending in real-time and get alerts when budgets exceed thresholds. Optimize your ad campaigns automatically.",
       tools: [
-        { name: "Gmail", icon: "📧", bgColor: "bg-minimal-gray-600" },
-        { name: "Notion", icon: "📝", bgColor: "bg-minimal-gray-700" },
+        { name: "Google Ads", icon: "🎯", bgColor: "bg-yellow-500" },
+        { name: "Slack", icon: "�", bgColor: "bg-minimal-gray-700" },
       ],
-      category: "Development / IT",
+      category: "Advertising",
       recommended: false,
     },
   ];
@@ -113,7 +112,7 @@ const MostPopular = () => {
   // }, []);
 
   return (
-    <div className="bg-gradient-to-br from-cyan-1000 via-black to-cyan-950 ">
+    <div className="bg-transparent">
       <div className="w-full pt-5 ">
         {/* heading */}
         <div className="flex items-center justify-between mb-6">
@@ -131,12 +130,12 @@ const MostPopular = () => {
               <div
                 key={workflow.id}
                 onClick={() => navigate("/locked")}
-                className="group relative w-[220px] bg-gradient-to-br from-black via-cyan-950 to-cyan-900/80 border border-cyan-700 rounded-xl p-5 
-hover:bg-[#23b5b5]/40 transition-all duration-300 transform hover:-translate-y-2 
-hover:shadow-xl hover:shadow-teal-500/30 cursor-pointer flex flex-col h-64"
+                className="group relative w-[220px] bg-gradient-to-br from-[#0d1418] to-[#111c20] border border-[#23b5b5]/40 rounded-xl p-5 
+hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] transition-all duration-300 transform hover:-translate-y-2 
+hover:shadow-lg hover:shadow-cyan-500/20 cursor-pointer flex flex-col h-64"
               >
                 {/* Gradient overlay on hover */}
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-700/10 to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-[#23b5b5]/10 to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
                 <div className="relative z-10 flex flex-col h-full">
                   {/* Header */}
@@ -148,7 +147,7 @@ hover:shadow-xl hover:shadow-teal-500/30 cursor-pointer flex flex-col h-64"
                           <div
                             key={index}
                             className={`w-10 h-10 ${tool.bgColor} rounded-lg flex items-center justify-center 
-                         text-white text-lg shadow-lg border-2 border-teal-500/30 
+                         text-white text-lg shadow-lg border-2 border-[#23b5b5]/30 
                          group-hover:scale-110 transition-transform duration-300`}
                             title={tool.name}
                             style={{ zIndex: workflow.tools.length - index }}
@@ -160,7 +159,7 @@ hover:shadow-xl hover:shadow-teal-500/30 cursor-pointer flex flex-col h-64"
 
                       {/* Arrow connector */}
                       <svg
-                        className="w-6 h-6 text-gray-300 group-hover:text-teal-400 transition-colors duration-300"
+                        className="w-6 h-6 text-gray-300 group-hover:text-[#23b5b5] transition-colors duration-300"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -180,11 +179,11 @@ hover:shadow-xl hover:shadow-teal-500/30 cursor-pointer flex flex-col h-64"
                         onClick={(e) => toggleMenu(workflow.id, e)}
                         className="p-2 rounded-lg hover:bg-black/20 transition-colors duration-200 z-20 relative"
                       >
-                        <MoreHorizontal className="w-5 h-5 text-gray-300 hover:text-teal-400 transition-colors duration-200" />
+                        <MoreHorizontal className="w-5 h-5 text-gray-300 hover:text-[#23b5b5] transition-colors duration-200" />
                       </button>
 
                       {isMenuOpen && (
-                        <div className="absolute right-0 top-10 w-48 bg-[#1a1a1a] rounded-lg border border-teal-400 shadow-2xl z-30 overflow-hidden">
+                        <div className="absolute right-0 top-10 w-48 bg-[#1a1a1a] rounded-lg border border-[#23b5b5] shadow-2xl z-30 overflow-hidden">
                           <div className="relative z-10 py-2">
                             {menuOptions.map((option, optionIndex) => {
                               const OptionIcon = option.icon;
@@ -212,18 +211,18 @@ hover:shadow-xl hover:shadow-teal-500/30 cursor-pointer flex flex-col h-64"
 
                   {/* Content */}
                   <div className="flex-1">
-                    <div className="inline-block px-2 py-1 bg-black/40 rounded-md text-xs text-teal-400 mb-3">
+                    <div className="inline-block px-2 py-1 bg-black/40 rounded-md text-xs text-[#23b5b5] mb-3">
                       {workflow.category}
                     </div>
 
-                    <h3 className="text-white font-semibold text-base line-clamp-3 group-hover:text-teal-300 transition-colors duration-300 leading-tight">
+                    <h3 className="text-white font-semibold text-base line-clamp-3 group-hover:text-[#23b5b5] transition-colors duration-300 leading-tight">
                       {workflow.title}
                     </h3>
                   </div>
 
                   {/* Footer */}
                   <div className="flex items-center justify-between pt-2 border-t border-gray-700">
-                    <div className="flex items-center text-teal-400 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-0 group-hover:translate-x-1 ml-auto">
+                    <div className="flex items-center text-[#23b5b5] opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-0 group-hover:translate-x-1 ml-auto">
                       <span className="text-xs font-medium">Use Workflow</span>
                       <svg
                         className="w-4 h-4 ml-1"

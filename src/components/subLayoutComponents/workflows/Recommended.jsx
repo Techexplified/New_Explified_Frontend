@@ -19,68 +19,53 @@ const Recommended = () => {
   // Sample workflow data with tool icons
   const sampleWorkflows = [
     {
-      id: "zoom-gdrive",
-      title:
-        "Receive New Zoom Cloud Recordings Automatically Uploaded to Google Drive",
+      id: "crm-email-follow",
+      title: "CRM Contact to Email Follow-up Automation",
       description:
-        "Automatically save your Zoom cloud recordings to Google Drive whenever a new recording is available. Perfect for keeping meeting records organized and accessible.",
+        "Automatically send personalized follow-up emails when new contacts are added to your CRM. Perfect for nurturing leads and maintaining customer relationships.",
       tools: [
-        { name: "Zoom", icon: "🔵", bgColor: "bg-minimal-primary" }, // Zoom blue
-        { name: "Google Drive", icon: "📁", bgColor: "bg-minimal-gray-600" }, // Google Drive green
+        { name: "CRM", icon: "�", bgColor: "bg-blue-600" },
+        { name: "Email", icon: "�", bgColor: "bg-green-600" },
       ],
-      category: "Marketing",
+      category: "Sales",
       recommended: true,
     },
     {
-      id: "zoom-gdrive",
-      title:
-        "Receive New Zoom Cloud Recordings Automatically Uploaded to Google Drive",
+      id: "expense-approval",
+      title: "Expense Report Approval Workflow",
       description:
-        "Automatically save your Zoom cloud recordings to Google Drive whenever a new recording is available. Perfect for keeping meeting records organized and accessible.",
+        "Streamline expense approvals with automated routing to managers and integration with accounting systems. Reduce processing time and improve compliance.",
       tools: [
-        { name: "Zoom", icon: "🔵", bgColor: "bg-minimal-primary" }, // Zoom blue
-        { name: "Google Drive", icon: "📁", bgColor: "bg-minimal-gray-600" }, // Google Drive green
+        { name: "Expenses", icon: "�", bgColor: "bg-purple-600" },
+        { name: "Approval", icon: "✅", bgColor: "bg-orange-600" },
       ],
-      category: "Marketing",
+      category: "Finance",
       recommended: true,
     },
     {
-      id: "zoom-gdrive",
-      title:
-        "Receive New Zoom Cloud Recordings Automatically Uploaded to Google Drive",
+      id: "inventory-reorder",
+      title: "Inventory Low Stock Alert & Reorder",
       description:
-        "Automatically save your Zoom cloud recordings to Google Drive whenever a new recording is available. Perfect for keeping meeting records organized and accessible.",
+        "Monitor inventory levels and automatically create purchase orders when stock runs low. Prevent stockouts and optimize inventory management.",
       tools: [
-        { name: "Zoom", icon: "🔵", bgColor: "bg-minimal-primary" }, // Zoom blue
-        { name: "Google Drive", icon: "📁", bgColor: "bg-minimal-gray-600" }, // Google Drive green
+        { name: "Inventory", icon: "�", bgColor: "bg-red-600" },
+        { name: "Orders", icon: "�", bgColor: "bg-yellow-600" },
       ],
-      category: "Marketing",
+      category: "Operations",
       recommended: true,
     },
     {
-      id: "slack-trello",
-      title: "Create Trello Cards from Slack Messages",
+      id: "customer-onboarding",
+      title: "Customer Onboarding Sequence",
       description:
-        "Transform important Slack messages into actionable Trello cards instantly. Keep track of tasks and follow-ups without leaving your chat.",
+        "Welcome new customers with automated email sequences, account setup tasks, and training material delivery. Ensure consistent onboarding experience.",
       tools: [
-        { name: "Slack", icon: "💬", bgColor: "bg-minimal-gray-700" },
-        { name: "Trello", icon: "📋", bgColor: "bg-minimal-primary" },
+        { name: "Customer", icon: "🎯", bgColor: "bg-indigo-600" },
+        { name: "Email", icon: "�", bgColor: "bg-teal-600" },
       ],
-      category: "Content",
+      category: "Customer Success",
       recommended: true,
     },
-    // {
-    //   id: "gmail-notion",
-    //   title: "Save Gmail Attachments to Notion Database",
-    //   description:
-    //     "Automatically extract and organize email attachments into your Notion workspace. Great for document management and team collaboration.",
-    //   tools: [
-    //     { name: "Gmail", icon: "📧", bgColor: "bg-minimal-gray-600" },
-    //     { name: "Notion", icon: "📝", bgColor: "bg-minimal-gray-700" },
-    //   ],
-    //   category: "Development / IT",
-    //   recommended: false,
-    // },
   ];
 
   const menuOptions = [
@@ -138,7 +123,7 @@ const Recommended = () => {
   // }, []);
 
   return (
-    <div className="bg-gradient-to-br from-cyan-1000 via-black to-cyan-950 ">
+    <div className="bg-transparent">
       <div className="w-full pt-5 pb-10 px-5">
         {/* heading */}
         <div className="flex items-center justify-between mb-6">
@@ -147,7 +132,7 @@ const Recommended = () => {
           </h2>
           <button
             onClick={() => navigate("/workflows/recommended")}
-            className="text-sm font-semibold text-teal-400 hover:text-teal-300 transition-colors duration-200"
+            className="text-sm font-semibold text-[#23b5b5] hover:text-white transition-colors duration-200"
           >
             Show All
           </button>
@@ -162,12 +147,12 @@ const Recommended = () => {
               <div
                 key={workflow.id}
                 onClick={() => navigate("/locked")}
-                className=" w-[220px] group relative bg-gradient-to-br from-black via-cyan-950 to-cyan-900/80 border border-cyan-700 rounded-xl p-5 
-                       hover:bg-[#23b5b5]/40 transition-all duration-300 transform hover:-translate-y-2 
-                       hover:shadow-xl hover:shadow-teal-500/30 cursor-pointer flex flex-col h-64"
+                className="w-[220px] group relative bg-gradient-to-br from-[#0d1418] to-[#111c20] border border-[#23b5b5]/40 rounded-xl p-5 
+                       hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] transition-all duration-300 transform hover:-translate-y-2 
+                       hover:shadow-lg hover:shadow-cyan-500/20 cursor-pointer flex flex-col h-64"
               >
                 {/* Hover gradient overlay */}
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-700/10 to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-[#23b5b5]/10 to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
                 <div className="relative z-10 flex flex-col h-full">
                   {/* Header - Tools Icons and Menu */}
@@ -179,7 +164,7 @@ const Recommended = () => {
                           <div
                             key={index}
                             className={`w-10 h-10 ${tool.bgColor} rounded-lg flex items-center justify-center 
-                                   text-white text-lg shadow-lg border-2 border-teal-500/30 
+                                   text-white text-lg shadow-lg border-2 border-[#23b5b5]/30 
                                    group-hover:scale-110 transition-transform duration-300`}
                             title={tool.name}
                             style={{ zIndex: workflow.tools.length - index }}
@@ -191,7 +176,7 @@ const Recommended = () => {
 
                       {/* Arrow connector */}
                       <svg
-                        className="w-6 h-6 text-gray-300 group-hover:text-teal-400 transition-colors duration-300"
+                        className="w-6 h-6 text-gray-300 group-hover:text-[#23b5b5] transition-colors duration-300"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -211,12 +196,12 @@ const Recommended = () => {
                         onClick={(e) => toggleMenu(workflow.id, e)}
                         className="p-2 rounded-lg hover:bg-black/20 transition-colors duration-200 z-20 relative"
                       >
-                        <MoreHorizontal className="w-5 h-5 text-gray-300 hover:text-teal-400 transition-colors duration-200" />
+                        <MoreHorizontal className="w-5 h-5 text-gray-300 hover:text-[#23b5b5] transition-colors duration-200" />
                       </button>
 
                       {/* Dropdown Menu */}
                       {isMenuOpen && (
-                        <div className="absolute right-0 top-10 w-48 bg-[#1a1a1a] rounded-lg border border-teal-400 shadow-2xl z-30 overflow-hidden">
+                        <div className="absolute right-0 top-10 w-48 bg-[#1a1a1a] rounded-lg border border-[#23b5b5] shadow-2xl z-30 overflow-hidden">
                           <div className="relative z-10 py-2">
                             {menuOptions.map((option, optionIndex) => {
                               const OptionIcon = option.icon;
@@ -244,11 +229,11 @@ const Recommended = () => {
 
                   {/* Content - Workflow Description */}
                   <div className="flex-1">
-                    <div className="inline-block px-2 py-1 bg-black/40 rounded-md text-xs text-teal-400 mb-3">
+                    <div className="inline-block px-2 py-1 bg-black/40 rounded-md text-xs text-[#23b5b5] mb-3">
                       {workflow.category}
                     </div>
 
-                    <h3 className="text-base font-semibold line-clamp-3 text-white group-hover:text-teal-300 transition-colors duration-300 leading-tight">
+                    <h3 className="text-base font-semibold line-clamp-3 text-white group-hover:text-[#23b5b5] transition-colors duration-300 leading-tight">
                       {workflow.title}
                     </h3>
                   </div>
@@ -256,7 +241,7 @@ const Recommended = () => {
                   {/* Footer - Recommended Badge */}
                   <div className="flex items-center justify-between pt-2 border-t border-gray-700">
                     {workflow.recommended && (
-                      <div className="flex items-center text-teal-400">
+                      <div className="flex items-center text-[#23b5b5]">
                         <Sparkles className="w-4 h-4 mr-2" />
                         <span className="text-xs font-medium">
                           Recommended for you
@@ -264,7 +249,7 @@ const Recommended = () => {
                       </div>
                     )}
 
-                    <div className="flex items-center text-teal-400 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-0 group-hover:translate-x-1 ml-auto">
+                    <div className="flex items-center text-[#23b5b5] opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-0 group-hover:translate-x-1 ml-auto">
                       <span className="text-xs font-medium">Use Workflow</span>
                       <svg
                         className="w-4 h-4 ml-1"

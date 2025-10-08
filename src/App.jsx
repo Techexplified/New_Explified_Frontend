@@ -135,9 +135,10 @@ import usePageTracking from "./hooks/usePageTracking.js";
 import CarPartsAssistant from "./client_component/AI-Assitant.jsx";
 import SalesAssistant from "./sales-bot-assistant/SalesBotAssistant.jsx";
 import Admin from "./client_component/AdminComp.jsx";
-import InventoryComp from "./client_component/Inventroy.jsx";
+import InventoryComp from "./client_component/Inventory.jsx";
 import PurchaseOrdersComp from "./client_component/PurchaseComp.jsx";
 import FlowstateLogin from "./client_component/FlowstateLogin.jsx";
+import ProtectedRoute from "./reusable_components/ProtectedRoute.jsx";
 import DashboardComp from "./client_component/AI-dashboard.jsx";
 import FlowSenseLanding from "./expli/flowsense.jsx";
 import ExpliDashboard from "./expli/ExpliDashboard.jsx";
@@ -257,26 +258,46 @@ function App() {
           <Route path="/text-to-video" element={<TextToVideoGenerator />} />
           <Route path="/tasks" element={<TaskManagerWithSidebar />} />
 
-          <Route path="/chat" element={<CarPartsAssistant />} />
+          <Route path="/chat" element={<SalesAssistant />} />
           
           <Route path="/flowstate" element={<DashboardComp />} />
-          <Route path="/flowsense/explified" element={<FlowSenseLanding />} />
+          <Route path="/flowsense/explified" element={<CarPartsAssistant   />} />
           <Route path="/flowstate/login" element={<FlowstateLogin />} />
           <Route
             path="/flowsense/explified/admin/login"
             element={<FlowstateLogin />}
           />
-          <Route path="/flowsense/chat" element={<SalesAssistant />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/flowsense/explified/admin" element={<Admin />} />
-          <Route path="/explified/admin" element={<Admin />} />
+          <Route path="/explified/chat" element={<CarPartsAssistant />} />
+          <Route path="/admin" element={
+            <ProtectedRoute>
+              <Admin />
+            </ProtectedRoute>
+          } />
+          <Route path="/flowsense/explified/admin" element={
+            <ProtectedRoute>
+              <Admin />
+            </ProtectedRoute>
+          } />
+          <Route path="/explified/admin" element={
+            <ProtectedRoute>
+              <Admin />
+            </ProtectedRoute>
+          } />
           <Route
             path="flowsense/explified/admin/inventory"
-            element={<InventoryComp />}
+            element={
+              <ProtectedRoute>
+                <InventoryComp />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="flowsense/explified/admin/purchaseOrder"
-            element={<PurchaseOrdersComp />}
+            element={
+              <ProtectedRoute>
+                <PurchaseOrdersComp />
+              </ProtectedRoute>
+            }
           />
 
           <Route path="/history" element={<History />}></Route>

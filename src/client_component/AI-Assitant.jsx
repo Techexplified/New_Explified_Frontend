@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FiPaperclip,
   FiImage,
@@ -22,15 +23,18 @@ const promptSuggestions = [
 ];
 
 const webhookUrl =
-  "https://productexplified.app.n8n.cloud/webhook/d4b49ce1-2117-4f7e-ab66-c890a6d7fe79";
+  "https://infogaurav.app.n8n.cloud/webhook/7cf23db3-e0c0-40b2-bb8f-77c8399e2e85";
 
 const CarPartsAssistant = () => {
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef(null);
+  const navigate = useNavigate();
 
-  // Admin button logic
-  const isLoggedIn =
-    typeof window !== "undefined" && localStorage.getItem("explified");
+  // Admin access handler - direct navigation without login layer
+  const handleAdminAccess = () => {
+    // Direct navigation to admin page without login requirement
+    navigate("/flowsense/explified/admin/login");
+  };
 
   useEffect(() => {
     if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
@@ -106,13 +110,14 @@ const CarPartsAssistant = () => {
       const res = await fetch(webhookUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: userMessage }),
+        body: JSON.stringify({ text: userMessage }),
       });
+      console.log("Response:", res);
 
       if (!res.ok) throw new Error(`Error: ${res.status} ${res.statusText}`);
 
       const data = await res.json();
-      const output = data[0]?.output || data.output || JSON.stringify(data);
+      const output = (Array.isArray(data) && data[0] && data[0].output) ? data[0].output : (data.output || JSON.stringify(data));
       const parsed = parseBotResponse(output);
 
       setChat((prev) => [
@@ -135,21 +140,19 @@ const CarPartsAssistant = () => {
       {/* Admin Button at Top Right */}
       <header className="fixed top-0 right-0 z-50 p-6">
         <div
-           className="fixed z-50"
-        style={{
-          top: "50px",      // move down
-          right: "40px",    // move right
-        }}
+          className="fixed z-50"
+          style={{
+            top: "50px", // move down
+            right: "40px", // move right
+          }}
         >
-          {isLoggedIn && (
-            <a
-              href="/explified/admin"
-              className="bg-[#23b5b5] text-black px-5 py-2 rounded-full font-semibold hover:bg-[#1fa3a3] transition shadow-sm text-sm"
-              style={{ minWidth: 90, textAlign: "center" }}
-            >
-              Admin
-            </a>
-          )}
+          <button
+            onClick={handleAdminAccess}
+            className="bg-[#23b5b5] text-black px-5 py-2 rounded-full font-semibold hover:bg-[#1fa3a3] transition shadow-sm text-sm cursor-pointer"
+            style={{ minWidth: 90, textAlign: "center" }}
+          >
+            Admin
+          </button>
         </div>
       </header>
 
@@ -158,18 +161,13 @@ const CarPartsAssistant = () => {
           <div className="max-w-4xl w-full text-center space-y-10">
             <div>
               <h1 className="text-4xl md:text-5xl font-extralight text-white leading-tight font-serif">
-                <span className="bg-gradient-to-r from-white via-[#23b5b5]/80 to-[#23b5b5]/80 text-transparent bg-clip-text font-semibold">
-                
-                </span>
+                <span className="bg-gradient-to-r from-white via-[#23b5b5]/80 to-[#23b5b5]/80 text-transparent bg-clip-text font-semibold"></span>
                 <br />
                 <span className="text-white font-light">
                   How can we assist you?
                 </span>
               </h1>
-              
             </div>
-
-           
           </div>
         </div>
       )}
