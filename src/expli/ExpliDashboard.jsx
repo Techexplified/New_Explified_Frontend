@@ -113,7 +113,7 @@ const ExpliDashboard = () => {
 
   // ---------------- JSX ----------------
   return (
-    <div className="min-h-screen bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 flex flex-col overflow-hidden">
+    <div className="min-h-screen bg-red-400 flex flex-col overflow-hidden">
       {/* Header / Navbar */}
       <header
         className={`fixed border-minimal-border/50 px-6 transition-transform duration-300 z-50 top-0 left-0 w-full

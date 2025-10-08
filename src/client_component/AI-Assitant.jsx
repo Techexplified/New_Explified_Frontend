@@ -23,7 +23,7 @@ const promptSuggestions = [
 ];
 
 const webhookUrl =
-  "https://productexplified.app.n8n.cloud/webhook/d4b49ce1-2117-4f7e-ab66-c890a6d7fe79";
+  "https://infogaurav.app.n8n.cloud/webhook/7cf23db3-e0c0-40b2-bb8f-77c8399e2e85";
 
 const CarPartsAssistant = () => {
   const [listening, setListening] = useState(false);
@@ -110,13 +110,17 @@ const CarPartsAssistant = () => {
       const res = await fetch(webhookUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: userMessage }),
+        body: JSON.stringify({ text: userMessage }),
       });
+      console.log("Response:", res);
 
       if (!res.ok) throw new Error(`Error: ${res.status} ${res.statusText}`);
 
       const data = await res.json();
-      const output = data[0]?.output || data.output || JSON.stringify(data);
+      const output =
+        Array.isArray(data) && data[0] && data[0].output
+          ? data[0].output
+          : data.output || JSON.stringify(data);
       const parsed = parseBotResponse(output);
 
       setChat((prev) => [
