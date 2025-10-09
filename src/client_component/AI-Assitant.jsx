@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -11,6 +12,7 @@ import {
   FiMic,
 } from "react-icons/fi";
 import ReactMarkdown from "react-markdown";
+import SidebarOnHover2 from "../reusable_components/SidebarOnHover2";
 
 const promptSuggestions = [
   { icon: <FiShoppingCart />, text: "Checking part availability" },
@@ -25,14 +27,15 @@ const promptSuggestions = [
 const webhookUrl =
   "https://infogaurav.app.n8n.cloud/webhook/7cf23db3-e0c0-40b2-bb8f-77c8399e2e85";
 
+
 const CarPartsAssistant = () => {
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef(null);
   const navigate = useNavigate();
-
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarPinned, setIsSidebarPinned] = useState(false);
   // Admin access handler - direct navigation without login layer
   const handleAdminAccess = () => {
-    // Direct navigation to admin page without login requirement
     navigate("/flowsense/explified/admin/login");
   };
 
@@ -139,114 +142,131 @@ const CarPartsAssistant = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gray-900 flex flex-col">
-      {/* Admin Button at Top Right */}
-      <header className="fixed top-0 right-0 z-50 p-6">
-        <div
-          className="fixed z-50"
-          style={{
-            top: "50px", // move down
-            right: "40px", // move right
+    <div className="min-h-screen w-full relative bg-black">
+      {/* Ocean Abyss Background with Top Glow */}
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(6, 182, 212, 0.25), transparent 70%), #000000",
+        }}
+      />
+
+      {/* Main App Content */}
+      <div className="relative z-10 flex h-screen opacity-80">
+        {/* Sidebar */}
+        <SidebarOnHover2
+          toolName="AI Assistant"
+          onToggle={(open) => {
+            setIsSidebarOpen(open);
+            setIsSidebarPinned(open);
           }}
-        >
-          <button
-            onClick={handleAdminAccess}
-            className="bg-[#23b5b5] text-black px-5 py-2 rounded-full font-semibold hover:bg-[#1fa3a3] transition shadow-sm text-sm cursor-pointer"
-            style={{ minWidth: 90, textAlign: "center" }}
-          >
-            Admin
-          </button>
-        </div>
-      </header>
-
-      {!firstMessageSent && (
-        <div className="flex flex-1 items-center justify-center px-4 py-8 mt-20">
-          <div className="max-w-4xl w-full text-center space-y-10">
-            <div>
-              <h1 className="text-4xl md:text-5xl font-extralight text-white leading-tight font-serif">
-                <span className="bg-gradient-to-r from-white via-[#23b5b5]/80 to-[#23b5b5]/80 text-transparent bg-clip-text font-semibold"></span>
-                <br />
-                <span className="text-white font-light">
-                  How can we assist you?
-                </span>
-              </h1>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Chat area */}
-      <div className="flex-1 px-4 overflow-y-auto pb-44 pt-4 max-w-3xl w-full mx-auto">
-        <div className="flex flex-col gap-4">
-          {chat.map((msg, idx) => (
-            <div
-              key={idx}
-              className={`flex ${
-                msg.sender === "user" ? "justify-end" : "justify-start"
-              }`}
+          bottomSection={
+            <button
+              onClick={handleAdminAccess}
+              className="w-32 bg-gradient-to-r from-teal-600 to-teal-400 hover:from-teal-700 hover:to-teal-500 text-white font-semibold py-2 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg text-sm"
+              style={{ minWidth: 80, textAlign: "center" }}
             >
-              <div
-                className={`max-w-[80%] p-3 rounded-lg text-sm whitespace-pre-line ${
-                  msg.sender === "user"
-                    ? "bg-[#23b5b5] text-white"
-                    : "bg-gray-800 text-gray-100"
-                }`}
-              >
-                {msg.sender === "bot" ? (
-                  <div>
-                    {/* Show item/part/price if present */}
-                    {msg.item && (
-                      <p>
-                        <span className="text-[#23b5b5]/60 font-semibold">
-                          Item Name:
-                        </span>{" "}
-                        <span className="font-medium">{msg.item}</span>
-                      </p>
-                    )}
-                    {msg.part && (
-                      <p>
-                        <span className="text-[#23b5b5]/60 font-semibold">
-                          Part Number:
-                        </span>{" "}
-                        <span className="font-medium">{msg.part}</span>
-                      </p>
-                    )}
-                    {msg.price && (
-                      <p className="mt-2 px-3 py-1 inline-block bg-[#23b5b5] text-white rounded-full font-semibold text-sm">
-                        Price: {msg.price}
-                      </p>
-                    )}
-                    {/* Always show bot response (raw or text) */}
-                    <div className="mt-2 prose prose-invert prose-sm max-w-none">
-                      <ReactMarkdown
-                        components={{
-                          strong: ({ ...props }) => (
-                            <strong
-                              className="text-[#23b5b5] font-semibold"
-                              {...props}
-                            />
-                          ),
-                          ul: ({ ...props }) => (
-                            <ul
-                              className="list-disc list-inside ml-4"
-                              {...props}
-                            />
-                          ),
-                          p: ({ ...props }) => (
-                            <p className="mb-2" {...props} />
-                          ),
-                        }}
-                      >
-                        {msg.raw || msg.text || ""}
-                      </ReactMarkdown>
-                    </div>
-                  </div>
-                ) : (
-                  msg.text
-                )}
+              Admin
+            </button>
+          }
+        />
+
+        {/* Main Content */}
+        <main
+          className={`flex-1 p-8 overflow-y-auto transition-all duration-300 ${
+            isSidebarOpen || isSidebarPinned ? "ml-72" : "ml-0"
+          }`}
+        >
+
+
+          {!firstMessageSent && (
+            <div className="flex flex-1 items-center justify-center px-4 py-8 mt-20">
+              <div className="max-w-4xl w-full text-center space-y-10">
+                <div>
+                  <h1 className="text-4xl md:text-5xl font-extralight text-white leading-tight font-serif">
+                    <span className="bg-gradient-to-r from-white via-[#23b5b5]/80 to-[#23b5b5]/80 text-transparent bg-clip-text font-semibold"></span>
+                    <br />
+                    <span className="text-white font-light">
+                      How can we assist you?
+                    </span>
+                  </h1>
+                </div>
               </div>
             </div>
-          ))}
+          )}
+
+          {/* Chat area with TaskPage theme */}
+          <div className="flex-1 px-4 overflow-y-auto pb-44 pt-4 max-w-3xl w-full mx-auto">
+            <div className="flex flex-col gap-4">
+              {chat.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
+                >
+                  <div
+                    className={`max-w-[80%] p-4 rounded-2xl text-sm whitespace-pre-line shadow-lg backdrop-blur-sm border transition-all duration-300
+                      ${msg.sender === "user"
+                        ? "bg-gradient-to-r from-teal-600 to-teal-400 text-white border-teal-400/40"
+                        : "bg-slate-800/40 text-teal-100 border-teal-600/20"}
+                    `}
+                  >
+                    {msg.sender === "bot" ? (
+                      <div>
+                        {/* Show item/part/price if present */}
+                        {msg.item && (
+                          <p>
+                            <span className="text-teal-300 font-semibold">
+                              Item Name:
+                            </span>{" "}
+                            <span className="font-medium">{msg.item}</span>
+                          </p>
+                        )}
+                        {msg.part && (
+                          <p>
+                            <span className="text-teal-300 font-semibold">
+                              Part Number:
+                            </span>{" "}
+                            <span className="font-medium">{msg.part}</span>
+                          </p>
+                        )}
+                        {msg.price && (
+                          <p className="mt-2 px-3 py-1 inline-block bg-gradient-to-r from-teal-600 to-teal-400 text-white rounded-full font-semibold text-sm">
+                            Price: {msg.price}
+                          </p>
+                        )}
+                        {/* Always show bot response (raw or text) */}
+                        <div className="mt-2 prose prose-invert prose-sm max-w-none">
+                          <ReactMarkdown
+                            components={{
+                              strong: ({ ...props }) => (
+                                <strong
+                                  className="text-teal-400 font-semibold"
+                                  {...props}
+                                />
+                              ),
+                              ul: ({ ...props }) => (
+                                <ul
+                                  className="list-disc list-inside ml-4"
+                                  {...props}
+                                />
+                              ),
+                              p: ({ ...props }) => (
+                                <p className="mb-2" {...props} />
+                              ),
+                            }}
+                          >
+                            {msg.raw || msg.text || ""}
+                          </ReactMarkdown>
+                        </div>
+                      </div>
+                    ) : (
+                      msg.text
+                    )}
+                  </div>
+                </div>
+              ))}
+          {/* Removed duplicate/old chat rendering block */}
 
           {loading && (
             <div className="flex justify-start">
@@ -263,69 +283,72 @@ const CarPartsAssistant = () => {
         )}
       </div>
 
-      {/* Input Area */}
-      <div className="w-full fixed bottom-0 left-0 bg-gray-900 border-t border-gray-800 z-50 px-4 py-3">
-        <div className="max-w-3xl mx-auto">
-          <div className="bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 flex flex-col shadow-sm">
-            {/* Top row: textarea + send/mic */}
-            <div className="flex items-end gap-2">
-              <textarea
-                rows="3"
-                placeholder="Type your message..."
-                className="flex-1 resize-none text-sm bg-transparent text-gray-200 placeholder-gray-500 focus:outline-none leading-5 max-h-28"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) =>
-                  e.key === "Enter" &&
-                  !e.shiftKey &&
-                  (e.preventDefault(), handleSend())
-                }
-                maxLength={1000}
-                disabled={loading}
-              ></textarea>
+          {/* Input Area with consistent dark/teal theme */}
+        <div className="w-full fixed bottom-0 left-0 bg-black border-t border-teal-800/40 z-50 px-4 py-5">
+            <div className="max-w-3xl mx-auto">
+          <div className="bg-black border border-teal-800/40 rounded-2xl px-5 py-4 flex flex-col shadow-[0_4px_32px_0_rgba(0,0,0,0.65)] focus-within:ring-2 focus-within:ring-teal-700/40 transition-all duration-200">
+                {/* Top row: textarea + send/mic */}
+                <div className="flex items-end gap-3">
+                  <textarea
+                    rows="2"
+                    placeholder="Type your message..."
+                    className="flex-1 resize-none text-base bg-transparent text-teal-200 placeholder-white focus:outline-none leading-6 max-h-32"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) =>
+                      e.key === "Enter" &&
+                      !e.shiftKey &&
+                      (e.preventDefault(), handleSend())
+                    }
+                    maxLength={1000}
+                    disabled={loading}
+                  ></textarea>
 
-              <div className="flex items-center gap-2 pb-1">
-                <button
-                  onClick={handleMicClick}
-                  className={`p-2 rounded-full transition ${
-                    listening
-                      ? "bg-[#23b5b5]"
-                      : "bg-gray-700 hover:bg-[#23b5b5]/40"
-                  } text-white`}
-                  aria-label="Voice input"
-                  disabled={loading || listening}
-                >
-                  <FiMic size={18} />
-                </button>
-                <button
-                  onClick={handleSend}
-                  disabled={loading || !input.trim()}
-                  className="p-2 bg-[#23b5b5]/80 hover:bg-[#23b5b5]/70 text-white rounded-full transition disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <FiSend size={18} />
-                </button>
-              </div>
-            </div>
+                  <div className="flex items-center gap-2 pb-1">
+                    <button
+                      onClick={handleMicClick}
+                      className={`p-2 rounded-full transition ${
+                        listening
+                          ? "bg-gradient-to-r from-teal-600 to-teal-400"
+                          : "bg-[#1e293b] hover:bg-teal-700/40"
+                      } text-white`}
+                      aria-label="Voice input"
+                      disabled={loading || listening}
+                    >
+                      <FiMic size={18} />
+                    </button>
+                    <button
+                      onClick={handleSend}
+                      disabled={loading || !input.trim()}
+                      className="p-2 bg-gradient-to-r from-teal-600 to-teal-400 hover:from-teal-700 hover:to-teal-500 text-white rounded-full transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <FiSend size={18} />
+                    </button>
+                  </div>
+                </div>
 
-            {/* Bottom row: attachments + counter */}
-            <div className="flex items-center justify-between mt-2 text-xs text-gray-400">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1 cursor-pointer hover:text-gray-200">
-                  <FiPaperclip size={14} />
-                  <span>Attachment</span>
-                </div>
-                <div className="flex items-center gap-1 cursor-pointer hover:text-gray-200">
-                  <FiImage size={14} />
-                  <span>Image</span>
+                {/* Bottom row: attachments + counter */}
+                <div className="flex items-center justify-between mt-2 text-xs text-white">
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1 cursor-pointer hover:text-teal-300">
+                      <FiPaperclip size={14} />
+                      <span>Attachment</span>
+                    </div>
+                    <div className="flex items-center gap-1 cursor-pointer hover:text-teal-300">
+                      <FiImage size={14} />
+                      <span>Image</span>
+                    </div>
+                  </div>
+                  <span>{input.length}/1000</span>
                 </div>
               </div>
-              <span>{input.length}/1000</span>
             </div>
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );
 };
 
 export default CarPartsAssistant;
+ 

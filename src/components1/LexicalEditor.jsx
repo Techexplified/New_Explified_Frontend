@@ -76,7 +76,7 @@ function ShapesPanel() {
 
   return (
     <div
-      className="flex flex-col gap-3 rounded-t-2xl rounded-b-2xl p-2 bg-gradient-to-r from-gray-900/90 to-gray-800/80 backdrop-blur-lg shadow-2xl"
+      className="flex flex-col gap-3 bg-gray-600 rounded-t-2xl rounded-b-2xl p-2"
       style={{
         position: "absolute",
         top: 100,
@@ -91,8 +91,12 @@ function ShapesPanel() {
         <button
           key={t.id}
           onClick={() => setTool(t.id)}
-          className={`flex justify-center items-center p-2 rounded-xl text-lg transform hover:scale-105 border transition-all duration-300 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20 text-minimal-primary hover:bg-blue-600
-            ${selectedTool === t.id ? "bg-blue-500 text-white" : ""}`}
+          className={`flex justify-center items-center p-2 rounded-xl text-lg
+            ${
+              selectedTool === t.id
+                ? "bg-blue-500 text-white"
+                : "bg-teal-600 text-white"
+            }`}
           style={{ fontSize: "1.1rem" }}
           title={t.label}
         >
@@ -216,8 +220,6 @@ function Shape({
 
 // ---- CANVAS ----
 function Canvas() {
-  // Get chosenColor from store
-  const chosenColor = useStore((s) => s.chosenColor || "#23b5b5");
   const shapes = useStore((s) => s.shapes);
   const setShapes = useStore((s) => s.setShapes);
   const addShape = useStore((s) => s.addShape);
@@ -647,7 +649,7 @@ function Canvas() {
       // start editing the newly created box
       if (selectedShapeId) {
         setEditingId(selectedShapeId);
-        // setCaretIndex(0); // Commented out as setCaretIndex is not defined
+        setCaretIndex(0);
       }
     }
     setHistory((prev) => [...prev.slice(0, historyIndex + 1), shapes]); // clear redo history
@@ -764,7 +766,7 @@ style={{
                     setTextareaValue(e.target.value);
                   }}
                   onBlur={() => {
-                    updateShape(shape.id, { text: textareaValue });
+                    updateShape(shape.id, { text: text });
                     setEditingId(null); // exit edit mode
                   }}
                 />
@@ -902,8 +904,9 @@ function Toolbar() {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new window.FileReader();
-    reader.onload = function(ev) {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      // Add image as a new shape (centered, default size)
       addShape({
         id: nanoid(),
         type: "image",
@@ -911,21 +914,13 @@ function Toolbar() {
         x: 200,
         y: 200,
         width: 180,
-        height: 120
+        height: 120,
       });
     };
     reader.readAsDataURL(file);
+    // Reset input value so same file can be uploaded again
     e.target.value = "";
-  }
-  const setShapes = useStore((s) => s.setShapes);
-  const freehandType = useStore((s) => s.freehandType);
-  // Image upload state
-  const fileInputRef = useRef();
-
-  // Color palette state
-  const [showColorPanel, setShowColorPanel] = useState(false);
-  const chosenColor = useStore((s) => s.chosenColor);
-  const setChosenColor = useStore((s) => s.setChosenColor);
+  };
   const shapes = useStore((s) => s.shapes);
   const addShape = useStore((s) => s.addShape);
   const updateShape = useStore((s) => s.updateShape);
@@ -939,9 +934,6 @@ const setFreehandStrokeWidth = useStore((s) => s.setFreehandStrokeWidth);
   const setTool = useStore((s) => s.setTool);
   // Eraser stroke size state
   const [eraserSize, setEraserSize] = useState(20);
-  const [showThicknessPanel, setShowThicknessPanel] = useState(false);
-  const freehandThickness = useStore((s) => s.freehandThickness);
-  const setFreehandThickness = useStore((s) => s.setFreehandThickness);
   const freehandTools = [
     { id: "pen", icon: <Pen />, title: "Pen" },
     { id: "pencil", icon: <Pencil />, title: "Pencil" },
@@ -1189,8 +1181,8 @@ function LexicalEditor() {
         className="flex flex-col items-center relative border-black
       border border-cyan-900/60 bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200"
       >
-  <div className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
-  <div className="absolute inset-0 opacity-40 pointer-events-none bg-gradient-to-br from-black to-black"></div>
+        <div class="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
+        <div class="absolute inset-0 opacity-40 pointer-events-none bg-gradient-to-br from-black to-black"></div>
         <UpdatedDashboard2 />
         
         <SharePlugin title={title} />

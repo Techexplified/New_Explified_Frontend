@@ -135,7 +135,7 @@ import usePageTracking from "./hooks/usePageTracking.js";
 import CarPartsAssistant from "./client_component/AI-Assitant.jsx";
 import SalesAssistant from "./sales-bot-assistant/SalesBotAssistant.jsx";
 import Admin from "./client_component/AdminComp.jsx";
-import InventoryComp from "./client_component/Inventory.jsx";
+import InventoryComp from "./client_component/Inventroy.jsx";
 import PurchaseOrdersComp from "./client_component/PurchaseComp.jsx";
 import FlowstateLogin from "./client_component/FlowstateLogin.jsx";
 import ProtectedRoute from "./reusable_components/ProtectedRoute.jsx";
