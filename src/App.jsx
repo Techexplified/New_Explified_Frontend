@@ -128,7 +128,7 @@ import ScrollToTop from "./reusable_components/ScrollToTop.jsx";
 import HistoryChat from "./components1/HistoryChat.jsx";
 import UserPage from "./components/ProfilePage.jsx";
 import DiscoverPage from "./components1/DiscoverPage.jsx";
-import LexicalEditor from "./components1/LexicalEditor.jsx";
+import LexicalEditor from "./editor/LexicalEditor.jsx";
 import LockedPage from "./reusable_components/Locked.jsx";
 import ImageToVideo from "./pages/explified_tools/image_to_video_convertor/ImageToVideo.jsx";
 import usePageTracking from "./hooks/usePageTracking.js";

@@ -52,7 +52,7 @@ function ExpliInput({
             {/* Action Buttons */}
             <div className="flex gap-2">
               {/* Voice Input */}
-              <button
+              {/* <button
                 type="button"
                 onClick={!isTyping ? handleMicClick : undefined}
                 className={`relative w-8 h-8 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center border transition-all duration-300 group hover:scale-110 ${
@@ -72,10 +72,10 @@ function ExpliInput({
                 {!isRecording && (
                   <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 )}
-              </button>
+              </button> */}
 
               {/* File Upload */}
-              <button
+              {/* <button
                 type="button"
                 onClick={() => fileInputRef.current.click()}
                 className="relative w-8 h-8 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-cyan-500/25 to-blue-600/20 border border-cyan-400/40 flex items-center justify-center hover:border-cyan-400/60 hover:scale-110 transition-all duration-300 hover:shadow-[0_0_25px_rgba(6,182,212,0.4)] group"
@@ -83,15 +83,14 @@ function ExpliInput({
               >
                 <FiPaperclip className="text-lg sm:text-xl text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
                 <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              </button>
+              </button> */}
 
-              {/* Hidden File Input */}
-              <input
+              {/* <input
                 type="file"
                 ref={fileInputRef}
                 style={{ display: "none" }}
                 onChange={handleFileChange}
-              />
+              /> */}
 
               {/* Send Button */}
               <button
