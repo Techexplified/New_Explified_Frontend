@@ -442,7 +442,7 @@ function App() {
           <Route path="/locked" element={<LockedPage />} />
         </Route>
 
-        <Route path="/expli" element={<ExpliDashboard />} />
+        <Route path="/expli" element={<Trone />} />
 
         {/* Tools Page */}
 

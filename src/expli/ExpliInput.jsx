@@ -28,15 +28,8 @@ function ExpliInput({
         isSidebarOpen ? "left-[245px] right-0" : "left-0 right-0"
       }`}
     >
-      <div className="relative rounded-3xl max-w-2xl mx-auto border border-cyan-400/40 bg-gradient-to-br from-gray-900/90 via-gray-950/80 to-black/90 backdrop-blur-2xl shadow-[0_0_50px_rgba(6,182,212,0.25),0_0_100px_rgba(6,182,212,0.15)] hover:shadow-[0_0_70px_rgba(6,182,212,0.35)] transition-all duration-500 group">
-        {/* Animated Top Border Glow */}
-        <div className="absolute -top-[2px] left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-        {/* Corner Accents */}
-        <div className="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-cyan-400/60 rounded-tl-3xl"></div>
-        <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-cyan-400/60 rounded-br-3xl"></div>
-
-        <div className="p-3 sm:p-4">
+      <div className="relative rounded-2xl max-w-2xl mx-auto border border-cyan-500/60 bg-[#002a2d] shadow-[0_0_25px_rgba(0,255,255,0.1)] hover:shadow-[0_0_35px_rgba(0,255,255,0.2)] transition-all duration-500">
+        <div className="p-3 sm:p-2">
           <div className="flex items-center gap-3">
             {/* Input Field */}
             <div className="flex-1 relative">
@@ -47,7 +40,7 @@ function ExpliInput({
                 onKeyDown={handleSubmit}
                 onPaste={handlePaste}
                 placeholder="Type your message..."
-                className="w-full bg-black/70 border border-gray-700/50 rounded-xl sm:px-4 sm:py-3 px-3 py-2 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-cyan-400/80 focus:ring-2 focus:ring-cyan-500/30 focus:shadow-[0_0_20px_rgba(6,182,212,0.2)] transition-all duration-300"
+                className="w-full bg-[#003436] text-gray-100 placeholder-gray-400 border border-cyan-500/30 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-400/40 focus:border-cyan-400/50 transition-all duration-300"
                 disabled={isTyping}
                 maxLength={2000}
               />

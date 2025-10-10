@@ -8,19 +8,9 @@ import { AiOutlineOpenAI } from "react-icons/ai";
 import { RiGeminiLine } from "react-icons/ri";
 import { FaPlus } from "react-icons/fa6";
 import ExpliSidebar from "../expli/ExpliSidebar";
-import IntegrationModal from "../expli/IntegrationModal";
 import { Menu, X } from "lucide-react";
 
-function Trone({
-  providerKeys,
-  setProviderKeys,
-  showIntegrationsModal,
-  setShowIntegrationsModal,
-  sidebarPinned,
-  isSidebarOpen,
-  setSidebarPinned,
-  setIsSidebarOpen,
-}) {
+function Trone() {
   const [prompt, setPrompt] = useState("");
   const [enabledProviders, setEnabledProviders] = useState({
     expli: true,
@@ -38,6 +28,18 @@ function Trone({
       return raw ? JSON.parse(raw) : { openai: false, gemini: false };
     } catch {
       return { openai: false, gemini: false };
+    }
+  });
+
+  const [sidebarPinned, setSidebarPinned] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [providerKeys, setProviderKeys] = useState(() => {
+    try {
+      const raw = localStorage.getItem("provider_keys");
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) {
+      console.log(e);
+      return {};
     }
   });
 
@@ -625,6 +627,16 @@ function Trone({
     }
   };
 
+  const handleCloseChat = (providerId) => {
+    const next = { ...(providerKeys || {}), [providerId]: "" };
+    try {
+      localStorage.setItem("provider_keys", JSON.stringify(next));
+    } catch (err) {
+      console.log(err);
+    }
+    setProviderKeys(next);
+  };
+
   const newChat = () => {
     setCurrentMessages([]);
     setSessionStartedAt(null);
@@ -642,9 +654,7 @@ function Trone({
     setProviderKeys(next);
   };
   // True if Expli is the only open chat
-  const onlyExpliOpen =
-    (closedChats.openai || !providerKeys.openai) &&
-    (closedChats.gemini || !providerKeys.gemini);
+  const onlyExpliOpen = !providerKeys.openai && !providerKeys.gemini;
 
   return (
     <div className="flex relative text-white h-screen bg-[#0a0a0a] overflow-hidden">
@@ -703,7 +713,7 @@ function Trone({
 
       <div className="overflow-x-auto relative h-screen w-screen flex flex-col">
         {/* Chat + Input inside same box */}
-        <div className="w-full flex-1 border border-cyan-500/20 shadow-[0_0_60px_rgba(6,182,212,0.15),0_0_100px_rgba(6,182,212,0.08)] bg-gradient-to-br from-[#0a0f14] via-[#0d1820] to-[#0a0f14] p-4 sm:p-5 flex flex-col gap-4 relative backdrop-blur-xl">
+        <div className="w-full flex-1 border border-cyan-500/20 shadow-[0_0_60px_rgba(6,182,212,0.15),0_0_100px_rgba(6,182,212,0.08)] bg-black flex flex-col gap-4 relative backdrop-blur-xl">
           {/* Animated Background Pattern */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
             {/* Radial Gradient Glow */}
@@ -722,9 +732,8 @@ function Trone({
 
           {/* Chat Containers Row */}
           <div
-            className={`flex gap-4 mb-20 sm:mb-24 ${
-              onlyExpliOpen ? "w-full sm:w-[70%] mx-auto" : "flex-1"
-            } pt-16 h-full overflow-x-auto flex-nowrap [&>*]:min-w-[320px]`}
+            className={`flex mb-20 sm:mb-24 flex-1
+             h-full overflow-x-auto flex-nowrap [&>*]:min-w-[320px]`}
           >
             <ChatContainer
               messages={currentMessages}
@@ -738,7 +747,7 @@ function Trone({
               onlyExpliOpen={onlyExpliOpen}
             />
 
-            {providerKeys?.openai && !closedChats.openai && (
+            {providerKeys?.openai && (
               <ChatContainer
                 messages={currentMessagesOpenAI}
                 isTyping={isTyping.openai}
@@ -749,13 +758,11 @@ function Trone({
                 setEnabled={(val) =>
                   setEnabledProviders((prev) => ({ ...prev, openai: val }))
                 }
-                handleCloseChat={(pid) =>
-                  setClosedChats((prev) => ({ ...prev, [pid]: true }))
-                }
+                handleCloseChat={handleCloseChat}
               />
             )}
 
-            {providerKeys?.gemini && !closedChats.gemini && (
+            {providerKeys?.gemini && (
               <ChatContainer
                 messages={currentMessagesGemini}
                 isTyping={isTyping.gemini}
@@ -766,21 +773,19 @@ function Trone({
                 setEnabled={(val) =>
                   setEnabledProviders((prev) => ({ ...prev, gemini: val }))
                 }
-                handleCloseChat={(pid) =>
-                  setClosedChats((prev) => ({ ...prev, [pid]: true }))
-                }
+                handleCloseChat={handleCloseChat}
               />
             )}
           </div>
         </div>
 
-        {showIntegrationsModal && (
+        {/* {showIntegrationsModal && (
           <IntegrationModal
             providerKeys={providerKeys}
             setProviderKeys={setProviderKeys}
             setShowIntegrationsModal={setShowIntegrationsModal}
           />
-        )}
+        )} */}
 
         {/* Input Box Below Chats */}
         <ExpliInput
@@ -795,7 +800,12 @@ function Trone({
           sidebarPinned={sidebarPinned}
         />
       </div>
-
+      <ExpliIntegration
+        isSidebarOpen={isSidebarOpen}
+        sidebarPinned={sidebarPinned}
+        providerKeys={providerKeys}
+        setProviderKeys={setProviderKeys}
+      />
       {/* Advanced Animation Styles */}
       <style jsx>{`
         @keyframes float-slow {

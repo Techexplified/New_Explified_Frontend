@@ -39,7 +39,7 @@ function ChatContainer({
     <div
       ref={chatContainerRef}
       className={
-        "flex-1 w-full bg-gradient-to-br from-gray-900/40 via-gray-950/60 to-black/80 backdrop-blur-xl flex flex-col px-2 sm:px-3 overflow-y-auto scroll-smooth relative z-10 border border-cyan-500/30 rounded-2xl h-full shadow-[0_0_40px_rgba(6,182,212,0.15)] hover:shadow-[0_0_60px_rgba(6,182,212,0.25)] transition-all duration-500"
+        "flex-1 w-full bg-black backdrop-blur-xl flex flex-col px-2 sm:px-3 overflow-y-auto scroll-smooth relative z-10 border border-cyan-500/30  h-full shadow-[0_0_40px_rgba(6,182,212,0.15)] hover:shadow-[0_0_60px_rgba(6,182,212,0.25)] transition-all duration-500"
       }
       style={{
         scrollBehavior: "smooth",
@@ -59,24 +59,18 @@ function ChatContainer({
         <div className="flex items-center justify-between py-3">
           {/* Left side: Icon + Tool Name */}
           <div className="flex items-center gap-3">
-            <div className="relative p-3 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 rounded-xl border border-cyan-400/40 shadow-[0_0_20px_rgba(6,182,212,0.3)] backdrop-blur-sm hover:scale-105 transition-transform duration-300">
+            {/* <div className="relative p-3 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 rounded-xl border border-cyan-400/40 shadow-[0_0_20px_rgba(6,182,212,0.3)] backdrop-blur-sm hover:scale-105 transition-transform duration-300">
               <span className="text-cyan-400 text-xl drop-shadow-[0_0_10px_rgba(6,182,212,0.8)]">
                 {icon}
               </span>
               <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 to-transparent rounded-xl animate-pulse"></div>
-              {/* Glow effect */}
+            
               <div className="absolute -inset-1 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 rounded-xl blur-md -z-10"></div>
-            </div>
+            </div> */}
             <div className="flex flex-col">
               <h1 className="text-lg font-semibold text-white tracking-tight">
                 {toolName}
               </h1>
-              {/* <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full  shadow-sm shadow-green-400/50"></div>
-                <p className="text-xs text-slate-400 font-medium">
-                  AI Assistant
-                </p>
-              </div> */}
             </div>
           </div>
 

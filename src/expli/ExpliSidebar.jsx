@@ -10,12 +10,19 @@ import {
   Share2,
   Edit3,
   X,
+  CircleUserRound,
+  Grip,
 } from "lucide-react";
+import { IoIosInformationCircleOutline } from "react-icons/io";
+import { Zap, FileText } from "lucide-react";
 import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { INTEGRATION_PROVIDERS, formatText } from "../utils/data/TroneData";
 import { AiOutlineOpenAI } from "react-icons/ai";
 import { RiGeminiLine } from "react-icons/ri";
+import { useSelector } from "react-redux";
+import Logo from "../reusable_components/Logo";
+import { ExplifiedLogo } from "../assets";
 
 function ExpliSidebar({
   link,
@@ -41,7 +48,13 @@ function ExpliSidebar({
   const [searchProviders, setSearchProviders] = useState(""); // ✅ new state
   const [menuOpen, setMenuOpen] = useState(null);
   const [showSearch, setShowSearch] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
+  const user = useSelector((state) => state.user);
+  console.log(user);
+
+  const navigate = useNavigate();
+  const location = useLocation();
   const filteredHistory = useMemo(() => {
     if (!searchQuery.trim()) return chatHistory;
     return chatHistory.filter((item) =>
@@ -90,6 +103,15 @@ function ExpliSidebar({
     setCurrentMessagesOpenAI(messagesOpenAI);
     setCurrentMessagesGemini(messagesGemini);
   };
+
+  let timeoutId;
+  const handleMouseEnter = () => {
+    clearTimeout(timeoutId);
+    setIsOpen(true);
+  };
+  const handleMouseLeave = () => {
+    timeoutId = setTimeout(() => setIsOpen(false), 200);
+  };
   return (
     <div
       onMouseEnter={() => !sidebarPinned && setIsSidebarOpen(true)}
@@ -97,19 +119,28 @@ function ExpliSidebar({
       className={`h-screen ${
         isSidebarOpen || sidebarPinned
           ? "w-72  px-3"
-          : "w-0 px-0 overflow-hidden"
-      } absolute sm:relative z-50  overflow-y-scroll sidebar-scroll bg-gradient-to-b from-gray-900/50 to-black/95 backdrop-blur-2xl 
+          : "w-12 px-3 overflow-hidden"
+      } absolute sm:relative z-50 h-screen  overflow-y-scroll sidebar-scroll bg-gradient-to-b from-black from-60% to-[#23b5b5]/60 backdrop-blur-2xl 
         border-r border-minimal-primary/30 shadow-2xl shadow-minimal-primary/10
         flex flex-col justify-between transition-all `}
     >
       {/* Top section */}
-      {isSidebarOpen && (
+
+      <div className="flex flex-col justify-between h-full pb-4">
         <div>
           {/* Header */}
-          <div className="flex items-center justify-between gap-3 border-b border-minimal-primary/30 py-4 mb-4">
-            <h1 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white via-minimal-primary to-cyan-400 bg-clip-text text-transparent">
+          <div
+            className={`flex items-center justify-between  gap-3 border-b border-minimal-primary/30 py-4 mb-4`}
+          >
+            {/* <h1 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white via-minimal-primary to-cyan-400 bg-clip-text text-transparent">
+              <Logo />
               Expli
-            </h1>
+            </h1> */}
+
+            <div className="flex items-center gap-3">
+              <img className="h-6" alt="Logo" src={ExplifiedLogo} />
+              <h1 className="text-2xl font-semibold text-white">Expli</h1>
+            </div>
             <div className="flex items-center justify-between gap-1">
               {/* Pin button */}
               <button
@@ -146,132 +177,17 @@ function ExpliSidebar({
                 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
             />
             <div className="relative text-sm flex items-center justify-center gap-2">
-              <MessageSquare size={14} />
-              <span>New Chat</span>
+              <span>
+                <Plus size={20} />
+              </span>
+              {isSidebarOpen && <span>New Chat</span>}
             </div>
           </button>
 
-          <div>
-            {/* Available Models */}
-            <div className="mt-6 ">
-              <div className="flex justify-between items-center">
-                <h2 className="text-lg font-semibold mb-1">Active Keys</h2>
-                <button
-                  onClick={() => setShowSearch((prev) => !prev)}
-                  className="p-1 rounded hover:bg-gray-700/50 transition"
-                >
-                  {showSearch ? (
-                    <X size={14} className="text-gray-400" />
-                  ) : (
-                    <Search size={14} className="text-gray-400" />
-                  )}
-                </button>
-              </div>
+          {/* Chat History */}
 
-              {/* ✅ Input Section (Search Bar) */}
-              {showSearch && (
-                <div className="relative mb-2 mt-2">
-                  <input
-                    type="text"
-                    value={searchProviders}
-                    onChange={(e) => setSearchProviders(e.target.value)}
-                    placeholder="Search keys..."
-                    className="w-full bg-gray-800/80 text-white text-xs rounded-lg px-3 py-1.5 pr-8 border border-gray-600/50 
-            focus:border-minimal-primary/50 focus:outline-none transition-colors duration-200"
-                  />
-                </div>
-              )}
-
-              {/* ✅ Filter + Render Providers */}
-              <div className="space-y-2">
-                {INTEGRATION_PROVIDERS.filter((provider) =>
-                  provider.name
-                    .toLowerCase()
-                    .includes(searchProviders.toLowerCase())
-                )
-                  .slice(0, 2)
-                  .map((provider) => {
-                    const hasKey = Boolean(tools[provider.id]); // key exists in providerKeys
-                    const isClosed = closedChats?.[provider.id]; // state from parent
-                    let state = "disabled"; // default
-
-                    if (hasKey && !isClosed) {
-                      state = "active"; // ✅ key present + not closed
-                    } else if (hasKey && isClosed) {
-                      state = "inactive"; // ✅ key present + closed
-                    }
-
-                    return (
-                      <div
-                        key={provider.id}
-                        className={`flex items-center gap-2 p-2 text-xs rounded-lg border transition-colors
-            ${
-              state === "active"
-                ? "bg-[#23b5b5]/20 border-[#23b5b5]"
-                : state === "inactive"
-                ? "bg-gray-800/50 border-gray-500/50"
-                : "bg-gray-800/50 border-gray-700 opacity-50 cursor-not-allowed"
-            }`}
-                      >
-                        {/* name + icon */}
-                        <div className="text-white">{provider.icon}</div>
-                        <div className="text-white">{provider.name}</div>
-
-                        {/* status */}
-                        <div className="ml-auto flex items-center gap-1">
-                          {state === "active" && (
-                            <>
-                              <span className="text-green-400 text-xs font-semibold">
-                                Active
-                              </span>
-                              <button
-                                onClick={() =>
-                                  handleRemoveProvider(provider.id)
-                                }
-                                className="ml-1 p-1 rounded-full bg-gray-700 hover:bg-gray-600 transition"
-                              >
-                                <X size={12} className="text-white" />
-                              </button>
-                            </>
-                          )}
-
-                          {state === "inactive" && (
-                            <>
-                              <span className="text-red-400 text-xs font-semibold">
-                                Inactive
-                              </span>
-                              {/* + button */}
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  // ✅ flip closedChats for this provider
-                                  setClosedChats((prev) => ({
-                                    ...prev,
-                                    [provider.id]: false,
-                                  }));
-                                }}
-                                className="ml-1 p-1 rounded-full bg-gray-700 hover:bg-gray-600 transition"
-                              >
-                                <Plus size={12} className="text-white" />
-                              </button>
-                            </>
-                          )}
-
-                          {state === "disabled" && (
-                            <span className="text-gray-300 text-xs">
-                              Disabled
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-              </div>
-            </div>
-
-            {/* Chat History */}
-            <div className="bg-transparent mt-14 ">
-              <div className="text-lg font-semibold mb-1"> Chat History</div>
+          {isSidebarOpen ? (
+            <div className="bg-gray-900 mt-4 p-2">
               {/* Filtered History */}
               {filteredHistory && filteredHistory.length > 0 ? (
                 <div className="space-y-2">
@@ -279,7 +195,7 @@ function ExpliSidebar({
                     <div
                       key={item.id}
                       onClick={() => handleHistoryClick(item)}
-                      className="group bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700/30 
+                      className="group bg-gray-700 hover:bg-gray-700/50 border border-gray-700/30 
     hover:border-minimal-primary/30 rounded-lg px-2 pt-1 pb-1.5 transition-all duration-200 cursor-pointer"
                     >
                       {/* Top row: question + 3-dot menu */}
@@ -394,20 +310,150 @@ function ExpliSidebar({
                 </div>
               )}
             </div>
+          ) : (
+            <div className="mt-4">
+              <MessageSquare />
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-4">
+          {/* Profile Dropdown */}
+          <div
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            className={`relative flex items-center justify-center ${
+              isSidebarOpen ? "bg-gray-900" : ""
+            }  rounded-xl`}
+          >
+            <button
+              onClick={() => navigate("/profile")}
+              className={`flex items-center justify-center gap-4
+              w-full h-10 rounded-xl transition-all duration-200 transform
+              ${
+                location.pathname === "/profile"
+                  ? "scale-110 text-[#23b5b5] bg-minimal-primary/20 border border-[#23b5b5]/40"
+                  : "text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover"
+              }`}
+            >
+              <span>
+                <CircleUserRound className="w-6 h-6" />
+              </span>
+              {isSidebarOpen && <span>{user?.name}</span>}
+            </button>
+
+            {isOpen && (
+              <div
+                className="absolute right-0 bottom-12 min-w-[220px]
+                 bg-gradient-to-br from-[#0d1418] to-[#111c20] 
+                 backdrop-blur-xl border border-[#23b5b5]/40 rounded-xl shadow-lg
+                 p-4 flex flex-col items-center z-50
+                 transform transition-all duration-300 ease-out
+                 animate-in fade-in-20 scale-in-95"
+              >
+                <Link
+                  className="w-full h-9 mb-3 rounded-lg border border-[#23b5b5]/40 text-sm font-medium text-white
+                   bg-transparent hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] 
+                   hover:shadow-md hover:shadow-cyan-500/20 transition-all duration-200 flex items-center justify-center"
+                  to="https://explified.com/explified-labs"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  For Enterprises
+                </Link>
+
+                <div className="flex gap-2 w-full mb-3">
+                  {[
+                    { icon: Plus, to: "/expli" },
+                    { icon: FileText, to: "/tasks" },
+                  ].map(({ icon: Icon, to }, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        navigate(to);
+                        setIsOpen(false);
+                      }}
+                      className="flex-1 h-9 flex items-center justify-center rounded-lg border border-[#23b5b5]/40 bg-transparent
+                       hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] hover:shadow-sm hover:shadow-cyan-500/20
+                       text-white transition-all duration-200"
+                    >
+                      <Icon className="w-4 h-4" />
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex gap-2 w-full mb-3">
+                  {[{ icon: Search, to: "/discover" }].map(
+                    ({ icon: Icon, to }, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          navigate(to);
+                          setIsOpen(false);
+                        }}
+                        className="flex-1 h-9 flex items-center justify-center rounded-lg border border-[#23b5b5]/40 bg-transparent
+                       hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] hover:shadow-sm hover:shadow-cyan-500/20
+                       text-white transition-all duration-200"
+                      >
+                        <Icon className="w-4 h-4" />
+                      </button>
+                    )
+                  )}
+                </div>
+
+                <div className="mb-3 w-full">
+                  <h3 className="text-white text-xs font-semibold opacity-80 mb-2">
+                    Workflows
+                  </h3>
+                  <div className="flex gap-2 w-full">
+                    {[
+                      { icon: Workflow, to: "/workflows" },
+                      { icon: Zap, to: "/integrations" },
+                    ].map(({ icon: Icon, to }, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          navigate(to);
+                          setIsOpen(false);
+                        }}
+                        className="flex-1 h-9 flex items-center justify-center rounded-lg border border-[#23b5b5]/40 bg-transparent
+                         hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] hover:shadow-sm hover:shadow-cyan-500/20
+                         text-white transition-all duration-200"
+                      >
+                        <Icon className="w-4 h-4" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="w-full mb-1">
+                  <h3 className="text-white text-xs font-semibold opacity-80 mb-2">
+                    All Tools
+                  </h3>
+                  <button
+                    onClick={() => navigate("/alltools")}
+                    className="flex items-center justify-center w-12 h-12 mx-auto rounded-lg border border-[#23b5b5]/40 
+                     text-white bg-transparent hover:bg-[#23b5b5]/15 hover:border-[#23b5b5]
+                     hover:shadow-md hover:shadow-cyan-500/20 transition-all duration-200"
+                  >
+                    <Grip className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+          {/* Learn More Section */}
+
+          <div>
+            <Link to={link}>
+              <div className="underline text-white flex items-center justify-center gap-2">
+                <IoIosInformationCircleOutline className="w-6 h-6 font-bold" />
+                {isSidebarOpen && <span>Learn More</span>}
+              </div>
+            </Link>
           </div>
         </div>
-      )}
-
-      {/* Bottom Section */}
-      {isSidebarOpen && (
-        <div className="my-4">
-          <Link to={link}>
-            <div className="underline text-[#23b5b5] flex items-center justify-center gap-2">
-              <span>Learn More</span>
-            </div>
-          </Link>
-        </div>
-      )}
+      </div>
     </div>
   );
 }
