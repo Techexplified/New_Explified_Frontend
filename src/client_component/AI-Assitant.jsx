@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   FiPaperclip,
   FiImage,
@@ -25,6 +25,60 @@ const promptSuggestions = [
   },
 ];
 
+const AdminModal = ({ isOpen, onClose }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
+      <div className="bg-black border border-gray-500 rounded-xl shadow-2xl w-full max-w-sm p-8 relative">
+        <h1 className="text-2xl font-bold text-center mb-6 text-white">
+          Flowsense Admin Login
+        </h1>
+
+        <h2 className="text-lg font-semibold text-center text-white mb-6">
+          Login
+        </h2>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-white mb-1">
+              Email Id
+            </label>
+            <input
+              type="email"
+              placeholder="hello@explified.com"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-white mb-1">
+              Password
+            </label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              className="w-full px-4 py-2 mb-8 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+            />
+          </div>
+          <Link to={"/flowsense/explified/admin"}>
+            <button className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 rounded-lg transition">
+              Login
+            </button>
+          </Link>
+        </div>
+
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl font-bold"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const webhookUrl =
   "https://infogaurav.app.n8n.cloud/webhook/7cf23db3-e0c0-40b2-bb8f-77c8399e2e85";
 
@@ -41,9 +95,10 @@ const CarPartsAssistant = () => {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarPinned, setIsSidebarPinned] = useState(false);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   // Admin access handler - direct navigation without login layer
   const handleAdminAccess = () => {
-    navigate("/flowsense/explified/admin/login");
+    setIsAdminModalOpen(true);
   };
 
   useEffect(() => {
@@ -437,6 +492,11 @@ const CarPartsAssistant = () => {
           </div>
         </main>
       </div>
+
+      <AdminModal
+        isOpen={isAdminModalOpen}
+        onClose={() => setIsAdminModalOpen(false)}
+      />
     </div>
   );
 };
