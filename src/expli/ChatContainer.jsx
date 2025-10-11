@@ -114,12 +114,12 @@ function ChatContainer({
       {/* Messages Container */}
       <div className="w-full flex flex-col gap-6 px-1 ">
         {(!messages || messages.length === 0) && (
-          <div className="flex flex-col items-center justify-center h-full text-center mt-12 animate-fade-in">
-            <div className="relative mb-6">
+          <div className="flex flex-col items-center justify-center h-full text-center mt-20 animate-fade-in">
+            {/* <div className="relative mb-6">
               <div className="p-6 bg-gradient-to-br from-slate-800/60 to-slate-700/40 rounded-2xl border border-slate-600/50 shadow-2xl backdrop-blur-sm">
                 <Sparkles className="w-10 h-10 text-[#23b5b5]" />
               </div>
-            </div>
+            </div> */}
             <h3 className="text-xl font-semibold text-white mb-3 tracking-tight">
               Ready to assist you
             </h3>

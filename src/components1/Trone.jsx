@@ -655,6 +655,10 @@ function Trone() {
   };
   // True if Expli is the only open chat
   const onlyExpliOpen = !providerKeys.openai && !providerKeys.gemini;
+  const chatNotPresent =
+    currentMessages.length === 0 &&
+    currentMessagesGemini.length === 0 &&
+    currentMessagesOpenAI.length === 0;
 
   return (
     <div className="flex relative text-white h-screen bg-[#0a0a0a] overflow-hidden">
@@ -714,22 +718,6 @@ function Trone() {
       <div className="overflow-x-auto relative h-screen w-screen flex flex-col">
         {/* Chat + Input inside same box */}
         <div className="w-full flex-1 border border-cyan-500/20 shadow-[0_0_60px_rgba(6,182,212,0.15),0_0_100px_rgba(6,182,212,0.08)] bg-black flex flex-col gap-4 relative backdrop-blur-xl">
-          {/* Animated Background Pattern */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            {/* Radial Gradient Glow */}
-            <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-radial from-cyan-500/5 via-transparent to-transparent" />
-            <div className="absolute bottom-0 right-0 w-full h-1/2 bg-gradient-radial from-blue-500/5 via-transparent to-transparent" />
-
-            {/* Noise Texture */}
-            <div
-              className="absolute inset-0 opacity-[0.015] mix-blend-overlay"
-              style={{
-                backgroundImage:
-                  "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' /%3E%3C/svg%3E\")",
-              }}
-            />
-          </div>
-
           {/* Chat Containers Row */}
           <div
             className={`flex mb-20 sm:mb-24 flex-1
@@ -779,14 +767,6 @@ function Trone() {
           </div>
         </div>
 
-        {/* {showIntegrationsModal && (
-          <IntegrationModal
-            providerKeys={providerKeys}
-            setProviderKeys={setProviderKeys}
-            setShowIntegrationsModal={setShowIntegrationsModal}
-          />
-        )} */}
-
         {/* Input Box Below Chats */}
         <ExpliInput
           prompt={prompt}
@@ -798,6 +778,8 @@ function Trone() {
           isRecording={isRecording}
           isSidebarOpen={isSidebarOpen}
           sidebarPinned={sidebarPinned}
+          onlyExpliOpen={onlyExpliOpen}
+          chatNotPresent={chatNotPresent}
         />
       </div>
       <ExpliIntegration

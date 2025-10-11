@@ -10,6 +10,8 @@ function ExpliInput({
   handleMicClick,
   isRecording,
   isSidebarOpen,
+  onlyExpliOpen,
+  chatNotPresent,
 }) {
   const [selectedFile, setSelectedFile] = useState(null); // ✅ store selected file
   const fileInputRef = useRef(null); // ✅ ref for hidden file input
@@ -24,7 +26,11 @@ function ExpliInput({
 
   return (
     <div
-      className={`fixed bottom-5 z-10 transition-all duration-500 ${
+      className={`fixed ${
+        onlyExpliOpen && chatNotPresent
+          ? "top-1/2 -translate-y-1/2"
+          : "bottom-5"
+      }  z-10 transition-all duration-500 ${
         isSidebarOpen ? "left-[245px] right-0" : "left-0 right-0"
       }`}
     >

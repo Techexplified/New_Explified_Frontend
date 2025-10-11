@@ -11,7 +11,7 @@ import {
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
-function SidebarOnHover2({ toolName, onToggle }) {
+function SidebarOnHover2({ toolName, onToggle, bottomSection }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarPinned, setSidebarPinned] = useState(false);
   const [tasks, setTasks] = useState([]);
