@@ -1,3 +1,18 @@
+/* Gemini Live Glow Effect Animations */
+@keyframes gemini-glow {
+  0% { filter: blur(32px) brightness(1); transform: scaleX(1) scaleY(1); }
+  100% { filter: blur(48px) brightness(1.2); transform: scaleX(1.08) scaleY(1.12); }
+}
+@keyframes gemini-glow2 {
+  0% { filter: blur(48px) brightness(0.9); transform: scaleX(1) scaleY(1); }
+  100% { filter: blur(64px) brightness(1.1); transform: scaleX(1.12) scaleY(1.18); }
+}
+.animate-gemini-glow {
+  animation: gemini-glow 2.5s ease-in-out infinite alternate;
+}
+.animate-gemini-glow2 {
+  animation: gemini-glow2 3.2s ease-in-out infinite alternate;
+}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -13,6 +12,7 @@ import {
 } from "react-icons/fi";
 import ReactMarkdown from "react-markdown";
 import SidebarOnHover2 from "../reusable_components/SidebarOnHover2";
+import GeminiLinearEffect from "./GeminiLinearEffect";
 
 const promptSuggestions = [
   { icon: <FiShoppingCart />, text: "Checking part availability" },
@@ -29,6 +29,13 @@ const webhookUrl =
 
 
 const CarPartsAssistant = () => {
+  // State for chat/voice card visibility and chat box interactivity
+  // Remove cards, show Gemini effect on load, then blurred chat box
+  const [showGeminiEffect, setShowGeminiEffect] = useState(true);
+  const [chatBoxActive, setChatBoxActive] = useState(false);
+
+  // Card click handlers
+  // No cards, just Gemini effect and then blurred chat box
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef(null);
   const navigate = useNavigate();
@@ -62,10 +69,75 @@ const CarPartsAssistant = () => {
     }
   }, []);
 
-  const handleMicClick = () => {
-    if (recognitionRef.current) {
+  // Always keep mic on (voice recognition always listening)
+  useEffect(() => {
+    if (showGeminiEffect && recognitionRef.current && !listening) {
       setListening(true);
-      recognitionRef.current.start();
+      try {
+        recognitionRef.current.start();
+      } catch (e) {}
+    }
+    // If recognition ends and Gemini is still open, restart it
+    if (showGeminiEffect && recognitionRef.current) {
+      recognitionRef.current.onend = () => {
+        setListening(false);
+        try {
+          recognitionRef.current.start();
+        } catch (e) {}
+      };
+    }
+    // If Gemini is closed, stop mic
+    if (!showGeminiEffect && recognitionRef.current && listening) {
+      try { recognitionRef.current.stop(); } catch (e) {}
+      setListening(false);
+    }
+    // eslint-disable-next-line
+  }, [showGeminiEffect, listening]);
+
+  const handleMicClick = () => {
+    // Always show animation and restore mic handlers
+    if (!showGeminiEffect) {
+      setShowGeminiEffect(true);
+      setChatBoxActive(false);
+      // Wait for animation to mount before starting mic
+      setTimeout(() => {
+        if (recognitionRef.current) {
+          recognitionRef.current.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            setInput(transcript);
+            setListening(false);
+          };
+          recognitionRef.current.onerror = () => {
+            setListening(false);
+          };
+          recognitionRef.current.onend = () => {
+            setListening(false);
+          };
+          setListening(true);
+          try {
+            recognitionRef.current.start();
+          } catch (e) {}
+        }
+      }, 100); // Small delay to ensure animation is visible
+    } else {
+      setChatBoxActive(false);
+      if (recognitionRef.current) {
+        recognitionRef.current.onresult = (event) => {
+          const transcript = event.results[0][0].transcript;
+          setInput(transcript);
+          setListening(false);
+        };
+        recognitionRef.current.onerror = () => {
+          setListening(false);
+        };
+        recognitionRef.current.onend = () => {
+          setListening(false);
+        };
+        setListening(true);
+        try {
+          recognitionRef.current.start();
+        } catch (e) {}
+      }
     }
   };
 
@@ -117,7 +189,7 @@ const CarPartsAssistant = () => {
       });
       console.log("Response:", res);
 
-      if (!res.ok) throw new Error(`Error: ${res.status} ${res.statusText}`);
+  if (!res.ok) throw new Error(`Error: ${res.status} ${res.statusText}`);
 
       const data = await res.json();
       const output =
@@ -172,32 +244,28 @@ const CarPartsAssistant = () => {
           }
         />
 
-        {/* Main Content */}
-        <main
-          className={`flex-1 p-8 overflow-y-auto transition-all duration-300 ${
-            isSidebarOpen || isSidebarPinned ? "ml-72" : "ml-0"
-          }`}
-        >
-
-
-          {!firstMessageSent && (
-            <div className="flex flex-1 items-center justify-center px-4 py-8 mt-20">
-              <div className="max-w-4xl w-full text-center space-y-10">
-                <div>
-                  <h1 className="text-4xl md:text-5xl font-extralight text-white leading-tight font-serif">
-                    <span className="bg-gradient-to-r from-white via-[#23b5b5]/80 to-[#23b5b5]/80 text-transparent bg-clip-text font-semibold"></span>
-                    <br />
-                    <span className="text-white font-light">
-                      How can we assist you?
-                    </span>
-                  </h1>
-                </div>
-              </div>
-            </div>
-          )}
-
+        {/* Main Content - No header, only chat and input area */}
+  <main className={`flex-1 p-8 overflow-y-auto transition-all duration-300 ${isSidebarOpen || isSidebarPinned ? "ml-72" : "ml-0"}`}>
           {/* Chat area with TaskPage theme */}
           <div className="flex-1 px-4 overflow-y-auto pb-44 pt-4 max-w-3xl w-full mx-auto">
+            {/* Talking AI effect animation at the top, only if enabled */}
+            {showGeminiEffect ? (
+              <GeminiLinearEffect
+                speaking={listening}
+                onClose={() => {
+                  setShowGeminiEffect(false);
+                  setChatBoxActive(true); // unblur and activate chat box
+                  // Stop mic and remove all handlers
+                  if (recognitionRef.current) {
+                    try { recognitionRef.current.stop(); } catch (e) {}
+                    recognitionRef.current.onresult = null;
+                    recognitionRef.current.onerror = null;
+                    recognitionRef.current.onend = null;
+                  }
+                  setListening(false);
+                }}
+              />
+            ) : null}
             <div className="flex flex-col gap-4">
               {chat.map((msg, idx) => (
                 <div
@@ -266,27 +334,30 @@ const CarPartsAssistant = () => {
                   </div>
                 </div>
               ))}
-          {/* Removed duplicate/old chat rendering block */}
 
-          {loading && (
-            <div className="flex justify-start">
-              <div className="bg-gray-800 text-gray-100 text-sm p-3 rounded-lg animate-pulse">
-                Typing...
-              </div>
+              {loading && (
+                <div className="flex justify-start">
+                  <div className="bg-gray-800 text-gray-100 text-sm p-3 rounded-lg animate-pulse">
+                    Typing...
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
             </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
 
-        {error && (
-          <div className="text-red-500 text-sm text-center mt-2">{error}</div>
-        )}
-      </div>
+            {error && (
+              <div className="text-red-500 text-sm text-center mt-2">{error}</div>
+            )}
+          </div>
 
           {/* Input Area with consistent dark/teal theme */}
-        <div className="w-full fixed bottom-0 left-0 bg-black border-t border-teal-800/40 z-50 px-4 py-5">
+          <div className="w-full fixed bottom-0 left-0 bg-black border-t border-teal-800/40 z-50 px-4 py-5">
             <div className="max-w-3xl mx-auto">
-          <div className="bg-black border border-teal-800/40 rounded-2xl px-5 py-4 flex flex-col shadow-[0_4px_32px_0_rgba(0,0,0,0.65)] focus-within:ring-2 focus-within:ring-teal-700/40 transition-all duration-200">
+              <div
+                className={`bg-black border border-teal-800/40 rounded-2xl px-5 py-4 flex flex-col shadow-[0_4px_32px_0_rgba(0,0,0,0.65)] focus-within:ring-2 focus-within:ring-teal-700/40 transition-all duration-200
+                  ${!chatBoxActive ? "backdrop-blur-2xl pointer-events-none opacity-60" : ""}`}
+                style={!chatBoxActive ? { filter: 'blur(1.5px) saturate(1)' } : {}}
+              >
                 {/* Top row: textarea + send/mic */}
                 <div className="flex items-end gap-3">
                   <textarea
@@ -301,7 +372,7 @@ const CarPartsAssistant = () => {
                       (e.preventDefault(), handleSend())
                     }
                     maxLength={1000}
-                    disabled={loading}
+                    disabled={loading || !chatBoxActive}
                   ></textarea>
 
                   <div className="flex items-center gap-2 pb-1">
@@ -313,13 +384,13 @@ const CarPartsAssistant = () => {
                           : "bg-[#1e293b] hover:bg-teal-700/40"
                       } text-white`}
                       aria-label="Voice input"
-                      disabled={loading || listening}
+                      disabled={loading || listening || !chatBoxActive}
                     >
                       <FiMic size={18} />
                     </button>
                     <button
                       onClick={handleSend}
-                      disabled={loading || !input.trim()}
+                      disabled={loading || !input.trim() || !chatBoxActive}
                       className="p-2 bg-gradient-to-r from-teal-600 to-teal-400 hover:from-teal-700 hover:to-teal-500 text-white rounded-full transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <FiSend size={18} />
@@ -351,4 +422,3 @@ const CarPartsAssistant = () => {
 };
 
 export default CarPartsAssistant;
- 

@@ -62,7 +62,6 @@ function SidebarOnHover2({ toolName, onToggle, bottomSection }) {
       <div
         className={`fixed top-0 left-0 h-full bg-black/95 backdrop-blur-xl border-r border-minimal-primary/20 flex flex-col items-center transition-all duration-300 z-50 overflow-y-auto ${sidebarOpen || sidebarPinned ? "w-60 px-3" : "w-0 px-0 overflow-hidden"}`}
         onMouseEnter={() => !sidebarPinned && setSidebarOpen(true)}
-        onMouseLeave={() => !sidebarPinned && setSidebarOpen(false)}
       >
         {/* Admin Button at the top of the sidebar */}
         {bottomSection && (
