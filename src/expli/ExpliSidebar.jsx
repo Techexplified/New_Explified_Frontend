@@ -21,7 +21,6 @@ import { INTEGRATION_PROVIDERS, formatText } from "../utils/data/TroneData";
 import { AiOutlineOpenAI } from "react-icons/ai";
 import { RiGeminiLine } from "react-icons/ri";
 import { useSelector } from "react-redux";
-import Logo from "../reusable_components/Logo";
 import { ExplifiedLogo } from "../assets";
 
 function ExpliSidebar({
@@ -41,9 +40,6 @@ function ExpliSidebar({
   setSidebarPinned,
   setIsSidebarOpen,
 }) {
-  // const [selectedProvider, setSelectedProvider] = useState("expli");
-  // const [sidebarPinned, setSidebarPinned] = useState(false);
-  // const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState(""); // ✅ new state
   const [searchProviders, setSearchProviders] = useState(""); // ✅ new state
   const [menuOpen, setMenuOpen] = useState(null);
@@ -51,7 +47,6 @@ function ExpliSidebar({
   const [isOpen, setIsOpen] = useState(false);
 
   const user = useSelector((state) => state.user);
-  console.log(user);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -119,8 +114,8 @@ function ExpliSidebar({
       className={`h-screen ${
         isSidebarOpen || sidebarPinned
           ? "w-72  px-3"
-          : "w-12 px-3 overflow-hidden"
-      } absolute sm:relative z-50 h-screen  overflow-y-scroll sidebar-scroll bg-gradient-to-b from-black from-60% to-[#23b5b5]/60 backdrop-blur-2xl 
+          : "w-16 px-3 overflow-hidden"
+      } absolute sm:relative z-50 h-screen  overflow-y-scroll sidebar-scroll bg-black backdrop-blur-2xl 
         border-r border-minimal-primary/30 shadow-2xl shadow-minimal-primary/10
         flex flex-col justify-between transition-all `}
     >
@@ -139,7 +134,14 @@ function ExpliSidebar({
 
             <div className="flex items-center gap-3">
               <img className="h-6" alt="Logo" src={ExplifiedLogo} />
-              <h1 className="text-2xl font-semibold text-white">Expli</h1>
+
+              <h1
+                className={`text-2xl font-semibold ${
+                  isSidebarOpen ? "text-white" : "text-black"
+                } `}
+              >
+                Expli
+              </h1>
             </div>
             <div className="flex items-center justify-between gap-1">
               {/* Pin button */}
@@ -311,8 +313,11 @@ function ExpliSidebar({
               )}
             </div>
           ) : (
-            <div className="mt-4">
-              <MessageSquare />
+            <div className="mt-6 flex justify-center">
+              <div className="relative">
+                <MessageSquare className="text-gray-300" size={25} />
+                <div className="absolute inset-0 bg-gray-400 blur-xl opacity-20" />
+              </div>
             </div>
           )}
         </div>
@@ -443,7 +448,6 @@ function ExpliSidebar({
             )}
           </div>
           {/* Learn More Section */}
-
           <div>
             <Link to={link}>
               <div className="underline text-white flex items-center justify-center gap-2">
