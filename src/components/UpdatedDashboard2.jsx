@@ -1,78 +1,31 @@
-// UpdatedDashboard.jsx
-import { useState, useEffect, useRef } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useState, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
-  Workflow,
-  Zap,
-  PencilRuler,
-  CircleUserRound,
   Plus,
-  FileText,
-  Search,
-  ArrowLeft,
+  CircleUserRound,
   Share2,
+  ArrowLeft,
   Download,
-  FileJson, File, FileType,
+  FileText,
+  FileJson,
+  File,
+  FileType,
 } from "lucide-react";
-import { create } from "zustand";
 import { jsPDF } from "jspdf";
 import { Document, Packer, Paragraph, TextRun } from "docx";
-// Prevent focus loss on every keystroke
-import { flushSync } from "react-dom";
 
-// ---------------- ZUSTAND STORE ----------------
-const useStore = create((set) => ({
-  shapes: [],
-  selectedTool: "freehand",
-  setTool: (tool) => set({ selectedTool: tool }),
-  setShapes: (shapesFromPreviousNote) => set({ shapes: shapesFromPreviousNote }),
-  addShape: (shape) => set((state) => ({ shapes: [...state.shapes, shape] })),
-  updateShape: (id, updater) =>
-    set((state) => ({
-      shapes: state.shapes.map((s) =>
-        s.id === id ? { ...s, ...(typeof updater === "function" ? updater(s) : updater) } : s
-      ),
-    })),
-  removeShape: (id) => set((state) => ({ shapes: state.shapes.filter((s) => s.id !== id) })),
-  selectedShapeId: null,
-  setSelectedShapeId: (id) => set({ selectedShapeId: id }),
-  textStyle: { fontFamily: "Arial", fontSize: 20, bold: false, italic: false, color: "#23b5b5" },
-  setTextStyle: (partial) => set((state) => ({ textStyle: { ...state.textStyle, ...partial } })),
-  freehandType: "pencil",
-  setFreehandType: (fType) => set({ freehandType: fType }),
-}));
-
-// ---------------- NAV ITEMS ----------------
-const navItems = [
-  { name: "Search", icon: Search, active: true },
-  { name: "Recent", icon: null, active: false },
-  { name: "Start", icon: null, active: false },
-  { name: "All Apps", icon: null, active: false },
-  { name: "Workflows", icon: null, active: false },
-  { name: "Integrations", icon: null, active: false },
-];
-
-const UpdatedDashboard = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [selectedTool, setSelectedTool] = useState("");
-  const [showNavbar, setShowNavbar] = useState(true);
-  const [isOpen, setIsOpen] = useState(false);
-  const [isPlusOpen, setIsPlusOpen] = useState(false);
+const UpdatedDashboard2 = ({ isDark, setIsDark }) => {
   const [title, setTitle] = useState("");
+  const [showButton, setShowButton] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [isDownloadOpen, setIsDownloadOpen] = useState(false);
-const [showButton, setShowButton] = useState(false);
-
-  const h1Ref = useRef(null);
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [selectedFormats, setSelectedFormats] = useState([]);
   const timeoutId = useRef(null);
+  const navigate = useNavigate();
+  const h1Ref = useRef(null);
 
-  const setShapes = useStore((state) => state.setShapes);
-  const shapes = useStore((state) => state.shapes);
-
-   const [selectedFormats, setSelectedFormats] = useState([]);
-
+  // File format selection
   const handleSelect = (format) => {
     setSelectedFormats((prev) =>
       prev.includes(format)
@@ -81,6 +34,7 @@ const [showButton, setShowButton] = useState(false);
     );
   };
 
+  // File download handler
   const handleDownload = () => {
     if (selectedFormats.length === 0) {
       alert("Please select at least one file format to download!");
@@ -107,98 +61,10 @@ const [showButton, setShowButton] = useState(false);
     });
   };
 
-  // ---------------- NAVBAR HANDLERS ----------------
-  const PlusClick = () => navigate("/expli");
-  const handleNavBarClick = (navName) => {
-    setSelectedTool(navName);
-    if (["Start", "Search", "Recent", "All Apps"].includes(navName)) navigate("/");
-    else if (navName === "Workflows") navigate("/workflows");
-    else if (navName === "Integrations") navigate("/integrations");
-  };
-
-  // ---------------- PROFILE DROPDOWN ----------------
-  const handleMouseEnter = () => {
-    clearTimeout(timeoutId.current);
-    setIsOpen(true);
-  };
-  const handleMouseLeave = () => {
-    timeoutId.current = setTimeout(() => setIsOpen(false), 200);
-  };
-
-  // ---------------- MOUSE EFFECTS ----------------
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      if (e.clientY <= 450) setShowNavbar(true);
-      else setShowNavbar(false);
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
-  // ---------------- LOAD SELECTED NOTE ----------------
-  useEffect(() => {
-    const selectedNote = localStorage.getItem("selectedNote");
-    if (selectedNote) {
-      try {
-        const noteObj = JSON.parse(selectedNote);
-        setTitle(noteObj.title || "");
-        setShapes(noteObj.shapes || []);
-      } catch (e) {
-        console.error("Failed to parse selectedNote:", e);
-      }
-    }
-  }, [setShapes]);
-
-  // ---------------- EDITABLE TITLE ----------------
- 
-
-  // ---------------- AUTO-SAVE TITLE + SHAPES ----------------
-  useEffect(() => {
-    const debounce = setTimeout(() => {
-      const notes = JSON.parse(localStorage.getItem("notes") || "[]");
-      const selectedNote = localStorage.getItem("selectedNote");
-      let noteId = selectedNote ? JSON.parse(selectedNote).id : Date.now().toString();
-
-      const noteToSave = { id: noteId, title, shapes, updatedAt: new Date().toISOString() };
-
-      const noteExists = notes.find((n) => n.id === noteId);
-      if (noteExists) {
-        const updatedNotes = notes.map((n) => (n.id === noteId ? noteToSave : n));
-        localStorage.setItem("notes", JSON.stringify(updatedNotes));
-      } else {
-        notes.push(noteToSave);
-        localStorage.setItem("notes", JSON.stringify(notes));
-      }
-      localStorage.setItem("selectedNote", JSON.stringify(noteToSave));
-    }, 800); // 0.8s debounce
-
-    return () => clearTimeout(debounce);
-  }, [title, shapes]);
-
-  // ---------------- ROUTE PATH MAPPING ----------------
-  useEffect(() => {
-    const pathname = location.pathname;
-    const pathMap = {
-      "/": "Dashboard",
-      "/workflows": "Workflows",
-      "/socials": "Socials",
-      "/favorites": "Favorites",
-      "/search": "Search",
-      "/recent": "Recent",
-      "/start": "Start",
-      "/all-apps": "All Apps",
-      "/integrations": "Integrations",
-    };
-    setSelectedTool(pathMap[pathname] || "");
-  }, [location.pathname]);
-
-  // ---------------- DOWNLOAD FUNCTIONS ----------------
   const downloadAsPDF = () => {
     const doc = new jsPDF();
     doc.setFontSize(18);
-    doc.text(title, 20, 20);
-    doc.setFontSize(12);
-    doc.text(JSON.stringify(shapes, null, 2), 20, 40);
+    doc.text(title || "Untitled", 20, 20);
     doc.save(`${title || "note"}.pdf`);
   };
 
@@ -207,18 +73,13 @@ const [showButton, setShowButton] = useState(false);
       sections: [
         {
           children: [
-            new Paragraph({ children: [new TextRun({ text: title, bold: true, size: 32 })] }),
-            new Paragraph(""),
-            new Paragraph(JSON.stringify(shapes, null, 2)),
+            new Paragraph({
+              children: [new TextRun({ text: title || "Untitled", bold: true, size: 32 })],
+            }),
           ],
         },
       ],
     });
-
-   
-  
-
-
     const blob = await Packer.toBlob(doc);
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -229,7 +90,7 @@ const [showButton, setShowButton] = useState(false);
   };
 
   const downloadAsTxt = () => {
-    const blob = new Blob([`${title}\n\n${JSON.stringify(shapes, null, 2)}`], { type: "text/plain" });
+    const blob = new Blob([`${title || "Untitled"}`], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -239,7 +100,9 @@ const [showButton, setShowButton] = useState(false);
   };
 
   const downloadAsJson = () => {
-    const blob = new Blob([JSON.stringify({ title, shapes }, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify({ title }, null, 2)], {
+      type: "application/json",
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -248,275 +111,156 @@ const [showButton, setShowButton] = useState(false);
     URL.revokeObjectURL(url);
   };
 
-  // ---------------- JSX ----------------
   return (
-    <div className="min-h-screen bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 flex flex-col overflow-hidden">
-      {/* Header / Navbar */}
-      <header
-        className={`fixed border-minimal-border/50 px-6 transition-transform duration-300 z-50 top-0 left-0 w-full ${
-          showNavbar ? "translate-y-0" : "-translate-y-full"
-        }`}
-        style={{ minHeight: "56px", background: "transparent" }}
-      >
-        <div className="flex items-center justify-between w-full">
-          {/* Left Section - Back Button + Title */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate(-1)}
-              className="flex items-center justify-center w-10 h-10 rounded-xl text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover transition-all duration-200"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-
-<div className="relative max-w-[270px] input-container">
-  {!showButton ? (
-    <>
-      <input
-        ref={h1Ref}
-        type="text"
-        className="input-field"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder=" "
-        id="note-title"
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && title.trim() !== "") {
-            e.preventDefault();
-            setShowButton(true); // show button
-          }
-        }}
-      />
-
-      {/* Floating label */}
-      {title && (
-        <label
-          htmlFor="note-title"
-          className="input-label top-[-20px] text-xs text-[#23b5b5] transition-all duration-300"
-        >
-          Title
-        </label>
-      )}
-
-      {/* Typewriter placeholder */}
-      {!title && (
-        <span className="absolute left-0 top-[10px] text-gray-400 pointer-events-none animate-typing overflow-hidden whitespace-nowrap border-r-2 border-gray-400 pr-2">
-          Enter your title...
-        </span>
-      )}
-
-      <span className="input-highlight"></span>
-    </>
-  ) :  (
-    <h1
-      className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-teal-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent mb-2 drop-shadow-lg transition-transform duration-500 hover:scale-105 hover:tracking-wider cursor-pointer text-center"
-      onClick={() => setShowButton(false)} // go back to input on click
+    <header
+      className="fixed  px-6 py-2 
+                 z-50 top-0 left-0 w-full bg-black"
     >
-      {title}
-    </h1>
-  )}
-</div>
+      <div className="flex items-center justify-between">
+        {/* Left Section */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center justify-center w-10 h-10 rounded-xl 
+                       text-white hover:text-[#23b5b5] hover:bg-[#1a2428] transition-all"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
 
-
-
-
-
-
+          <div className="relative max-w-[270px] input-container">
+            {!showButton ? (
+              <>
+                <input
+                  ref={h1Ref}
+                  type="text"
+                  className="bg-transparent text-white outline-none border-b border-[#23b5b5]/50 focus:border-[#23b5b5] transition-all w-full"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Enter your title..."
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && title.trim() !== "") {
+                      e.preventDefault();
+                      setShowButton(true);
+                    }
+                  }}
+                />
+              </>
+            ) : (
+              <h1
+                className="text-2xl font-bold bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent cursor-pointer"
+                onClick={() => setShowButton(false)}
+              >
+                {title}
+              </h1>
+            )}
           </div>
+        </div>
 
-          {/* Right Section - Share, Dashboard, Plus, Profile, Download */}
-          <div className="flex items-center gap-2 pt-1">
- {/* Download Dropdown */}
-<div
-  className="relative group"
-  onMouseEnter={() => {
-    clearTimeout(timeoutId.current); // cancel any pending timeout
-    setIsDownloadOpen(true);
-  }}
-   onMouseLeave={() => {
-    timeoutId.current = setTimeout(() => setIsDownloadOpen(false), 800); // delay
-  }}
->
-  <button className="flex items-center justify-center w-10 h-10 rounded-xl text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover transition-all duration-200">
-    <Download className="w-5 h-5" />
-  </button>
-
-  {isDownloadOpen && (
-    <div
-      className="absolute top-full left-1/2 -translate-x-1/2 mt-2 
-                 bg-[#0d1418] border border-[#23b5b5]/40 rounded-lg 
-                 shadow-md p-4 w-48 flex flex-col gap-3 z-50"
-    >
-      {/* PDF Option */}
-     <label className="flex items-center gap-2 cursor-pointer hover:text-[#23b5b5]">
-  <input
-    type="checkbox"
-    checked={selectedFormats.includes("PDF")}
-    onChange={() => handleSelect("PDF")}
-    className="hidden"
-  />
-  <span className="w-4 h-4 rounded-full border border-[#23b5b5] flex items-center justify-center">
-    {selectedFormats.includes("PDF") && (
-      <span className="w-2 h-2 bg-[#23b5b5] rounded-full"></span>
-    )}
-  </span>
-  <FileText className="w-5 h-5" />
-  <span>PDF</span>
-</label>
-
-<label className="flex items-center gap-2 cursor-pointer hover:text-[#23b5b5]">
-  <input
-    type="checkbox"
-    checked={selectedFormats.includes("WORD")}
-    onChange={() => handleSelect("WORD")}
-    className="hidden"
-  />
-  <span className="w-4 h-4 rounded-full border border-[#23b5b5] flex items-center justify-center">
-    {selectedFormats.includes("WORD") && (
-      <span className="w-2 h-2 bg-[#23b5b5] rounded-full"></span>
-    )}
-  </span>
-  <FileType className="w-5 h-5" />
-  <span>Word</span>
-</label>
-
-<label className="flex items-center gap-2 cursor-pointer hover:text-[#23b5b5]">
-  <input
-    type="checkbox"
-    checked={selectedFormats.includes("TXT")}
-    onChange={() => handleSelect("TXT")}
-    className="hidden"
-  />
-  <span className="w-4 h-4 rounded-full border border-[#23b5b5] flex items-center justify-center">
-    {selectedFormats.includes("TXT") && (
-      <span className="w-2 h-2 bg-[#23b5b5] rounded-full"></span>
-    )}
-  </span>
-  <File className="w-5 h-5" />
-  <span>TXT</span>
-</label>
-
-<label className="flex items-center gap-2 cursor-pointer hover:text-[#23b5b5]">
-  <input
-    type="checkbox"
-    checked={selectedFormats.includes("JSON")}
-    onChange={() => handleSelect("JSON")}
-    className="hidden"
-  />
-  <span className="w-4 h-4 rounded-full border border-[#23b5b5] flex items-center justify-center">
-    {selectedFormats.includes("JSON") && (
-      <span className="w-2 h-2 bg-[#23b5b5] rounded-full"></span>
-    )}
-  </span>
-  <FileJson className="w-5 h-5" />
-  <span>JSON</span>
-</label>
-
-
-      {/* Download Button */}
-      <button
-        onClick={handleDownload}
-        className="bg-[#23b5b5] hover:bg-[#1ea4a4] text-white font-medium rounded-lg py-1.5 mt-2 transition-all duration-200"
-      >
-        Download
-      </button>
-    </div>
-  )}
-</div>
-
-
-
-
-
-            {/* Share */}
-            <button
-              onClick={() => {
-                if (navigator.share) {
-                  navigator.share({ title: document.title, url: window.location.href });
-                } else {
-                  navigator.clipboard.writeText(window.location.href);
-                  alert("Link copied to clipboard!");
-                }
-              }}
-              className="flex items-center justify-center w-10 h-10 rounded-xl text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover transition-all duration-200"
-            >
-              <Share2 className="w-5 h-5" />
-            </button>
-
-            {/* Dashboard */}
-            <button
-              onClick={() => navigate("/dashboard")}
-              className="flex items-center justify-center w-10 h-10 rounded-xl text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover transition-all duration-200"
-            >
-              <LayoutDashboard className="w-6 h-6" />
-            </button>
-
-            {/* Plus */}
+        {/* Right Section */}
+        <div className="flex items-center gap-2">
+          {/* Theme Toggle */}
+          <div
+            className={`relative w-14 h-7 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 ${
+              isDark ? "bg-gray-700" : "bg-yellow-300"
+            }`}
+            onClick={() => setIsDark(!isDark)}
+          >
             <div
-              className="relative"
-              onMouseEnter={() => setIsPlusOpen(true)}
-              onMouseLeave={() => setIsPlusOpen(false)}
+              className={`bg-white w-5 h-5 rounded-full shadow-md transform duration-300 ${
+                isDark ? "translate-x-0" : "translate-x-7"
+              } flex items-center justify-center`}
             >
-              <button
-                onClick={PlusClick}
-                className="flex items-center justify-center w-10 h-10 rounded-xl text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover transition-all duration-200"
-              >
-                <Plus className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Profile */}
-            <div
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
-              className="relative inline-block"
-            >
-              <button
-                onClick={() => navigate("/profile")}
-                className="flex items-center justify-center w-10 h-10 rounded-xl text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover transition-all duration-200"
-              >
-                <CircleUserRound className="w-5 h-5" />
-              </button>
-
-              {isOpen && (
-                <div className="absolute right-0 top-12 min-w-[220px] bg-gradient-to-br from-[#0d1418] to-[#111c20] backdrop-blur-xl border border-[#23b5b5]/40 rounded-xl shadow-lg p-4 flex flex-col items-center z-50">
-                  <Link
-                    className="w-full h-9 mb-3 rounded-lg border border-[#23b5b5]/40 text-sm font-medium text-white bg-transparent hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] hover:shadow-md hover:shadow-cyan-500/20 transition-all duration-200 flex items-center justify-center"
-                    to="https://explified.com/explified-labs"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    For Enterprises
-                  </Link>
-
-                  <div className="flex gap-2 w-full mb-3">
-                    {[{ icon: Plus, to: "/expli" }, { icon: FileText, to: "/tasks" }].map(
-                      ({ icon: Icon, to }, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => {
-                            navigate(to);
-                            setIsOpen(false);
-                          }}
-                          className="flex-1 h-9 flex items-center justify-center rounded-lg border border-[#23b5b5]/40 bg-transparent hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] hover:shadow-sm hover:shadow-cyan-500/20 text-white transition-all duration-200"
-                        >
-                          <Icon className="w-4 h-4" />
-                        </button>
-                      )
-                    )}
-                  </div>
-                </div>
+              {isDark ? (
+                <div className="w-2.5 h-2.5 bg-yellow-400 rounded-full" />
+              ) : (
+                <div className="w-2.5 h-2.5 bg-yellow-600 rounded-full" />
               )}
             </div>
           </div>
-        </div>
-      </header>
 
-      {/* CONTENT */}
-      <div className={`${sidebarOpen ? "ml-80" : "ml-0"} w-full transition-all duration-300`}>
-        {/* Place your Canvas or Editor component here */}
+          {/* Download Dropdown */}
+          <div
+            className="relative group"
+            onMouseEnter={() => {
+              clearTimeout(timeoutId.current);
+              setIsDownloadOpen(true);
+            }}
+            onMouseLeave={() => {
+              timeoutId.current = setTimeout(() => setIsDownloadOpen(false), 800);
+            }}
+          >
+            <button className="flex items-center justify-center w-10 h-10 rounded-xl text-white hover:text-[#23b5b5] hover:bg-[#1a2428] transition-all">
+              <Download className="w-5 h-5" />
+            </button>
+
+            {isDownloadOpen && (
+              <div
+                className="absolute top-full left-1/2 -translate-x-1/2 mt-2 
+                           bg-[#0d1418] border border-[#23b5b5]/40 rounded-lg 
+                           shadow-md p-4 w-48 flex flex-col gap-3 z-50"
+              >
+                {["PDF", "WORD", "TXT", "JSON"].map((format, idx) => {
+                  const icons = {
+                    PDF: FileText,
+                    WORD: FileType,
+                    TXT: File,
+                    JSON: FileJson,
+                  };
+                  const Icon = icons[format];
+                  return (
+                    <label
+                      key={idx}
+                      className="flex items-center gap-2 cursor-pointer hover:text-[#23b5b5]"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedFormats.includes(format)}
+                        onChange={() => handleSelect(format)}
+                        className="hidden"
+                      />
+                      <span className="w-4 h-4 rounded-full border border-[#23b5b5] flex items-center justify-center">
+                        {selectedFormats.includes(format) && (
+                          <span className="w-2 h-2 bg-[#23b5b5] rounded-full"></span>
+                        )}
+                      </span>
+                      <Icon className="w-5 h-5" />
+                      <span>{format}</span>
+                    </label>
+                  );
+                })}
+
+                <button
+                  onClick={handleDownload}
+                  className="bg-[#23b5b5] hover:bg-[#1ea4a4] text-white font-medium rounded-lg py-1.5 mt-2 transition-all"
+                >
+                  Download
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Share */}
+          <button
+            onClick={() => {
+              if (navigator.share) {
+                navigator.share({ title: document.title, url: window.location.href });
+              } else {
+                navigator.clipboard.writeText(window.location.href);
+                alert("Link copied to clipboard!");
+              }
+            }}
+            className="flex items-center justify-center w-10 h-10 rounded-xl text-white hover:text-[#23b5b5] hover:bg-[#1a2428] transition-all"
+          >
+            <Share2 className="w-5 h-5" />
+          </button>
+
+         
+
+         
+        </div>
       </div>
-    </div>
+    </header>
   );
 };
 
-export default UpdatedDashboard;
+export default UpdatedDashboard2;

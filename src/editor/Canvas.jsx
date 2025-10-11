@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, forwardRef } from "react";
 import { useStore } from "../store";
 import Shape from "./Shape";
 import TextTool from "./TextTool";
@@ -6,8 +6,7 @@ import ImageTool from "./ImageTool";
 import { createShape, updateShapeDimensions } from "./ShapeDrawer";
 import { nanoid } from "nanoid";
 
-
-export default function Canvas({ bgColor = "black" }) {
+const Canvas = forwardRef(({ bgColor = "black" }, ref) => {
   const shapes = useStore((s) => s.shapes);
   const addShape = useStore((s) => s.addShape);
   const updateShape = useStore((s) => s.updateShape);
@@ -17,7 +16,7 @@ export default function Canvas({ bgColor = "black" }) {
   const freehandStrokeWidth = useStore((s) => s.freehandStrokeWidth);
   const freehandType = useStore((s) => s.freehandType);
 
-  const svgRef = useRef(null);
+  const svgRef = ref || useRef(null); // use forwarded ref
   const [currentShapeId, setCurrentShapeId] = useState(null);
   const [draggingId, setDraggingId] = useState(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
@@ -28,9 +27,7 @@ export default function Canvas({ bgColor = "black" }) {
   const [isPanning, setIsPanning] = useState(false);
   const lastPointer = useRef({ x: 0, y: 0 });
 
-  // Image editing
   const [selectedImageId, setSelectedImageId] = useState(null);
-
   const ERASER_SIZE = 20;
   const freehandStyles = { pencil: 1, pen: 1, brush: 0.6, marker: 0.3 };
 
@@ -54,7 +51,6 @@ export default function Canvas({ bgColor = "black" }) {
 
     const { x, y } = toCanvasCoords(offsetX, offsetY);
 
-    // Select & drag
     if (selectedTool === "select") {
       const shape = [...shapes].reverse().find((s) => {
         if (s.points) {
@@ -82,7 +78,6 @@ export default function Canvas({ bgColor = "black" }) {
       }
     }
 
-    // Create new shapes
     let newShape = null;
     if (selectedTool === "eraser") {
       newShape = {
@@ -159,7 +154,6 @@ export default function Canvas({ bgColor = "black" }) {
     const { offsetX, offsetY } = e.nativeEvent;
     const { x, y } = toCanvasCoords(offsetX, offsetY);
 
-    // Find if double-click is on an image
     const imageShape = [...shapes].reverse().find(
       (s) =>
         s.type === "image" &&
@@ -191,14 +185,10 @@ export default function Canvas({ bgColor = "black" }) {
   };
 
   return (
-    <div style={{ width: "100vw", height: "100vh", overflow: "hidden" }}>
+    <div id="canvas-container" style={{ width: "100vw", height: "100vh", overflow: "hidden" }}>
       <svg
         ref={svgRef}
-        style={{
-          width: "100%",
-          height: "100%",
-          cursor: selectedTool === "pan" ? "grab" : "crosshair",
-        }}
+        style={{ width: "100%", height: "100%", cursor: selectedTool === "pan" ? "grab" : "crosshair" }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -208,29 +198,16 @@ export default function Canvas({ bgColor = "black" }) {
         <g transform={`translate(${pan.x}, ${pan.y}) scale(${zoom})`}>
           <rect x={-100000} y={-100000} width={200000} height={200000} fill={bgColor} />
 
-          {/* Shapes */}
-          {shapes
-            .filter((shape) => shape.type !== "image")
-            .map((shape) => (
-              <Shape key={shape.id} {...shape} />
-            ))}
+          {shapes.filter((shape) => shape.type !== "image").map((shape) => (
+            <Shape key={shape.id} {...shape} />
+          ))}
 
-          {/* Text */}
-          {selectedTool === "text" && (
-            <TextTool selectedTool={selectedTool} pan={pan} zoom={zoom} svgRef={svgRef} />
-          )}
-
-          {/* Images */}
-          <ImageTool
-            selectedTool={selectedTool}
-            pan={pan}
-            zoom={zoom}
-            selectedImageId={selectedImageId}
-            setSelectedImageId={setSelectedImageId}
-          />
+          {selectedTool === "text" && <TextTool selectedTool={selectedTool} pan={pan} zoom={zoom} svgRef={svgRef} />}
+          <ImageTool selectedTool={selectedTool} pan={pan} zoom={zoom} selectedImageId={selectedImageId} setSelectedImageId={setSelectedImageId} />
         </g>
       </svg>
-     
     </div>
   );
-}
+});
+
+export default Canvas;

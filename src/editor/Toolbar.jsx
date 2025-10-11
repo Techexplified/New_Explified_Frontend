@@ -13,8 +13,16 @@ import {
   Pentagon,
   RemoveFormatting,
   Eraser,
-  ChevronDown,
+  Type,
+  Palette,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Bold,
+  Italic,
+  Underline,
   SlidersHorizontal,
+  Image as ImageIcon,
 } from "lucide-react";
 import { nanoid } from "nanoid";
 
@@ -22,6 +30,9 @@ export default function Toolbar() {
   const setTool = useStore((s) => s.setTool);
   const addShape = useStore((s) => s.addShape);
   const selectedTool = useStore((s) => s.selectedTool);
+  const selectedShapeId = useStore((s) => s.selectedShapeId);
+  const shapes = useStore((s) => s.shapes);
+  const updateShape = useStore((s) => s.updateShape);
 
   const freehandType = useStore((s) => s.freehandType);
   const setFreehandType = useStore((s) => s.setFreehandType);
@@ -30,257 +41,245 @@ export default function Toolbar() {
   const freehandStrokeWidth = useStore((s) => s.freehandStrokeWidth);
   const setFreehandStrokeWidth = useStore((s) => s.setFreehandStrokeWidth);
 
-  const shapeType = useStore((s) => s.shapeType);
-  const setShapeType = useStore((s) => s.setShapeType);
-
   const textStyle = useStore((s) => s.textStyle);
   const setTextStyle = useStore((s) => s.setTextStyle);
 
-  const [showFreehandMenu, setShowFreehandMenu] = useState(false);
-  const [showShapesMenu, setShowShapesMenu] = useState(false);
-  const [showTextMenu, setShowTextMenu] = useState(false);
+  const shapeType = useStore((s) => s.shapeType);
+  const setShapeType = useStore((s) => s.setShapeType);
 
-  const freehandRef = useRef();
-  const shapesRef = useRef();
-  const textRef = useRef();
+  const [openMenu, setOpenMenu] = useState(null);
+  const [openSubMenu, setOpenSubMenu] = useState(null);
+  const toolbarRef = useRef();
   const fileInputRef = useRef(null);
 
+  const fonts = [
+    "Arial",
+    "Poppins",
+    "Roboto",
+    "Times New Roman",
+    "Verdana",
+    "Montserrat",
+    "Lato",
+    "Playfair Display",
+  ];
+
+  // Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (
-        (freehandRef.current && !freehandRef.current.contains(e.target)) &&
-        (shapesRef.current && !shapesRef.current.contains(e.target)) &&
-        (textRef.current && !textRef.current.contains(e.target))
-      ) {
-        setShowFreehandMenu(false);
-        setShowShapesMenu(false);
-        setShowTextMenu(false);
+      if (toolbarRef.current && !toolbarRef.current.contains(e.target)) {
+        setOpenMenu(null);
+        setOpenSubMenu(null);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const freehandOptions = [
-    { id: "pencil", label: "Pencil", icon: PencilLine },
-    { id: "pen", label: "Pen", icon: Pen },
-    { id: "brush", label: "Brush", icon: Brush },
-    { id: "marker", label: "Marker", icon: Droplet },
-  ];
-
-  const shapeOptions = [
-    { id: "rectangle", label: "Rectangle", icon: RectangleHorizontal },
-    { id: "square", label: "Square", icon: RectangleHorizontal },
-    { id: "circle", label: "Circle", icon: Circle },
-    { id: "ellipse", label: "Ellipse", icon: Circle },
-    { id: "triangle", label: "Triangle", icon: Triangle },
-    { id: "star", label: "Star", icon: Star },
-    { id: "polygon", label: "Polygon", icon: Pentagon },
-    { id: "line", label: "Line", icon: Minus },
-  ];
-
-  const fonts = ["Arial", "Times New Roman", "Verdana", "Georgia", "Courier New", "Poppins", "Roboto", "Montserrat", "Lato", "Playfair Display"];
-
-  const updateStyle = (key, value) => setTextStyle({ ...textStyle, [key]: value });
+  // Update store + selected text shape
+  const updateStyle = (key, value) => {
+    setTextStyle({ ...textStyle, [key]: value });
+    if (selectedShapeId) {
+      updateShape(selectedShapeId, { style: { ...textStyle, [key]: value } });
+    }
+  };
 
   return (
-    <div className="fixed top-6 left-6 flex flex-col gap-3 bg-gray-700 p-3 rounded-2xl shadow-lg z-[1000]" style={{ width: 60 }}>
-
-      {/* Freehand */}
-      <div className="relative" ref={freehandRef}>
+    <div
+      ref={toolbarRef}
+      className="fixed top-28 left-4 flex flex-col gap-2 bg-[#0d1418]/90 border border-[#23b5b5]/40 p-2 rounded-2xl shadow-xl z-[1000]"
+      style={{ width: "56px" }}
+    >
+      {/* ===== FREEHAND ===== */}
+      <div className="relative group">
         <button
           title="Freehand"
           onClick={() => {
             setTool("freehand");
-            setShowFreehandMenu((prev) => !prev);
-            setShowShapesMenu(false);
-            setShowTextMenu(false);
+            setOpenMenu(openMenu === "freehand" ? null : "freehand");
+            setOpenSubMenu(null);
           }}
-          className={`p-2 rounded-xl flex justify-center items-center relative ${selectedTool === "freehand" ? "bg-blue-500 text-white" : "bg-teal-600 text-white"}`}
+          className={`p-2 rounded-xl flex justify-center items-center ${
+            selectedTool === "freehand" ? "bg-[#23b5b5]" : "bg-[#1a2428]"
+          } text-white hover:bg-[#23b5b5]/50`}
         >
-          <PencilLine size={22} />
-          <ChevronDown size={14} className="absolute right-1 bottom-1 text-white opacity-70" />
+          <PencilLine size={20} />
         </button>
-
-        {showFreehandMenu && (
-          <div className="absolute left-16 top-0 flex flex-col bg-gray-700 border border-gray-600 rounded-xl p-2 w-36 z-50">
-            {freehandOptions.map((opt) => {
-              const Icon = opt.icon;
-              return (
-                <button
-                  key={opt.id}
-                  onClick={() => {
-                    setFreehandType(opt.id);
-                    setTool("freehand");
-                    setShowFreehandMenu(false);
-                  }}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm ${freehandType === opt.id ? "bg-blue-500 text-white" : "hover:bg-gray-600 text-gray-200"}`}
-                >
-                  <Icon size={18} /> {opt.label}
-                </button>
-              );
-            })}
+        {openMenu === "freehand" && (
+          <div className="absolute left-[70px] top-0 flex flex-col bg-[#0d1418] border border-[#23b5b5]/40 rounded-xl p-2 w-12 gap-2">
+            {[Pen, Brush, Droplet, PencilLine].map((Icon, i) => (
+              <button
+                key={i}
+                onClick={() => {
+                  const types = ["pen", "brush", "marker", "pencil"];
+                  setFreehandType(types[i]);
+                  setTool("freehand");
+                  setOpenMenu(null);
+                }}
+                className={`p-2 rounded-lg hover:bg-[#23b5b5]/40 ${
+                  freehandType === ["pen", "brush", "marker", "pencil"][i]
+                    ? "bg-[#23b5b5]"
+                    : ""
+                }`}
+              >
+                <Icon size={18} className="text-white" />
+              </button>
+            ))}
           </div>
         )}
       </div>
 
-      {/* Shapes */}
-      <div className="relative" ref={shapesRef}>
+      {/* ===== SHAPES ===== */}
+      <div className="relative group">
         <button
           title="Shapes"
           onClick={() => {
             setTool("shapes");
-            setShowShapesMenu((prev) => !prev);
-            setShowFreehandMenu(false);
-            setShowTextMenu(false);
+            setOpenMenu(openMenu === "shapes" ? null : "shapes");
+            setOpenSubMenu(null);
           }}
-          className={`p-2 rounded-xl flex justify-center items-center relative ${selectedTool === "shapes" ? "bg-blue-500 text-white" : "bg-teal-600 text-white"}`}
+          className={`p-2 rounded-xl flex justify-center items-center ${
+            selectedTool === "shapes" ? "bg-[#23b5b5]" : "bg-[#1a2428]"
+          } text-white hover:bg-[#23b5b5]/50`}
         >
-          <RectangleHorizontal size={22} />
-          <ChevronDown size={14} className="absolute right-1 bottom-1 text-white opacity-70" />
+          <RectangleHorizontal size={20} />
         </button>
-
-        {showShapesMenu && (
-          <div className="absolute left-16 top-0 flex flex-col bg-gray-700 border border-gray-600 rounded-xl p-2 w-36 z-50">
-            {shapeOptions.map((opt) => {
-              const Icon = opt.icon;
-              return (
+        {openMenu === "shapes" && (
+          <div className="absolute left-[70px] top-0 flex flex-col bg-[#0d1418] border border-[#23b5b5]/40 rounded-xl p-2 w-12 gap-2">
+            {[RectangleHorizontal, Circle, Triangle, Star, Pentagon, Minus].map(
+              (Icon, i) => (
                 <button
-                  key={opt.id}
+                  key={i}
                   onClick={() => {
-                    setShapeType(opt.id);
+                    const ids = ["rectangle", "circle", "triangle", "star", "polygon", "line"];
+                    setShapeType(ids[i]);
                     setTool("shapes");
-                    setShowShapesMenu(false);
+                    setOpenMenu(null);
                   }}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm ${shapeType === opt.id ? "bg-blue-500 text-white" : "hover:bg-gray-600 text-gray-200"}`}
+                  className={`p-2 rounded-lg hover:bg-[#23b5b5]/40 ${
+                    shapeType === ["rectangle", "circle", "triangle", "star", "polygon", "line"][i]
+                      ? "bg-[#23b5b5]"
+                      : ""
+                  }`}
                 >
-                  <Icon size={18} /> {opt.label}
+                  <Icon size={18} className="text-white" />
                 </button>
-              );
-            })}
+              )
+            )}
           </div>
         )}
       </div>
 
-      {/* Text */}
-      <div className="relative" ref={textRef}>
+      {/* ===== TEXT ===== */}
+      <div className="relative group">
         <button
           title="Text"
           onClick={() => {
             setTool("text");
-            setShowTextMenu((prev) => !prev);
-            setShowFreehandMenu(false);
-            setShowShapesMenu(false);
+            setOpenMenu(openMenu === "text" ? null : "text");
+            setOpenSubMenu(null);
           }}
-          className={`p-2 rounded-xl flex justify-center items-center relative ${selectedTool === "text" ? "bg-blue-500 text-white" : "bg-teal-600 text-white"}`}
+          className={`p-2 rounded-xl flex justify-center items-center ${
+            selectedTool === "text" ? "bg-[#23b5b5]" : "bg-[#1a2428]"
+          } text-white hover:bg-[#23b5b5]/50`}
         >
-          <span className="font-bold text-lg select-none">T</span>
-          <ChevronDown size={14} className="absolute right-1 bottom-1 text-white opacity-70" />
+          <Type size={20} />
         </button>
-
-        {showTextMenu && (
-          <div className="absolute left-16 top-0 flex flex-col bg-gray-700 border border-gray-600 rounded-xl p-2 w-52 z-50 space-y-2">
+        {openMenu === "text" && (
+          <div className="absolute left-[70px] top-0 flex flex-col bg-[#0d1418] border border-[#23b5b5]/40 rounded-xl p-2 w-12 gap-2">
             {/* Font Family */}
-            <select
-              value={textStyle.fontFamily || "Arial"}
-              onChange={(e) => updateStyle("fontFamily", e.target.value)}
-              className="bg-gray-700 rounded-md p-1 text-sm outline-none w-full"
-            >
-              {fonts.map((font) => (
-                <option key={font} value={font} style={{ fontFamily: font }}>
-                  {font}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <button
+                onClick={() => setOpenSubMenu(openSubMenu === "font" ? null : "font")}
+                className="p-2 rounded-lg hover:bg-[#23b5b5]/40 text-white"
+                title="Font"
+              >
+                <Type size={18} />
+              </button>
+              {openSubMenu === "font" && (
+                <div className="absolute left-[60px] top-0 flex flex-col bg-[#0d1418] border border-[#23b5b5]/40 rounded-xl p-2 w-36">
+                  {fonts.map((f) => (
+                    <button
+                      key={f}
+                      onClick={() => updateStyle("fontFamily", f)}
+                      className="text-left text-sm hover:text-[#23b5b5] text-white"
+                      style={{ fontFamily: f }}
+                    >
+                      {f}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
-            {/* Font Size */}
-            <input
-              type="range"
-              min="8"
-              max="80"
-              value={textStyle.fontSize || 16}
-              onChange={(e) => updateStyle("fontSize", Number(e.target.value))}
-              className="w-full accent-blue-500"
-            />
-
-            {/* Font Color */}
-            <input
-              type="color"
-              value={textStyle.color || "#ffffff"}
-              onChange={(e) => updateStyle("color", e.target.value)}
-              className="w-full h-6 cursor-pointer bg-transparent border-none"
-            />
+            {/* Color Picker */}
+            <div className="relative">
+              <button
+                onClick={() => setOpenSubMenu(openSubMenu === "color" ? null : "color")}
+                className="p-2 rounded-lg hover:bg-[#23b5b5]/40 text-white"
+                title="Color"
+              >
+                <Palette size={18} />
+              </button>
+              {openSubMenu === "color" && (
+                <div className="absolute left-[60px] top-0 bg-[#0d1418] border border-[#23b5b5]/40 rounded-xl p-2">
+                  <input
+                    type="color"
+                    value={textStyle.color || "#ffffff"}
+                    onChange={(e) => updateStyle("color", e.target.value)}
+                    className="w-8 h-8 cursor-pointer border-none bg-transparent"
+                  />
+                </div>
+              )}
+            </div>
 
             {/* Alignment */}
-            <div className="flex justify-between">
-              {["left", "center", "right"].map((align) => (
-                <button
-                  key={align}
-                  onClick={() => updateStyle("textAlign", align)}
-                  className={`flex-1 py-1 mx-0.5 rounded-md text-sm ${textStyle.textAlign === align ? "bg-blue-500" : "bg-gray-700"}`}
-                >
-                  {align[0].toUpperCase()}
-                </button>
-              ))}
+            <div className="relative">
+              <button
+                onClick={() => setOpenSubMenu(openSubMenu === "align" ? null : "align")}
+                className="p-2 rounded-lg hover:bg-[#23b5b5]/40 text-white"
+                title="Align"
+              >
+                <AlignLeft size={18} />
+              </button>
+              {openSubMenu === "align" && (
+                <div className="absolute left-[60px] top-0 flex flex-col bg-[#0d1418] border border-[#23b5b5]/40 rounded-xl p-2">
+                  {[{ key: "left", icon: AlignLeft }, { key: "center", icon: AlignCenter }, { key: "right", icon: AlignRight }].map(({ key, icon: Icon }) => (
+                    <button
+                      key={key}
+                      onClick={() => updateStyle("textAlign", key)}
+                      className={`p-2 rounded-lg hover:bg-[#23b5b5]/40 ${textStyle.textAlign === key ? "bg-[#23b5b5]" : ""}`}
+                    >
+                      <Icon size={18} className="text-white" />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Bold / Italic / Underline */}
-            <div className="flex justify-between">
+            {[{ id: "bold", Icon: Bold }, { id: "italic", Icon: Italic }, { id: "underline", Icon: Underline }].map(({ id, Icon }) => (
               <button
-                onClick={() => updateStyle("bold", !textStyle.bold)}
-                className={`flex-1 py-1 mx-0.5 rounded-md font-bold ${textStyle.bold ? "bg-blue-500" : "bg-gray-700"}`}
+                key={id}
+                onClick={() => updateStyle(id, !textStyle[id])}
+                className={`p-2 rounded-lg hover:bg-[#23b5b5]/40 text-white ${textStyle[id] ? "bg-[#23b5b5]" : ""}`}
               >
-                B
+                <Icon size={18} />
               </button>
-              <button
-                onClick={() => updateStyle("italic", !textStyle.italic)}
-                className={`flex-1 py-1 mx-0.5 rounded-md italic ${textStyle.italic ? "bg-blue-500" : "bg-gray-700"}`}
-              >
-                I
-              </button>
-              <button
-                onClick={() => updateStyle("underline", !textStyle.underline)}
-                className={`flex-1 py-1 mx-0.5 rounded-md underline ${textStyle.underline ? "bg-blue-500" : "bg-gray-700"}`}
-              >
-                U
-              </button>
-            </div>
-
-            {/* Line Height */}
-            <input
-              type="range"
-              min="0.8"
-              max="2"
-              step="0.1"
-              value={textStyle.lineHeight || 1.2}
-              onChange={(e) => updateStyle("lineHeight", Number(e.target.value))}
-              className="w-full accent-blue-500"
-            />
-
-            {/* Letter Spacing */}
-            <input
-              type="range"
-              min="-2"
-              max="10"
-              step="0.1"
-              value={textStyle.letterSpacing || 0}
-              onChange={(e) => updateStyle("letterSpacing", Number(e.target.value))}
-              className="w-full accent-blue-500"
-            />
+            ))}
           </div>
         )}
       </div>
 
-      {/* Eraser */}
+      {/* ===== ERASER ===== */}
       <button
         title="Eraser"
         onClick={() => setTool("eraser")}
-        className={`p-2 rounded-xl flex justify-center items-center ${selectedTool === "eraser" ? "bg-blue-500 text-white" : "bg-teal-600 text-white"}`}
+        className={`p-2 rounded-xl flex justify-center items-center ${selectedTool === "eraser" ? "bg-[#23b5b5]" : "bg-[#1a2428]"} text-white hover:bg-[#23b5b5]/50`}
       >
-        <Eraser size={22} />
+        <Eraser size={20} />
       </button>
 
-      {/* Color Picker */}
+      {/* ===== COLOR PICKER (for freehand) ===== */}
       <input
         type="color"
         value={freehandColor}
@@ -289,8 +288,8 @@ export default function Toolbar() {
         title="Color"
       />
 
-      {/* Stroke Width */}
-      <div className="flex flex-col items-center text-white text-xs">
+      {/* ===== STROKE WIDTH ===== */}
+      <div className="flex flex-col items-center text-white">
         <SlidersHorizontal size={18} />
         <input
           type="range"
@@ -298,21 +297,21 @@ export default function Toolbar() {
           max="20"
           value={freehandStrokeWidth}
           onChange={(e) => setFreehandStrokeWidth(Number(e.target.value))}
-          className="w-10 mt-1 cursor-pointer"
+          className="w-10 mt-1 cursor-pointer accent-[#23b5b5]"
           title="Stroke Width"
         />
       </div>
 
-      {/* Image */}
+      {/* ===== IMAGE ===== */}
       <button
         title="Image"
         onClick={() => {
           setTool("image");
           fileInputRef.current?.click();
         }}
-        className={`p-2 rounded-xl flex justify-center items-center ${selectedTool === "image" ? "bg-blue-500 text-white" : "bg-teal-600 text-white"}`}
+        className={`p-2 rounded-xl flex justify-center items-center ${selectedTool === "image" ? "bg-[#23b5b5]" : "bg-[#1a2428]"} text-white hover:bg-[#23b5b5]/50`}
       >
-        <span className="font-bold text-lg select-none">🖼️</span>
+        <ImageIcon size={20} />
       </button>
       <input
         ref={fileInputRef}
@@ -323,18 +322,26 @@ export default function Toolbar() {
           const file = e.target.files[0];
           if (!file) return;
           const url = URL.createObjectURL(file);
-          addShape({ id: nanoid(), type: "image", src: url, x: 100, y: 100, width: 150, height: 150 });
+          addShape({
+            id: nanoid(),
+            type: "image",
+            src: url,
+            x: 100,
+            y: 100,
+            width: 150,
+            height: 150,
+          });
           e.target.value = null;
         }}
       />
 
-      {/* Clear Canvas */}
+      {/* ===== CLEAR CANVAS ===== */}
       <button
         title="Clear Canvas"
         onClick={() => window.location.reload()}
-        className="p-2 rounded-xl bg-red-600 text-white flex justify-center items-center"
+        className="p-2 rounded-xl bg-red-600 text-white hover:bg-red-500 flex justify-center items-center"
       >
-        <RemoveFormatting size={22} />
+        <RemoveFormatting size={20} />
       </button>
     </div>
   );

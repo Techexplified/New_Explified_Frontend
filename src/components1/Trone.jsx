@@ -220,7 +220,7 @@ function Trone() {
           {
             parts: [
               {
-                text: `Generate summary of this promt within 4-6 words.Return just the summerized text. ${prompt}`,
+                text: `Generate summary of this prompt within 4-6 words.Return just the summerized text. ${prompt}`,
               },
             ],
           },

@@ -8,29 +8,8 @@ export default function LexicalEditor() {
 
   return (
     <div className="relative min-h-screen">
-      {/* Theme Toggle Switch */}
-      
-      <div
-        className={`absolute top-4 right-4 w-16 h-8 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 ${
-          isDark ? "bg-gray-700" : "bg-yellow-300"
-        }`}
-        onClick={() => setIsDark(!isDark)}
-      >
-        {/* Sun/Moon circle */}
-        <div
-          className={`bg-white w-6 h-6 rounded-full shadow-md transform duration-300 ${
-            isDark ? "translate-x-0" : "translate-x-8"
-          } flex items-center justify-center`}
-        >
-          {isDark ? (
-            // Moon
-            <div className="w-3 h-3 bg-yellow-400 rounded-full" />
-          ) : (
-            // Sun
-            <div className="w-3 h-3 bg-yellow-600 rounded-full" />
-          )}
-        </div>
-      </div>
+      {/* Header with toggle inside */}
+      <UpdatedDashboard2 isDark={isDark} setIsDark={setIsDark} />
 
       {/* Toolbar */}
       <Toolbar />
