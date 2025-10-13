@@ -4,7 +4,6 @@ import IntegrationModal from "./IntegrationModal";
 import { FaCodeBranch } from "react-icons/fa6";
 
 function ExpliIntegration({
-  // setShowIntegrationsModal,
   providerKeys,
   setProviderKeys,
   sidebarPinned,

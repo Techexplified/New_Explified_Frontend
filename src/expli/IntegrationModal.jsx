@@ -18,6 +18,63 @@ function IntegrationModal({
   const [selectedProviderId, setSelectedProviderId] = useState(null);
   const [selectedProviderKey, setSelectedProviderKey] = useState("");
   const [showProviderHelp, setShowProviderHelp] = useState(false);
+
+  async function verifyProviderKey(providerId, apiKey) {
+    try {
+      switch (providerId) {
+        case "openai": {
+          const res = await fetch("https://api.openai.com/v1/models", {
+            headers: { Authorization: `Bearer ${apiKey}` },
+          });
+          return res.ok; // 200–299 → true
+        }
+
+        case "gemini": {
+          const res = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`
+          );
+          return res.ok;
+        }
+
+        case "anthropic": {
+          const res = await fetch("https://api.anthropic.com/v1/models", {
+            headers: {
+              "x-api-key": apiKey,
+            },
+          });
+          return res.ok;
+        }
+
+        case "mistral": {
+          const res = await fetch("https://api.mistral.ai/v1/models", {
+            headers: { Authorization: `Bearer ${apiKey}` },
+          });
+          return res.ok;
+        }
+
+        case "cohere": {
+          const res = await fetch("https://api.cohere.ai/v1/models", {
+            headers: { Authorization: `Bearer ${apiKey}` },
+          });
+          return res.ok;
+        }
+
+        case "grok": {
+          const res = await fetch("https://api.x.ai/v1/models", {
+            headers: { Authorization: `Bearer ${apiKey}` },
+          });
+          return res.ok;
+        }
+
+        default:
+          return false;
+      }
+    } catch (err) {
+      console.error("Verification error:", err);
+      return false;
+    }
+  }
+
   const handleOpenProvider = (providerId) => {
     setSelectedProviderId(providerId);
     const existing = providerKeys?.[providerId] || "";
@@ -25,7 +82,13 @@ function IntegrationModal({
     setShowProviderHelp(false);
   };
 
-  const handleSaveProviderKey = (providerId, useAfterSave = false) => {
+  const handleSaveProviderKey = async (providerId, useAfterSave = false) => {
+    const isValid = await verifyProviderKey(providerId, selectedProviderKey);
+
+    if (!isValid) {
+      alert("❌ Invalid API key. Please check and try again.");
+      return;
+    }
     const next = { ...(providerKeys || {}), [providerId]: selectedProviderKey };
     try {
       localStorage.setItem("provider_keys", JSON.stringify(next));
