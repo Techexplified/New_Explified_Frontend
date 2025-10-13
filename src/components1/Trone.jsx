@@ -22,14 +22,14 @@ function Trone() {
     openai: false,
     gemini: false,
   });
-  const [closedChats, setClosedChats] = useState(() => {
-    try {
-      const raw = localStorage.getItem("trone_closed_chats");
-      return raw ? JSON.parse(raw) : { openai: false, gemini: false };
-    } catch {
-      return { openai: false, gemini: false };
-    }
-  });
+  // const [closedChats, setClosedChats] = useState(() => {
+  //   try {
+  //     const raw = localStorage.getItem("trone_closed_chats");
+  //     return raw ? JSON.parse(raw) : { openai: false, gemini: false };
+  //   } catch {
+  //     return { openai: false, gemini: false };
+  //   }
+  // });
 
   const [sidebarPinned, setSidebarPinned] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -71,16 +71,6 @@ function Trone() {
   // Voice recognition
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef(null);
-
-  // const [providerKeys, setProviderKeys] = useState(() => {
-  //   try {
-  //     const raw = localStorage.getItem("provider_keys");
-  //     return raw ? JSON.parse(raw) : {};
-  //   } catch (e) {
-  //     console.log(e);
-  //     return {};
-  //   }
-  // });
 
   const [currentTool, setCurrentTool] = useState("expli");
   const currentQaIdRef = useRef(null);
@@ -162,13 +152,13 @@ function Trone() {
     }
   }, []);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem("trone_closed_chats", JSON.stringify(closedChats));
-    } catch (err) {
-      console.error("Failed to save closedChats:", err);
-    }
-  }, [closedChats]);
+  // useEffect(() => {
+  //   try {
+  //     localStorage.setItem("trone_closed_chats", JSON.stringify(closedChats));
+  //   } catch (err) {
+  //     console.error("Failed to save closedChats:", err);
+  //   }
+  // }, [closedChats]);
 
   useEffect(() => {
     if (!prevDrawerState.current && isDrawerOpen) {
@@ -220,7 +210,7 @@ function Trone() {
           {
             parts: [
               {
-                text: `Generate summary of this prompt within 4-6 words.Return just the summerized text. ${prompt}`,
+                text: `I am giving you an user input. If the user greets you, then just return that exact text. Otherwise generate a summary of the text. ${prompt}`,
               },
             ],
           },
@@ -319,19 +309,11 @@ function Trone() {
         if (tool === "expli" && enabledProviders.expli) {
           await handleDefault(userMessage, contextPrompt, promptSummary);
         }
-        if (
-          providerKeys?.gemini &&
-          enabledProviders.gemini &&
-          !closedChats.gemini
-        ) {
-          await handleGemini(userMessage, contextPrompt, promptSummary);
-        }
-        if (
-          providerKeys?.openai &&
-          enabledProviders.openai &&
-          !closedChats.openai
-        ) {
+        if (providerKeys?.openai && enabledProviders.openai) {
           await handleOpenAI(userMessage, contextPrompt, promptSummary);
+        }
+        if (providerKeys?.gemini && enabledProviders.gemini) {
+          await handleGemini(userMessage, contextPrompt, promptSummary);
         }
       } catch (err) {
         console.error("Error details:", err);
@@ -706,8 +688,6 @@ function Trone() {
         setCurrentMessagesOpenAI={setCurrentMessagesOpenAI}
         link={"https://explified.com/expli/"}
         tools={providerKeys}
-        closedChats={closedChats}
-        setClosedChats={setClosedChats}
         handleRemoveProvider={handleRemoveProvider}
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}

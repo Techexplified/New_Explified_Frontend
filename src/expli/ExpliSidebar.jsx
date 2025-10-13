@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import { Zap, FileText } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { INTEGRATION_PROVIDERS, formatText } from "../utils/data/TroneData";
 import { AiOutlineOpenAI } from "react-icons/ai";
@@ -32,8 +32,6 @@ function ExpliSidebar({
   setCurrentMessagesOpenAI,
   onAddClick,
   tools = [],
-  closedChats,
-  setClosedChats,
   handleRemoveProvider,
   sidebarPinned,
   isSidebarOpen,
@@ -47,6 +45,7 @@ function ExpliSidebar({
   const [isOpen, setIsOpen] = useState(false);
 
   const user = useSelector((state) => state.user);
+  console.log(user);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -57,47 +56,50 @@ function ExpliSidebar({
     );
   }, [searchQuery, chatHistory]);
 
-  const handleHistoryClick = (session) => {
-    // Reset all panels
-    setCurrentMessages([]);
-    setCurrentMessagesOpenAI([]);
-    setCurrentMessagesGemini([]);
+  const handleHistoryClick = useCallback(
+    (session) => {
+      // Reset all panels
+      setCurrentMessages([]);
+      setCurrentMessagesOpenAI([]);
+      setCurrentMessagesGemini([]);
 
-    // Temporary arrays for each tool
-    const messagesExpli = [];
-    const messagesOpenAI = [];
-    const messagesGemini = [];
+      // Temporary arrays for each tool
+      const messagesExpli = [];
+      const messagesOpenAI = [];
+      const messagesGemini = [];
 
-    // Loop through all Q&A in that session
-    session.qa.forEach((qaItem) => {
-      const userMsg = {
-        sender: "user",
-        text: qaItem.question,
-        timestamp: qaItem.timestamp,
-      };
-
-      qaItem.answers.forEach((ans) => {
-        const botMsg = {
-          sender: "bot",
-          text: ans.text,
+      // Loop through all Q&A in that session
+      session.qa.forEach((qaItem) => {
+        const userMsg = {
+          sender: "user",
+          text: qaItem.question,
           timestamp: qaItem.timestamp,
         };
 
-        if (ans.tool === "expli") {
-          messagesExpli.push(userMsg, botMsg);
-        } else if (ans.tool === "openai") {
-          messagesOpenAI.push(userMsg, botMsg);
-        } else if (ans.tool === "gemini") {
-          messagesGemini.push(userMsg, botMsg);
-        }
-      });
-    });
+        qaItem.answers.forEach((ans) => {
+          const botMsg = {
+            sender: "bot",
+            text: ans.text,
+            timestamp: qaItem.timestamp,
+          };
 
-    // Update states
-    setCurrentMessages(messagesExpli);
-    setCurrentMessagesOpenAI(messagesOpenAI);
-    setCurrentMessagesGemini(messagesGemini);
-  };
+          if (ans.tool === "expli") {
+            messagesExpli.push(userMsg, botMsg);
+          } else if (ans.tool === "openai") {
+            messagesOpenAI.push(userMsg, botMsg);
+          } else if (ans.tool === "gemini") {
+            messagesGemini.push(userMsg, botMsg);
+          }
+        });
+      });
+
+      // Update states
+      setCurrentMessages(messagesExpli);
+      setCurrentMessagesOpenAI(messagesOpenAI);
+      setCurrentMessagesGemini(messagesGemini);
+    },
+    [setCurrentMessages, setCurrentMessagesOpenAI, setCurrentMessagesGemini]
+  );
 
   let timeoutId;
   const handleMouseEnter = () => {

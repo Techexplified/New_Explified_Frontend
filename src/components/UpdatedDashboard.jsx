@@ -36,6 +36,7 @@ import {
 
 import logo from "../assets/logos/explified_logo.png";
 import UserModal from "./UserModal";
+import { useSelector } from "react-redux";
 
 // ---------------- FILTER ITEMS ----------------
 const navItems = [
@@ -87,25 +88,16 @@ const UpdatedDashboard = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isPlusOpen, setIsPlusOpen] = useState(false);
 
+  const user = useSelector((state) => state.user);
+
   const navigate = useNavigate();
   const location = useLocation();
 
-  const tools = [
-    { name: "", icon: LayoutDashboard, description: "Shows key metrics" },
-    {
-      name: "Workflows",
-      icon: Workflow,
-      description: "Automates task sequences",
-    },
-  ];
-
-  const plusTools = [{ name: "Files", icon: File, path: "/task-manager" }];
-
-  const aiTools = [
-    { name: "Integrations", icon: Zap, path: "/integrations" },
-    { name: "Workflows", icon: Workflow, path: "/workflows" },
-    { name: "Ai tools", icon: PencilRuler, path: "/aitools" },
-  ];
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user]);
 
   // ---------------- Handlers ----------------
   function PlusClick() {

@@ -46,10 +46,10 @@ export default function LoginPage() {
 
       if (localStorage.getItem("notesShareId")) {
         const id = localStorage.getItem("notesShareId");
-        console.log(id);
+
         navigate(`/notes?shareId=${id}`);
       } else {
-        navigate("/");
+        navigate("/expli");
       }
       navigate("/expli");
     }
@@ -179,7 +179,7 @@ export default function LoginPage() {
                       "explified",
                       JSON.stringify({
                         isLoggedIn: "true",
-                        given_name: decoded?.given_name,
+                        name: decoded?.name,
                         email: decoded?.email,
                       })
                     );

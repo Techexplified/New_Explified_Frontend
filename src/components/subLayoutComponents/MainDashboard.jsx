@@ -59,7 +59,7 @@ import {
   SiGoogleanalytics,
 } from "react-icons/si";
 import { MdBusiness } from "react-icons/md";
-
+import { useSelector } from "react-redux";
 const navItems = [
   { name: "Recent", icon: FileText, active: false, badge: null },
   { name: "Start", icon: Play, active: false, badge: null },
