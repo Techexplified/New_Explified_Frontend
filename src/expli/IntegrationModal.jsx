@@ -11,6 +11,7 @@ function IntegrationModal({
   providerKeys,
   setProviderKeys,
   setShowIntegrationsModal,
+  setClosedChats,
 }) {
   const [integrationTab, setIntegrationTab] = useState("my"); // "my" | "add"
   const [integrationSearch, setIntegrationSearch] = useState("");
@@ -208,9 +209,17 @@ function IntegrationModal({
                       )}
                       <button
                         type="button"
+                        // onClick={(e) => {
+                        //   e.stopPropagation();
+                        //   handleOpenProvider(p.id);
+                        // }}
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleOpenProvider(p.id);
+                          // ✅ flip closedChats for this provider
+                          setClosedChats((prev) => ({
+                            ...prev,
+                            [p.id]: false,
+                          }));
                         }}
                         className="w-8 h-8 bg-teal-500/20 border border-teal-500/60 rounded-xl flex items-center justify-center text-teal-300 transition-all duration-200 transform hover:scale-105 hover:bg-teal-500/30 hover:border-teal-400/80"
                       >

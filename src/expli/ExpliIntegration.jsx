@@ -8,6 +8,7 @@ function ExpliIntegration({
   setProviderKeys,
   sidebarPinned,
   isSidebarOpen,
+  setClosedChats,
 }) {
   const [showIntegrationHint, setShowIntegrationHint] = useState(true);
   const [isHoveringIntegration, setIsHoveringIntegration] = useState(false);
@@ -57,6 +58,7 @@ function ExpliIntegration({
           providerKeys={providerKeys}
           setProviderKeys={setProviderKeys}
           setShowIntegrationsModal={setShowIntegrationsModal}
+          setClosedChats={setClosedChats}
         />
       )}
     </>

@@ -48,11 +48,11 @@ function ExpliInput({
                 placeholder="Type your message..."
                 className="w-full bg-[#003436] text-gray-100 placeholder-gray-400 border border-cyan-500/30 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-400/40 focus:border-cyan-400/50 transition-all duration-300"
                 disabled={isTyping}
-                maxLength={2000}
+                // maxLength={2000}
               />
-              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-cyan-400/60 font-medium">
+              {/* <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-cyan-400/60 font-medium">
                 {prompt.length}/2000
-              </div>
+              </div> */}
             </div>
 
             {/* Action Buttons */}

@@ -22,14 +22,14 @@ function Trone() {
     openai: false,
     gemini: false,
   });
-  // const [closedChats, setClosedChats] = useState(() => {
-  //   try {
-  //     const raw = localStorage.getItem("trone_closed_chats");
-  //     return raw ? JSON.parse(raw) : { openai: false, gemini: false };
-  //   } catch {
-  //     return { openai: false, gemini: false };
-  //   }
-  // });
+  const [closedChats, setClosedChats] = useState(() => {
+    try {
+      const raw = localStorage.getItem("trone_closed_chats");
+      return raw ? JSON.parse(raw) : { openai: false, gemini: false };
+    } catch {
+      return { openai: false, gemini: false };
+    }
+  });
 
   const [sidebarPinned, setSidebarPinned] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -152,13 +152,13 @@ function Trone() {
     }
   }, []);
 
-  // useEffect(() => {
-  //   try {
-  //     localStorage.setItem("trone_closed_chats", JSON.stringify(closedChats));
-  //   } catch (err) {
-  //     console.error("Failed to save closedChats:", err);
-  //   }
-  // }, [closedChats]);
+  useEffect(() => {
+    try {
+      localStorage.setItem("trone_closed_chats", JSON.stringify(closedChats));
+    } catch (err) {
+      console.error("Failed to save closedChats:", err);
+    }
+  }, [closedChats]);
 
   useEffect(() => {
     if (!prevDrawerState.current && isDrawerOpen) {
@@ -188,6 +188,51 @@ function Trone() {
       setPrompt("");
     }
   }, [reset]);
+  const updatePromptSummaryInQa = (qaId, summary) => {
+    setChatHistory((prev = []) =>
+      prev.map((session) => {
+        if (!Array.isArray(session.qa)) return session; // skip sessions without qa array
+        return {
+          ...session,
+          qa: session.qa.map((item) =>
+            item.id === qaId ? { ...item, promptSummary: summary } : item
+          ),
+        };
+      })
+    );
+  };
+
+  const summarizePrompt = async (prompt, qaId) => {
+    try {
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${
+        import.meta.env.VITE_TRONE_GEMINI_API_KEY
+      }`;
+
+      const payload = {
+        contents: [
+          {
+            parts: [
+              {
+                text: `I am giving you a user input. If the user greets you, return that exact text. Otherwise, summarize the text: ${prompt}`,
+              },
+            ],
+          },
+        ],
+      };
+
+      const res = await axios.post(apiUrl, payload, {
+        headers: { "Content-Type": "application/json" },
+        timeout: 15000,
+      });
+
+      const summary = res.data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+      // 🧩 Update the corresponding QA entry in history
+      updatePromptSummaryInQa(qaId, summary);
+    } catch (err) {
+      console.error("Summary error:", err);
+    }
+  };
 
   // Enhanced submit handler with better error handling and conversation context
   const handleSubmit = async (e) => {
@@ -197,65 +242,22 @@ function Trone() {
         setSessionStartedAt(Date.now());
       }
 
-      let apiUrl = "";
-      let payload = {};
-      let headers = { "Content-Type": "application/json" };
-      let parseResponse = () => "No response received.";
-
-      apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${
-        import.meta.env.VITE_TRONE_GEMINI_API_KEY
-      }`;
-      payload = {
-        contents: [
-          {
-            parts: [
-              {
-                text: `I am giving you an user input. If the user greets you, then just return that exact text. Otherwise generate a summary of the text. ${prompt}`,
-              },
-            ],
-          },
-        ],
-        generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 2048,
-        },
-      };
-      parseResponse = (data) =>
-        data.candidates?.[0]?.content?.parts?.[0]?.text ||
-        "No response received.";
-
-      const res = await axios.post(apiUrl, payload, {
-        timeout: 30000,
-        headers,
-      });
-
-      const promptSummary = parseResponse(res.data);
-
-      // inside handleSubmit, after you have promptSummary:
-      const sessionActive = currentMessages.length > 0; // whether the chat container has messages
-
-      // create qa object for this user prompt
-
+      // Create new QA entry immediately
       const qaId = crypto.randomUUID();
       currentQaIdRef.current = qaId;
 
       const newQa = {
         id: qaId,
         question: prompt.trim(),
-        promptSummary,
-        answers: [], // answers come later
+        promptSummary: "", // empty for now
+        answers: [],
         timestamp: new Date().toISOString(),
       };
 
-      // push new QA into the chatHistory (append to last session if sessionActive)
+      const sessionActive = currentMessages.length > 0;
       pushNewQaToHistory(newQa, sessionActive);
 
-      // keep the qaId in a ref so provider handlers append to same QA
-      currentQaIdRef.current = qaId;
-
-      // now add the user message into provider-specific currentMessages as you already do
+      // Add user message to each active provider
       if (enabledProviders.expli) {
         setCurrentMessages((prev) => [...prev, userMessage]);
       }
@@ -266,13 +268,7 @@ function Trone() {
         setCurrentMessagesGemini((prev) => [...prev, userMessage]);
       }
 
-      // then call your providers (await handleDefault / handleGemini / handleOpenAI ...)
-      // after all awaits (i.e., in finally) clear prompt and currentQaIdRef
-      // ...
-
-      // setIsTyping(true);
-
-      // Persist to recentPrompts
+      // Save recent prompt logic (same as before)
       const existing = JSON.parse(localStorage.getItem("recentPrompts")) || [];
       const trimmed = prompt.trim();
       const newSet = [trimmed, ...existing.filter((p) => p !== trimmed)].slice(
@@ -285,44 +281,53 @@ function Trone() {
         localStorage.setItem("firstPromptDone", "true");
       }
 
-      try {
-        // Conversation context
-        const conversationHistory = currentMessages.slice(-10);
-        const contextPrompt =
-          conversationHistory.length > 0
-            ? `Previous conversation context:\n${conversationHistory
-                .map(
-                  (msg) =>
-                    `${msg.sender === "user" ? "User" : "Assistant"}: ${
-                      msg.text
-                    }`
-                )
-                .join("\n")}\n\nCurrent question: ${prompt.trim()}`
-            : prompt.trim();
+      // Prepare context
+      const conversationHistory = currentMessages.slice(-10);
+      const contextPrompt =
+        conversationHistory.length > 0
+          ? `Previous conversation context:\n${conversationHistory
+              .map(
+                (msg) =>
+                  `${msg.sender === "user" ? "User" : "Assistant"}: ${msg.text}`
+              )
+              .join("\n")}\n\nCurrent question: ${prompt.trim()}`
+          : prompt.trim();
 
+      try {
         const tool = currentTool;
         const apiKey = providerKeys[tool] || "";
-
         if (!apiKey && tool !== "expli")
           throw new Error(`No API key found for ${tool}.`);
 
-        if (tool === "expli" && enabledProviders.expli) {
-          await handleDefault(userMessage, contextPrompt, promptSummary);
-        }
-        if (providerKeys?.openai && enabledProviders.openai) {
-          await handleOpenAI(userMessage, contextPrompt, promptSummary);
-        }
-        if (providerKeys?.gemini && enabledProviders.gemini) {
-          await handleGemini(userMessage, contextPrompt, promptSummary);
-        }
+        // 🔹 1️⃣ Start summarization in background (don’t await)
+        summarizePrompt(prompt, qaId);
+
+        // 🔹 2️⃣ Immediately start answer generation in parallel
+        const tasks = [];
+        if (tool === "expli" && enabledProviders.expli)
+          tasks.push(handleDefault(userMessage, contextPrompt, ""));
+        if (
+          providerKeys?.openai &&
+          enabledProviders.openai &&
+          !closedChats.openai
+        )
+          tasks.push(handleOpenAI(userMessage, contextPrompt, ""));
+        if (
+          providerKeys?.gemini &&
+          enabledProviders.gemini &&
+          !closedChats.gemini
+        )
+          tasks.push(handleGemini(userMessage, contextPrompt, ""));
+
+        await Promise.allSettled(tasks);
       } catch (err) {
         console.error("Error details:", err);
       } finally {
         setPrompt("");
-        // currentQaIdRef.current = null;
       }
     }
   };
+
   const handleDefault = async (userMessage, contextPrompt, promptSummary) => {
     setIsTyping((prev) => ({ ...prev, expli: true }));
     try {
@@ -609,18 +614,20 @@ function Trone() {
     }
   };
 
-  const handleCloseChat = (providerId) => {
-    const next = { ...(providerKeys || {}), [providerId]: "" };
-    try {
-      localStorage.setItem("provider_keys", JSON.stringify(next));
-    } catch (err) {
-      console.log(err);
-    }
-    setProviderKeys(next);
-  };
+  // const handleCloseChat = (providerId) => {
+  //   const next = { ...(providerKeys || {}), [providerId]: "" };
+  //   try {
+  //     localStorage.setItem("provider_keys", JSON.stringify(next));
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  //   setProviderKeys(next);
+  // };
 
   const newChat = () => {
     setCurrentMessages([]);
+    setCurrentMessagesGemini([]);
+    setCurrentMessagesOpenAI([]);
     setSessionStartedAt(null);
     setSessionId(
       `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
@@ -636,7 +643,9 @@ function Trone() {
     setProviderKeys(next);
   };
   // True if Expli is the only open chat
-  const onlyExpliOpen = !providerKeys.openai && !providerKeys.gemini;
+  const onlyExpliOpen =
+    (closedChats.openai || !providerKeys.openai) &&
+    (closedChats.gemini || !providerKeys.gemini);
   const chatNotPresent =
     currentMessages.length === 0 &&
     currentMessagesGemini.length === 0 &&
@@ -715,7 +724,7 @@ function Trone() {
               onlyExpliOpen={onlyExpliOpen}
             />
 
-            {providerKeys?.openai && (
+            {providerKeys?.openai && !closedChats.openai && (
               <ChatContainer
                 messages={currentMessagesOpenAI}
                 isTyping={isTyping.openai}
@@ -726,11 +735,14 @@ function Trone() {
                 setEnabled={(val) =>
                   setEnabledProviders((prev) => ({ ...prev, openai: val }))
                 }
-                handleCloseChat={handleCloseChat}
+                // handleCloseChat={handleCloseChat}
+                handleCloseChat={(pid) =>
+                  setClosedChats((prev) => ({ ...prev, [pid]: true }))
+                }
               />
             )}
 
-            {providerKeys?.gemini && (
+            {providerKeys?.gemini && !closedChats.gemini && (
               <ChatContainer
                 messages={currentMessagesGemini}
                 isTyping={isTyping.gemini}
@@ -741,7 +753,10 @@ function Trone() {
                 setEnabled={(val) =>
                   setEnabledProviders((prev) => ({ ...prev, gemini: val }))
                 }
-                handleCloseChat={handleCloseChat}
+                // handleCloseChat={handleCloseChat}
+                handleCloseChat={(pid) =>
+                  setClosedChats((prev) => ({ ...prev, [pid]: true }))
+                }
               />
             )}
           </div>
@@ -767,6 +782,7 @@ function Trone() {
         sidebarPinned={sidebarPinned}
         providerKeys={providerKeys}
         setProviderKeys={setProviderKeys}
+        setClosedChats={setClosedChats}
       />
       {/* Advanced Animation Styles */}
       <style jsx>{`

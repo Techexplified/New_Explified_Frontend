@@ -3,12 +3,14 @@ import { RiAnthropicFill, RiGeminiLine } from "react-icons/ri";
 import GrokLogo from "../../assets/logos/grok.svg";
 import CohereLogo from "../../assets/logos/cohere.svg";
 import MistralLogo from "../../assets/logos/mistral.svg";
+import GeminiLogo from "../../assets/logos/gemini.png";
 
 export const INTEGRATION_PROVIDERS = [
   {
     id: "gemini",
     name: "Gemini",
-    icon: <RiGeminiLine className="text-white" size={20} />,
+    // icon: <RiGeminiLine className="text-white" size={20} />,
+    icon: <img src={GeminiLogo} alt="Grok" className="w-5 h-5" />,
     byok: true,
     description: "Google's Gemini models for text, chat and multimodal tasks.",
     apiUrl: "https://generativelanguage.googleapis.com/v1beta/", // Google AI Studio API
