@@ -12,6 +12,10 @@ import {
   X,
   CircleUserRound,
   Grip,
+  LayoutGrid,
+  PhoneCall,
+  Save,
+  NotebookPen,
 } from "lucide-react";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import { Zap, FileText } from "lucide-react";
@@ -44,8 +48,9 @@ function ExpliSidebar({
   const [showSearch, setShowSearch] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
+  const [pinOpen, setPinOpen] = useState(false);
+  const [expandedId, setExpandedId] = useState(null);
   const user = useSelector((state) => state.user);
-  console.log(user);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -127,47 +132,95 @@ function ExpliSidebar({
         <div>
           {/* Header */}
           <div
-            className={`flex items-center justify-between  gap-3 border-b border-minimal-primary/30 py-4 mb-4`}
+            className={`flex items-center justify-between gap-3 border-b border-minimal-primary/30 py-4 relative`}
           >
-            {/* <h1 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white via-minimal-primary to-cyan-400 bg-clip-text text-transparent">
-              <Logo />
-              Expli
-            </h1> */}
-
+            {/* Left: Logo + Title */}
             <div className="flex items-center gap-3">
               <img className="h-6" alt="Logo" src={ExplifiedLogo} />
-
               <h1
                 className={`text-2xl font-semibold ${
                   isSidebarOpen ? "text-white" : "text-black"
-                } `}
+                }`}
               >
                 Expli
               </h1>
             </div>
-            <div className="flex items-center justify-between gap-1">
-              {/* Pin button */}
+
+            {/* Right: Menu icon + dropdown + close */}
+            <div className="flex items-center justify-between gap-1 relative">
+              {/* Menu icon (3 dots) */}
               <button
-                onClick={() => {
-                  setSidebarPinned(!sidebarPinned);
-                }}
-                className={`p-2 hidden sm:inline-block rounded-lg transition-all duration-300 hover:scale-110 ${
-                  sidebarPinned
-                    ? "bg-minimal-primary/20 text-minimal-primary shadow-lg shadow-minimal-primary/25"
-                    : "bg-gray-800/50 text-gray-400 hover:bg-gray-700/50 hover:text-white"
-                }`}
+                onClick={() => setPinOpen((prev) => !prev)}
+                className="p-2 hidden sm:inline-block rounded-lg transition-all duration-300 hover:scale-110 bg-gray-800/50 text-gray-400 hover:bg-gray-700/50 hover:text-white"
               >
-                {sidebarPinned ? <PinOff size={15} /> : <Pin size={15} />}
+                <MoreVertical size={15} />
               </button>
-              {/* Cross button */}
+
+              {/* Dropdown menu */}
+              {pinOpen && (
+                <div className="absolute right-0 top-10 bg-gray-900 text-gray-200 rounded-xl shadow-lg border border-gray-700 w-40 py-2 z-50">
+                  <button
+                    onClick={() => {
+                      setSidebarPinned(!sidebarPinned);
+                      setPinOpen(false);
+                    }}
+                    className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-800 transition-all"
+                  >
+                    {sidebarPinned ? <PinOff size={15} /> : <Pin size={15} />}
+                    {sidebarPinned ? "Unpin Sidebar" : "Pin Sidebar"}
+                  </button>
+                  <button className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-800 transition-all">
+                    <Link to={link}>
+                      <div className="flex items-center justify-center gap-2">
+                        <IoIosInformationCircleOutline className="w-5 h-5 font-bold" />
+                        {isSidebarOpen && <span>Learn More</span>}
+                      </div>
+                    </Link>
+                  </button>
+                </div>
+              )}
+
+              {/* Cross button for mobile */}
               <button
                 onClick={() => setIsSidebarOpen(false)}
-                className={`p-2 sm:hidden rounded-lg transition-all duration-300 hover:scale-110 bg-gray-800/50 text-gray-400 hover:bg-gray-700/50 hover:text-white`}
+                className="p-2 sm:hidden rounded-lg transition-all duration-300 hover:scale-110 bg-gray-800/50 text-gray-400 hover:bg-gray-700/50 hover:text-white"
               >
                 <X size={15} />
               </button>
             </div>
           </div>
+
+          {isSidebarOpen && (
+            <div className="flex items-center justify-around bg-black/90 border-t border-gray-700 py-3 rounded-t-2xl shadow-lg">
+              <button
+                onClick={() => navigate("/")}
+                className="p-2 rounded-lg hover:bg-gray-800 transition-all text-gray-300 hover:text-white"
+              >
+                <LayoutGrid size={20} />
+              </button>
+
+              <button
+                onClick={() => navigate("/notes")}
+                className="p-2 rounded-lg hover:bg-gray-800 transition-all text-gray-300 hover:text-white"
+              >
+                <NotebookPen size={20} />
+              </button>
+
+              <button
+                onClick={() => navigate("/notes")}
+                className="p-2 rounded-lg hover:bg-gray-800 transition-all text-gray-300 hover:text-white"
+              >
+                <Save size={20} />
+              </button>
+
+              <button
+                onClick={() => navigate("/")}
+                className="p-2 rounded-lg hover:bg-gray-800 transition-all text-gray-300 hover:text-white"
+              >
+                <Search size={20} />
+              </button>
+            </div>
+          )}
 
           <button
             onClick={onAddClick}
@@ -281,24 +334,6 @@ function ExpliSidebar({
                           )}
                         </div>
                       </div>
-
-                      {/* Bottom row: tool icons */}
-                      {/* <div className="flex  gap-2 mt-1">
-                        {item.qa[0].answers.map((ans) => (
-                          <span
-                            key={ans.tool}
-                            className="text-[10px] px-1.5 py-0.5 rounded bg-gray-700 text-gray-300 flex items-center justify-center"
-                          >
-                            {ans.tool === "expli" && <Plus size={10} />}
-                            {ans.tool === "openai" && (
-                              <AiOutlineOpenAI size={10} />
-                            )}
-                            {ans.tool === "gemini" && (
-                              <RiGeminiLine size={10} />
-                            )}
-                          </span>
-                        ))}
-                      </div> */}
                     </div>
                   ))}
                 </div>
@@ -450,14 +485,14 @@ function ExpliSidebar({
             )}
           </div>
           {/* Learn More Section */}
-          <div>
+          {/* <div>
             <Link to={link}>
               <div className="underline text-white flex items-center justify-center gap-2">
                 <IoIosInformationCircleOutline className="w-6 h-6 font-bold" />
                 {isSidebarOpen && <span>Learn More</span>}
               </div>
             </Link>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

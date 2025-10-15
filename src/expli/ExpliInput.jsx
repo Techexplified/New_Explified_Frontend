@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FiMic, FiPaperclip, FiSend } from "react-icons/fi";
 
 function ExpliInput({
@@ -15,6 +15,7 @@ function ExpliInput({
 }) {
   const [selectedFile, setSelectedFile] = useState(null); // ✅ store selected file
   const fileInputRef = useRef(null); // ✅ ref for hidden file input
+  const inputRef = useRef(null);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -23,6 +24,18 @@ function ExpliInput({
       console.log("Selected file:", file);
     }
   };
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isTyping && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isTyping]);
 
   return (
     <div
@@ -41,6 +54,7 @@ function ExpliInput({
             <div className="flex-1 relative">
               <input
                 type="text"
+                ref={inputRef}
                 value={prompt}
                 onChange={handleInputChange}
                 onKeyDown={handleSubmit}

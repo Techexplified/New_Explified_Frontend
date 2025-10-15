@@ -23,6 +23,7 @@ import {
   Underline,
   SlidersHorizontal,
   Image as ImageIcon,
+  PenTool,
 } from "lucide-react";
 import { nanoid } from "nanoid";
 
@@ -49,6 +50,7 @@ export default function Toolbar() {
 
   const [openMenu, setOpenMenu] = useState(null);
   const [openSubMenu, setOpenSubMenu] = useState(null);
+  const [showColorPicker, setShowColorPicker] = useState(false);
   const toolbarRef = useRef();
   const fileInputRef = useRef(null);
 
@@ -69,13 +71,14 @@ export default function Toolbar() {
       if (toolbarRef.current && !toolbarRef.current.contains(e.target)) {
         setOpenMenu(null);
         setOpenSubMenu(null);
+        setShowColorPicker(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Update store + selected text shape
+  // Update text style
   const updateStyle = (key, value) => {
     setTextStyle({ ...textStyle, [key]: value });
     if (selectedShapeId) {
@@ -86,9 +89,20 @@ export default function Toolbar() {
   return (
     <div
       ref={toolbarRef}
-      className="fixed top-28 left-4 flex flex-col gap-2 bg-[#0d1418]/90 border border-[#23b5b5]/40 p-2 rounded-2xl shadow-xl z-[1000]"
+      className="fixed left-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 bg-[#0d1418]/90 border border-[#23b5b5]/40 p-2 rounded-2xl shadow-xl z-[1000]"
       style={{ width: "56px" }}
     >
+      {/* ===== WRITE TOOL (NEW) ===== */}
+      <button
+        title="Write"
+        onClick={() => setTool("write")}
+        className={`p-2 rounded-xl flex justify-center items-center ${
+          selectedTool === "write" ? "bg-[#23b5b5]" : "bg-[#1a2428]"
+        } text-white hover:bg-[#23b5b5]/50`}
+      >
+        <PenTool size={20} />
+      </button>
+
       {/* ===== FREEHAND ===== */}
       <div className="relative group">
         <button
@@ -104,26 +118,62 @@ export default function Toolbar() {
         >
           <PencilLine size={20} />
         </button>
+
         {openMenu === "freehand" && (
           <div className="absolute left-[70px] top-0 flex flex-col bg-[#0d1418] border border-[#23b5b5]/40 rounded-xl p-2 w-12 gap-2">
-            {[Pen, Brush, Droplet, PencilLine].map((Icon, i) => (
-              <button
-                key={i}
-                onClick={() => {
-                  const types = ["pen", "brush", "marker", "pencil"];
-                  setFreehandType(types[i]);
-                  setTool("freehand");
-                  setOpenMenu(null);
-                }}
-                className={`p-2 rounded-lg hover:bg-[#23b5b5]/40 ${
-                  freehandType === ["pen", "brush", "marker", "pencil"][i]
-                    ? "bg-[#23b5b5]"
-                    : ""
-                }`}
-              >
-                <Icon size={18} className="text-white" />
-              </button>
-            ))}
+            {[Pen, Brush, Droplet, PencilLine].map((Icon, i) => {
+              const type = ["pen", "brush", "color", "pencil"][i];
+              return (
+                <div key={i} className="relative">
+                  <button
+                    onClick={() => {
+                      if (type === "color") {
+                        setShowColorPicker(!showColorPicker);
+                      } else {
+                        setFreehandType(type);
+                        setTool("freehand");
+                        setShowColorPicker(false);
+                        setOpenMenu(null);
+                      }
+                    }}
+                    className={`p-2 rounded-lg hover:bg-[#23b5b5]/40 ${
+                      freehandType === type ? "bg-[#23b5b5]" : ""
+                    }`}
+                  >
+                    <Icon size={18} className="text-white" />
+                  </button>
+
+                  {/* Color picker inside Droplet */}
+                  {type === "color" && showColorPicker && (
+                    <div className="absolute left-[60px] top-0 bg-[#0d1418] border border-[#23b5b5]/40 rounded-lg p-2 flex justify-center">
+                      <input
+                        type="color"
+                        value={freehandColor}
+                        onChange={(e) => setFreehandColor(e.target.value)}
+                        className="w-8 h-8 cursor-pointer border-none rounded-md"
+                        title="Freehand Color"
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
+            {/* Stroke Width Slider */}
+            <div className="flex flex-col items-center text-white mt-1">
+              <SlidersHorizontal size={16} />
+              <input
+                type="range"
+                min="1"
+                max="20"
+                value={freehandStrokeWidth}
+                onChange={(e) =>
+                  setFreehandStrokeWidth(Number(e.target.value))
+                }
+                className="w-10 mt-1 cursor-pointer accent-[#23b5b5]"
+                title="Stroke Width"
+              />
+            </div>
           </div>
         )}
       </div>
@@ -150,13 +200,21 @@ export default function Toolbar() {
                 <button
                   key={i}
                   onClick={() => {
-                    const ids = ["rectangle", "circle", "triangle", "star", "polygon", "line"];
+                    const ids = [
+                      "rectangle",
+                      "circle",
+                      "triangle",
+                      "star",
+                      "polygon",
+                      "line",
+                    ];
                     setShapeType(ids[i]);
                     setTool("shapes");
                     setOpenMenu(null);
                   }}
                   className={`p-2 rounded-lg hover:bg-[#23b5b5]/40 ${
-                    shapeType === ["rectangle", "circle", "triangle", "star", "polygon", "line"][i]
+                    shapeType ===
+                    ["rectangle", "circle", "triangle", "star", "polygon", "line"][i]
                       ? "bg-[#23b5b5]"
                       : ""
                   }`}
@@ -168,6 +226,17 @@ export default function Toolbar() {
           </div>
         )}
       </div>
+
+      {/* ===== ERASER ===== */}
+      <button
+        title="Eraser"
+        onClick={() => setTool("eraser")}
+        className={`p-2 rounded-xl flex justify-center items-center ${
+          selectedTool === "eraser" ? "bg-[#23b5b5]" : "bg-[#1a2428]"
+        } text-white hover:bg-[#23b5b5]/50`}
+      >
+        <Eraser size={20} />
+      </button>
 
       {/* ===== TEXT ===== */}
       <div className="relative group">
@@ -189,7 +258,9 @@ export default function Toolbar() {
             {/* Font Family */}
             <div className="relative">
               <button
-                onClick={() => setOpenSubMenu(openSubMenu === "font" ? null : "font")}
+                onClick={() =>
+                  setOpenSubMenu(openSubMenu === "font" ? null : "font")
+                }
                 className="p-2 rounded-lg hover:bg-[#23b5b5]/40 text-white"
                 title="Font"
               >
@@ -214,7 +285,9 @@ export default function Toolbar() {
             {/* Color Picker */}
             <div className="relative">
               <button
-                onClick={() => setOpenSubMenu(openSubMenu === "color" ? null : "color")}
+                onClick={() =>
+                  setOpenSubMenu(openSubMenu === "color" ? null : "color")
+                }
                 className="p-2 rounded-lg hover:bg-[#23b5b5]/40 text-white"
                 title="Color"
               >
@@ -235,7 +308,9 @@ export default function Toolbar() {
             {/* Alignment */}
             <div className="relative">
               <button
-                onClick={() => setOpenSubMenu(openSubMenu === "align" ? null : "align")}
+                onClick={() =>
+                  setOpenSubMenu(openSubMenu === "align" ? null : "align")
+                }
                 className="p-2 rounded-lg hover:bg-[#23b5b5]/40 text-white"
                 title="Align"
               >
@@ -243,11 +318,15 @@ export default function Toolbar() {
               </button>
               {openSubMenu === "align" && (
                 <div className="absolute left-[60px] top-0 flex flex-col bg-[#0d1418] border border-[#23b5b5]/40 rounded-xl p-2">
-                  {[{ key: "left", icon: AlignLeft }, { key: "center", icon: AlignCenter }, { key: "right", icon: AlignRight }].map(({ key, icon: Icon }) => (
+                  {[{ key: "left", icon: AlignLeft },
+                    { key: "center", icon: AlignCenter },
+                    { key: "right", icon: AlignRight }].map(({ key, icon: Icon }) => (
                     <button
                       key={key}
                       onClick={() => updateStyle("textAlign", key)}
-                      className={`p-2 rounded-lg hover:bg-[#23b5b5]/40 ${textStyle.textAlign === key ? "bg-[#23b5b5]" : ""}`}
+                      className={`p-2 rounded-lg hover:bg-[#23b5b5]/40 ${
+                        textStyle.textAlign === key ? "bg-[#23b5b5]" : ""
+                      }`}
                     >
                       <Icon size={18} className="text-white" />
                     </button>
@@ -257,49 +336,21 @@ export default function Toolbar() {
             </div>
 
             {/* Bold / Italic / Underline */}
-            {[{ id: "bold", Icon: Bold }, { id: "italic", Icon: Italic }, { id: "underline", Icon: Underline }].map(({ id, Icon }) => (
+            {[{ id: "bold", Icon: Bold },
+              { id: "italic", Icon: Italic },
+              { id: "underline", Icon: Underline }].map(({ id, Icon }) => (
               <button
                 key={id}
                 onClick={() => updateStyle(id, !textStyle[id])}
-                className={`p-2 rounded-lg hover:bg-[#23b5b5]/40 text-white ${textStyle[id] ? "bg-[#23b5b5]" : ""}`}
+                className={`p-2 rounded-lg hover:bg-[#23b5b5]/40 text-white ${
+                  textStyle[id] ? "bg-[#23b5b5]" : ""
+                }`}
               >
                 <Icon size={18} />
               </button>
             ))}
           </div>
         )}
-      </div>
-
-      {/* ===== ERASER ===== */}
-      <button
-        title="Eraser"
-        onClick={() => setTool("eraser")}
-        className={`p-2 rounded-xl flex justify-center items-center ${selectedTool === "eraser" ? "bg-[#23b5b5]" : "bg-[#1a2428]"} text-white hover:bg-[#23b5b5]/50`}
-      >
-        <Eraser size={20} />
-      </button>
-
-      {/* ===== COLOR PICKER (for freehand) ===== */}
-      <input
-        type="color"
-        value={freehandColor}
-        onChange={(e) => setFreehandColor(e.target.value)}
-        className="w-8 h-8 rounded-md cursor-pointer border-none"
-        title="Color"
-      />
-
-      {/* ===== STROKE WIDTH ===== */}
-      <div className="flex flex-col items-center text-white">
-        <SlidersHorizontal size={18} />
-        <input
-          type="range"
-          min="1"
-          max="20"
-          value={freehandStrokeWidth}
-          onChange={(e) => setFreehandStrokeWidth(Number(e.target.value))}
-          className="w-10 mt-1 cursor-pointer accent-[#23b5b5]"
-          title="Stroke Width"
-        />
       </div>
 
       {/* ===== IMAGE ===== */}
@@ -309,7 +360,9 @@ export default function Toolbar() {
           setTool("image");
           fileInputRef.current?.click();
         }}
-        className={`p-2 rounded-xl flex justify-center items-center ${selectedTool === "image" ? "bg-[#23b5b5]" : "bg-[#1a2428]"} text-white hover:bg-[#23b5b5]/50`}
+        className={`p-2 rounded-xl flex justify-center items-center ${
+          selectedTool === "image" ? "bg-[#23b5b5]" : "bg-[#1a2428]"
+        } text-white hover:bg-[#23b5b5]/50`}
       >
         <ImageIcon size={20} />
       </button>
@@ -341,7 +394,7 @@ export default function Toolbar() {
         onClick={() => window.location.reload()}
         className="p-2 rounded-xl bg-red-600 text-white hover:bg-red-500 flex justify-center items-center"
       >
-        <RemoveFormatting size={20} />
+        X
       </button>
     </div>
   );

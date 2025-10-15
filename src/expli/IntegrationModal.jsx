@@ -195,7 +195,7 @@ function IntegrationModal({
                   onClick={() => handleOpenProvider(p.id)}
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-teal-400/20 to-teal-600/20 border border-teal-500/50 rounded-xl flex items-center justify-center text-teal-300 text-xl shadow-lg group-hover:scale-105 group-hover:border-teal-400/70 transition-all duration-200">
+                    <div className=" flex items-center justify-center text-teal-300 text-xl shadow-lg group-hover:scale-105 group-hover:border-teal-400/70 transition-all duration-200">
                       {Icon}
                     </div>
                     <div className="flex gap-2">

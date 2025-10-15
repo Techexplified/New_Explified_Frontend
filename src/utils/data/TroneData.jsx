@@ -1,16 +1,21 @@
 import { AiOutlineOpenAI } from "react-icons/ai";
 import { RiAnthropicFill, RiGeminiLine } from "react-icons/ri";
 import GrokLogo from "../../assets/logos/grok.svg";
-import CohereLogo from "../../assets/logos/cohere.svg";
-import MistralLogo from "../../assets/logos/mistral.svg";
+import ChatGPT from "../../assets/logos/openai.png";
+// import CohereLogo from "../../assets/logos/cohere.svg";
+import CohereLogo from "../../assets/logos/cohere-color.png";
+// import MistralLogo from "../../assets/logos/mistral.svg";
+import MistralLogo from "../../assets/logos/mistral-color.png";
 import GeminiLogo from "../../assets/logos/gemini.png";
+import Google from "../../assets/logos/google.png";
+import Anthropic from "../../assets/logos/anthropic.png";
 
 export const INTEGRATION_PROVIDERS = [
   {
     id: "gemini",
     name: "Gemini",
     // icon: <RiGeminiLine className="text-white" size={20} />,
-    icon: <img src={GeminiLogo} alt="Grok" className="w-5 h-5" />,
+    icon: <img src={GeminiLogo} alt="Grok" className="w-6 h-6" />,
     byok: true,
     description: "Google's Gemini models for text, chat and multimodal tasks.",
     apiUrl: "https://generativelanguage.googleapis.com/v1beta/", // Google AI Studio API
@@ -19,8 +24,8 @@ export const INTEGRATION_PROVIDERS = [
   {
     id: "openai",
     name: "OpenAI",
-    icon: <AiOutlineOpenAI className="text-white" size={20} />,
-    // icon: AiOutlineOpenAI,
+    // icon: <AiOutlineOpenAI className="text-white" size={20} />,
+    icon: <img src={ChatGPT} alt="Grok" className="w-6 h-6" />,
     byok: true,
     description: "OpenAI GPT models for powerful text and chat experiences.",
     apiUrl: "https://api.openai.com/v1/",
@@ -29,7 +34,7 @@ export const INTEGRATION_PROVIDERS = [
   {
     id: "grok",
     name: "Grok",
-    icon: <img src={GrokLogo} alt="Grok" className="w-5 h-5" />,
+    icon: <img src={GrokLogo} alt="Grok" className="w-6 h-6" />,
     // icon: FiZap,
     byok: true,
     description: "xAI Grok models for reasoning and fast responses.",
@@ -39,8 +44,8 @@ export const INTEGRATION_PROVIDERS = [
   {
     id: "anthropic",
     name: "Anthropic",
-    icon: <RiAnthropicFill className="text-white" size={20} />,
-    // icon: RiAnthropicFill,
+    // icon: <RiAnthropicFill className="text-white" size={20} />,
+    icon: <img src={Anthropic} alt="Grok" className="w-6 h-6" />,
     byok: true,
     description: "Claude models by Anthropic for safe, helpful outputs.",
     apiUrl: "https://api.anthropic.com/v1/",
@@ -49,7 +54,7 @@ export const INTEGRATION_PROVIDERS = [
   {
     id: "mistral",
     name: "Mistral",
-    icon: <img src={MistralLogo} alt="Grok" className="w-5 h-5" />,
+    icon: <img src={MistralLogo} alt="Grok" className="w-6 h-6" />,
     byok: true,
     description: "Mistral small, medium and mixtral models.",
     apiUrl: "https://api.mistral.ai/v1/",
@@ -58,7 +63,7 @@ export const INTEGRATION_PROVIDERS = [
   {
     id: "cohere",
     name: "Cohere",
-    icon: <img src={CohereLogo} alt="Grok" className="w-5 h-5" />,
+    icon: <img src={CohereLogo} alt="Grok" className="w-6 h-6" />,
     byok: true,
     description: "Cohere Command and Embed models for text and vectors.",
     apiUrl: "https://api.cohere.ai/v1/",

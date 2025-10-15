@@ -708,10 +708,7 @@ function Trone() {
         {/* Chat + Input inside same box */}
         <div className="w-full flex-1 border border-cyan-500/20 shadow-[0_0_60px_rgba(6,182,212,0.15),0_0_100px_rgba(6,182,212,0.08)] bg-black flex flex-col gap-4 relative backdrop-blur-xl">
           {/* Chat Containers Row */}
-          <div
-            className={`flex mb-20 sm:mb-24 flex-1
-             h-full overflow-x-auto flex-nowrap [&>*]:min-w-[320px]`}
-          >
+          <div className="flex flex-1 overflow-x-auto overflow-y-hidden flex-nowrap [&>*]:min-w-[350px]">
             <ChatContainer
               messages={currentMessages}
               isTyping={isTyping.expli}
