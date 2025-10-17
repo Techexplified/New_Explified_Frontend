@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import ExpliInput from "../expli/ExpliInput";
 import ExpliIntegration from "../expli/ExpliIntegration";
 import ChatContainer from "../expli/ChatContainer";
@@ -9,6 +9,7 @@ import { RiGeminiLine } from "react-icons/ri";
 import { FaPlus } from "react-icons/fa6";
 import ExpliSidebar from "../expli/ExpliSidebar";
 import { Menu, X } from "lucide-react";
+import { useSelector } from "react-redux";
 
 function Trone() {
   const [prompt, setPrompt] = useState("");
@@ -59,7 +60,6 @@ function Trone() {
   );
   const [sessionStartedAt, setSessionStartedAt] = useState(null);
 
-  // const [isTyping, setIsTyping] = useState(false);
   const [firstPromptDone, setFirstPromptDone] = useState(
     localStorage.getItem("firstPromptDone") === "true"
   );
@@ -75,6 +75,8 @@ function Trone() {
   const [currentTool, setCurrentTool] = useState("expli");
   const currentQaIdRef = useRef(null);
 
+  const user = useSelector((state) => state.user);
+  const navigate = useNavigate();
   // add a new qa object to chatHistory (either append to last session or create a new session)
   const pushNewQaToHistory = (qaObj, sessionActive) => {
     setChatHistory((prev) => {
@@ -141,6 +143,12 @@ function Trone() {
       return updated;
     });
   };
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user]);
 
   useEffect(() => {
     try {
