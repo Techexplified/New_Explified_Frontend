@@ -207,14 +207,14 @@ function ExpliSidebar({
               </button>
 
               <button
-                onClick={() => navigate("/notes")}
+                onClick={() => navigate("/memory")}
                 className="p-2 rounded-lg hover:bg-gray-800 transition-all text-gray-300 hover:text-white"
               >
                 <Save size={20} />
               </button>
 
               <button
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/search")}
                 className="p-2 rounded-lg hover:bg-gray-800 transition-all text-gray-300 hover:text-white"
               >
                 <Search size={20} />
@@ -226,7 +226,7 @@ function ExpliSidebar({
             onClick={onAddClick}
             className="w-full group relative overflow-hidden bg-gradient-to-r from-gray-800/80 to-gray-700/80 
                 hover:from-minimal-primary/20 hover:to-cyan-500/20 border border-gray-600/50 hover:border-minimal-primary/50
-                text-white font-medium py-1.5 px-2 rounded-xl transition-all duration-300 hover:scale-105 
+                text-white font-medium py-1.5 px-2 rounded-lg transition-all duration-300 hover:scale-105 
                 hover:shadow-lg hover:shadow-minimal-primary/10"
           >
             <div
@@ -244,17 +244,22 @@ function ExpliSidebar({
           {/* Chat History */}
 
           {isSidebarOpen ? (
-            <div className="bg-gray-900 mt-4 p-2">
+            <div className="bg-transparent p-2 pt-6 relative">
+              {/* Left vertical line connector */}
+              <div className="absolute -left-0 top-0 bottom-0 w-0.5 bg-gray-700" />
+
               {/* Filtered History */}
               {filteredHistory && filteredHistory.length > 0 ? (
-                <div className="space-y-2">
+                <div className="space-y-2 relative">
                   {filteredHistory.map((item, index) => (
                     <div
                       key={item.id}
                       onClick={() => handleHistoryClick(item)}
-                      className="group bg-gray-700 hover:bg-gray-700/50 border border-gray-700/30 
-    hover:border-minimal-primary/30 rounded-lg px-2 pt-1 pb-1.5 transition-all duration-200 cursor-pointer"
+                      className="group bg-gray-800 hover:bg-gray-700/50 border border-gray-700/30 
+    hover:border-minimal-primary/30 rounded-lg px-2 pt-1 pb-1.5 transition-all duration-200 cursor-pointer relative"
                     >
+                      {/* Horizontal connector line from left */}
+                      <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-2 h-0.5 bg-gradient-to-r from-minimal-primary/60 to-minimal-primary/40" />
                       {/* Top row: question + 3-dot menu */}
                       <div className="flex items-center justify-between">
                         <div

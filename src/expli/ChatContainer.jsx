@@ -39,9 +39,10 @@ function ChatContainer({
     <div
       ref={chatContainerRef}
       className={
-        "flex-1 w-full  h-[550px] bg-black backdrop-blur-xl flex flex-col px-2 sm:px-3 overflow-y-auto scroll-smooth relative z-10 border border-cyan-500/30   shadow-[0_0_40px_rgba(6,182,212,0.15)] hover:shadow-[0_0_60px_rgba(6,182,212,0.25)] transition-all duration-500"
+        "flex-1 w-full  bg-black backdrop-blur-xl flex flex-col px-2 sm:px-3 overflow-y-auto scroll-smooth relative z-10 border border-cyan-500/30   shadow-[0_0_40px_rgba(6,182,212,0.15)] hover:shadow-[0_0_60px_rgba(6,182,212,0.25)] transition-all duration-500"
       }
       style={{
+        maxHeight: "calc(100vh - 100px)",
         scrollBehavior: "smooth",
         paddingTop: "0",
         paddingBottom: "1rem",
