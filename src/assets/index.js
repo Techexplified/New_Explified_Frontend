@@ -1,5 +1,6 @@
 /// Logos
 import ExplifiedLogo from "../assets/logos/explified_logo.png";
+import ExpliLogo from "../assets/logos/expli.png";
 import BridgeLogo from "../assets/logos/bridge_logo.png";
 import BlazeLogo from "../assets/logos/blaze_logo.png";
 import MotionLogo from "../assets/logos/motion_logo.png";
@@ -53,6 +54,7 @@ import VisibilityImg from "../assets/images/visibility.png";
 
 export {
   ExplifiedLogo,
+  ExpliLogo,
   BridgeLogo,
   BlazeLogo,
   MotionLogo,

@@ -28,7 +28,7 @@ import { INTEGRATION_PROVIDERS, formatText } from "../utils/data/TroneData";
 import { AiOutlineOpenAI } from "react-icons/ai";
 import { RiGeminiLine } from "react-icons/ri";
 import { useDispatch, useSelector } from "react-redux";
-import { ExplifiedLogo } from "../assets";
+import { ExpliLogo } from "../assets";
 import { clearUser } from "../utils/auth_slice/UserSlice";
 
 function ExpliSidebar({
@@ -146,7 +146,7 @@ function ExpliSidebar({
           >
             {/* Left: Logo + Title */}
             <div className="flex items-center gap-3">
-              <img className="h-6" alt="Logo" src={ExplifiedLogo} />
+              <img className="h-10" alt="Logo" src={ExpliLogo} />
               <h1
                 className={`text-2xl font-semibold ${
                   isSidebarOpen ? "text-white" : "text-black"
