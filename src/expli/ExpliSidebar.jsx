@@ -230,7 +230,7 @@ function ExpliSidebar({
                 </button>
 
                 <button
-                  onClick={() => navigate("/flowsense/explified")}
+                  onClick={() => navigate("/discover")}
                   className="p-2 rounded-lg hover:bg-gray-800 transition-all text-gray-300 hover:text-white"
                 >
                   <Search size={20} />
