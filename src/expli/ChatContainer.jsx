@@ -7,6 +7,7 @@ function ChatContainer({
   isTyping,
   toolName,
   icon,
+  logo,
   enabled,
   setEnabled,
   handleCloseChat,
@@ -60,14 +61,15 @@ function ChatContainer({
         <div className="flex items-center justify-between py-3">
           {/* Left side: Icon + Tool Name */}
           <div className="flex items-center gap-3">
-            <div className="relative p-3 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 rounded-xl border border-cyan-400/40 shadow-[0_0_20px_rgba(6,182,212,0.3)] backdrop-blur-sm hover:scale-105 transition-transform duration-300">
-              <span className="text-cyan-400 text-xl drop-shadow-[0_0_10px_rgba(6,182,212,0.8)]">
-                {icon}
-              </span>
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 to-transparent rounded-xl animate-pulse"></div>
+            {/* <div className="relative p-3 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 rounded-xl border border-cyan-400/40 shadow-[0_0_20px_rgba(6,182,212,0.3)] backdrop-blur-sm hover:scale-105 transition-transform duration-300"> */}
+            <span className="">
+              {/* {icon} */}
+              <img className="h-6" alt="Logo" src={logo} />
+            </span>
+            {/* <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 to-transparent rounded-xl animate-pulse"></div> */}
 
-              <div className="absolute -inset-1 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 rounded-xl blur-md -z-10"></div>
-            </div>
+            {/* <div className="absolute -inset-1 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 rounded-xl blur-md -z-10"></div> */}
+            {/* </div> */}
             <div className="flex flex-col">
               <h1 className="text-lg font-semibold text-white tracking-tight">
                 {toolName}

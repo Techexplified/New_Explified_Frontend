@@ -10,6 +10,9 @@ import { FaPlus } from "react-icons/fa6";
 import ExpliSidebar from "../expli/ExpliSidebar";
 import { Menu, X } from "lucide-react";
 import { useSelector } from "react-redux";
+import GeminiLogo from "../assets/logos/gemini.png";
+import ChatGPT from "../assets/logos/openai.png";
+import { ExpliLogo } from "../assets";
 
 function Trone() {
   const [prompt, setPrompt] = useState("");
@@ -221,7 +224,9 @@ function Trone() {
           {
             parts: [
               {
-                text: `I am giving you a user input. If the user greets you, return that exact text. Otherwise, summarize the text: ${prompt}`,
+                text: `Summarize the following text in one short, clear sentence. 
+Return **only** the summary text in a declarative format, without any explanations, formatting, or markdown:
+"${prompt}"`,
               },
             ],
           },
@@ -722,6 +727,7 @@ function Trone() {
               isTyping={isTyping.expli}
               toolName="Expli"
               icon={<FaPlus />}
+              logo={ExpliLogo}
               enabled={enabledProviders.expli}
               setEnabled={(val) =>
                 setEnabledProviders((prev) => ({ ...prev, expli: val }))
@@ -736,6 +742,7 @@ function Trone() {
                 toolName="OpenAI"
                 pid="openai"
                 icon={<AiOutlineOpenAI />}
+                logo={ChatGPT}
                 enabled={enabledProviders.openai}
                 setEnabled={(val) =>
                   setEnabledProviders((prev) => ({ ...prev, openai: val }))
@@ -754,6 +761,7 @@ function Trone() {
                 toolName="Gemini"
                 pid="gemini"
                 icon={<RiGeminiLine />}
+                logo={GeminiLogo}
                 enabled={enabledProviders.gemini}
                 setEnabled={(val) =>
                   setEnabledProviders((prev) => ({ ...prev, gemini: val }))

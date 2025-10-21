@@ -1,12 +1,12 @@
 import { AiOutlineOpenAI } from "react-icons/ai";
 import { RiAnthropicFill, RiGeminiLine } from "react-icons/ri";
 import GrokLogo from "../../assets/logos/grok.svg";
+import GeminiLogo from "../../assets/logos/gemini.png";
 import ChatGPT from "../../assets/logos/openai.png";
 // import CohereLogo from "../../assets/logos/cohere.svg";
 import CohereLogo from "../../assets/logos/cohere-color.png";
 // import MistralLogo from "../../assets/logos/mistral.svg";
 import MistralLogo from "../../assets/logos/mistral-color.png";
-import GeminiLogo from "../../assets/logos/gemini.png";
 import Google from "../../assets/logos/google.png";
 import Anthropic from "../../assets/logos/anthropic.png";
 
