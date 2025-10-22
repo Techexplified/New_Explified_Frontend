@@ -20,7 +20,7 @@ import { clearUser } from "../utils/auth_slice/UserSlice";
 import { auth } from "../firebase";
 
 export default function ProfileSettingsModal({ onClose }) {
-  const [activeTab, setActiveTab] = useState("Settings");
+  const [activeTab, setActiveTab] = useState("Account");
 
   const dispatch = useDispatch();
   const navigate = useNavigate();

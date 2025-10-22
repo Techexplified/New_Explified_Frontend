@@ -115,7 +115,11 @@ function ChatContainer({
       </div>
 
       {/* Messages Container */}
-      <div className="w-full flex flex-col gap-6 px-1 ">
+      <div
+        className={`w-full flex flex-col gap-6  ${
+          onlyExpliOpen ? "px-8" : "px-1"
+        } `}
+      >
         {(!messages || messages.length === 0) && (
           <div className="flex flex-col items-center justify-center h-full text-center mt-20 animate-fade-in">
             {/* <div className="relative mb-6">
@@ -136,87 +140,90 @@ function ChatContainer({
         {messages.map((msg, index) => (
           <div
             key={index}
-            className={`group transform transition-all duration-500 ease-out ${
-              msg.sender === "user" ? "self-end" : "self-start"
-            } max-w-[85%] animate-slide-in hover:scale-[1.02]`}
-            style={{ animationDelay: `${index * 0.1}s` }}
+            className={`flex w-full items-start gap-3 my-3 ${
+              msg.sender === "user" ? "justify-end" : "justify-start"
+            }`}
           >
+            {/* Bot Avatar (Left side) */}
+            {/* {msg.sender === "bot" && (
+              <div className="flex-shrink-0">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-sky-500/40 to-sky-600/20 flex items-center justify-center shadow-md border border-sky-400/40">
+                  <Bot className="w-5 h-5 text-sky-300" />
+                </div>
+              </div>
+            )} */}
+
+            {/* Message Bubble */}
             <div
-              className={`relative px-6 py-4 rounded-2xl text-sm break-words whitespace-pre-wrap backdrop-blur-xl shadow-2xl border transition-all duration-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.4)]  ${
-                msg.isError
-                  ? "border-red-500/50 bg-gradient-to-br from-red-500/20 to-red-600/10 text-red-200 shadow-red-500/30"
-                  : msg.sender === "user"
-                  ? "bg-gradient-to-br from-cyan-500/25 to-cyan-600/15 border-cyan-400/50 text-white shadow-[0_0_20px_rgba(6,182,212,0.3)]"
-                  : "bg-gradient-to-br from-sky-500/25 to-sky-600/15 border-blue-400/50 text-white shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+              className={`group relative transform transition-all duration-500 ease-out max-w-[75%] sm:max-w-[65%] hover:scale-[1.02] ${
+                msg.sender === "user" ? "self-end" : "self-start"
               }`}
-              style={{
-                wordBreak: "break-word",
-              }}
+              style={{ animationDelay: `${index * 0.1}s` }}
             >
-              {/* Animated Corner Accents */}
-              <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-cyan-400/60 rounded-tl-2xl"></div>
-              <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-cyan-400/60 rounded-br-2xl"></div>
-              {/* Message Header for Bot Messages */}
-              {msg.sender === "bot" && (
-                <div className="flex items-center justify-between  pb-2 border-b border-gray-700/30">
-                  <div className="flex items-center gap-2">
-                    <div className="p-1 bg-gradient-to-br from-sky-500/20 to-sky-600/10 rounded-lg">
-                      <Bot className="w-3 h-3 text-sky-400" />
-                    </div>
+              <div
+                className={`relative px-6 py-4 rounded-2xl text-sm backdrop-blur-xl shadow-2xl border transition-all duration-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] ${
+                  msg.isError
+                    ? "border-red-500/50 bg-gradient-to-br from-red-500/20 to-red-600/10 text-red-200 shadow-red-500/30"
+                    : msg.sender === "user"
+                    ? "bg-gradient-to-br from-cyan-500/25 to-cyan-600/15 border-cyan-400/50 text-white shadow-[0_0_20px_rgba(6,182,212,0.3)]"
+                    : "bg-gradient-to-br from-sky-500/25 to-sky-600/15 border-blue-400/50 text-white shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+                }`}
+              >
+                {/* Animated Corner Accents */}
+                <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-cyan-400/60 rounded-tl-2xl"></div>
+                <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-cyan-400/60 rounded-br-2xl"></div>
+
+                {/* Header */}
+                {/* {msg.sender === "bot" && (
+                  <div className="flex items-center justify-between pb-2 border-b border-gray-700/30">
                     <span className="text-sky-400 text-xs font-semibold tracking-wide">
                       AI ASSISTANT
                     </span>
+                    <button
+                      onClick={() => copyToClipboard(msg.text, index)}
+                      className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-cyan-400 rounded-md transition-all duration-200 hover:bg-cyan-500/10"
+                      title="Copy message"
+                    >
+                      {copiedIndex === index ? (
+                        <Check className="w-3 h-3" />
+                      ) : (
+                        <Copy className="w-3 h-3" />
+                      )}
+                    </button>
                   </div>
-                  <button
-                    onClick={() => copyToClipboard(msg.text, index)}
-                    className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-cyan-400 rounded-md transition-all duration-200 hover:bg-cyan-500/10"
-                    title="Copy message"
-                  >
-                    {copiedIndex === index ? (
-                      <Check className="w-3 h-3" />
-                    ) : (
-                      <Copy className="w-3 h-3" />
-                    )}
-                  </button>
-                </div>
-              )}
+                )} */}
 
-              {/* User Message Header */}
-              {msg.sender === "user" && (
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="p-1 bg-gradient-to-br from-cyan-500/20 to-cyan-400/10 rounded-lg">
-                    <User className="w-3 h-3 text-cyan-400" />
+                {/* {msg.sender === "user" && (
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-cyan-400 text-xs font-semibold tracking-wide">
+                      YOU
+                    </span>
                   </div>
-                  <span className="text-cyan-400 text-xs font-semibold tracking-wide">
-                    YOU
-                  </span>
-                </div>
-              )}
+                )} */}
 
-              {/* Message Content */}
-              <div
-                dangerouslySetInnerHTML={{
-                  __html:
-                    msg.sender === "bot" ? formatText(msg.text) : msg.text,
-                }}
-                style={{
-                  lineHeight: "1.6",
-                  whiteSpace: "pre-wrap",
-                  wordWrap: "break-word",
-                }}
-              />
-
-              {/* Message Glow Effect */}
-              <div
-                className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none ${
-                  msg.isError
-                    ? "bg-gradient-to-br from-red-500/10 to-transparent"
-                    : msg.sender === "user"
-                    ? "bg-gradient-to-br from-cyan-400/10 to-transparent"
-                    : "bg-gradient-to-br from-gray-400/5 to-transparent"
-                }`}
-              ></div>
+                {/* Message Content */}
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      msg.sender === "bot" ? formatText(msg.text) : msg.text,
+                  }}
+                  style={{
+                    lineHeight: "1.6",
+                    whiteSpace: "pre-wrap",
+                    wordWrap: "break-word",
+                  }}
+                />
+              </div>
             </div>
+
+            {/* User Avatar (Right side) */}
+            {/* {msg.sender === "user" && (
+              <div className="flex-shrink-0">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-cyan-500/40 to-cyan-600/20 flex items-center justify-center shadow-md border border-cyan-400/40">
+                  <User className="w-5 h-5 text-cyan-300" />
+                </div>
+              </div>
+            )} */}
           </div>
         ))}
 

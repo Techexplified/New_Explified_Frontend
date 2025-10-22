@@ -1,7 +1,6 @@
 import {
   MessageSquare,
   Trash2,
-  Workflow,
   PinOff,
   Pin,
   Search,
@@ -11,21 +10,20 @@ import {
   Edit3,
   X,
   CircleUserRound,
-  Grip,
   LayoutGrid,
-  PhoneCall,
   Save,
   NotebookPen,
   LogOut,
   Settings,
   HelpCircle,
   User,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import { IoIosInformationCircleOutline } from "react-icons/io";
-import { Zap, FileText } from "lucide-react";
 import { useState, useMemo, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { INTEGRATION_PROVIDERS, formatText } from "../utils/data/TroneData";
+import { formatText } from "../utils/data/TroneData";
 import { AiOutlineOpenAI } from "react-icons/ai";
 import { RiGeminiLine } from "react-icons/ri";
 import { useDispatch, useSelector } from "react-redux";
@@ -41,23 +39,20 @@ function ExpliSidebar({
   setCurrentMessagesGemini,
   setCurrentMessagesOpenAI,
   onAddClick,
-  tools = [],
-  handleRemoveProvider,
   sidebarPinned,
   isSidebarOpen,
   setSidebarPinned,
   setIsSidebarOpen,
 }) {
   const [searchQuery, setSearchQuery] = useState(""); // ✅ new state
-  const [searchProviders, setSearchProviders] = useState(""); // ✅ new state
   const [menuOpen, setMenuOpen] = useState(null);
-  const [showSearch, setShowSearch] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
   const [pinOpen, setPinOpen] = useState(false);
-  const [expandedId, setExpandedId] = useState(null);
 
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [hoverChat, setHoverChat] = useState(null);
 
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
@@ -129,6 +124,7 @@ function ExpliSidebar({
       <div
         onMouseEnter={() => !sidebarPinned && setIsSidebarOpen(true)}
         onMouseLeave={() => {
+          setShowDropdown(false);
           if (!sidebarPinned) {
             setIsSidebarOpen(false);
             setPinOpen(false);
@@ -148,6 +144,8 @@ function ExpliSidebar({
           <div>
             {/* Header */}
             <div
+              onMouseEnter={() => setShowDropdown(true)}
+              // onMouseLeave={() => setShowDropdown(false)}
               className={`flex items-center justify-between gap-3 border-b border-minimal-primary/30 py-4 relative`}
             >
               {/* Left: Logo + Title */}
@@ -206,7 +204,7 @@ function ExpliSidebar({
               </div>
             </div>
 
-            {isSidebarOpen && (
+            {isSidebarOpen && showDropdown && (
               <div className="flex items-center justify-around bg-black/90 border-t border-gray-700 py-3 rounded-t-2xl shadow-lg">
                 <button
                   onClick={() => navigate("/")}
@@ -262,7 +260,7 @@ function ExpliSidebar({
             {isSidebarOpen ? (
               <div className="bg-transparent p-2 pt-6 relative">
                 {/* Left vertical line connector */}
-                <div className="absolute -left-0 top-0 bottom-0 w-0.5 bg-gray-700" />
+                {/* <div className="absolute -left-0 top-0 bottom-0 w-0.5 bg-gray-700" /> */}
 
                 {/* Filtered History */}
                 {filteredHistory && filteredHistory.length > 0 ? (
@@ -270,6 +268,8 @@ function ExpliSidebar({
                     {filteredHistory.map((item, index) => (
                       <div
                         key={item.id}
+                        onMouseEnter={() => setHoverChat(item.id)} // set hovered chat ID
+                        onMouseLeave={() => setHoverChat(null)} // reset when leaving
                         onClick={() => {
                           handleHistoryClick(item);
                           setMenuOpen(false);
@@ -278,48 +278,52 @@ function ExpliSidebar({
     hover:border-minimal-primary/30 rounded-lg px-2 pt-1 pb-1.5 transition-all duration-200 cursor-pointer relative"
                       >
                         {/* Horizontal connector line from left */}
-                        <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-2 h-0.5 bg-gradient-to-r from-minimal-primary/60 to-minimal-primary/40" />
+                        {/* <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-2 h-0.5 bg-gradient-to-r from-minimal-primary/60 to-minimal-primary/40" /> */}
+
                         {/* Top row: question + 3-dot menu */}
                         <div className="flex items-center justify-between">
                           <div
                             dangerouslySetInnerHTML={{
                               __html: formatText(item?.qa[0]?.promptSummary),
                             }}
-                            className="text-sm text-gray-300 group-hover:text-white truncate "
+                            className="text-sm text-gray-300 group-hover:text-white truncate"
                           />
-                          {/* <div>{item?.qa[0]?.promptSummary}</div> */}
 
-                          {/* Bottom row: tool icons */}
-                          <div className="flex  gap-2 mt-1">
-                            {item.qa[0].answers.map((ans) => (
-                              <span
-                                key={ans.tool}
-                                className="text-[10px] px-1.5 py-0.5 rounded bg-gray-700 text-gray-300 flex items-center justify-center"
-                              >
-                                {ans.tool === "expli" && <Plus size={10} />}
-                                {ans.tool === "openai" && (
-                                  <AiOutlineOpenAI size={10} />
-                                )}
-                                {ans.tool === "gemini" && (
-                                  <RiGeminiLine size={10} />
-                                )}
-                              </span>
-                            ))}
-                          </div>
+                          {/* Show tool icons only on hover of this specific div */}
+                          {hoverChat === item.id && (
+                            <div className="flex gap-2 mt-1">
+                              {item.qa[0].answers.map((ans) => (
+                                <span
+                                  key={ans.tool}
+                                  className="text-[10px] px-1.5 py-0.5 rounded bg-gray-700 text-gray-300 flex items-center justify-center"
+                                >
+                                  {ans.tool === "expli" && <Plus size={10} />}
+                                  {ans.tool === "openai" && (
+                                    <AiOutlineOpenAI size={10} />
+                                  )}
+                                  {ans.tool === "gemini" && (
+                                    <RiGeminiLine size={10} />
+                                  )}
+                                </span>
+                              ))}
+                            </div>
+                          )}
 
                           {/* 3-dot dropdown menu */}
                           <div className="relative">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation(); // prevent triggering history click
-                                setMenuOpen(
-                                  menuOpen === item.id ? null : item.id
-                                );
-                              }}
-                              className="pl-1 rounded hover:bg-gray-700/50 text-gray-400 hover:text-white"
-                            >
-                              <MoreVertical size={16} />
-                            </button>
+                            {hoverChat === item.id && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setMenuOpen(
+                                    menuOpen === item.id ? null : item.id
+                                  );
+                                }}
+                                className="pl-1 rounded text-gray-400 hover:text-white"
+                              >
+                                <MoreVertical size={16} />
+                              </button>
+                            )}
 
                             {menuOpen === item.id && (
                               <div className="absolute right-0 mt-2 w-36 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-[100]">
@@ -442,17 +446,6 @@ function ExpliSidebar({
                  transform transition-all duration-300 ease-out
                  animate-in fade-in-20 scale-in-95"
                 >
-                  {/* <Link
-                  className="w-full h-9 mb-3 rounded-lg border border-[#23b5b5]/40 text-sm font-medium text-white
-                   bg-transparent hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] 
-                   hover:shadow-md hover:shadow-cyan-500/20 transition-all duration-200 flex items-center justify-center"
-                  to="https://explified.com/explified-labs"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  For Enterprises
-                </Link> */}
-
                   <button
                     onClick={() => setShowProfileModal(true)}
                     className="flex w-full items-center justify-center gap-3 px-4 py-3 hover:bg-gray-800 transition"
@@ -492,96 +485,9 @@ function ExpliSidebar({
                     <LogOut size={18} />
                     Log out
                   </button>
-
-                  {/* <div className="flex gap-2 w-full mb-3">
-                  {[
-                    { icon: Plus, to: "/expli" },
-                    { icon: FileText, to: "/tasks" },
-                  ].map(({ icon: Icon, to }, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => {
-                        navigate(to);
-                        setIsOpen(false);
-                      }}
-                      className="flex-1 h-9 flex items-center justify-center rounded-lg border border-[#23b5b5]/40 bg-transparent
-                       hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] hover:shadow-sm hover:shadow-cyan-500/20
-                       text-white transition-all duration-200"
-                    >
-                      <Icon className="w-4 h-4" />
-                    </button>
-                  ))}
-                </div>
-
-                <div className="flex gap-2 w-full mb-3">
-                  {[{ icon: Search, to: "/discover" }].map(
-                    ({ icon: Icon, to }, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => {
-                          navigate(to);
-                          setIsOpen(false);
-                        }}
-                        className="flex-1 h-9 flex items-center justify-center rounded-lg border border-[#23b5b5]/40 bg-transparent
-                       hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] hover:shadow-sm hover:shadow-cyan-500/20
-                       text-white transition-all duration-200"
-                      >
-                        <Icon className="w-4 h-4" />
-                      </button>
-                    )
-                  )}
-                </div>
-
-                <div className="mb-3 w-full">
-                  <h3 className="text-white text-xs font-semibold opacity-80 mb-2">
-                    Workflows
-                  </h3>
-                  <div className="flex gap-2 w-full">
-                    {[
-                      { icon: Workflow, to: "/workflows" },
-                      { icon: Zap, to: "/integrations" },
-                    ].map(({ icon: Icon, to }, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => {
-                          navigate(to);
-                          setIsOpen(false);
-                        }}
-                        className="flex-1 h-9 flex items-center justify-center rounded-lg border border-[#23b5b5]/40 bg-transparent
-                         hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] hover:shadow-sm hover:shadow-cyan-500/20
-                         text-white transition-all duration-200"
-                      >
-                        <Icon className="w-4 h-4" />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="w-full mb-1">
-                  <h3 className="text-white text-xs font-semibold opacity-80 mb-2">
-                    All Tools
-                  </h3>
-                  <button
-                    onClick={() => navigate("/alltools")}
-                    className="flex items-center justify-center w-12 h-12 mx-auto rounded-lg border border-[#23b5b5]/40 
-                     text-white bg-transparent hover:bg-[#23b5b5]/15 hover:border-[#23b5b5]
-                     hover:shadow-md hover:shadow-cyan-500/20 transition-all duration-200"
-                  >
-                    <Grip className="w-5 h-5" />
-                  </button>
-                </div> */}
                 </div>
               )}
             </div>
-            {/* Learn More Section */}
-            {/* <div>
-            <Link to={link}>
-              <div className="underline text-white flex items-center justify-center gap-2">
-                <IoIosInformationCircleOutline className="w-6 h-6 font-bold" />
-                {isSidebarOpen && <span>Learn More</span>}
-              </div>
-            </Link>
-          </div> */}
           </div>
         </div>
       </div>

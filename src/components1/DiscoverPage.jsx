@@ -43,12 +43,18 @@ const DiscoverPage = () => {
     finance: "YOUR_ALPHA_VANTAGE_KEY",
   };
 
+  const NEWS_API_KEY = "2bc51ce017dc42069fbe9574f32c0e75";
+
   // Fetch News Data
   const fetchNews = async () => {
     try {
       setNewsData((prev) => ({ ...prev, loading: true }));
-      const response = await fetch(`${import.meta.env.VITE_APP_URL}api/news`); // backend route
+      const response = await fetch(
+        `https://newsapi.org/v2/top-headlines?country=us&apiKey=${NEWS_API_KEY}`
+      );
       const data = await response.json();
+
+      console.log(data);
 
       if (data.articles && data.articles.length > 0) {
         let articles = data.articles;
@@ -279,7 +285,7 @@ const DiscoverPage = () => {
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
 
-      <div className="flex pt-10">
+      <div className="flex">
         {/* Main Content */}
         <div>
           {/* Hover zone */}

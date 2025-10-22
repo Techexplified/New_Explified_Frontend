@@ -341,7 +341,7 @@ function App() {
           ></Route>
           <Route path="/socials/:id" element={<DetailedCard />}></Route>
           <Route path="/alltools" element={<AITools />}></Route>
-          <Route path="/discover" element={<DiscoverPage />}></Route>
+
           <Route path="/Meme" element={<Meme />} />
           <Route path="/ai-gif-generator" element={<GIFGenerator />} />
           <Route path="/video-meme-generator" element={<AIMemeGenerator />} />
@@ -443,6 +443,7 @@ function App() {
         </Route>
 
         <Route path="/expli" element={<Trone />} />
+        <Route path="/discover" element={<DiscoverPage />} />
 
         {/* Tools Page */}
 
