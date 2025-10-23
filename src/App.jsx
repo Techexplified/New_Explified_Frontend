@@ -148,6 +148,7 @@ import AcmecorpAdminLogin from "./client_component/AcmecorpAdminLogin.jsx";
 import AcmecorpPurchaseOrder from "./client_component/AcmecorpPurchaseOrder.jsx";
 import AcmecorpInventory from "./client_component/AcmecorpInventory.jsx";
 import AcmecorpAdmin from "./client_component/AcmecorpAdmin.jsx";
+import NewsPage from "./components1/NewsPage.jsx";
 function App() {
   usePageTracking();
   const navigate = useNavigate();
@@ -444,6 +445,13 @@ function App() {
 
         <Route path="/expli" element={<Trone />} />
         <Route path="/discover" element={<DiscoverPage />} />
+        <Route path="/discover/:newsTitle" element={<NewsPage />} />
+
+        {/* <Route path="/expli" element={<ExpliDashboard />}>
+          <Route index element={<Trone />} />
+          <Route path="/discover" element={<DiscoverPage />} />
+          <Route path="/discover/:newsTitle" element={<NewsPage />} />
+        </Route> */}
 
         {/* Tools Page */}
 

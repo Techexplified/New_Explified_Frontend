@@ -64,7 +64,11 @@ function ChatContainer({
             {/* <div className="relative p-3 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 rounded-xl border border-cyan-400/40 shadow-[0_0_20px_rgba(6,182,212,0.3)] backdrop-blur-sm hover:scale-105 transition-transform duration-300"> */}
             <span className="">
               {/* {icon} */}
-              <img className="h-6" alt="Logo" src={logo} />
+              <img
+                className={`${toolName === "Expli" ? "h-8" : "h-6"}`}
+                alt="Logo"
+                src={logo}
+              />
             </span>
             {/* <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 to-transparent rounded-xl animate-pulse"></div> */}
 

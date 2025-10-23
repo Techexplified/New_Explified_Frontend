@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Heart,
   MessageCircle,
@@ -19,6 +20,7 @@ const DiscoverPage = () => {
   const [showInterestModal, setShowInterestModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarPinned, setSidebarPinned] = useState(false);
+  const navigate = useNavigate();
   const link = "/";
   const toolName = "Discover";
 
@@ -31,7 +33,7 @@ const DiscoverPage = () => {
   });
   const [weatherData, setWeatherData] = useState(null);
   const [marketData, setMarketData] = useState([]);
-
+  const fetchedRef = useRef(false);
   // API Configuration - Add your API keys here
   const API_KEYS = {
     // Get free API key from https://newsapi.org/
@@ -67,13 +69,15 @@ const DiscoverPage = () => {
             image: articles[0].urlToImage,
             sources: Math.floor(Math.random() * 50) + 10,
           },
-          articles: articles.slice(1, 4).map((a, i) => ({
+          articles: articles.map((a, i) => ({
             id: i + 1,
             title: a.title,
             sources: Math.floor(Math.random() * 50) + 10,
             image: a.urlToImage,
             category: "tech",
             url: a.url,
+            content: a.content,
+            publishedTime: new Date(a.publishedAt).toLocaleString(),
           })),
           loading: false,
           error: null,
@@ -239,11 +243,13 @@ const DiscoverPage = () => {
 
   // Load data on component mount
   useEffect(() => {
+    if (fetchedRef.current) return; // 👈 Skip fetching if already fetched
+    fetchedRef.current = true;
+
     fetchNews();
     fetchWeather();
     fetchMarketData();
 
-    // Refresh data every 5 minutes
     const interval = setInterval(() => {
       fetchNews();
       fetchWeather();
@@ -253,12 +259,25 @@ const DiscoverPage = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleArticleClick = (url) => {
-    if (url) {
-      // Open in new tab to keep user on your site
-      window.open(url, "_blank", "noopener,noreferrer");
+  // const handleArticleClick = (url) => {
+  //   if (url) {
+  //     // Open in new tab to keep user on your site
+  //     window.open(url, "_blank", "noopener,noreferrer");
+  //   } else {
+  //     console.log("No URL available for this article");
+  //   }
+  // };
+
+  const handleArticleClick = (article) => {
+    if (article) {
+      const slug = encodeURIComponent(
+        article.title.replace(/\s+/g, "-").toLowerCase()
+      );
+      navigate(`/discover/${slug}`, {
+        state: { article: { title: article.title, url: article.url } },
+      });
     } else {
-      console.log("No URL available for this article");
+      console.log("No article data available");
     }
   };
 
@@ -385,7 +404,7 @@ ${sidebarOpen ? "w-56 px-6" : "w-0 px-0"}`}
           {newsData.featured && !newsData.loading && (
             <div
               className="bg-[#121212] rounded-2xl p-6 mb-8 flex"
-              onClick={() => handleArticleClick(newsData.featured.url)}
+              onClick={() => handleArticleClick(newsData.featured)}
             >
               <div className="flex-1 pr-6">
                 <h2 className="text-4xl font-bold text-[#23b5b5] mb-4 leading-tight">
@@ -433,7 +452,7 @@ ${sidebarOpen ? "w-56 px-6" : "w-0 px-0"}`}
                 <div
                   key={article.id}
                   className="bg-[#121212] rounded-xl overflow-hidden hover:bg-[#1a1a1a] transition-colors cursor-pointer"
-                  onClick={() => handleArticleClick(article.url)}
+                  onClick={() => handleArticleClick(article)}
                 >
                   <img
                     src={article.image}
