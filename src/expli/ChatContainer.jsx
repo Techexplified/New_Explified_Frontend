@@ -1,6 +1,7 @@
 import { Sparkles, X, Zap, Bot, User, Copy, Check } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { formatText } from "../utils/data/TroneData";
+import { FiCheck, FiCopy } from "react-icons/fi";
 
 function ChatContainer({
   messages,
@@ -58,14 +59,14 @@ function ChatContainer({
 
       {/* Enhanced Header */}
       <div className="sticky top-0 z-20 bg-gradient-to-br from-gray-900/90 via-gray-950/80 to-black/70 backdrop-blur-2xl border-b border-cyan-500/30 mb-4 rounded-t-2xl -mx-2 sm:-mx-3 px-2 sm:px-3 shadow-[0_4px_20px_rgba(6,182,212,0.1)]">
-        <div className="flex items-center justify-between py-3">
+        <div className="flex items-center justify-between py-1">
           {/* Left side: Icon + Tool Name */}
           <div className="flex items-center gap-3">
             {/* <div className="relative p-3 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 rounded-xl border border-cyan-400/40 shadow-[0_0_20px_rgba(6,182,212,0.3)] backdrop-blur-sm hover:scale-105 transition-transform duration-300"> */}
             <span className="">
               {/* {icon} */}
               <img
-                className={`${toolName === "Expli" ? "h-8" : "h-6"}`}
+                className={`${toolName === "Expli" ? "h-9" : "h-5"}`}
                 alt="Logo"
                 src={logo}
               />
@@ -85,7 +86,7 @@ function ChatContainer({
           {!onlyExpliOpen && (
             <div className="flex items-center gap-4">
               {/* Enhanced Toggle */}
-              <div className="flex items-center gap-3">
+              {/* <div className="flex items-center gap-3">
                 <label className="relative inline-flex items-center cursor-pointer group">
                   <input
                     type="checkbox"
@@ -95,6 +96,25 @@ function ChatContainer({
                   />
                   <div className="w-12 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-cyan-500/50 rounded-full peer peer-checked:bg-gradient-to-r peer-checked:from-cyan-500 peer-checked:to-cyan-400 transition-all duration-300 shadow-lg peer-checked:shadow-cyan-500/25"></div>
                   <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 peer-checked:translate-x-6 shadow-md peer-checked:shadow-lg"></div>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400/20 to-transparent opacity-0 peer-checked:opacity-100 transition-opacity duration-300"></div>
+                </label>
+              </div> */}
+
+              <div className="flex items-center gap-3">
+                <label className="relative inline-flex items-center cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={enabled}
+                    onChange={() => setEnabled(!enabled)}
+                    className="sr-only peer"
+                  />
+                  {/* Background track */}
+                  <div className="w-8 h-4 bg-gray-600 rounded-full peer-focus:ring-2 peer-focus:ring-cyan-500/40 peer-checked:bg-gradient-to-r peer-checked:from-cyan-500 peer-checked:to-cyan-400 transition-all duration-300 shadow-md peer-checked:shadow-cyan-500/20"></div>
+
+                  {/* Toggle circle */}
+                  <div className="absolute left-[2px] top-[1.5px] w-3.5 h-3.5 bg-white rounded-full transition-all duration-300 peer-checked:translate-x-4 shadow-sm peer-checked:shadow-md"></div>
+
+                  {/* Glow overlay */}
                   <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400/20 to-transparent opacity-0 peer-checked:opacity-100 transition-opacity duration-300"></div>
                 </label>
               </div>
@@ -120,148 +140,81 @@ function ChatContainer({
 
       {/* Messages Container */}
       <div
-        className={`w-full flex flex-col gap-6  ${
-          onlyExpliOpen ? "px-8" : "px-1"
-        } `}
+        className={`w-full flex flex-col gap-4 ${
+          onlyExpliOpen ? "px-8" : "px-2"
+        }`}
       >
+        {/* Empty State */}
         {(!messages || messages.length === 0) && (
-          <div className="flex flex-col items-center justify-center h-full text-center mt-20 animate-fade-in">
-            {/* <div className="relative mb-6">
-              <div className="p-6 bg-gradient-to-br from-slate-800/60 to-slate-700/40 rounded-2xl border border-slate-600/50 shadow-2xl backdrop-blur-sm">
-                <Sparkles className="w-10 h-10 text-[#23b5b5]" />
-              </div>
-            </div> */}
-            <h3 className="text-xl font-semibold text-white mb-3 tracking-tight">
-              Ready to assist you
+          <div className="flex flex-col items-center justify-center h-full text-center mt-20">
+            <h3 className="text-lg font-medium text-gray-200 mb-2">
+              Hello! How can I help you today?
             </h3>
-            <p className="text-slate-400 text-sm max-w-sm leading-relaxed">
-              I'm here to help! Ask me anything and let's start an engaging
-              conversation.
+            <p className="text-gray-500 text-sm max-w-sm leading-relaxed">
+              Start a conversation and I’ll do my best to assist you.
             </p>
           </div>
         )}
 
+        {/* Messages */}
         {messages.map((msg, index) => (
           <div
             key={index}
-            className={`flex w-full items-start gap-3 my-3 ${
+            className={`flex w-full gap-2 ${
               msg.sender === "user" ? "justify-end" : "justify-start"
             }`}
           >
-            {/* Bot Avatar (Left side) */}
-            {/* {msg.sender === "bot" && (
-              <div className="flex-shrink-0">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-sky-500/40 to-sky-600/20 flex items-center justify-center shadow-md border border-sky-400/40">
-                  <Bot className="w-5 h-5 text-sky-300" />
-                </div>
-              </div>
-            )} */}
-
-            {/* Message Bubble */}
-            <div
-              className={`group relative transform transition-all duration-500 ease-out max-w-[75%] sm:max-w-[65%] hover:scale-[1.02] ${
-                msg.sender === "user" ? "self-end" : "self-start"
-              }`}
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
+            <div className="flex flex-col max-w-[80%]">
+              {/* Message Bubble */}
               <div
-                className={`relative px-6 py-4 rounded-2xl text-sm backdrop-blur-xl shadow-2xl border transition-all duration-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] ${
-                  msg.isError
-                    ? "border-red-500/50 bg-gradient-to-br from-red-500/20 to-red-600/10 text-red-200 shadow-red-500/30"
-                    : msg.sender === "user"
-                    ? "bg-gradient-to-br from-cyan-500/25 to-cyan-600/15 border-cyan-400/50 text-white shadow-[0_0_20px_rgba(6,182,212,0.3)]"
-                    : "bg-gradient-to-br from-sky-500/25 to-sky-600/15 border-blue-400/50 text-white shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+                className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+                  msg.sender === "user"
+                    ? "bg-[#2a2a2a] text-gray-100"
+                    : "bg-[#1a1a1a] text-gray-200"
                 }`}
-              >
-                {/* Animated Corner Accents */}
-                <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-cyan-400/60 rounded-tl-2xl"></div>
-                <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-cyan-400/60 rounded-br-2xl"></div>
+                dangerouslySetInnerHTML={{
+                  __html:
+                    msg.sender === "bot" ? formatText(msg.text) : msg.text,
+                }}
+                style={{
+                  whiteSpace: "pre-wrap",
+                  wordWrap: "break-word",
+                }}
+              />
 
-                {/* Header */}
-                {/* {msg.sender === "bot" && (
-                  <div className="flex items-center justify-between pb-2 border-b border-gray-700/30">
-                    <span className="text-sky-400 text-xs font-semibold tracking-wide">
-                      AI ASSISTANT
-                    </span>
-                    <button
-                      onClick={() => copyToClipboard(msg.text, index)}
-                      className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-cyan-400 rounded-md transition-all duration-200 hover:bg-cyan-500/10"
-                      title="Copy message"
-                    >
-                      {copiedIndex === index ? (
-                        <Check className="w-3 h-3" />
-                      ) : (
-                        <Copy className="w-3 h-3" />
-                      )}
-                    </button>
-                  </div>
-                )} */}
-
-                {/* {msg.sender === "user" && (
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-cyan-400 text-xs font-semibold tracking-wide">
-                      YOU
-                    </span>
-                  </div>
-                )} */}
-
-                {/* Message Content */}
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html:
-                      msg.sender === "bot" ? formatText(msg.text) : msg.text,
-                  }}
-                  style={{
-                    lineHeight: "1.6",
-                    whiteSpace: "pre-wrap",
-                    wordWrap: "break-word",
-                  }}
-                />
-              </div>
+              {/* Copy Button for Bot Messages */}
+              {msg.sender === "bot" && (
+                <button
+                  onClick={() => copyToClipboard(msg.text, index)}
+                  className="self-start flex items-center gap-1 text-xs text-gray-400 mt-1 ml-2 hover:text-gray-200 transition-colors"
+                >
+                  {copiedIndex === index ? (
+                    <>
+                      <FiCheck className="text-green-400" /> Copied
+                    </>
+                  ) : (
+                    <>
+                      <FiCopy />
+                    </>
+                  )}
+                </button>
+              )}
             </div>
-
-            {/* User Avatar (Right side) */}
-            {/* {msg.sender === "user" && (
-              <div className="flex-shrink-0">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-cyan-500/40 to-cyan-600/20 flex items-center justify-center shadow-md border border-cyan-400/40">
-                  <User className="w-5 h-5 text-cyan-300" />
-                </div>
-              </div>
-            )} */}
           </div>
         ))}
 
-        {/* Enhanced Typing Indicator */}
+        {/* Typing Indicator */}
         {isTyping && (
-          <div className="self-start max-w-[85%] animate-fade-in">
-            <div className="relative px-6 py-4 rounded-2xl bg-gradient-to-br from-blue-600/30 via-purple-500/20 to-blue-600/20 border border-blue-400/50 backdrop-blur-xl shadow-[0_0_30px_rgba(59,130,246,0.4)]">
-              {/* Animated Border */}
-              <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
-                <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-shimmer"></div>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <div className="p-2 bg-gradient-to-br from-cyan-500/30 to-blue-600/20 rounded-lg border border-cyan-400/40 shadow-[0_0_15px_rgba(6,182,212,0.4)]">
-                  <Bot className="w-4 h-4 text-cyan-400 drop-shadow-[0_0_5px_rgba(6,182,212,0.8)]" />
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="flex space-x-2">
-                    <div className="w-3 h-3 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full animate-bounce shadow-[0_0_10px_rgba(6,182,212,0.6)]"></div>
-                    <div
-                      className="w-3 h-3 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full animate-bounce shadow-[0_0_10px_rgba(6,182,212,0.6)]"
-                      style={{ animationDelay: "150ms" }}
-                    ></div>
-                    <div
-                      className="w-3 h-3 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full animate-bounce shadow-[0_0_10px_rgba(6,182,212,0.6)]"
-                      style={{ animationDelay: "300ms" }}
-                    ></div>
-                  </div>
-                  <span className="text-cyan-100 text-sm font-medium">
-                    AI is thinking...
-                  </span>
-                </div>
-              </div>
-            </div>
+          <div className="flex items-center gap-2 mt-2">
+            <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce"></div>
+            <div
+              className="w-2 h-2 rounded-full bg-gray-400 animate-bounce"
+              style={{ animationDelay: "150ms" }}
+            ></div>
+            <div
+              className="w-2 h-2 rounded-full bg-gray-400 animate-bounce"
+              style={{ animationDelay: "300ms" }}
+            ></div>
           </div>
         )}
       </div>

@@ -141,7 +141,7 @@ import FlowstateLogin from "./client_component/FlowstateLogin.jsx";
 import ProtectedRoute from "./reusable_components/ProtectedRoute.jsx";
 import DashboardComp from "./client_component/AI-dashboard.jsx";
 import FlowSenseLanding from "./expli/flowsense.jsx";
-import ExpliDashboard from "./expli/ExpliDashboard.jsx";
+// import ExpliDashboard from "./expli/ExpliDashboard.jsx";
 import FlowsenseAdminLogin from "./client_component/FlowsenseAdminLogin.jsx";
 import Acmecorp from "./client_component/Acmecorp.jsx";
 import AcmecorpAdminLogin from "./client_component/AcmecorpAdminLogin.jsx";
@@ -149,6 +149,7 @@ import AcmecorpPurchaseOrder from "./client_component/AcmecorpPurchaseOrder.jsx"
 import AcmecorpInventory from "./client_component/AcmecorpInventory.jsx";
 import AcmecorpAdmin from "./client_component/AcmecorpAdmin.jsx";
 import NewsPage from "./components1/NewsPage.jsx";
+import ChatPanel from "./expli/ChatPanel.jsx";
 function App() {
   usePageTracking();
   const navigate = useNavigate();
@@ -443,15 +444,15 @@ function App() {
           <Route path="/locked" element={<LockedPage />} />
         </Route>
 
-        <Route path="/expli" element={<Trone />} />
+        {/* <Route path="/expli" element={<Trone />} />
         <Route path="/discover" element={<DiscoverPage />} />
-        <Route path="/discover/:newsTitle" element={<NewsPage />} />
+        <Route path="/discover/:newsTitle" element={<NewsPage />} /> */}
 
-        {/* <Route path="/expli" element={<ExpliDashboard />}>
-          <Route index element={<Trone />} />
-          <Route path="/discover" element={<DiscoverPage />} />
-          <Route path="/discover/:newsTitle" element={<NewsPage />} />
-        </Route> */}
+        <Route path="/expli" element={<Trone />}>
+          <Route index element={<ChatPanel />} />
+          <Route path="discover" element={<DiscoverPage />} />
+          <Route path="discover/:newsTitle" element={<NewsPage />} />
+        </Route>
 
         {/* Tools Page */}
 

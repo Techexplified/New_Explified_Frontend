@@ -30,20 +30,21 @@ import { useDispatch, useSelector } from "react-redux";
 import { ExpliLogo } from "../assets";
 import { clearUser } from "../utils/auth_slice/UserSlice";
 import ProfileSettingsModal from "./ProfileSettingsModal";
+import { useExpli } from "../context/ExpliContext";
 
-function ExpliSidebar({
-  link,
-  chatHistory = [],
-  setChatHistory,
-  setCurrentMessages,
-  setCurrentMessagesGemini,
-  setCurrentMessagesOpenAI,
-  onAddClick,
-  sidebarPinned,
-  isSidebarOpen,
-  setSidebarPinned,
-  setIsSidebarOpen,
-}) {
+function ExpliSidebar({ link }) {
+  const {
+    newChat,
+    chatHistory,
+    setChatHistory,
+    setCurrentMessages,
+    setCurrentMessagesGemini,
+    setCurrentMessagesOpenAI,
+    isSidebarOpen,
+    setIsSidebarOpen,
+    sidebarPinned,
+    setSidebarPinned,
+  } = useExpli();
   const [searchQuery, setSearchQuery] = useState(""); // ✅ new state
   const [menuOpen, setMenuOpen] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -228,7 +229,7 @@ function ExpliSidebar({
                 </button>
 
                 <button
-                  onClick={() => navigate("/discover")}
+                  onClick={() => navigate("/expli/discover")}
                   className="p-2 rounded-lg hover:bg-gray-800 transition-all text-gray-300 hover:text-white"
                 >
                   <Search size={20} />
@@ -237,7 +238,7 @@ function ExpliSidebar({
             )}
 
             <button
-              onClick={onAddClick}
+              onClick={newChat}
               className="w-full group relative overflow-hidden bg-gradient-to-r from-gray-800/80 to-gray-700/80 
                 hover:from-minimal-primary/20 hover:to-cyan-500/20 border border-gray-600/50 hover:border-minimal-primary/50
                 text-white font-medium py-1.5 px-2 rounded-lg transition-all duration-300 hover:scale-105 
@@ -274,7 +275,7 @@ function ExpliSidebar({
                           handleHistoryClick(item);
                           setMenuOpen(false);
                         }}
-                        className="group bg-gray-800 hover:bg-gray-700/50 border border-gray-700/30 
+                        className="group hover:bg-gray-700/50 border border-gray-700/30 
     hover:border-minimal-primary/30 rounded-lg px-2 pt-1 pb-1.5 transition-all duration-200 cursor-pointer relative"
                       >
                         {/* Horizontal connector line from left */}

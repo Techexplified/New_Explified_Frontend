@@ -15,35 +15,74 @@ const NewsPage = () => {
 
   const NEWS_API_KEY = "2bc51ce017dc42069fbe9574f32c0e75";
 
+  // useEffect(() => {
+  //   const fetchFullArticle = async () => {
+  //     if (!article?.url) return;
+  //     setLoading(true);
+  //     setError(null);
+
+  //     try {
+  //       const url = article?.url;
+
+  //       const options = {
+  //         method: "GET",
+  //         url: "https://article-extractor-and-summarizer.p.rapidapi.com/extract",
+  //         params: {
+  //           url: url,
+  //         },
+  //         headers: {
+  //           "x-rapidapi-key":
+  //             "5c43358bb7msh620384fe8a16560p1a0fd1jsn853ee75f7459",
+  //           "x-rapidapi-host":
+  //             "article-extractor-and-summarizer.p.rapidapi.com",
+  //         },
+  //       };
+
+  //       const response = await axios.request(options);
+
+  //       //   console.log(response);
+
+  //       if (response?.data) {
+  //         const fullArticle = response.data;
+  //         setArticle((prev) => ({ ...prev, ...fullArticle }));
+  //       } else {
+  //         setError("No detailed content found for this article.");
+  //       }
+  //     } catch (err) {
+  //       console.error("Error fetching article details:", err);
+  //       setError("Failed to fetch article content.");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchFullArticle();
+  // }, [article?.url]);
   useEffect(() => {
     const fetchFullArticle = async () => {
-      if (!article?.url) return;
+      if (!article?.title) return;
       setLoading(true);
       setError(null);
 
       try {
-        const url = article?.url;
+        const cleanTitle = article.title
+          ?.replace(/[-–|:]/g, "")
+          ?.split(" ")
+          ?.slice(0, 6)
+          ?.join(" ");
 
-        const options = {
-          method: "GET",
-          url: "https://article-extractor-and-summarizer.p.rapidapi.com/extract",
+        const response = await axios.get("https://newsapi.org/v2/everything", {
           params: {
-            url: url,
+            q: cleanTitle || "latest news",
+            apiKey: NEWS_API_KEY,
+            language: "en",
+            sortBy: "relevancy",
+            pageSize: 1,
           },
-          headers: {
-            "x-rapidapi-key":
-              "5c43358bb7msh620384fe8a16560p1a0fd1jsn853ee75f7459",
-            "x-rapidapi-host":
-              "article-extractor-and-summarizer.p.rapidapi.com",
-          },
-        };
+        });
 
-        const response = await axios.request(options);
-
-        //   console.log(response);
-
-        if (response?.data) {
-          const fullArticle = response.data;
+        if (response.data.articles.length > 0) {
+          const fullArticle = response.data.articles[0];
           setArticle((prev) => ({ ...prev, ...fullArticle }));
         } else {
           setError("No detailed content found for this article.");
@@ -57,46 +96,7 @@ const NewsPage = () => {
     };
 
     fetchFullArticle();
-  }, [article?.url]);
-  //   useEffect(() => {
-  //     const fetchFullArticle = async () => {
-  //       if (!article?.title) return;
-  //       setLoading(true);
-  //       setError(null);
-
-  //       try {
-  //         const cleanTitle = article.title
-  //           ?.replace(/[-–|:]/g, "")
-  //           ?.split(" ")
-  //           ?.slice(0, 6)
-  //           ?.join(" ");
-
-  //         const response = await axios.get("https://newsapi.org/v2/everything", {
-  //           params: {
-  //             q: cleanTitle || "latest news",
-  //             apiKey: NEWS_API_KEY,
-  //             language: "en",
-  //             sortBy: "relevancy",
-  //             pageSize: 1,
-  //           },
-  //         });
-
-  //         if (response.data.articles.length > 0) {
-  //           const fullArticle = response.data.articles[0];
-  //           setArticle((prev) => ({ ...prev, ...fullArticle }));
-  //         } else {
-  //           setError("No detailed content found for this article.");
-  //         }
-  //       } catch (err) {
-  //         console.error("Error fetching article details:", err);
-  //         setError("Failed to fetch article content.");
-  //       } finally {
-  //         setLoading(false);
-  //       }
-  //     };
-
-  //     fetchFullArticle();
-  //   }, [article?.title]);
+  }, [article?.title]);
 
   if (!article) {
     return (
@@ -113,7 +113,7 @@ const NewsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="w-full bg-black text-white overflow-scroll">
       {/* Sticky Header */}
       <div className="sticky top-0 z-50 bg-black/90 backdrop-blur-sm border-b border-slate-800">
         <div className="max-w-4xl mx-auto px-6 py-4">
@@ -189,15 +189,15 @@ const NewsPage = () => {
                 {article.description}
               </p>
             )}
-            {/* <p className="text-base lg:text-lg text-gray-300 leading-relaxed">
+            <p className="text-base lg:text-lg text-gray-300 leading-relaxed">
               {article.content || "No additional content available."}
-            </p> */}
-            <div
+            </p>
+            {/* <div
               className="text-base lg:text-lg text-gray-300 leading-relaxed prose prose-invert max-w-none"
               dangerouslySetInnerHTML={{
                 __html: article.content || "No additional content available.",
               }}
-            />
+            /> */}
           </div>
         )}
 

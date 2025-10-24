@@ -44,7 +44,7 @@ function ExpliInput({
           ? "top-1/2 -translate-y-1/2"
           : "bottom-5"
       }  z-10 transition-all duration-500 ${
-        isSidebarOpen ? "left-[245px] right-0" : "left-0 right-0"
+        isSidebarOpen ? "left-[2px] right-0" : "left-0 right-0"
       }`}
     >
       <div className="relative rounded-2xl max-w-2xl mx-auto border border-cyan-500/60 bg-[#002a2d] shadow-[0_0_25px_rgba(0,255,255,0.1)] hover:shadow-[0_0_35px_rgba(0,255,255,0.2)] transition-all duration-500">

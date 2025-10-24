@@ -273,7 +273,7 @@ const DiscoverPage = () => {
       const slug = encodeURIComponent(
         article.title.replace(/\s+/g, "-").toLowerCase()
       );
-      navigate(`/discover/${slug}`, {
+      navigate(`/expli/discover/${slug}`, {
         state: { article: { title: article.title, url: article.url } },
       });
     } else {
@@ -301,80 +301,9 @@ const DiscoverPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Header */}
-
+    <div className="w-full flex-1 overflow-scroll border border-cyan-500/20 shadow-[...] bg-black flex flex-col gap-4 relative backdrop-blur-xl">
       <div className="flex">
         {/* Main Content */}
-        <div>
-          {/* Hover zone */}
-          <div
-            className="absolute left-0 top-0 h-full w-6 z-30"
-            onMouseEnter={() => setSidebarOpen(true)}
-            onMouseLeave={() => setSidebarOpen(false)}
-          />
-
-          {/* Sidebar */}
-          <div
-            className={`fixed top-0 left-0 h-full bg-black/95 backdrop-blur-xl border-r border-minimal-primary/20
-flex flex-col justify-between z-50
-transition-[width,padding] duration-300 ease-in-out
-${sidebarOpen ? "w-56 px-6" : "w-0 px-0"}`}
-            onMouseEnter={() => !sidebarPinned && setSidebarOpen(true)}
-            onMouseLeave={() => !sidebarPinned && setSidebarOpen(false)}
-          >
-            {/* Top */}
-            <div
-              className={`mt-8 transition-all duration-300 ${
-                sidebarOpen
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 -translate-x-2"
-              }`}
-            >
-              <div className="flex items-center gap-3 mb-2">
-                <button
-                  onClick={() => {
-                    setSidebarPinned(!sidebarPinned);
-                    setSidebarOpen(true);
-                  }}
-                >
-                  {sidebarPinned ? <PinOff size={20} /> : <Pin size={20} />}
-                </button>
-                {sidebarOpen && (
-                  <h2 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-minimal-primary bg-clip-text text-transparent">
-                    {toolName}
-                  </h2>
-                )}
-              </div>
-
-              <nav className="flex flex-col space-y-6 mt-8">
-                <button className="flex items-center space-x-2 bg-black border border-[#23b5b5]/40 px-4 py-2 rounded-lg">
-                  <span className="text-[#23b5b5]">⚡</span>
-                  {sidebarOpen && <span>For You</span>}
-                </button>
-                <button className="flex items-center space-x-2 bg-black border border-[#23b5b5]/40 px-4 py-2 rounded-lg">
-                  <span>⭐</span>
-                  {sidebarOpen && <span>Top</span>}
-                </button>
-                <button className="flex items-center space-x-2 bg-black border border-[#23b5b5]/40 px-4 py-2 rounded-lg">
-                  <span>📋</span>
-                  {sidebarOpen && <span>Topics</span>}
-                </button>
-              </nav>
-            </div>
-
-            {/* Bottom */}
-            {sidebarOpen && (
-              <div className="mb-8 transition-all duration-300">
-                <Link to={link}>
-                  <button className="w-full bg-gradient-to-r from-minimal-primary to-minimal-primary/80 hover:from-minimal-primary/80 hover:to-minimal-primary text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-minimal-primary/25">
-                    Learn More
-                  </button>
-                </Link>
-              </div>
-            )}
-          </div>
-        </div>
 
         <main className="flex-1 p-6">
           {/* Loading State */}

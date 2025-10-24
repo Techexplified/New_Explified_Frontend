@@ -7,6 +7,7 @@ import { HeroUIProvider } from "@heroui/react";
 import { Provider } from "react-redux";
 import { store } from "./utils/store";
 import { BrowserRouter } from "react-router-dom";
+import { ExpliProvider } from "./context/ExpliContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   <GoogleOAuthProvider
@@ -17,9 +18,11 @@ createRoot(document.getElementById("root")).render(
     <StrictMode>
       <HeroUIProvider>
         <Provider store={store}>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
+          <ExpliProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </ExpliProvider>
         </Provider>
       </HeroUIProvider>
     </StrictMode>

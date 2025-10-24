@@ -2,14 +2,16 @@ import { useEffect, useState } from "react";
 import { Zap } from "lucide-react";
 import IntegrationModal from "./IntegrationModal";
 import { FaCodeBranch } from "react-icons/fa6";
+import { useExpli } from "../context/ExpliContext";
 
-function ExpliIntegration({
-  providerKeys,
-  setProviderKeys,
-  sidebarPinned,
-  isSidebarOpen,
-  setClosedChats,
-}) {
+function ExpliIntegration() {
+  const {
+    providerKeys,
+    setProviderKeys,
+    sidebarPinned,
+    isSidebarOpen,
+    setClosedChats,
+  } = useExpli();
   const [showIntegrationHint, setShowIntegrationHint] = useState(true);
   const [isHoveringIntegration, setIsHoveringIntegration] = useState(false);
   const [showIntegrationsModal, setShowIntegrationsModal] = useState(false);
