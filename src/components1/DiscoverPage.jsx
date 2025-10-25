@@ -52,45 +52,91 @@ const DiscoverPage = () => {
     try {
       setNewsData((prev) => ({ ...prev, loading: true }));
       const response = await fetch(
-        `https://newsapi.org/v2/top-headlines?country=us&apiKey=${NEWS_API_KEY}`
+        ` https://newsdata.io/api/1/latest?apikey=${
+          import.meta.env.VITE_NEWS_API_KEY_SARITA
+        }&language=en`
       );
       const data = await response.json();
 
       console.log(data);
 
-      if (data.articles && data.articles.length > 0) {
-        let articles = data.articles;
+      if (data.results && data.results.length > 0) {
+        let articles = data.results;
         setNewsData({
           featured: {
             title: articles[0].title,
-            publishedTime: new Date(articles[0].publishedAt).toLocaleString(),
+            publishedTime: new Date(articles[0].pubDate).toLocaleString(),
             summary: articles[0].description,
-            url: articles[0].url,
-            image: articles[0].urlToImage,
+            url: articles[0].source_url,
+            image: articles[0].image_url,
             sources: Math.floor(Math.random() * 50) + 10,
           },
           articles: articles.map((a, i) => ({
             id: i + 1,
             title: a.title,
             sources: Math.floor(Math.random() * 50) + 10,
-            image: a.urlToImage,
+            image: a.image_url,
             category: "tech",
-            url: a.url,
-            content: a.content,
-            publishedTime: new Date(a.publishedAt).toLocaleString(),
+            url: a.source_url,
+            // content: a.content,
+            publishedTime: new Date(a.pubDate).toLocaleString(),
           })),
           loading: false,
           error: null,
         });
       }
     } catch (err) {
-      setNewsData((prev) => ({
-        ...prev,
-        loading: false,
-        error: err.message,
-      }));
+      // setNewsData((prev) => ({
+      //   ...prev,
+      //   loading: false,
+      //   error: err.message,
+      // }));
+      console.log(err);
     }
   };
+  // const fetchNews = async () => {
+  //   try {
+  //     setNewsData((prev) => ({ ...prev, loading: true }));
+  //     const response = await fetch(
+  //       `https://newsapi.org/v2/top-headlines?country=us&apiKey=${NEWS_API_KEY}`
+  //     );
+  //     const data = await response.json();
+
+  //     console.log(data);
+
+  //     if (data.articles && data.articles.length > 0) {
+  //       let articles = data.articles;
+  //       setNewsData({
+  //         featured: {
+  //           title: articles[0].title,
+  //           publishedTime: new Date(articles[0].publishedAt).toLocaleString(),
+  //           summary: articles[0].description,
+  //           url: articles[0].url,
+  //           image: articles[0].urlToImage,
+  //           sources: Math.floor(Math.random() * 50) + 10,
+  //         },
+  //         articles: articles.map((a, i) => ({
+  //           id: i + 1,
+  //           title: a.title,
+  //           sources: Math.floor(Math.random() * 50) + 10,
+  //           image: a.urlToImage,
+  //           category: "tech",
+  //           url: a.url,
+  //           content: a.content,
+  //           publishedTime: new Date(a.publishedAt).toLocaleString(),
+  //         })),
+  //         loading: false,
+  //         error: null,
+  //       });
+  //     }
+  //   } catch (err) {
+  //     setNewsData((prev) => ({
+  //       ...prev,
+  //       loading: false,
+  //       error: err.message,
+  //     }));
+  //   }
+  // };
 
   // Fetch Weather Data
   const fetchWeather = async () => {
