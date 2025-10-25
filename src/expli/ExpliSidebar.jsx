@@ -54,6 +54,7 @@ function ExpliSidebar({ link }) {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [hoverChat, setHoverChat] = useState(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
@@ -489,12 +490,47 @@ function ExpliSidebar({ link }) {
                 </div>
               )}
             </div>
+
+            {isSidebarOpen && (
+              <button
+                onClick={() => setShowUpgradeModal(true)}
+                className="mt-2 w-full py-2 rounded-lg bg-gradient-to-r from-cyan-500/20 to-blue-500/20 
+               border border-cyan-500/30 text-cyan-400 text-sm font-medium
+               hover:from-cyan-500/30 hover:to-blue-500/30 hover:text-white
+               transition-all duration-300"
+              >
+                Upgrade
+              </button>
+            )}
           </div>
         </div>
       </div>
 
       {showProfileModal && (
         <ProfileSettingsModal onClose={() => setShowProfileModal(false)} />
+      )}
+
+      {showUpgradeModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[9999]">
+          <div className="bg-[#0f171c] border border-cyan-500/40 rounded-2xl shadow-2xl p-6 w-[90%] max-w-sm text-center text-white relative">
+            <h2 className="text-lg font-semibold mb-2">Upgrade To Premium</h2>
+            <p className="text-gray-400 text-sm">
+              Exciting premium features are on the way! Stay tuned
+            </p>
+            <button
+              onClick={() => setShowUpgradeModal(false)}
+              className="absolute top-2 right-2 text-gray-400 hover:text-white transition"
+            >
+              <X size={18} />
+            </button>
+            <button
+              onClick={() => setShowUpgradeModal(false)}
+              className="mt-4 px-4 py-2 bg-gradient-to-r from-cyan-500 to-[#23b5b5] text-white rounded-lg hover:opacity-90 transition"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
       )}
     </>
   );
