@@ -150,6 +150,7 @@ import AcmecorpInventory from "./client_component/AcmecorpInventory.jsx";
 import AcmecorpAdmin from "./client_component/AcmecorpAdmin.jsx";
 import NewsPage from "./components1/NewsPage.jsx";
 import ChatPanel from "./expli/ChatPanel.jsx";
+import AIChatApp from "./ai-fiesta/AIChatGrid.jsx";
 function App() {
   usePageTracking();
   const navigate = useNavigate();
@@ -256,6 +257,7 @@ function App() {
             <Route path="/pdf-tools/merge" element={<Merge />} />
             <Route path="/pdf-tools/sign" element={<Sign />} />
           </Route> */}
+
         <Route path="/lurph" element={<LurphLanding />}></Route>
         <Route path="/notes" element={<LexicalEditor />} />
         <Route path="/" element={<UpdatedDashboard />}>
@@ -448,11 +450,13 @@ function App() {
         <Route path="/discover" element={<DiscoverPage />} />
         <Route path="/discover/:newsTitle" element={<NewsPage />} /> */}
 
-        <Route path="/expli" element={<Trone />}>
+        <Route path="/expli" element={<AIChatApp />}></Route>
+
+        {/* <Route path="/expli" element={<Trone />}>
           <Route index element={<ChatPanel />} />
           <Route path="discover" element={<DiscoverPage />} />
           <Route path="discover/:newsTitle" element={<NewsPage />} />
-        </Route>
+        </Route> */}
 
         {/* Tools Page */}
 

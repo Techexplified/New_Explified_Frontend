@@ -1,0 +1,68 @@
+import { SiOpenai, SiGooglegemini, SiPerplexity } from "react-icons/si";
+import { GiDragonHead } from "react-icons/gi";
+
+export const aiModelDetails = [
+  {
+    id: "openai",
+    name: "ChatGPT",
+    desc: "OpenAI’s most capable model",
+    dropdown: ["GPT-5 nano", "GPT-4o", "GPT-3.5", "GPT-3"],
+    current: "GPT-5 nano",
+    icon: <SiOpenai className="text-teal-500" size={22} />,
+    locked: false,
+  },
+  {
+    id: "gemini",
+    name: "Gemini",
+    desc: "Google’s multimodal AI model",
+    dropdown: ["Gemini 2.5 Lite", "Gemini 1.5", "Gemini Nano"],
+    current: "Gemini 2.5 Lite",
+    icon: <SiGooglegemini className="text-indigo-400" size={22} />,
+    locked: false,
+  },
+  {
+    id: "deepseek",
+    name: "DeepSeek",
+    desc: "DeepSeek’s reasoning model",
+    dropdown: ["DeepSeek Chat"],
+    current: "DeepSeek Chat",
+    icon: <GiDragonHead className="text-orange-400" size={22} />,
+    locked: false,
+  },
+  {
+    id: "perplexity",
+    name: "Perplexity",
+    desc: "AI-powered search and reasoning",
+    dropdown: ["Perplexity Sonar"],
+    current: "Perplexity Sonar",
+    icon: <SiPerplexity className="text-sky-500" size={22} />,
+    locked: true,
+  },
+  {
+    id: "anthropic",
+    name: "Anthropic",
+    desc: "Anthropic’s advanced AI assistant",
+    dropdown: ["Claude Haiku 4.5", "Claude 3 Opus", "Claude Instant"],
+    current: "Claude Haiku 4.5",
+    icon: <span className="font-bold text-orange-600">A</span>,
+    locked: true,
+  },
+  {
+    id: "xai",
+    name: "xAI",
+    desc: "xAI’s conversational AI",
+    dropdown: ["Grok 3 Mini"],
+    current: "Grok 3 Mini",
+    icon: <span className="font-extrabold text-black">x</span>,
+    locked: true,
+  },
+  {
+    id: "bytedance",
+    name: "ByteDance",
+    desc: "Advanced image generation model",
+    dropdown: ["Seedream 4.0"],
+    current: "Seedream 4.0",
+    icon: <span className="font-extrabold text-blue-500">B</span>,
+    locked: true,
+  },
+];
