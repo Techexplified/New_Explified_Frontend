@@ -7,7 +7,7 @@ export default function ToolsPopover({ visible }) {
     {
       label: "Dashboard",
       icon: FaChartLine,
-      url: "/dashboard",
+      url: "/",
     },
     { label: "Memory", icon: FaBrain, url: "/memory" },
     { label: "Notes", icon: FaStickyNote, url: "/notes" },

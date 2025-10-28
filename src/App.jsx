@@ -451,6 +451,7 @@ function App() {
         <Route path="/discover/:newsTitle" element={<NewsPage />} /> */}
 
         <Route path="/expli" element={<AIChatApp />}></Route>
+        <Route path="/discover" element={<DiscoverPage />}></Route>
 
         {/* <Route path="/expli" element={<Trone />}>
           <Route index element={<ChatPanel />} />
