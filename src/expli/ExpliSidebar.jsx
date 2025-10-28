@@ -279,10 +279,6 @@ function ExpliSidebar({ link }) {
                         className="group hover:bg-gray-700/50 border border-gray-700/30 
     hover:border-minimal-primary/30 rounded-lg px-2 pt-1 pb-1.5 transition-all duration-200 cursor-pointer relative"
                       >
-                        {/* Horizontal connector line from left */}
-                        {/* <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-2 h-0.5 bg-gradient-to-r from-minimal-primary/60 to-minimal-primary/40" /> */}
-
-                        {/* Top row: question + 3-dot menu */}
                         <div className="flex items-center justify-between">
                           <div
                             dangerouslySetInnerHTML={{
@@ -291,7 +287,6 @@ function ExpliSidebar({ link }) {
                             className="text-sm text-gray-300 group-hover:text-white truncate"
                           />
 
-                          {/* Show tool icons only on hover of this specific div */}
                           {hoverChat === item.id && (
                             <div className="flex gap-2 mt-1">
                               {item.qa[0].answers.map((ans) => (
@@ -311,7 +306,6 @@ function ExpliSidebar({ link }) {
                             </div>
                           )}
 
-                          {/* 3-dot dropdown menu */}
                           <div className="relative">
                             {hoverChat === item.id && (
                               <button

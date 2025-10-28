@@ -206,8 +206,8 @@ export function ExpliProvider({ children }) {
           {
             parts: [
               {
-                text: `Summarize the following text in one short, clear sentence. 
-Return **only** the summary text in a declarative format, without any explanations, formatting, or markdown:
+                text: `Turn the following text into a declarative format sentence. 
+Return **only** the text , without any explanations, formatting, or markdown:
 "${prompt}"`,
               },
             ],

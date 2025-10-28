@@ -5,7 +5,7 @@ import {
   PROVIDER_DOC_URL,
 } from "../utils/data/TroneData";
 import { FiChevronDown, FiSearch, FiX } from "react-icons/fi";
-import { Lock } from "lucide-react";
+import { Lock, Plus, X } from "lucide-react";
 
 function IntegrationModal({
   providerKeys,
@@ -13,9 +13,8 @@ function IntegrationModal({
   setShowIntegrationsModal,
   setClosedChats,
 }) {
-  const [integrationTab, setIntegrationTab] = useState("my"); // "my" | "add"
+  const [integrationTab, setIntegrationTab] = useState("my");
   const [integrationSearch, setIntegrationSearch] = useState("");
-
   const [selectedProviderId, setSelectedProviderId] = useState(null);
   const [selectedProviderKey, setSelectedProviderKey] = useState("");
   const [showProviderHelp, setShowProviderHelp] = useState(false);
@@ -27,7 +26,7 @@ function IntegrationModal({
           const res = await fetch("https://api.openai.com/v1/models", {
             headers: { Authorization: `Bearer ${apiKey}` },
           });
-          return res.ok; // 200–299 → true
+          return res.ok;
         }
 
         case "gemini": {
@@ -98,7 +97,6 @@ function IntegrationModal({
     }
     setProviderKeys(next);
     if (useAfterSave) {
-      // optionally you can set active provider here if used elsewhere
       try {
         localStorage.setItem("active_provider", providerId);
       } catch (err) {
@@ -108,6 +106,7 @@ function IntegrationModal({
     setShowIntegrationsModal(false);
     setSelectedProviderId(null);
   };
+
   const handleRemoveProvider = (providerId) => {
     const next = { ...(providerKeys || {}), [providerId]: "" };
     try {
@@ -117,147 +116,165 @@ function IntegrationModal({
     }
     setProviderKeys(next);
   };
+
   return (
-    <div className="fixed inset-0 z-[9999]  flex items-center justify-center backdrop-blur-sm">
+    <div className="fixed inset-0 z-[9999] overflow-scroll flex items-center justify-center backdrop-blur-sm">
       <div
-        className="absolute inset-0 bg-gray-900/80"
+        className="absolute inset-0 bg-black/70"
         onClick={() => setShowIntegrationsModal(false)}
       />
       <div
-        className={`relative w-full  ${
-          showProviderHelp ? "max-w-3xl" : "max-w-2xl"
-        } mx-4 bg-gray-900/95 border border-teal-500/40 rounded-2xl shadow-2xl shadow-teal-500/10 p-6`}
+        className={`relative w-full ${
+          showProviderHelp ? "max-w-4xl" : "max-w-2xl"
+        } mx-4 bg-gray-900/95 border border-gray-800/50 rounded-xl shadow-2xl p-6`}
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 via-transparent to-teal-400/5 rounded-2xl pointer-events-none"></div>
         <button
           aria-label="Close"
           onClick={() => setShowIntegrationsModal(false)}
-          className="absolute top-4 right-4 text-gray-400 hover:text-teal-300 transition-colors duration-200 z-10"
+          className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors duration-200 z-10 p-1"
         >
           <FiX size={24} />
         </button>
-        <h3 className="text-white text-2xl font-bold text-center mb-6 bg-gradient-to-r from-white to-teal-200 bg-clip-text text-transparent">
-          Integrations
-        </h3>
+
+        <h3 className="text-white text-2xl font-bold mb-6">Integrations</h3>
 
         {!selectedProviderId && (
-          <div className="flex items-center gap-3 mb-6">
-            <button
-              onClick={() => setIntegrationTab("my")}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                integrationTab === "my"
-                  ? "bg-teal-500/20 text-teal-300 border border-teal-500/60 shadow-lg shadow-teal-500/20"
-                  : "bg-gray-800/50 text-gray-400 border border-gray-600/70 hover:bg-gray-800/80 hover:text-gray-300 hover:border-gray-500/80"
-              }`}
-            >
-              My Keys
-            </button>
-            <button
-              onClick={() => setIntegrationTab("add")}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                integrationTab === "add"
-                  ? "bg-teal-500/20 text-teal-300 border border-teal-500/60 shadow-lg shadow-teal-500/20"
-                  : "bg-gray-800/50 text-gray-400 border border-gray-600/70 hover:bg-gray-800/80 hover:text-gray-300 hover:border-gray-500/80"
-              }`}
-            >
-              Add Keys
-            </button>
-          </div>
-        )}
+          <>
+            <div className="flex items-center gap-3 mb-6">
+              <button
+                onClick={() => setIntegrationTab("my")}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  integrationTab === "my"
+                    ? "bg-gray-700 text-white border border-gray-600"
+                    : "bg-gray-800/50 text-gray-400 border border-gray-700/50 hover:bg-gray-800 hover:text-gray-300"
+                }`}
+              >
+                My Keys
+              </button>
+              <button
+                onClick={() => setIntegrationTab("add")}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  integrationTab === "add"
+                    ? "bg-gray-700 text-white border border-gray-600"
+                    : "bg-gray-800/50 text-gray-400 border border-gray-700/50 hover:bg-gray-800 hover:text-gray-300"
+                }`}
+              >
+                Add Keys
+              </button>
+            </div>
 
-        {!selectedProviderId && (
-          <div className="relative mb-6">
-            <input
-              type="text"
-              value={integrationSearch}
-              onChange={(e) => setIntegrationSearch(e.target.value)}
-              placeholder="Search integrations..."
-              className="w-full bg-gray-800/30 border border-gray-600/70 rounded-xl pl-4 pr-12 py-3 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500/60 focus:border-teal-500/70 transition-all duration-200"
-            />
-            <FiSearch className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500" />
-          </div>
-        )}
+            <div className="relative mb-6">
+              <input
+                type="text"
+                value={integrationSearch}
+                onChange={(e) => setIntegrationSearch(e.target.value)}
+                placeholder="Search integrations..."
+                className="w-full bg-gray-800/50 border border-gray-700/50 rounded-lg pl-4 pr-12 py-3 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-gray-600 transition-all duration-200"
+              />
+              <FiSearch className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500" />
+            </div>
 
-        {!selectedProviderId && (
-          <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-6">
-            {INTEGRATION_PROVIDERS.filter((p) => {
-              const matchesTab =
-                integrationTab === "my" ? Boolean(providerKeys[p.id]) : true;
-              const q = integrationSearch.trim().toLowerCase();
-              const matchesQuery = p.name.toLowerCase().includes(q);
-              return matchesTab && matchesQuery;
-            }).map((p) => {
-              const Icon = p.icon;
-              return (
-                <div
-                  key={p.id}
-                  className="bg-gray-800/40 backdrop-blur-sm border border-gray-600/70 rounded-2xl p-4 hover:bg-gray-800/60 hover:border-teal-500/50 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl hover:shadow-teal-500/20 relative group cursor-pointer"
-                  onClick={() => handleOpenProvider(p.id)}
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <div className=" flex items-center justify-center text-teal-300 text-xl shadow-lg group-hover:scale-105 group-hover:border-teal-400/70 transition-all duration-200">
-                      {Icon}
-                    </div>
-                    <div className="flex gap-2">
-                      {!(p.id === "openai" || p.id === "gemini") && (
-                        <button
-                          type="button"
-                          className="w-8 h-8 bg-amber-500/20 border border-amber-500/60 rounded-xl flex items-center justify-center transition-all duration-200 transform hover:scale-105 hover:bg-amber-500/30"
+            <div className="space-y-2">
+              {INTEGRATION_PROVIDERS.filter((p) => {
+                const matchesTab =
+                  integrationTab === "my" ? Boolean(providerKeys[p.id]) : true;
+                const q = integrationSearch.trim().toLowerCase();
+                const matchesQuery = p.name.toLowerCase().includes(q);
+                return matchesTab && matchesQuery;
+              }).map((p) => {
+                const Icon = p.icon;
+                const hasKey = Boolean(providerKeys[p.id]);
+                return (
+                  <div
+                    key={p.id}
+                    onClick={() => handleOpenProvider(p.id)}
+                    className="bg-gray-800/30 border border-gray-700/50 rounded-lg p-4 hover:bg-gray-800/50 hover:border-gray-600/50 transition-all duration-300 cursor-pointer group"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-4 flex-1">
+                        <div className="text-2xl mt-1">{Icon}</div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="text-white font-semibold text-sm group-hover:text-gray-100">
+                              {p.name}
+                            </h4>
+                            {p.byok && (
+                              <span className="bg-gray-700/50 text-gray-300 text-[10px] px-2 py-0.5 rounded border border-gray-600/50 font-medium">
+                                BYOK
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-gray-400 text-xs leading-relaxed">
+                            {p.description}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {/* <select
+                          onClick={(e) => e.stopPropagation()}
+                          className="bg-gray-700/50 border border-gray-600/50 text-gray-300 text-xs px-2 py-1.5 rounded hover:bg-gray-700 transition-colors"
                         >
-                          <Lock className="text-amber-400" size={16} />
-                        </button>
-                      )}
-                      <button
-                        type="button"
-                        // onClick={(e) => {
-                        //   e.stopPropagation();
-                        //   handleOpenProvider(p.id);
-                        // }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          // ✅ flip closedChats for this provider
-                          setClosedChats((prev) => ({
-                            ...prev,
-                            [p.id]: false,
-                          }));
-                        }}
-                        className="w-8 h-8 bg-teal-500/20 border border-teal-500/60 rounded-xl flex items-center justify-center text-teal-300 transition-all duration-200 transform hover:scale-105 hover:bg-teal-500/30 hover:border-teal-400/80"
-                      >
-                        +
-                      </button>
+                          <option>Select Model</option>
+                        </select> */}
 
-                      {/* X button visible only when integrationTab === "my" */}
-                      {integrationTab === "my" && (
+                        {!(p.id === "openai" || p.id === "gemini") && (
+                          <button
+                            type="button"
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-9 h-9 bg-gray-700/50 hover:bg-gray-600/50 border border-gray-600/50 rounded-lg flex items-center justify-center transition-all duration-200"
+                            title="Premium"
+                          >
+                            <Lock className="text-gray-400" size={16} />
+                          </button>
+                        )}
+
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleRemoveProvider(p.id);
+                            setClosedChats((prev) => ({
+                              ...prev,
+                              [p.id]: false,
+                            }));
                           }}
-                          className="w-8 h-8 bg-red-500/20 border border-red-500/60 rounded-xl flex items-center justify-center text-red-400 transition-all duration-200 transform hover:scale-105 hover:bg-red-500/30 hover:border-red-400/80"
+                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200 border ${
+                            hasKey
+                              ? "bg-green-600/20 border-green-600/50 text-green-400 hover:bg-green-600/30"
+                              : "bg-gray-700/50 hover:bg-gray-600/50 border-gray-600/50 text-gray-400"
+                          }`}
+                          title="Toggle"
                         >
-                          ×
+                          {/* <div
+                            className={`w-4 h-4 rounded-full border-2 ${
+                              hasKey
+                                ? "bg-green-500 border-green-500"
+                                : "border-gray-500"
+                            }`}
+                          /> */}
+
+                          <Plus size={15} />
                         </button>
-                      )}
+
+                        {integrationTab === "my" && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveProvider(p.id);
+                            }}
+                            className="w-7 h-7 bg-red-600/20 hover:bg-red-600/30 border border-red-600/50 rounded-lg flex items-center justify-center text-red-400 transition-all duration-200"
+                          >
+                            <X size={15} />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
-
-                  <h3 className="text-white font-semibold text-sm mb-2 group-hover:text-teal-300 transition-colors flex items-center gap-2">
-                    {p.name}
-                    {p.byok && (
-                      <span className="bg-gray-700/50 text-teal-300 text-[10px] px-2 py-1 rounded-lg border border-teal-500/50 font-medium">
-                        BYOK
-                      </span>
-                    )}
-                  </h3>
-
-                  <p className="text-gray-400 text-xs leading-relaxed">
-                    {p.description}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          </>
         )}
 
         {selectedProviderId && (
@@ -270,15 +287,15 @@ function IntegrationModal({
               return (
                 <div>
                   <button
-                    className="text-sm text-gray-400 hover:text-teal-300 mb-6 flex items-center gap-2 transition-colors duration-200"
+                    className="text-sm text-gray-400 hover:text-white mb-6 flex items-center gap-2 transition-colors duration-200"
                     onClick={() => setSelectedProviderId(null)}
                   >
                     ← Back to Integrations
                   </button>
 
-                  <div className="flex items-center gap-4 mb-6 p-4 bg-gray-800/30 rounded-xl border border-gray-600/70">
+                  <div className="flex items-center gap-4 mb-6 p-4 bg-gray-800/30 rounded-lg border border-gray-700/50">
                     {Icon && (
-                      <div className="w-12 h-12 bg-gradient-to-br from-teal-400/20 to-teal-600/20 border border-teal-500/50 rounded-xl flex items-center justify-center text-teal-300 text-xl">
+                      <div className="w-12 h-12 bg-gray-700/50 border border-gray-600/50 rounded-lg flex items-center justify-center text-2xl">
                         {Icon}
                       </div>
                     )}
@@ -300,13 +317,13 @@ function IntegrationModal({
                     value={selectedProviderKey}
                     onChange={(e) => setSelectedProviderKey(e.target.value)}
                     placeholder={`Enter ${provider?.name} API key`}
-                    className="w-full bg-gray-800/30 border border-gray-600/70 rounded-xl px-4 py-3 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500/60 focus:border-teal-500/70 transition-all duration-200"
+                    className="w-full bg-gray-800/30 border border-gray-700/50 rounded-lg px-4 py-3 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-gray-600 transition-all duration-200"
                   />
 
                   <div className="mt-4 flex items-center justify-between">
                     <button
                       type="button"
-                      className="flex items-center gap-2 text-sm text-gray-400 hover:text-teal-300 transition-colors duration-200"
+                      className="flex items-center gap-2 text-sm text-gray-400 hover:text-gray-300 transition-colors duration-200"
                       onClick={() => setShowProviderHelp((v) => !v)}
                       aria-expanded={showProviderHelp}
                     >
@@ -328,10 +345,10 @@ function IntegrationModal({
                     }`}
                     aria-hidden={!showProviderHelp}
                   >
-                    <div className="border border-gray-600/70 rounded-xl p-4 bg-gray-800/30 backdrop-blur-sm">
+                    <div className="border border-gray-700/50 rounded-lg p-4 bg-gray-800/30">
                       <div className="flex items-center gap-3 mb-4">
                         {Icon && (
-                          <div className="w-8 h-8 bg-gradient-to-br from-teal-400/20 to-teal-600/20 border border-teal-500/50 rounded-lg flex items-center justify-center text-teal-300">
+                          <div className="w-8 h-8 bg-gray-700/50 border border-gray-600/50 rounded-lg flex items-center justify-center text-lg">
                             {Icon}
                           </div>
                         )}
@@ -348,12 +365,12 @@ function IntegrationModal({
                           )
                         )}
                       </ol>
-                      <div className="pt-3 border-t border-gray-600/70">
+                      <div className="pt-3 border-t border-gray-700/50">
                         <a
                           href={PROVIDER_DOC_URL[selectedProviderId]}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-sm text-teal-400 hover:text-teal-300 transition-colors duration-200 flex items-center gap-1"
+                          className="text-sm text-gray-400 hover:text-gray-300 transition-colors duration-200 flex items-center gap-1"
                         >
                           Open official documentation →
                         </a>
@@ -363,7 +380,7 @@ function IntegrationModal({
 
                   <div className="mt-6 flex justify-end gap-3">
                     <button
-                      className="px-4 py-2 rounded-xl bg-gray-800/50 border border-gray-600/70 text-gray-300 hover:bg-gray-800/80 hover:text-white hover:border-gray-500/80 transition-all duration-200"
+                      className="px-4 py-2 rounded-lg bg-gray-800/50 border border-gray-700/50 text-gray-300 hover:bg-gray-800/80 hover:text-white transition-all duration-200"
                       onClick={() =>
                         handleSaveProviderKey(selectedProviderId, false)
                       }
@@ -371,7 +388,7 @@ function IntegrationModal({
                       Save
                     </button>
                     <button
-                      className="px-4 py-2 rounded-xl bg-teal-500/20 border border-teal-500/60 text-teal-300 hover:bg-teal-500/30 hover:border-teal-400/80 hover:text-teal-200 transition-all duration-200 shadow-lg shadow-teal-500/20"
+                      className="px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white hover:bg-gray-600 transition-all duration-200"
                       onClick={() => {
                         handleSaveProviderKey(selectedProviderId, true);
                       }}

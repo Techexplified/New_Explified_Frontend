@@ -1,3 +1,4 @@
+import { Plus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { FiMic, FiPaperclip, FiSend } from "react-icons/fi";
 
@@ -13,8 +14,8 @@ function ExpliInput({
   onlyExpliOpen,
   chatNotPresent,
 }) {
-  const [selectedFile, setSelectedFile] = useState(null); // ✅ store selected file
-  const fileInputRef = useRef(null); // ✅ ref for hidden file input
+  const [selectedFile, setSelectedFile] = useState(null);
+  const fileInputRef = useRef(null);
   const inputRef = useRef(null);
 
   const handleFileChange = (e) => {
@@ -43,13 +44,24 @@ function ExpliInput({
         onlyExpliOpen && chatNotPresent
           ? "top-1/2 -translate-y-1/2"
           : "bottom-5"
-      }  z-10 transition-all duration-500 ${
+      } z-10 transition-all duration-500 ${
         isSidebarOpen ? "left-[2px] right-0" : "left-0 right-0"
       }`}
     >
-      <div className="relative rounded-2xl max-w-2xl mx-auto border border-cyan-500/60 bg-[#002a2d] shadow-[0_0_25px_rgba(0,255,255,0.1)] hover:shadow-[0_0_35px_rgba(0,255,255,0.2)] transition-all duration-500">
-        <div className="p-3 sm:p-2">
+      <div className="relative rounded-xl max-w-3xl mx-auto bg-gray-900/80 backdrop-blur-xl border border-gray-800/50 shadow-lg">
+        <div className="p-4 sm:p-4">
+          {/* Main Input Container */}
           <div className="flex items-center gap-3">
+            {/* Plus Button */}
+            {/* <button
+              type="button"
+              onClick={() => fileInputRef.current.click()}
+              className="flex-shrink-0 w-10 h-10 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700/50 hover:border-gray-600/50 flex items-center justify-center text-gray-400 hover:text-gray-300 transition-all duration-300"
+              title="Attach file"
+            >
+              <Plus size={20} />
+            </button> */}
+
             {/* Input Field */}
             <div className="flex-1 relative">
               <input
@@ -59,58 +71,54 @@ function ExpliInput({
                 onChange={handleInputChange}
                 onKeyDown={handleSubmit}
                 onPaste={handlePaste}
-                placeholder="Type your message..."
-                className="w-full bg-[#003436] text-gray-100 placeholder-gray-400 border border-cyan-500/30 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-400/40 focus:border-cyan-400/50 transition-all duration-300"
+                placeholder="Ask me anything..."
+                className="w-full bg-transparent text-gray-100 placeholder-gray-500 border-none focus:outline-none text-base py-2"
                 disabled={isTyping}
-                // maxLength={2000}
               />
-              {/* <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-cyan-400/60 font-medium">
-                {prompt.length}/2000
-              </div> */}
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-2">
-              {/* Voice Input */}
+            {/* Right Action Buttons */}
+            <div className="flex gap-2 items-center">
+              {/* Voice Button */}
               {/* <button
                 type="button"
                 onClick={!isTyping ? handleMicClick : undefined}
-                className={`relative w-8 h-8 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center border transition-all duration-300 group hover:scale-110 ${
+                className={`flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 ${
                   isRecording
-                    ? "border-red-500/60 bg-gradient-to-br from-red-500/30 to-red-600/20 shadow-[0_0_25px_rgba(239,68,68,0.5)] animate-pulse"
-                    : "bg-gradient-to-br from-cyan-500/25 to-blue-600/20 border-cyan-400/40 hover:border-cyan-400/60 hover:shadow-[0_0_25px_rgba(6,182,212,0.4)]"
+                    ? "bg-red-500/20 border border-red-500/50 text-red-400"
+                    : "bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700/50 hover:border-gray-600/50 text-gray-400 hover:text-gray-300"
                 }`}
                 style={{ cursor: isTyping ? "not-allowed" : "pointer" }}
                 title="Voice input"
                 disabled={isTyping}
               >
-                <FiMic
-                  className={`text-lg sm:text-xl ${
-                    isRecording ? "text-white" : "text-cyan-400"
-                  } drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]`}
-                />
-                {!isRecording && (
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                )}
+                <FiMic size={18} />
               </button> */}
 
-              {/* File Upload */}
+              {/* Decorative Separator */}
+              <div className="w-px h-5 bg-gray-700/30"></div>
+
+              {/* Settings/Sparkle Button */}
               {/* <button
                 type="button"
-                onClick={() => fileInputRef.current.click()}
-                className="relative w-8 h-8 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-cyan-500/25 to-blue-600/20 border border-cyan-400/40 flex items-center justify-center hover:border-cyan-400/60 hover:scale-110 transition-all duration-300 hover:shadow-[0_0_25px_rgba(6,182,212,0.4)] group"
-                title="Attach file"
+                className="flex-shrink-0 w-9 h-9 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700/50 hover:border-gray-600/50 flex items-center justify-center text-gray-400 hover:text-gray-300 transition-all duration-300"
+                title="Settings"
               >
-                <FiPaperclip className="text-lg sm:text-xl text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <circle cx="12" cy="12" r="1"></circle>
+                  <path d="M12 1v6m0 6v6"></path>
+                  <path d="M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24"></path>
+                  <path d="M1 12h6m6 0h6"></path>
+                  <path d="M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24"></path>
+                </svg>
               </button> */}
-
-              {/* <input
-                type="file"
-                ref={fileInputRef}
-                style={{ display: "none" }}
-                onChange={handleFileChange}
-              /> */}
 
               {/* Send Button */}
               <button
@@ -120,24 +128,29 @@ function ExpliInput({
                     handleSubmit({ key: "Enter" });
                   }
                 }}
-                className="relative w-8 h-8 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-cyan-500/30 to-blue-600/25 border border-cyan-400/50 flex items-center justify-center hover:border-cyan-400/70 hover:scale-110 transition-all duration-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] group disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-shrink-0 w-9 h-9 rounded-lg bg-[#23b5b5] hover:bg-[#23b5b5] flex items-center justify-center text-white transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed hover:scale-105"
                 title="Send"
                 disabled={!prompt.trim()}
               >
-                <FiSend className="text-lg sm:text-xl text-cyan-300 drop-shadow-[0_0_10px_rgba(6,182,212,1)]" />
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                {/* Pulse effect on hover */}
-                <div className="absolute inset-0 rounded-xl bg-cyan-400/20 opacity-0 group-hover:animate-ping"></div>
+                <FiSend size={18} />
               </button>
             </div>
           </div>
 
-          {/* ✅ Show selected file preview */}
+          {/* File Input */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            style={{ display: "none" }}
+            onChange={handleFileChange}
+          />
+
+          {/* Selected File Preview */}
           {selectedFile && (
-            <div className="mt-3 px-3 py-2 rounded-lg bg-cyan-500/10 border border-cyan-400/30 flex items-center gap-2">
-              <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(6,182,212,0.6)]"></div>
-              <span className="text-xs text-gray-400">Selected:</span>
-              <span className="text-xs text-cyan-300 font-medium">
+            <div className="mt-3 px-3 py-2 rounded-lg bg-gray-800/50 border border-gray-700/50 flex items-center gap-2">
+              <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+              <span className="text-xs text-gray-500">Selected:</span>
+              <span className="text-xs text-gray-300 font-medium truncate">
                 {selectedFile.name}
               </span>
             </div>

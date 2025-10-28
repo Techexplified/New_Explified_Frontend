@@ -1,11 +1,14 @@
 import { Sparkles, X, Zap, Bot, User, Copy, Check } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { formatText } from "../utils/data/TroneData";
+import { FiCheck, FiCopy } from "react-icons/fi";
 
 function ChatContainer({
   messages,
   isTyping,
   toolName,
   icon,
+  logo,
   enabled,
   setEnabled,
   handleCloseChat,
@@ -34,93 +37,48 @@ function ChatContainer({
     }
   };
 
-  // Format text with proper line breaks, code blocks, and lists
-  const formatText = (text) => {
-    if (!text) return "";
-
-    return (
-      text
-        // Handle code blocks (```code```)
-        .replace(
-          /```([\s\S]*?)```/g,
-          "<pre style=\"background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%); padding: 16px; border-radius: 12px; margin: 12px 0; overflow-x: auto; border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);\"><code style=\"font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace; font-size: 0.9em; line-height: 1.4;\">$1</code></pre>"
-        )
-        // Handle inline code (`code`)
-        .replace(
-          /`([^`]+)`/g,
-          "<code style=\"background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%); padding: 3px 8px; border-radius: 6px; font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace; font-size: 0.9em; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 1px 2px rgba(0,0,0,0.2);\">$1</code>"
-        )
-        // Handle bold text (**text** or __text__)
-        .replace(
-          /\*\*(.*?)\*\*/g,
-          "<strong style='font-weight: 600; color: rgba(255,255,255,0.95);'>$1</strong>"
-        )
-        .replace(
-          /__(.*?)__/g,
-          "<strong style='font-weight: 600; color: rgba(255,255,255,0.95);'>$1</strong>"
-        )
-        // Handle italic text (*text* or _text_)
-        .replace(
-          /\*(.*?)\*/g,
-          "<em style='font-style: italic; color: rgba(255,255,255,0.9);'>$1</em>"
-        )
-        .replace(
-          /_(.*?)_/g,
-          "<em style='font-style: italic; color: rgba(255,255,255,0.9);'>$1</em>"
-        )
-        // Handle numbered lists
-        .replace(
-          /^\d+\.\s+(.+)$/gm,
-          '<div style="margin: 6px 0; padding-left: 16px; position: relative;"><span style="position: absolute; left: 0; color: #23b5b5; font-weight: 600;">•</span> $1</div>'
-        )
-        // Handle bullet points
-        .replace(
-          /^[-•*]\s+(.+)$/gm,
-          '<div style="margin: 6px 0; padding-left: 16px; position: relative;"><span style="position: absolute; left: 0; color: #23b5b5; font-weight: 600;">•</span> $1</div>'
-        )
-        // Handle line breaks
-        .replace(/\n\n/g, "<br><br>")
-        .replace(/\n/g, "<br>")
-    );
-  };
-
   return (
     <div
       ref={chatContainerRef}
       className={
-        "flex-1 w-full bg-gradient-to-b from-gray-900/50 to-black/95 backdrop-blur-2xl  flex flex-col px-2 sm:px-3 overflow-y-auto scroll-smooth relative z-10 border border-gray-600 rounded-xl h-full"
+        "flex-1 w-full  bg-black backdrop-blur-xl flex flex-col px-2 sm:px-3 overflow-y-auto scroll-smooth relative z-10 border border-cyan-500/30   shadow-[0_0_40px_rgba(6,182,212,0.15)] hover:shadow-[0_0_60px_rgba(6,182,212,0.25)] transition-all duration-500"
       }
       style={{
+        maxHeight: "calc(100vh - 100px)",
         scrollBehavior: "smooth",
         paddingTop: "0",
         paddingBottom: "1rem",
-        // background:
-        //   "linear-gradient(180deg, rgba(30,30,30,0.9) 0%, rgba(20,20,20,0.9) 100%)",
         scrollbarWidth: "thin",
-        scrollbarColor: "#374151 transparent",
+        scrollbarColor: "#06b6d4 transparent",
       }}
     >
+      {/* Animated Border Glow */}
+      <div className="absolute inset-0 rounded-2xl pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-1/2 h-[2px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent animate-pulse" />
+      </div>
+
       {/* Enhanced Header */}
-      <div className="sticky top-0 z-20 bg-gradient-to-b from-gray-900/50 to-black/95 backdrop-blur-2xl border-b border-gray-600/50 mb-4 rounded-t-xl -mx-2 sm:-mx-3 px-2 sm:px-3">
-        <div className="flex items-center justify-between py-3">
+      <div className="sticky top-0 z-20 bg-gradient-to-br from-gray-900/90 via-gray-950/80 to-black/70 backdrop-blur-2xl border-b border-cyan-500/30 mb-4 rounded-t-2xl -mx-2 sm:-mx-3 px-2 sm:px-3 shadow-[0_4px_20px_rgba(6,182,212,0.1)]">
+        <div className="flex items-center justify-between py-1">
           {/* Left side: Icon + Tool Name */}
           <div className="flex items-center gap-3">
-            <div className="relative p-3 bg-gradient-to-br from-cyan-500/30 to-blue-600/20 rounded-xl border border-cyan-500/40 shadow-lg backdrop-blur-sm">
-              <span className="text-cyan-400 text-xl drop-shadow-sm">
-                {icon}
-              </span>
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 to-transparent rounded-xl"></div>
-            </div>
+            {/* <div className="relative p-3 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 rounded-xl border border-cyan-400/40 shadow-[0_0_20px_rgba(6,182,212,0.3)] backdrop-blur-sm hover:scale-105 transition-transform duration-300"> */}
+            <span className="">
+              {/* {icon} */}
+              <img
+                className={`${toolName === "Expli" ? "h-9" : "h-5"}`}
+                alt="Logo"
+                src={logo}
+              />
+            </span>
+            {/* <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 to-transparent rounded-xl animate-pulse"></div> */}
+
+            {/* <div className="absolute -inset-1 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 rounded-xl blur-md -z-10"></div> */}
+            {/* </div> */}
             <div className="flex flex-col">
               <h1 className="text-lg font-semibold text-white tracking-tight">
                 {toolName}
               </h1>
-              {/* <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full  shadow-sm shadow-green-400/50"></div>
-                <p className="text-xs text-slate-400 font-medium">
-                  AI Assistant
-                </p>
-              </div> */}
             </div>
           </div>
 
@@ -128,7 +86,7 @@ function ChatContainer({
           {!onlyExpliOpen && (
             <div className="flex items-center gap-4">
               {/* Enhanced Toggle */}
-              <div className="flex items-center gap-3">
+              {/* <div className="flex items-center gap-3">
                 <label className="relative inline-flex items-center cursor-pointer group">
                   <input
                     type="checkbox"
@@ -138,6 +96,25 @@ function ChatContainer({
                   />
                   <div className="w-12 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-cyan-500/50 rounded-full peer peer-checked:bg-gradient-to-r peer-checked:from-cyan-500 peer-checked:to-cyan-400 transition-all duration-300 shadow-lg peer-checked:shadow-cyan-500/25"></div>
                   <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 peer-checked:translate-x-6 shadow-md peer-checked:shadow-lg"></div>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400/20 to-transparent opacity-0 peer-checked:opacity-100 transition-opacity duration-300"></div>
+                </label>
+              </div> */}
+
+              <div className="flex items-center gap-3">
+                <label className="relative inline-flex items-center cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={enabled}
+                    onChange={() => setEnabled(!enabled)}
+                    className="sr-only peer"
+                  />
+                  {/* Background track */}
+                  <div className="w-8 h-4 bg-gray-600 rounded-full peer-focus:ring-2 peer-focus:ring-cyan-500/40 peer-checked:bg-gradient-to-r peer-checked:from-cyan-500 peer-checked:to-cyan-400 transition-all duration-300 shadow-md peer-checked:shadow-cyan-500/20"></div>
+
+                  {/* Toggle circle */}
+                  <div className="absolute left-[2px] top-[1.5px] w-3.5 h-3.5 bg-white rounded-full transition-all duration-300 peer-checked:translate-x-4 shadow-sm peer-checked:shadow-md"></div>
+
+                  {/* Glow overlay */}
                   <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400/20 to-transparent opacity-0 peer-checked:opacity-100 transition-opacity duration-300"></div>
                 </label>
               </div>
@@ -162,134 +139,82 @@ function ChatContainer({
       </div>
 
       {/* Messages Container */}
-      <div className="w-full flex flex-col gap-6 px-1 ">
+      <div
+        className={`w-full flex flex-col gap-4 ${
+          onlyExpliOpen ? "px-8" : "px-2"
+        }`}
+      >
+        {/* Empty State */}
         {(!messages || messages.length === 0) && (
-          <div className="flex flex-col items-center justify-center h-full text-center mt-12 animate-fade-in">
-            <div className="relative mb-6">
-              <div className="p-6 bg-gradient-to-br from-slate-800/60 to-slate-700/40 rounded-2xl border border-slate-600/50 shadow-2xl backdrop-blur-sm">
-                <Sparkles className="w-10 h-10 text-[#23b5b5]" />
-              </div>
-            </div>
-            <h3 className="text-xl font-semibold text-white mb-3 tracking-tight">
-              Ready to assist you
+          <div className="flex flex-col items-center justify-center h-full text-center mt-20">
+            <h3 className="text-lg font-medium text-gray-200 mb-2">
+              Hello! How can I help you today?
             </h3>
-            <p className="text-slate-400 text-sm max-w-sm leading-relaxed">
-              I'm here to help! Ask me anything and let's start an engaging
-              conversation.
+            <p className="text-gray-500 text-sm max-w-sm leading-relaxed">
+              Start a conversation and I’ll do my best to assist you.
             </p>
           </div>
         )}
 
+        {/* Messages */}
         {messages.map((msg, index) => (
           <div
             key={index}
-            className={`group transform transition-all duration-500 ease-out ${
-              msg.sender === "user" ? "self-end" : "self-start"
-            } max-w-[85%] animate-slide-in`}
-            style={{ animationDelay: `${index * 0.1}s` }}
+            className={`flex w-full gap-2 ${
+              msg.sender === "user" ? "justify-end" : "justify-start"
+            }`}
           >
-            <div
-              className={`relative px-6 py-4 rounded-2xl text-sm break-words whitespace-pre-wrap backdrop-blur-sm shadow-xl border transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] ${
-                msg.isError
-                  ? "border-red-500/50 bg-gradient-to-br from-red-500/20 to-red-600/10 text-red-200 shadow-red-500/20"
-                  : msg.sender === "user"
-                  ? "bg-gradient-to-br from-cyan-500/25 to-cyan-600/15 border-cyan-500/40 text-white shadow-cyan-500/20"
-                  : "bg-gradient-to-br from-sky-500/25 to-sky-600/15 border-sky-500/40 text-white shadow-sky-500/20"
-              }`}
-              style={{
-                wordBreak: "break-word",
-              }}
-            >
-              {/* Message Header for Bot Messages */}
-              {msg.sender === "bot" && (
-                <div className="flex items-center justify-between  pb-2 border-b border-gray-700/30">
-                  <div className="flex items-center gap-2">
-                    <div className="p-1 bg-gradient-to-br from-sky-500/20 to-sky-600/10 rounded-lg">
-                      <Bot className="w-3 h-3 text-sky-400" />
-                    </div>
-                    <span className="text-sky-400 text-xs font-semibold tracking-wide">
-                      AI ASSISTANT
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => copyToClipboard(msg.text, index)}
-                    className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-cyan-400 rounded-md transition-all duration-200 hover:bg-cyan-500/10"
-                    title="Copy message"
-                  >
-                    {copiedIndex === index ? (
-                      <Check className="w-3 h-3" />
-                    ) : (
-                      <Copy className="w-3 h-3" />
-                    )}
-                  </button>
-                </div>
-              )}
-
-              {/* User Message Header */}
-              {msg.sender === "user" && (
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="p-1 bg-gradient-to-br from-cyan-500/20 to-cyan-400/10 rounded-lg">
-                    <User className="w-3 h-3 text-cyan-400" />
-                  </div>
-                  <span className="text-cyan-400 text-xs font-semibold tracking-wide">
-                    YOU
-                  </span>
-                </div>
-              )}
-
-              {/* Message Content */}
+            <div className="flex flex-col max-w-[80%]">
+              {/* Message Bubble */}
               <div
+                className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+                  msg.sender === "user"
+                    ? "bg-[#2a2a2a] text-gray-100"
+                    : "bg-[#1a1a1a] text-gray-200"
+                }`}
                 dangerouslySetInnerHTML={{
                   __html:
                     msg.sender === "bot" ? formatText(msg.text) : msg.text,
                 }}
                 style={{
-                  lineHeight: "1.6",
                   whiteSpace: "pre-wrap",
                   wordWrap: "break-word",
                 }}
               />
 
-              {/* Message Glow Effect */}
-              <div
-                className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none ${
-                  msg.isError
-                    ? "bg-gradient-to-br from-red-500/10 to-transparent"
-                    : msg.sender === "user"
-                    ? "bg-gradient-to-br from-cyan-400/10 to-transparent"
-                    : "bg-gradient-to-br from-gray-400/5 to-transparent"
-                }`}
-              ></div>
+              {/* Copy Button for Bot Messages */}
+              {msg.sender === "bot" && (
+                <button
+                  onClick={() => copyToClipboard(msg.text, index)}
+                  className="self-start flex items-center gap-1 text-xs text-gray-400 mt-1 ml-2 hover:text-gray-200 transition-colors"
+                >
+                  {copiedIndex === index ? (
+                    <>
+                      <FiCheck className="text-green-400" /> Copied
+                    </>
+                  ) : (
+                    <>
+                      <FiCopy />
+                    </>
+                  )}
+                </button>
+              )}
             </div>
           </div>
         ))}
 
-        {/* Enhanced Typing Indicator */}
+        {/* Typing Indicator */}
         {isTyping && (
-          <div className="self-start max-w-[85%] animate-fade-in">
-            <div className="px-6 py-4 rounded-2xl bg-gradient-to-br from-gray-900/90 to-gray-800/70 border border-gray-700/60 backdrop-blur-sm shadow-xl">
-              <div className="flex items-center gap-4">
-                <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 rounded-lg">
-                  <Bot className="w-4 h-4 text-cyan-400" />
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="flex space-x-2">
-                    <div className="w-2.5 h-2.5 bg-gradient-to-r from-cyan-400 to-cyan-500 rounded-full animate-bounce shadow-sm shadow-cyan-400/50"></div>
-                    <div
-                      className="w-2.5 h-2.5 bg-gradient-to-r from-cyan-400 to-cyan-500 rounded-full animate-bounce shadow-sm shadow-cyan-400/50"
-                      style={{ animationDelay: "150ms" }}
-                    ></div>
-                    <div
-                      className="w-2.5 h-2.5 bg-gradient-to-r from-cyan-400 to-cyan-500 rounded-full animate-bounce shadow-sm shadow-cyan-400/50"
-                      style={{ animationDelay: "300ms" }}
-                    ></div>
-                  </div>
-                  <span className="text-gray-300 text-sm font-medium">
-                    AI is thinking...
-                  </span>
-                </div>
-              </div>
-            </div>
+          <div className="flex items-center gap-2 mt-2">
+            <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce"></div>
+            <div
+              className="w-2 h-2 rounded-full bg-gray-400 animate-bounce"
+              style={{ animationDelay: "150ms" }}
+            ></div>
+            <div
+              className="w-2 h-2 rounded-full bg-gray-400 animate-bounce"
+              style={{ animationDelay: "300ms" }}
+            ></div>
           </div>
         )}
       </div>
@@ -305,6 +230,19 @@ function ChatContainer({
             opacity: 1;
             transform: translateY(0);
           }
+        }
+
+        @keyframes shimmer {
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(200%);
+          }
+        }
+
+        .animate-shimmer {
+          animation: shimmer 2s ease-in-out infinite;
         }
 
         @keyframes slide-in {
