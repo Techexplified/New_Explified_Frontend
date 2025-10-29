@@ -1,7 +1,18 @@
 import { SiOpenai, SiGooglegemini, SiPerplexity } from "react-icons/si";
 import { GiDragonHead } from "react-icons/gi";
+import { FaBrain } from "react-icons/fa";
 
 export const aiModelDetails = [
+  {
+    id: "explii",
+    name: "Explii",
+    desc: "Your personal intelligent AI model",
+    dropdown: ["Explii Core", "Explii Turbo", "Explii Vision"],
+    current: "Explii Core",
+    icon: <FaBrain className="text-purple-500" size={22} />,
+    locked: false,
+    active: true, // default active model
+  },
   {
     id: "openai",
     name: "ChatGPT",

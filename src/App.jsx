@@ -456,7 +456,7 @@ function App() {
         {/* <Route path="/expli" element={<Trone />}>
           <Route index element={<ChatPanel />} />
           <Route path="discover" element={<DiscoverPage />} />
-          <Route path="discover/:newsTitle" element={<NewsPage />} />
+          <Route path="/discover/:newsTitle" element={<NewsPage />} />
         </Route> */}
 
         {/* Tools Page */}

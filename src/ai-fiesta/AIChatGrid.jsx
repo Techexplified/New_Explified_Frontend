@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+// AIChatApp.jsx
+import React, { useEffect, useState, useCallback } from "react";
 import Sidebar from "./Sidebar";
 import ChatGrid from "./chat/ChatGrid";
 import ModelPreferencesModal from "./ModelPreferencesModal";
 import SettingsModal from "./SettingsModal";
+import Discover from "./Discover";
+
 import { aiModelDetails } from "./aiModelDetails";
 
 export default function AIChatApp() {
@@ -10,9 +13,10 @@ export default function AIChatApp() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [chats, setChats] = useState([]);
   const [activeChatId, setActiveChatId] = useState(null);
+  const [activeSection, setActiveSection] = useState("home"); // "home" | "discover" | "integrate"
 
-  // Create a new chat — now each model has enabled: true by default
-  const handleNewChat = () => {
+  // Create a new blank chat (all models default enabled true)
+  const handleNewChat = useCallback((presetModelId = null) => {
     const newChat = {
       id: Date.now(),
       title: `Chat ${chats.length + 1}`,
@@ -20,7 +24,7 @@ export default function AIChatApp() {
         id: m.id,
         name: m.name,
         icon: m.icon,
-        enabled: true, // <-- default enabled
+        enabled: presetModelId ? m.id === presetModelId : true,
         messages: [
           { role: "bot", text: `👋 Hi, I’m ${m.name}. How can I assist you?` },
         ],
@@ -28,54 +32,45 @@ export default function AIChatApp() {
     };
     setChats((prev) => [...prev, newChat]);
     setActiveChatId(newChat.id);
+    setActiveSection("home");
+  }, [chats.length]);
+
+  // Select chat
+  const handleSelectChat = (id) => {
+    setActiveChatId(id);
+    setActiveSection("home");
   };
 
-  // Select a chat
-  const handleSelectChat = (id) => setActiveChatId(id);
-
-  // Delete a chat
+  // Delete chat
   const handleDeleteChat = (id) => {
     setChats((prev) => prev.filter((c) => c.id !== id));
     if (activeChatId === id) setActiveChatId(null);
   };
 
-  // Toggle model enabled/disabled inside a chat
+  // Toggle model enabled/disabled in a specific chat
   const handleToggleModelEnabled = (chatId, modelId) => {
     setChats((prev) =>
-      prev.map((chat) => {
-        if (chat.id !== chatId) return chat;
-        return {
-          ...chat,
-          models: chat.models.map((m) =>
-            m.id === modelId ? { ...m, enabled: !m.enabled } : m
-          ),
-        };
-      })
+      prev.map((chat) =>
+        chat.id === chatId
+          ? { ...chat, models: chat.models.map((m) => (m.id === modelId ? { ...m, enabled: !m.enabled } : m)) }
+          : chat
+      )
     );
   };
 
   // Send message -> only enabled models will respond
   const handleSendMessage = (text) => {
     if (!activeChatId || !text?.trim()) return;
-
     setChats((prevChats) =>
       prevChats.map((chat) => {
         if (chat.id !== activeChatId) return chat;
-
         return {
           ...chat,
           models: chat.models.map((model) => {
-            // Always append user's message to each model's message stream
             const updatedMessages = [...model.messages, { role: "user", text }];
-
-            // If model is enabled -> append bot reply, otherwise don't
             if (model.enabled) {
-              updatedMessages.push({
-                role: "bot",
-                text: getRandomResponse(model.name),
-              });
+              updatedMessages.push({ role: "bot", text: getRandomResponse(model.name) });
             }
-
             return { ...model, messages: updatedMessages };
           }),
         };
@@ -83,7 +78,7 @@ export default function AIChatApp() {
     );
   };
 
-  // Mock AI replies
+  // Small mocked responses for UI
   const getRandomResponse = (modelName) => {
     const replies = [
       `Here’s something interesting from ${modelName}.`,
@@ -97,29 +92,60 @@ export default function AIChatApp() {
 
   const activeChat = chats.find((c) => c.id === activeChatId);
 
+  // Keyboard shortcut: Ctrl+T to start a new chat
+  useEffect(() => {
+    const handler = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "t") {
+        e.preventDefault();
+        handleNewChat();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [handleNewChat]);
+
   return (
-    <div className="flex h-screen bg-gray-950 text-white">
+    <div className="flex h-screen bg-[#0E0E0E] text-white">
       <Sidebar
         setModalOpen={setModalOpen}
         setSettingsOpen={setSettingsOpen}
-        onNewChat={handleNewChat}
-        onSelectChat={handleSelectChat}
-        onDeleteChat={handleDeleteChat}
+        onNewChat={() => handleNewChat()}
+        onSelectChat={(id) => handleSelectChat(id)}
+        onDeleteChat={(id) => handleDeleteChat(id)}
         chats={chats}
+        activeSection={activeSection}
+        setActiveSection={setActiveSection}
       />
 
-      <ChatGrid
-        chat={activeChat}
-        onSendMessage={handleSendMessage}
-        onToggleModelEnabled={(modelId) =>
-          handleToggleModelEnabled(activeChatId, modelId)
-        }
-      />
+      <main className="flex-1 overflow-hidden">
+        {/* Section switching */}
+        {activeSection === "home" && (
+          <ChatGrid
+            chat={activeChat}
+            onSendMessage={handleSendMessage}
+            onToggleModelEnabled={(modelId) => handleToggleModelEnabled(activeChatId, modelId)}
+            onNewChat={() => handleNewChat()}
+            chats={chats}
+            onSelectChat={handleSelectChat}
+          />
+        )}
+
+        {activeSection === "discover" && (
+          <Discover
+            models={aiModelDetails.slice(0, 6)} // pass models to show
+            onTryModel={(modelId) => handleNewChat(modelId)}
+          />
+        )}
+
+        {activeSection === "integrate" && <IntegrateGrid />}
+      </main>
 
       <ModelPreferencesModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
+        // keep your prior onUpdateModels behaviour if needed
         onUpdateModels={(enabledModels) => {
+          // replace models inside every chat with enabledModels set
           setChats((prev) =>
             prev.map((chat) => ({
               ...chat,
@@ -128,22 +154,14 @@ export default function AIChatApp() {
                 name: m.name,
                 icon: m.icon,
                 enabled: true,
-                messages: [
-                  {
-                    role: "bot",
-                    text: `👋 Hi, I’m ${m.name}. How can I assist you?`,
-                  },
-                ],
+                messages: [{ role: "bot", text: `👋 Hi, I’m ${m.name}. How can I assist you?` }],
               })),
             }))
           );
         }}
       />
 
-      <SettingsModal
-        open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-      />
+      <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
   );
 }

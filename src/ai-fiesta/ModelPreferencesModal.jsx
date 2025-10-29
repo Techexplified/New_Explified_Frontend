@@ -7,7 +7,7 @@ export default function ModelPreferencesModal({ open, onClose, onUpdateModels })
   const [modelStates, setModelStates] = useState(
     aiModelDetails.map((m) => ({
       ...m,
-      enabled: m.id === "perplexity" ? true : !m.locked,
+      enabled: m.id === "explii" ? true : m.id === "perplexity" ? true : !m.locked,
     }))
   );
 
@@ -25,7 +25,7 @@ export default function ModelPreferencesModal({ open, onClose, onUpdateModels })
     setApiKeys(keys);
   }, []);
 
-  // Key validation (Gemini-specific)
+  // Validate API key (for Gemini + general check)
   function validateKey(modelId, key) {
     if (modelId === "gemini") return /^AIza[0-9A-Za-z\-_]{35}$/.test(key);
     return key.length > 10;
@@ -82,7 +82,6 @@ export default function ModelPreferencesModal({ open, onClose, onUpdateModels })
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          {/* Modal Container */}
           <motion.div
             className="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6 overflow-hidden"
             initial={{ scale: 0.97, opacity: 0 }}
@@ -90,7 +89,6 @@ export default function ModelPreferencesModal({ open, onClose, onUpdateModels })
             exit={{ scale: 0.97, opacity: 0 }}
             transition={{ type: "spring", damping: 22, stiffness: 280 }}
           >
-            {/* Close */}
             <button
               className="absolute right-4 top-3 text-gray-400 hover:text-red-500 font-bold text-xl"
               onClick={onClose}
@@ -99,10 +97,10 @@ export default function ModelPreferencesModal({ open, onClose, onUpdateModels })
             </button>
 
             <h2 className="font-bold text-2xl mb-1 text-gray-900">
-              Customize your chat AI model preferences
+              Explii – Model Preferences
             </h2>
             <p className="text-gray-500 text-sm mb-4">
-              Easily update your selections anytime in the settings.
+              Manage API keys, model versions, and active AI models.
             </p>
 
             {/* Model List */}
@@ -122,9 +120,7 @@ export default function ModelPreferencesModal({ open, onClose, onUpdateModels })
                   </div>
 
                   <div className="flex flex-col flex-1">
-                    <span className="font-semibold text-gray-900 text-sm">
-                      {m.name}
-                    </span>
+                    <span className="font-semibold text-gray-900 text-sm">{m.name}</span>
                     <span className="text-xs text-gray-500">{m.desc}</span>
                   </div>
 
@@ -165,7 +161,6 @@ export default function ModelPreferencesModal({ open, onClose, onUpdateModels })
               ))}
             </div>
 
-            {/* Update Preferences Button */}
             <button
               onClick={handleUpdate}
               className="w-full mt-5 py-2 bg-black text-white rounded-xl font-semibold hover:bg-gray-800 transition shadow"
@@ -184,7 +179,7 @@ export default function ModelPreferencesModal({ open, onClose, onUpdateModels })
               </div>
             </div>
 
-            {/* 🔒 Centered API Key Panel */}
+            {/* 🔑 API Key Panel */}
             <AnimatePresence>
               {selectedModel && (
                 <motion.div
@@ -198,7 +193,7 @@ export default function ModelPreferencesModal({ open, onClose, onUpdateModels })
                       ? "bg-[#0E0E0E] text-white"
                       : "bg-[#1A1A1A] text-gray-200"
                   } shadow-2xl rounded-l-2xl py-3 px-5 flex flex-col justify-center z-50`}
-                > 
+                >
                   <h3 className="text-lg font-semibold mb-3">
                     {selectedModel.name} API Settings
                   </h3>

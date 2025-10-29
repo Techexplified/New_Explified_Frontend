@@ -9,12 +9,12 @@ export default function ChatInput({ onSend, onAttach, onImageUpload, onDeepSearc
   const fileInputRef = useRef(null);
   const imageInputRef = useRef(null);
 
-  // Auto-expand textarea height
+  // Auto-grow textarea height but limit max height
   useEffect(() => {
     const el = textareaRef.current;
     if (el) {
       el.style.height = "auto";
-      el.style.height = el.scrollHeight + "px";
+      el.style.height = Math.min(el.scrollHeight, 200) + "px"; // limit height
     }
   }, [text]);
 
@@ -32,9 +32,8 @@ export default function ChatInput({ onSend, onAttach, onImageUpload, onDeepSearc
   };
 
   return (
-    <div className="w-full bg-[#0E0E0E] border-t border-[#1E1E1E] flex justify-center py-4 px-3">
-      <div className="relative w-full max-w-4xl bg-[#1A1A1A] rounded-3xl flex items-center px-5 py-3 shadow-[0_0_10px_rgba(0,0,0,0.5)] border border-[#2A2A2A] hover:border-[#23B5B5]/40 transition-all duration-200">
-        
+    <div className="w-full flex justify-center py-4 px-3 border-t border-[#1E1E1E] bg-[#0E0E0E]">
+      <div className="relative w-full max-w-4xl bg-[#1A1A1A] rounded-3xl flex items-end px-5 py-3 border border-[#2A2A2A] shadow-[0_0_10px_rgba(0,0,0,0.5)] hover:border-[#23B5B5]/40 transition-all duration-200">
         {/* Textarea */}
         <textarea
           ref={textareaRef}
@@ -43,13 +42,11 @@ export default function ChatInput({ onSend, onAttach, onImageUpload, onDeepSearc
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="flex-1 resize-none overflow-hidden bg-transparent text-gray-100 placeholder-gray-500 text-[15px] focus:outline-none pr-24"
+          className="flex-1 resize-none overflow-y-auto bg-transparent text-gray-100 placeholder-gray-500 text-[15px] focus:outline-none pr-24 max-h-[200px]"
         />
 
-        {/* Right section — inside the same input box */}
+        {/* Buttons */}
         <div className="absolute right-4 bottom-3 flex items-center gap-2">
-
-          {/* + icon (toggle options) */}
           <div className="relative">
             <button
               onClick={() => setMenuOpen((v) => !v)}
@@ -58,7 +55,6 @@ export default function ChatInput({ onSend, onAttach, onImageUpload, onDeepSearc
               <Plus size={18} className="text-gray-300" />
             </button>
 
-            {/* Dropdown Menu */}
             <AnimatePresence>
               {menuOpen && (
                 <motion.div
@@ -114,7 +110,6 @@ export default function ChatInput({ onSend, onAttach, onImageUpload, onDeepSearc
             </AnimatePresence>
           </div>
 
-          {/* Mic button */}
           <button
             onClick={handleSend}
             className="flex items-center justify-center bg-[#2A2A2A] text-gray-300 hover:text-[#23B5B5] rounded-full w-8 h-8 transition"
