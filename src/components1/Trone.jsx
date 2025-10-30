@@ -39,7 +39,7 @@ function Trone() {
       {/* <Outlet /> */}
       <Outlet />
 
-      <ExpliIntegration />
+      {/* <ExpliIntegration /> */}
       {/* Advanced Animation Styles */}
       <style jsx>{`
         @keyframes float-slow {

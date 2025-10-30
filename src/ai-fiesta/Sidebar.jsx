@@ -87,11 +87,11 @@ export default function Sidebar({
             />
           ))}
 
-           <SidebarItem
-          icon={FaPuzzlePiece}
-          label="Integrate"
-          onClick={() => setModalOpen(true)}
-        />
+          <SidebarItem
+            icon={FaPuzzlePiece}
+            label="Integrate"
+            onClick={() => setModalOpen(true)}
+          />
         </div>
 
         {/* tools popover */}

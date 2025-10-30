@@ -3,17 +3,47 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FaLock } from "react-icons/fa";
 import { aiModelDetails } from "./aiModelDetails";
 
-export default function ModelPreferencesModal({ open, onClose, onUpdateModels }) {
-  const [modelStates, setModelStates] = useState(
+export default function ModelPreferencesModal({
+  open,
+  onClose,
+  onUpdateModels, // optional callback
+  globalModelEnabled, // expected shape: { [modelId]: boolean }
+  setGlobalModelEnabled, // updater: (fnOrObj) => void
+}) {
+  const [modelStates, setModelStates] = useState(() =>
     aiModelDetails.map((m) => ({
       ...m,
-      enabled: m.id === "explii" ? true : m.id === "perplexity" ? true : !m.locked,
+      // fallback: if globalModelEnabled not provided, use defaults
+      enabled:
+        globalModelEnabled && globalModelEnabled[m.id] !== undefined
+          ? globalModelEnabled[m.id]
+          : m.id === "explii"
+          ? true
+          : m.id === "perplexity"
+          ? true
+          : !m.locked,
     }))
   );
 
   const [selectedModel, setSelectedModel] = useState(null);
   const [apiKeys, setApiKeys] = useState({});
   const [status, setStatus] = useState(null);
+
+  // Keep local modelStates in sync when globalModelEnabled changes.
+  // This makes the modal reflect changes made elsewhere (e.g., ChatGrid toggles).
+  useEffect(() => {
+    if (!globalModelEnabled) return;
+    setModelStates((prev) =>
+      prev.map((m) => ({
+        ...m,
+        enabled:
+          globalModelEnabled[m.id] !== undefined
+            ? globalModelEnabled[m.id]
+            : m.enabled,
+      }))
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [globalModelEnabled]);
 
   // Load stored API keys
   useEffect(() => {
@@ -25,7 +55,15 @@ export default function ModelPreferencesModal({ open, onClose, onUpdateModels })
     setApiKeys(keys);
   }, []);
 
-  // Validate API key (for Gemini + general check)
+  // Escape key closes side panel
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === "Escape") setSelectedModel(null);
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, []);
+
   function validateKey(modelId, key) {
     if (modelId === "gemini") return /^AIza[0-9A-Za-z\-_]{35}$/.test(key);
     return key.length > 10;
@@ -53,23 +91,51 @@ export default function ModelPreferencesModal({ open, onClose, onUpdateModels })
     );
   }
 
+  // Toggle a model locally AND update the global map so other components see it
   function handleToggle(idx) {
+    const model = modelStates[idx];
+    if (!model) return;
+
+    // Do nothing for locked/perplexity per your original logic
+    if (model.id === "perplexity" || model.locked) return;
+
+    const nextEnabled = !model.enabled;
+
+    // Update global map
+    if (typeof setGlobalModelEnabled === "function") {
+      setGlobalModelEnabled((prev) => {
+        // prev may be undefined if parent doesn't pass it; fallback
+        const base = prev || {};
+        return { ...base, [model.id]: nextEnabled };
+      });
+    }
+
+    // Update local UI immediately
     setModelStates((state) =>
-      state.map((m, i) =>
-        i === idx
-          ? m.id === "perplexity"
-            ? m
-            : m.locked
-            ? m
-            : { ...m, enabled: !m.enabled }
-          : m
-      )
+      state.map((m, i) => (i === idx ? { ...m, enabled: nextEnabled } : m))
     );
   }
 
+  // When user clicks update: propagate local dropdown choices (and also ensure global map
+  // includes the same enabled flags). This keeps old onUpdateModels working if used.
   function handleUpdate() {
-    const enabledModels = modelStates.filter((m) => m.enabled);
-    onUpdateModels(enabledModels);
+    // Build final enabled map from modelStates
+    const enabledMap = modelStates.reduce((acc, m) => {
+      acc[m.id] = !!m.enabled;
+      return acc;
+    }, {});
+
+    // update global state fully (replace or merge)
+    if (typeof setGlobalModelEnabled === "function") {
+      setGlobalModelEnabled((prev) => ({ ...(prev || {}), ...enabledMap }));
+    }
+
+    // call onUpdateModels (existing consumers may expect an array of enabled models)
+    if (typeof onUpdateModels === "function") {
+      const enabledModelsArr = modelStates.filter((m) => m.enabled);
+      onUpdateModels(enabledModelsArr);
+    }
+
     onClose();
   }
 
@@ -120,7 +186,9 @@ export default function ModelPreferencesModal({ open, onClose, onUpdateModels })
                   </div>
 
                   <div className="flex flex-col flex-1">
-                    <span className="font-semibold text-gray-900 text-sm">{m.name}</span>
+                    <span className="font-semibold text-gray-900 text-sm">
+                      {m.name}
+                    </span>
                     <span className="text-xs text-gray-500">{m.desc}</span>
                   </div>
 
@@ -222,7 +290,10 @@ export default function ModelPreferencesModal({ open, onClose, onUpdateModels })
                   <div className="flex justify-between">
                     <button
                       onClick={() =>
-                        handleAddKey(selectedModel.id, apiKeys[selectedModel.id] || "")
+                        handleAddKey(
+                          selectedModel.id,
+                          apiKeys[selectedModel.id] || ""
+                        )
                       }
                       className="px-3 py-1.5 text-sm font-semibold bg-[#23b5b5] text-white rounded-xl hover:bg-[#1a7777] transition"
                     >

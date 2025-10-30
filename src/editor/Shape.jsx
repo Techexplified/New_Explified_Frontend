@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { useStore } from "../store";
+import { nanoid } from "nanoid";
 
 export default function Shape(props) {
   const {
@@ -22,11 +23,36 @@ export default function Shape(props) {
     underline,
     strokeWidth = 2,
     opacity = 1,
+    textAlign = "left",
   } = props;
 
-  // Get text style from global store (only for text type)
-  const textStyle = useStore((s) => s.textStyle) || {};
+  // ✅ Get text style and tool state from global store
+  const { textStyle, selectedTool, addShape, writePosition, notes, setWritePosition, setNotes } =
+    useStore();
 
+  const prevToolRef = useRef(selectedTool);
+
+  // ✅ Handle writing tool logic
+  useEffect(() => {
+    if (prevToolRef.current === "write" && selectedTool !== "write" && writePosition) {
+      const textShape = {
+        id: nanoid(),
+        type: "text",
+        lines: notes,
+        x: writePosition.x,
+        y: writePosition.y,
+        color,
+        fontSize: 16,
+        fontFamily: "monospace",
+      };
+      addShape(textShape);
+      setWritePosition(null);
+      setNotes([""]);
+    }
+    prevToolRef.current = selectedTool;
+  }, [selectedTool, notes, addShape, writePosition, color, setWritePosition, setNotes]);
+
+  // ✅ Render shapes dynamically
   switch (type) {
     case "freehand":
       return (
@@ -121,24 +147,21 @@ export default function Shape(props) {
         <text
           x={x}
           y={y}
+          fill={color}
+          opacity={opacity}
+          fontSize={fontSize}
+          fontFamily={fontFamily}
+          textAnchor={
+            textAlign === "center"
+              ? "middle"
+              : textAlign === "right"
+              ? "end"
+              : "start"
+          }
           style={{
-            fontFamily: fontFamily || textStyle.fontFamily || "Arial",
-            fontSize: fontSize || textStyle.fontSize || 18,
-            fontWeight:
-              bold || textStyle.bold ? "bold" : "normal",
-            fontStyle:
-              italic || textStyle.italic ? "italic" : "normal",
-            textDecoration:
-              underline || textStyle.underline ? "underline" : "none",
-            fill: textStyle.color || "#000000",
-            textAnchor:
-              textStyle.textAlign === "center"
-                ? "middle"
-                : textStyle.textAlign === "right"
-                ? "end"
-                : "start",
-            lineHeight: textStyle.lineHeight || "normal",
-            letterSpacing: textStyle.letterSpacing || "normal",
+            fontWeight: bold ? "bold" : "normal",
+            fontStyle: italic ? "italic" : "normal",
+            textDecoration: underline ? "underline" : "none",
             userSelect: "none",
           }}
         >

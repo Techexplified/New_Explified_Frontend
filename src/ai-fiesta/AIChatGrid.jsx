@@ -14,26 +14,39 @@ export default function AIChatApp() {
   const [chats, setChats] = useState([]);
   const [activeChatId, setActiveChatId] = useState(null);
   const [activeSection, setActiveSection] = useState("home"); // "home" | "discover" | "integrate"
+  // AIChatApp.jsx
+  const [globalModelEnabled, setGlobalModelEnabled] = useState(() => {
+    return aiModelDetails.reduce((acc, m) => {
+      acc[m.id] = !m.locked; // default enabled (except premium)
+      return acc;
+    }, {});
+  });
 
   // Create a new blank chat (all models default enabled true)
-  const handleNewChat = useCallback((presetModelId = null) => {
-    const newChat = {
-      id: Date.now(),
-      title: `Chat ${chats.length + 1}`,
-      models: aiModelDetails.slice(0, 4).map((m) => ({
-        id: m.id,
-        name: m.name,
-        icon: m.icon,
-        enabled: presetModelId ? m.id === presetModelId : true,
-        messages: [
-          { role: "bot", text: `👋 Hi, I’m ${m.name}. How can I assist you?` },
-        ],
-      })),
-    };
-    setChats((prev) => [...prev, newChat]);
-    setActiveChatId(newChat.id);
-    setActiveSection("home");
-  }, [chats.length]);
+  const handleNewChat = useCallback(
+    (presetModelId = null) => {
+      const newChat = {
+        id: Date.now(),
+        title: `Chat ${chats.length + 1}`,
+        models: aiModelDetails.slice(0, 4).map((m) => ({
+          id: m.id,
+          name: m.name,
+          icon: m.icon,
+          enabled: globalModelEnabled[m.id],
+          messages: [
+            {
+              role: "bot",
+              text: `👋 Hi, I’m ${m.name}. How can I assist you?`,
+            },
+          ],
+        })),
+      };
+      setChats((prev) => [...prev, newChat]);
+      setActiveChatId(newChat.id);
+      setActiveSection("home");
+    },
+    [chats.length]
+  );
 
   // Select chat
   const handleSelectChat = (id) => {
@@ -49,12 +62,20 @@ export default function AIChatApp() {
 
   // Toggle model enabled/disabled in a specific chat
   const handleToggleModelEnabled = (chatId, modelId) => {
+    // update global
+    setGlobalModelEnabled((prev) => ({
+      ...prev,
+      [modelId]: !prev[modelId],
+    }));
+
+    // update all chats to remain consistent
     setChats((prev) =>
-      prev.map((chat) =>
-        chat.id === chatId
-          ? { ...chat, models: chat.models.map((m) => (m.id === modelId ? { ...m, enabled: !m.enabled } : m)) }
-          : chat
-      )
+      prev.map((chat) => ({
+        ...chat,
+        models: chat.models.map((m) =>
+          m.id === modelId ? { ...m, enabled: !m.enabled } : m
+        ),
+      }))
     );
   };
 
@@ -69,7 +90,10 @@ export default function AIChatApp() {
           models: chat.models.map((model) => {
             const updatedMessages = [...model.messages, { role: "user", text }];
             if (model.enabled) {
-              updatedMessages.push({ role: "bot", text: getRandomResponse(model.name) });
+              updatedMessages.push({
+                role: "bot",
+                text: getRandomResponse(model.name),
+              });
             }
             return { ...model, messages: updatedMessages };
           }),
@@ -123,7 +147,9 @@ export default function AIChatApp() {
           <ChatGrid
             chat={activeChat}
             onSendMessage={handleSendMessage}
-            onToggleModelEnabled={(modelId) => handleToggleModelEnabled(activeChatId, modelId)}
+            onToggleModelEnabled={(modelId) =>
+              handleToggleModelEnabled(activeChatId, modelId)
+            }
             onNewChat={() => handleNewChat()}
             chats={chats}
             onSelectChat={handleSelectChat}
@@ -154,14 +180,24 @@ export default function AIChatApp() {
                 name: m.name,
                 icon: m.icon,
                 enabled: true,
-                messages: [{ role: "bot", text: `👋 Hi, I’m ${m.name}. How can I assist you?` }],
+                messages: [
+                  {
+                    role: "bot",
+                    text: `👋 Hi, I’m ${m.name}. How can I assist you?`,
+                  },
+                ],
               })),
             }))
           );
         }}
+        globalModelEnabled={globalModelEnabled}
+        setGlobalModelEnabled={setGlobalModelEnabled}
       />
 
-      <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <SettingsModal
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+      />
     </div>
   );
 }
