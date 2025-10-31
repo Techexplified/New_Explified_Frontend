@@ -126,52 +126,56 @@ function IntegrationModal({
       <div
         className={`relative w-full ${
           showProviderHelp ? "max-w-4xl" : "max-w-2xl"
-        } mx-4 bg-gray-900/95 border border-gray-800/50 rounded-xl shadow-2xl p-6`}
+        } mx-4 bg-white border border-gray-200 rounded-xl shadow-2xl p-6`}
       >
         <button
           aria-label="Close"
           onClick={() => setShowIntegrationsModal(false)}
-          className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors duration-200 z-10 p-1"
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200 z-10 p-1"
         >
           <FiX size={24} />
         </button>
 
-        <h3 className="text-white text-2xl font-bold mb-6">Integrations</h3>
+        <h2 className="font-bold text-2xl mb-1 text-gray-900">Integrations</h2>
+        <p className="text-gray-500 text-sm mb-4">
+          Manage API keys, model versions, and active AI models.
+        </p>
 
         {!selectedProviderId && (
           <>
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-4">
               <button
                 onClick={() => setIntegrationTab("my")}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                   integrationTab === "my"
-                    ? "bg-gray-700 text-white border border-gray-600"
-                    : "bg-gray-800/50 text-gray-400 border border-gray-700/50 hover:bg-gray-800 hover:text-gray-300"
+                    ? "bg-gray-200 text-gray-900 border border-gray-300"
+                    : "bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200 hover:text-gray-800"
                 }`}
               >
                 My Keys
               </button>
+
               <button
                 onClick={() => setIntegrationTab("add")}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                   integrationTab === "add"
-                    ? "bg-gray-700 text-white border border-gray-600"
-                    : "bg-gray-800/50 text-gray-400 border border-gray-700/50 hover:bg-gray-800 hover:text-gray-300"
+                    ? "bg-gray-200 text-gray-900 border border-gray-300"
+                    : "bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200 hover:text-gray-800"
                 }`}
               >
                 Add Keys
               </button>
             </div>
 
-            <div className="relative mb-6">
+            <div className="relative mb-4">
               <input
                 type="text"
                 value={integrationSearch}
                 onChange={(e) => setIntegrationSearch(e.target.value)}
                 placeholder="Search integrations..."
-                className="w-full bg-gray-800/50 border border-gray-700/50 rounded-lg pl-4 pr-12 py-3 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-gray-600 transition-all duration-200"
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg pl-4 pr-12 py-3 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300 transition-all duration-200"
               />
-              <FiSearch className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500" />
+              <FiSearch className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
             </div>
 
             <div className="space-y-2">
@@ -188,44 +192,37 @@ function IntegrationModal({
                   <div
                     key={p.id}
                     onClick={() => handleOpenProvider(p.id)}
-                    className="bg-gray-800/30 border border-gray-700/50 rounded-lg p-4 hover:bg-gray-800/50 hover:border-gray-600/50 transition-all duration-300 cursor-pointer group"
+                    className="bg-gray-50 border border-gray-200 rounded-lg p-4 hover:bg-gray-100 hover:border-gray-300 transition-all duration-300 cursor-pointer group"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex items-start gap-4 flex-1">
                         <div className="text-2xl mt-1">{Icon}</div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <h4 className="text-white font-semibold text-sm group-hover:text-gray-100">
+                            <h4 className="text-gray-900 font-semibold text-sm group-hover:text-gray-800">
                               {p.name}
                             </h4>
                             {p.byok && (
-                              <span className="bg-gray-700/50 text-gray-300 text-[10px] px-2 py-0.5 rounded border border-gray-600/50 font-medium">
+                              <span className="bg-gray-200 text-gray-700 text-[10px] px-2 py-0.5 rounded border border-gray-300 font-medium">
                                 BYOK
                               </span>
                             )}
                           </div>
-                          <p className="text-gray-400 text-xs leading-relaxed">
+                          <p className="text-gray-500 text-xs leading-relaxed">
                             {p.description}
                           </p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2 flex-shrink-0">
-                        {/* <select
-                          onClick={(e) => e.stopPropagation()}
-                          className="bg-gray-700/50 border border-gray-600/50 text-gray-300 text-xs px-2 py-1.5 rounded hover:bg-gray-700 transition-colors"
-                        >
-                          <option>Select Model</option>
-                        </select> */}
-
                         {!(p.id === "openai" || p.id === "gemini") && (
                           <button
                             type="button"
                             onClick={(e) => e.stopPropagation()}
-                            className="w-9 h-9 bg-gray-700/50 hover:bg-gray-600/50 border border-gray-600/50 rounded-lg flex items-center justify-center transition-all duration-200"
+                            className="w-9 h-9 bg-gray-200 hover:bg-gray-300 border border-gray-300 rounded-lg flex items-center justify-center transition-all duration-200"
                             title="Premium"
                           >
-                            <Lock className="text-gray-400" size={16} />
+                            <Lock className="text-gray-600" size={16} />
                           </button>
                         )}
 
@@ -240,19 +237,11 @@ function IntegrationModal({
                           }}
                           className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200 border ${
                             hasKey
-                              ? "bg-green-600/20 border-green-600/50 text-green-400 hover:bg-green-600/30"
-                              : "bg-gray-700/50 hover:bg-gray-600/50 border-gray-600/50 text-gray-400"
+                              ? "bg-green-100 border-green-300 text-green-600 hover:bg-green-200"
+                              : "bg-gray-200 hover:bg-gray-300 border-gray-300 text-gray-600"
                           }`}
                           title="Toggle"
                         >
-                          {/* <div
-                            className={`w-4 h-4 rounded-full border-2 ${
-                              hasKey
-                                ? "bg-green-500 border-green-500"
-                                : "border-gray-500"
-                            }`}
-                          /> */}
-
                           <Plus size={15} />
                         </button>
 
@@ -263,7 +252,7 @@ function IntegrationModal({
                               e.stopPropagation();
                               handleRemoveProvider(p.id);
                             }}
-                            className="w-7 h-7 bg-red-600/20 hover:bg-red-600/30 border border-red-600/50 rounded-lg flex items-center justify-center text-red-400 transition-all duration-200"
+                            className="w-7 h-7 bg-red-100 hover:bg-red-200 border border-red-300 rounded-lg flex items-center justify-center text-red-600 transition-all duration-200"
                           >
                             <X size={15} />
                           </button>
@@ -287,29 +276,29 @@ function IntegrationModal({
               return (
                 <div>
                   <button
-                    className="text-sm text-gray-400 hover:text-white mb-6 flex items-center gap-2 transition-colors duration-200"
+                    className="text-sm text-gray-500 hover:text-gray-700 mb-6 flex items-center gap-2 transition-colors duration-200"
                     onClick={() => setSelectedProviderId(null)}
                   >
                     ← Back to Integrations
                   </button>
 
-                  <div className="flex items-center gap-4 mb-6 p-4 bg-gray-800/30 rounded-lg border border-gray-700/50">
+                  <div className="flex items-center gap-4 mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
                     {Icon && (
-                      <div className="w-12 h-12 bg-gray-700/50 border border-gray-600/50 rounded-lg flex items-center justify-center text-2xl">
+                      <div className="w-12 h-12 bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center text-2xl">
                         {Icon}
                       </div>
                     )}
                     <div>
-                      <h4 className="text-white text-lg font-semibold">
+                      <h4 className="text-gray-900 text-lg font-semibold">
                         {provider?.name}
                       </h4>
-                      <p className="text-gray-400 text-sm">
+                      <p className="text-gray-600 text-sm">
                         Configure your API key
                       </p>
                     </div>
                   </div>
 
-                  <label className="block text-sm text-gray-300 mb-2 font-medium">
+                  <label className="block text-sm text-gray-700 mb-2 font-medium">
                     API Key
                   </label>
                   <input
@@ -317,13 +306,13 @@ function IntegrationModal({
                     value={selectedProviderKey}
                     onChange={(e) => setSelectedProviderKey(e.target.value)}
                     placeholder={`Enter ${provider?.name} API key`}
-                    className="w-full bg-gray-800/30 border border-gray-700/50 rounded-lg px-4 py-3 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-gray-600 transition-all duration-200"
+                    className="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-3 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300 transition-all duration-200"
                   />
 
                   <div className="mt-4 flex items-center justify-between">
                     <button
                       type="button"
-                      className="flex items-center gap-2 text-sm text-gray-400 hover:text-gray-300 transition-colors duration-200"
+                      className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 transition-colors duration-200"
                       onClick={() => setShowProviderHelp((v) => !v)}
                       aria-expanded={showProviderHelp}
                     >
@@ -345,18 +334,19 @@ function IntegrationModal({
                     }`}
                     aria-hidden={!showProviderHelp}
                   >
-                    <div className="border border-gray-700/50 rounded-lg p-4 bg-gray-800/30">
+                    <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
                       <div className="flex items-center gap-3 mb-4">
                         {Icon && (
-                          <div className="w-8 h-8 bg-gray-700/50 border border-gray-600/50 rounded-lg flex items-center justify-center text-lg">
+                          <div className="w-8 h-8 bg-gray-100 border border-gray-200 rounded-lg flex items-center justify-center text-lg">
                             {Icon}
                           </div>
                         )}
-                        <h5 className="text-white text-base font-semibold">
+                        <h5 className="text-gray-800 text-base font-semibold">
                           How to get a key for {provider?.name}
                         </h5>
                       </div>
-                      <ol className="list-decimal list-inside text-sm text-gray-300 space-y-3 mb-4">
+
+                      <ol className="list-decimal list-inside text-sm text-gray-700 space-y-3 mb-4">
                         {(PROVIDER_HELP_STEPS[selectedProviderId] || []).map(
                           (step, idx) => (
                             <li key={idx} className="leading-relaxed">
@@ -365,12 +355,12 @@ function IntegrationModal({
                           )
                         )}
                       </ol>
-                      <div className="pt-3 border-t border-gray-700/50">
+                      <div className="pt-3 border-t border-gray-200">
                         <a
                           href={PROVIDER_DOC_URL[selectedProviderId]}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-sm text-gray-400 hover:text-gray-300 transition-colors duration-200 flex items-center gap-1"
+                          className="text-sm text-gray-500 hover:text-gray-700 transition-colors duration-200 flex items-center gap-1"
                         >
                           Open official documentation →
                         </a>
@@ -380,7 +370,7 @@ function IntegrationModal({
 
                   <div className="mt-6 flex justify-end gap-3">
                     <button
-                      className="px-4 py-2 rounded-lg bg-gray-800/50 border border-gray-700/50 text-gray-300 hover:bg-gray-800/80 hover:text-white transition-all duration-200"
+                      className="px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition-all duration-200"
                       onClick={() =>
                         handleSaveProviderKey(selectedProviderId, false)
                       }
@@ -388,7 +378,7 @@ function IntegrationModal({
                       Save
                     </button>
                     <button
-                      className="px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white hover:bg-gray-600 transition-all duration-200"
+                      className="px-4 py-2 rounded-lg bg-gray-200 border border-gray-300 text-gray-900 hover:bg-gray-300 transition-all duration-200"
                       onClick={() => {
                         handleSaveProviderKey(selectedProviderId, true);
                       }}

@@ -9,6 +9,8 @@ import CohereLogo from "../../assets/logos/cohere-color.png";
 import MistralLogo from "../../assets/logos/mistral-color.png";
 import Google from "../../assets/logos/google.png";
 import Anthropic from "../../assets/logos/anthropic.png";
+import { SiOpenai } from "react-icons/si";
+import { FiZap } from "react-icons/fi";
 
 export const INTEGRATION_PROVIDERS = [
   {
@@ -24,8 +26,9 @@ export const INTEGRATION_PROVIDERS = [
   {
     id: "openai",
     name: "OpenAI",
-    // icon: <AiOutlineOpenAI className="text-white" size={20} />,
-    icon: <img src={ChatGPT} alt="Grok" className="w-6 h-6" />,
+    icon: <SiOpenai className="text-teal-500" size={20} />,
+
+    // icon: <img src={ChatGPT} alt="Grok" className="w-6 h-6" />,
     byok: true,
     description: "OpenAI GPT models for powerful text and chat experiences.",
     apiUrl: "https://api.openai.com/v1/",
@@ -34,8 +37,9 @@ export const INTEGRATION_PROVIDERS = [
   {
     id: "grok",
     name: "Grok",
-    icon: <img src={GrokLogo} alt="Grok" className="w-6 h-6" />,
+    // icon: <img src={GrokLogo} alt="Grok" className="w-6 h-6" />,
     // icon: FiZap,
+    icon: <FiZap className="text-black" size={20} />,
     byok: true,
     description: "xAI Grok models for reasoning and fast responses.",
     apiUrl: "https://api.x.ai/v1/", // xAI Grok API
@@ -44,8 +48,8 @@ export const INTEGRATION_PROVIDERS = [
   {
     id: "anthropic",
     name: "Anthropic",
-    // icon: <RiAnthropicFill className="text-white" size={20} />,
-    icon: <img src={Anthropic} alt="Grok" className="w-6 h-6" />,
+    icon: <RiAnthropicFill className="text-orange-600" size={20} />,
+    // icon: <img src={Anthropic} alt="Grok" className="w-6 h-6" />,
     byok: true,
     description: "Claude models by Anthropic for safe, helpful outputs.",
     apiUrl: "https://api.anthropic.com/v1/",

@@ -1,7 +1,7 @@
 // Sidebar.jsx
-import React from "react";
+import React, { useState } from "react";
 import SidebarItem from "../ai-fiesta/SidebarItem";
-import ChatHistoryPopover from "../ai-fiesta/ChatHistoryPopover";
+import ChatHistoryPopover from "./ChatHistoryPopover";
 import ToolsPopover from "../ai-fiesta/ToolsPopover";
 import {
   FaPlus,
@@ -13,10 +13,11 @@ import {
 } from "react-icons/fa";
 import ExpliIntegration from "./ExpliIntegration";
 import { useNavigate } from "react-router-dom";
+import SettingsModal from "./SettingsModal";
 
-export default function Sidebar({
+export default function ExpliSidebar({
   setModalOpen,
-  setSettingsOpen,
+  // setSettingsOpen,
   onNewChat,
   onSelectChat,
   onDeleteChat,
@@ -24,6 +25,7 @@ export default function Sidebar({
   activeSection,
   setActiveSection,
 }) {
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const navigate = useNavigate();
   const sidebarItems = [
     { icon: FaRegCommentDots, label: "Home", section: "home", url: "/expli" },
@@ -58,10 +60,6 @@ export default function Sidebar({
           onMouseLeave={() => setShowHistory(false)}
         >
           <button
-            onClick={() => {
-              setActiveSection("home");
-              onNewChat();
-            }}
             className="mb-2 w-10 h-10 rounded-full flex items-center justify-center bg-[#1b1b1b] text-gray-200 hover:text-white border border-gray-800 hover:border-[#23b5b5]/30 shadow"
             title="New Chat (Ctrl+T)"
           >
@@ -120,15 +118,21 @@ export default function Sidebar({
           <ToolsPopover visible={showTools} />
         </div>
       </div>
+      <div>
+        <div className="flex flex-col items-center gap-4 mb-2">
+          <button
+            className="w-10 h-10 rounded-full flex items-center justify-center bg-[#1b1b1b] border border-gray-700 text-gray-300 hover:text-white"
+            onClick={() => setSettingsOpen(true)}
+          >
+            <span className="font-bold text-lg">G</span>
+          </button>
+          <span className="text-[11px] text-gray-400">Account</span>
 
-      <div className="flex flex-col items-center gap-4 mb-2">
-        <button
-          className="w-10 h-10 rounded-full flex items-center justify-center bg-[#1b1b1b] border border-gray-700 text-gray-300 hover:text-white"
-          onClick={() => setSettingsOpen(true)}
-        >
-          <span className="font-bold text-lg">G</span>
-        </button>
-        <span className="text-[11px] text-gray-400">Account</span>
+          <SettingsModal
+            open={settingsOpen}
+            onClose={() => setSettingsOpen(false)}
+          />
+        </div>
       </div>
     </aside>
   );

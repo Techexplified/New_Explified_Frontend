@@ -14,6 +14,9 @@ import {
   FaLock,
 } from "react-icons/fa";
 import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { clearUser } from "../utils/auth_slice/UserSlice";
+import { useNavigate } from "react-router-dom";
 
 /* ==============================
    🌙 SETTINGS MODAL (Unified)
@@ -75,6 +78,8 @@ export default function SettingsModal({ open, onClose }) {
    MAIN SETTINGS PANEL
 ----------------------------- */
 function MainSettingsView({ onOpenAccount, onOpenApiKeys }) {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const settings = [
     {
       icon: <FaUserCog className="text-[#23B5B5]" />,
@@ -131,6 +136,11 @@ function MainSettingsView({ onOpenAccount, onOpenApiKeys }) {
 
         <motion.button
           className="w-full flex items-center gap-3 px-3 py-3 rounded-xl bg-[#1C1C1C] text-red-500 font-semibold hover:bg-red-900/20 transition border border-[#2A2A2A]"
+          onClick={() => {
+            dispatch(clearUser());
+            localStorage.removeItem("explified");
+            navigate("/login");
+          }}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
         >
@@ -146,11 +156,7 @@ function MainSettingsView({ onOpenAccount, onOpenApiKeys }) {
    ACCOUNT SETTINGS PANEL
 ----------------------------- */
 function AccountSettingsView({ onBack }) {
-  const [form, setForm] = useState({
-    name: "John Doe",
-    email: "john.doe@example.com",
-    password: "",
-  });
+  const user = useSelector((state) => state.user);
 
   return (
     <motion.div
@@ -173,28 +179,26 @@ function AccountSettingsView({ onBack }) {
       </h2>
 
       <div className="space-y-3">
-        {["name", "email", "password"].map((field) => (
-          <div key={field}>
+        {[
+          { label: "name", value: user?.name || "John Doe" },
+          { label: "email", value: user?.email || "john.doe@example.com" },
+        ].map((field) => (
+          <div key={field.label}>
             <label className="block text-xs font-semibold text-gray-400 mb-1 capitalize">
-              {field}
+              {field.label}
             </label>
-            <input
-              type={field === "password" ? "password" : "text"}
-              value={form[field]}
-              onChange={(e) => setForm({ ...form, [field]: e.target.value })}
-              placeholder={field === "password" ? "••••••••" : ""}
-              className="w-full rounded-lg bg-[#161616] border border-[#1E1E1E] px-3 py-2 text-sm text-gray-100 focus:ring-2 focus:ring-[#23B5B5] outline-none"
-            />
+            <div className="w-full rounded-lg bg-[#161616] border border-[#1E1E1E] px-3 py-2 text-sm text-gray-100">
+              {field.value}
+            </div>
           </div>
         ))}
 
         <motion.button
-          onClick={() => console.log("Updated:", form)}
           className="w-full mt-4 bg-[#23B5B5] text-black font-semibold py-2 rounded-xl hover:bg-[#1CA3A3] transition shadow"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
         >
-          Save Changes
+          Edit Profile
         </motion.button>
       </div>
     </motion.div>
