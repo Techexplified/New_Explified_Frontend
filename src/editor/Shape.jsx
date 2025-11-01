@@ -6,6 +6,7 @@ export default function Shape(props) {
   const {
     type,
     color,
+    fill = "transparent",
     points = [],
     x = 0,
     y = 0,
@@ -26,13 +27,20 @@ export default function Shape(props) {
     textAlign = "left",
   } = props;
 
-  // ✅ Get text style and tool state from global store
-  const { textStyle, selectedTool, addShape, writePosition, notes, setWritePosition, setNotes } =
-    useStore();
+  // ✅ Get store state
+  const {
+    textStyle,
+    selectedTool,
+    addShape,
+    writePosition,
+    notes,
+    setWritePosition,
+    setNotes,
+  } = useStore();
 
   const prevToolRef = useRef(selectedTool);
 
-  // ✅ Handle writing tool logic
+  // ✅ Handle writing tool behavior
   useEffect(() => {
     if (prevToolRef.current === "write" && selectedTool !== "write" && writePosition) {
       const textShape = {
@@ -74,9 +82,10 @@ export default function Shape(props) {
           y={y}
           width={width}
           height={height}
-          fill="none"
+          fill={fill}
           stroke={color}
           strokeWidth={strokeWidth}
+          opacity={opacity}
         />
       );
 
@@ -87,9 +96,10 @@ export default function Shape(props) {
           y={y}
           width={size}
           height={size}
-          fill="none"
+          fill={fill}
           stroke={color}
           strokeWidth={strokeWidth}
+          opacity={opacity}
         />
       );
 
@@ -99,9 +109,10 @@ export default function Shape(props) {
           cx={x}
           cy={y}
           r={radius}
-          fill="none"
+          fill={fill}
           stroke={color}
           strokeWidth={strokeWidth}
+          opacity={opacity}
         />
       );
 
@@ -112,9 +123,10 @@ export default function Shape(props) {
           cy={y}
           rx={rx}
           ry={ry}
-          fill="none"
+          fill={fill}
           stroke={color}
           strokeWidth={strokeWidth}
+          opacity={opacity}
         />
       );
 
@@ -127,6 +139,7 @@ export default function Shape(props) {
           y2={points[1]?.y}
           stroke={color}
           strokeWidth={strokeWidth}
+          opacity={opacity}
         />
       );
 
@@ -136,9 +149,10 @@ export default function Shape(props) {
       return (
         <polygon
           points={points.map((p) => `${p.x},${p.y}`).join(" ")}
-          fill="none"
+          fill={fill}
           stroke={color}
           strokeWidth={strokeWidth}
+          opacity={opacity}
         />
       );
 

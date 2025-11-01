@@ -70,22 +70,38 @@ export default function Toolbar() {
 
   const handleToolSelect = (toolId) => {
     setOpenMenu(null);
+    
+    if (toolId === "hand") {
+      setTool("pan");
+      return;
+    }
     setTool(toolId);
-
     // shape mapping logic
     if (["square", "diamond", "circle", "arrow", "line"].includes(toolId)) {
-      setShapeType(toolId);
-    }
+    setTool("shape");
+    setShapeType(toolId); // store which shape is selected
+   
+  }
+
 
     // open special menus
-    if (toolId === "pencil") {
+   else if (toolId === "pencil") {
       setOpenMenu("freehand");
       setTool("freehand");
     } else if (toolId === "sticky") {
       setOpenMenu("sticky");
-    } else if (toolId === "shapes") {
-      setOpenMenu("shapes");
-    }
+    } 
+    else if (toolId === "image") {
+  setOpenMenu(null);
+  setTool("image");
+}
+
+else if (toolId === "sticky") {
+  setOpenMenu("sticky"); // floating mini menu (optional)
+  setTool("sticky");      // this ensures RightSidebar opens for sticky notes
+}
+
+
   };
 
   return (
@@ -121,33 +137,8 @@ export default function Toolbar() {
                 )}
               </button>
 
-              {/* ===== Sticky Notes ===== */}
-              {openMenu === "sticky" && tool.id === "sticky" && (
-                <div className="absolute left-[55px] top-0 flex flex-col gap-2 bg-white border border-gray-200 rounded-lg p-2 shadow-md">
-                  {["#fae316", "#054098", "#b62005", "#069714", "#ffd180", "#cb0bec"].map(
-                    (color) => (
-                      <div
-                        key={color}
-                        className="w-6 h-6 rounded-md cursor-pointer border border-gray-200"
-                        style={{ backgroundColor: color }}
-                        onClick={() => {
-                          addShape({
-                            id: nanoid(),
-                            type: "sticky",
-                            text: "Write here...",
-                            x: 150,
-                            y: 150,
-                            width: 200,
-                            height: 150,
-                            color,
-                          });
-                          setOpenMenu(null);
-                        }}
-                      />
-                    )
-                  )}
-                </div>
-              )}
+       
+
             </div>
           </React.Fragment>
         ))}

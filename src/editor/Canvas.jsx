@@ -15,7 +15,8 @@ const Canvas = forwardRef((_, ref) => {
   const freehandColor = useStore((s) => s.freehandColor);
   const freehandStrokeWidth = useStore((s) => s.freehandStrokeWidth);
   const freehandType = useStore((s) => s.freehandType);
-
+  const setTool = useStore((s) => s.setTool);
+  const setSelectedImageId = useStore((s) => s.setSelectedImageId);
   const svgRef = ref || useRef(null);
   const [currentShapeId, setCurrentShapeId] = useState(null);
   const [isPanning, setIsPanning] = useState(false);
@@ -30,6 +31,10 @@ const Canvas = forwardRef((_, ref) => {
   const [textContent, setTextContent] = useState("");
   const [textPos, setTextPos] = useState(null);
   const [caretVisible, setCaretVisible] = useState(true);
+
+  // Sticky note support
+  const selectedShape = useStore((s) => s.selectedShape);
+  const setSelectedShape = useStore((s) => s.setSelectedShape);
 
   // Constants
   const bgColor = "#ffffff";
@@ -118,12 +123,27 @@ const textShape = {
       return;
     }
 
-    // 🖐️ Panning
-    if (selectedTool === "pan" || e.nativeEvent.button === 1) {
-      setIsPanning(true);
-      lastPointer.current = { x: e.clientX, y: e.clientY };
-      return;
-    }
+   // Pointer down
+if (selectedTool === "pan" || e.nativeEvent.button === 1) {
+  setIsPanning(true);
+  lastPointer.current = { x: e.clientX, y: e.clientY };
+  return;
+}
+
+// Pointer move
+if (isPanning) {
+  const dx = e.clientX - lastPointer.current.x;
+  const dy = e.clientY - lastPointer.current.y;
+  lastPointer.current = { x: e.clientX, y: e.clientY };
+  setPan((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
+  return;
+}
+
+// Pointer up
+const handlePointerUp = () => {
+  setIsPanning(false);
+  setCurrentShapeId(null);
+};
 
     // 🖊️ Drawing Tools
     let newShape = null;
@@ -149,9 +169,49 @@ const textShape = {
     strokeWidth: freehandStrokeWidth,
     opacity: freehandOpacity,
   };
+} 
+else if (selectedTool === "shape") {
+  const { shapeType, shapeColor, shapeFill, shapeStrokeWidth, shapeOpacity } =
+    useStore.getState();
+
+  newShape = createShape(shapeType, x, y, {
+    stroke: shapeColor,
+    fill: shapeFill,
+    strokeWidth: shapeStrokeWidth,
+    opacity: shapeOpacity,
+  });
 }
-else if (selectedTool === "shapes") {
-      newShape = createShape("shapes", shapeType, x, y, freehandColor);
+else  if (selectedTool === "sticky") {
+      const sticky = {
+        id: nanoid(),
+        type: "sticky",
+        x,
+        y,
+        width: 150,
+        height: 150,
+        fill: "#fae316",
+        color: "#000000",
+        fontSize: 16,
+        fontFamily: "Arial",
+        text: "Your note here",
+        opacity: 1,
+      };
+      addShape(sticky);
+      setSelectedShape(sticky);
+      setCurrentShapeId(sticky.id);
+      setIsDragging(true);
+      lastPointer.current = { x, y };
+    } else {
+      // select existing sticky if clicked
+      const clicked = shapes.find(
+        (s) => s.type === "sticky" && x >= s.x && x <= s.x + s.width && y >= s.y && y <= s.y + s.height
+      );
+      if (clicked) {
+        setSelectedShape(clicked);
+        setCurrentShapeId(clicked.id);
+        setIsDragging(true);
+        lastPointer.current = { x, y };
+      }
     }
 
     if (newShape) {
@@ -161,27 +221,44 @@ else if (selectedTool === "shapes") {
   };
 
   // handle pointer move
-  const handlePointerMove = (e) => {
-    if (selectedTool === "text") return;
-    const { offsetX, offsetY } = e.nativeEvent;
-    const { x, y } = toCanvasCoords(offsetX, offsetY);
+const handlePointerMove = (e) => {
+  if (selectedTool === "text") return;
 
-    if (isPanning) {
-      const dx = e.clientX - lastPointer.current.x;
-      const dy = e.clientY - lastPointer.current.y;
-      lastPointer.current = { x: e.clientX, y: e.clientY };
-      setPan((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
-      return;
-    }
+  const { offsetX, offsetY } = e.nativeEvent;
+  const { x, y } = toCanvasCoords(offsetX, offsetY);
 
-    if (!currentShapeId) return;
-    updateShape(currentShapeId, (prev) => {
-      if (prev.type === "freehand")
-        return { ...prev, points: [...prev.points, { x, y }] };
-      if (selectedTool === "shapes") return updateShapeDimensions(prev, x, y);
-      return prev;
-    });
-  };
+  // Panning the canvas
+  if (isPanning) {
+    const dx = e.clientX - lastPointer.current.x;
+    const dy = e.clientY - lastPointer.current.y;
+    lastPointer.current = { x: e.clientX, y: e.clientY };
+    setPan((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
+    return;
+  }
+
+  const selectedImageId = useStore.getState().selectedImageId;
+
+  // Dragging the selected image
+  if (selectedTool === "image" && selectedImageId && currentShapeId === selectedImageId) {
+    updateShape(selectedImageId, (prev) => ({
+      ...prev,
+      x: x - dragOffset.current.x,
+      y: y - dragOffset.current.y,
+    }));
+    return;
+  }
+
+  
+
+  // Drawing freehand or shapes
+  if (!currentShapeId) return;
+  updateShape(currentShapeId, (prev) => {
+    if (prev.type === "freehand") return { ...prev, points: [...prev.points, { x, y }] };
+    if (selectedTool === "shape") return updateShapeDimensions(prev, x, y);
+    return prev;
+  });
+};
+
 
   const handlePointerUp = () => {
     setIsPanning(false);
@@ -204,6 +281,27 @@ else if (selectedTool === "shapes") {
     setZoom(newZoom);
   };
 
+   const handleDoubleClick = (e) => {
+    const rect = svgRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const clickedImage = shapes.find(
+      (s) =>
+        s.type === "image" &&
+        x >= s.x &&
+        x <= s.x + s.width &&
+        y >= s.y &&
+        y <= s.y + s.height
+    );
+
+    if (clickedImage) {
+    
+      useStore.getState().setSelectedImageId(clickedImage.id);
+      setTool("image");
+    }
+  };
+
   return (
     <div
       id="canvas-container"
@@ -219,7 +317,7 @@ else if (selectedTool === "shapes") {
           width: "100vw",
           height: "100vh",
           backgroundColor: bgColor,
-          cursor: selectedTool === "text" ? "text" : "crosshair",
+          cursor: selectedTool === "text" ? "text" : selectedTool === "pan" ? "grab" : "crosshair",
         }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}

@@ -128,7 +128,7 @@ export default function TaskManager() {
 
   return (
     <motion.div
-      className="min-h-screen w-full relative bg-[#0b0f10] text-white overflow-hidden"
+      className="min-h-screen pt-7 w-full relative bg-[#0b0f10] text-white overflow-hidden"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
@@ -151,15 +151,7 @@ export default function TaskManager() {
       />
 
       <div className="relative z-10 flex flex-col h-screen p-10 overflow-y-auto custom-scrollbar">
-        {/* Title */}
-        <motion.h1
-          className="text-2xl md:text-3xl font-semibold text-center mb-8 text-slate-300 tracking-wide"
-          initial={{ opacity: 0, y: -15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-        >
-          Your Creative Workspace
-        </motion.h1>
+       
 
         {/* Top Controls */}
         <div className="flex flex-wrap items-center justify-between gap-5 mb-10">
@@ -301,7 +293,7 @@ export default function TaskManager() {
                   >
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-semibold text-white truncate max-w-[70%]">
+                        <h3 className="text-sm font-semibold text-white truncate ">
                           {note.title || "Untitled"}
                         </h3>
                         {activeTab === "sharedFiles" && (

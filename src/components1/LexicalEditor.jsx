@@ -60,7 +60,7 @@ const useStore = create((set, get) => ({
     set((state) => ({ textStyle: { ...state.textStyle, ...partial } })),
   freehandType: "pencil",
   setFreehandType: (fType) => set({ freehandType: fType }),
-   freehandColor: "#23b5b5",
+  freehandColor: "#23b5b5",
   setFreehandColor: (color) => set({ freehandColor: color }),
 }));
 
@@ -211,7 +211,6 @@ function Shape({
             <rect x={x} y={y} width={boxW} height={boxH} />
           </clipPath>
         </defs>
-        
       </g>
     );
   }
@@ -231,7 +230,6 @@ function Canvas() {
   const [history, setHistory] = useState([]);
   const [historyIndex, setHistoryIndex] = useState(0);
 
-
   useEffect(() => {
     const handleScroll = (e) => {
       setFreehandStrokeWidth((prev) =>
@@ -241,7 +239,6 @@ function Canvas() {
     window.addEventListener("wheel", handleScroll);
     return () => window.removeEventListener("wheel", handleScroll);
   }, [setFreehandStrokeWidth]);
-
 
   // Update shapes when historyIndex changes
   useEffect(() => {
@@ -299,7 +296,7 @@ function Canvas() {
   // Expose undo/redo handlers for Toolbar
   Canvas.handleUndo = handleUndo;
   Canvas.handleRedo = handleRedo;
-  
+
   const measureTextWidth = (text, fontSize, fontFamily, bold, italic) => {
     let canvas = measureCanvasRef.current;
     if (!canvas) {
@@ -457,23 +454,23 @@ function Canvas() {
       e.stopPropagation();
       return;
     }
-   if (selectedTool === "freehand") {
-  const strokeW = useStore.getState().freehandStrokeWidth; // use store value directly
-  let opacity = 1;
-  if (freehandType === "brush") {
-    opacity = 0.7;
-  }
-  const newShape = {
-    id: nanoid(),
-    type: "freehand",
-    points: [{ x: offsetX, y: offsetY }],
-    color: freehandColor,
-    strokeWidth: strokeW,
-    opacity: opacity,
-  };
-  addShape(newShape);
-  setCurrentShapeId(newShape.id);
-}
+    if (selectedTool === "freehand") {
+      const strokeW = useStore.getState().freehandStrokeWidth; // use store value directly
+      let opacity = 1;
+      if (freehandType === "brush") {
+        opacity = 0.7;
+      }
+      const newShape = {
+        id: nanoid(),
+        type: "freehand",
+        points: [{ x: offsetX, y: offsetY }],
+        color: freehandColor,
+        strokeWidth: strokeW,
+        opacity: opacity,
+      };
+      addShape(newShape);
+      setCurrentShapeId(newShape.id);
+    }
 
     if (selectedTool === "rectangle") {
       const newShape = {
@@ -521,120 +518,119 @@ function Canvas() {
   };
 
   const handleMouseMove = (e) => {
-  const { offsetX, offsetY } = e.nativeEvent;
+    const { offsetX, offsetY } = e.nativeEvent;
 
-  // Creating new text box by drag
-  if (isCreatingTextBox && currentShapeId) {
+    // Creating new text box by drag
+    if (isCreatingTextBox && currentShapeId) {
+      updateShape(currentShapeId, (prev) => {
+        const newW = Math.max(40, offsetX - prev.x);
+        const maxTextWidth = Math.max(0, newW - 12);
+        const lines = wrapTextToWidth(
+          prev.text || "",
+          maxTextWidth,
+          prev.fontSize,
+          prev.fontFamily,
+          prev.bold,
+          prev.italic
+        );
+        const lineHeight = (prev.fontSize || 16) * 1.2;
+        const newH = Math.max(
+          prev.height || 24,
+          lines.length > 0 ? lineHeight * lines.length + 12 : prev.height
+        );
+        return { width: newW, height: newH };
+      });
+      reflowColumns(currentShapeId);
+      return;
+    }
+
+    if (isResizing && selectedShapeId) {
+      updateShape(selectedShapeId, (prev) => {
+        let nx = prev.x;
+        let ny = prev.y;
+        let nw = prev.width || 0;
+        let nh = prev.height || 24;
+        const minW = 40;
+        const minH = 24;
+
+        if (resizeCorner === "br") {
+          nw = Math.max(minW, offsetX - prev.x);
+          nh = Math.max(minH, offsetY - prev.y);
+        } else if (resizeCorner === "tr") {
+          nw = Math.max(minW, offsetX - prev.x);
+          nh = Math.max(minH, prev.y + (prev.height || 0) - offsetY);
+          ny = Math.min(prev.y + (prev.height || 0) - minH, offsetY);
+        } else if (resizeCorner === "bl") {
+          nw = Math.max(minW, prev.x + (prev.width || 0) - offsetX);
+          nx = Math.min(prev.x + (prev.width || 0) - minW, offsetX);
+          nh = Math.max(minH, offsetY - prev.y);
+        } else if (resizeCorner === "tl") {
+          nw = Math.max(minW, prev.x + (prev.width || 0) - offsetX);
+          nx = Math.min(prev.x + (prev.width || 0) - minW, offsetX);
+          nh = Math.max(minH, prev.y + (prev.height || 0) - offsetY);
+          ny = Math.min(prev.y + (prev.height || 0) - minH, offsetY);
+        }
+
+        // Auto height grow to fit current text
+        const maxTextWidth = Math.max(0, nw - 12);
+        const lines = wrapTextToWidth(
+          prev.text || "",
+          maxTextWidth,
+          prev.fontSize,
+          prev.fontFamily,
+          prev.bold,
+          prev.italic
+        );
+        const lineHeight = (prev.fontSize || 16) * 1.2;
+        const neededH = Math.max(
+          minH,
+          lines.length > 0 ? lineHeight * lines.length + 12 : minH
+        );
+        nh = Math.max(nh, neededH);
+
+        return { x: nx, y: ny, width: nw, height: nh };
+      });
+      reflowColumns(selectedShapeId);
+      return;
+    }
+
+    if (selectedTool === "eraser" && isErasing) {
+      eraseAt(offsetX, offsetY);
+      return;
+    }
+
+    if (isDragging && selectedShapeId) {
+      updateShape(selectedShapeId, (prev) => ({
+        x: offsetX - dragOffset.dx,
+        y: offsetY - dragOffset.dy,
+      }));
+      return;
+    }
+
+    if (!currentShapeId) return;
+
     updateShape(currentShapeId, (prev) => {
-      const newW = Math.max(40, offsetX - prev.x);
-      const maxTextWidth = Math.max(0, newW - 12);
-      const lines = wrapTextToWidth(
-        prev.text || "",
-        maxTextWidth,
-        prev.fontSize,
-        prev.fontFamily,
-        prev.bold,
-        prev.italic
-      );
-      const lineHeight = (prev.fontSize || 16) * 1.2;
-      const newH = Math.max(
-        prev.height || 24,
-        lines.length > 0 ? lineHeight * lines.length + 12 : prev.height
-      );
-      return { width: newW, height: newH };
-    });
-    reflowColumns(currentShapeId);
-    return;
-  }
-
-  if (isResizing && selectedShapeId) {
-    updateShape(selectedShapeId, (prev) => {
-      let nx = prev.x;
-      let ny = prev.y;
-      let nw = prev.width || 0;
-      let nh = prev.height || 24;
-      const minW = 40;
-      const minH = 24;
-
-      if (resizeCorner === "br") {
-        nw = Math.max(minW, offsetX - prev.x);
-        nh = Math.max(minH, offsetY - prev.y);
-      } else if (resizeCorner === "tr") {
-        nw = Math.max(minW, offsetX - prev.x);
-        nh = Math.max(minH, prev.y + (prev.height || 0) - offsetY);
-        ny = Math.min(prev.y + (prev.height || 0) - minH, offsetY);
-      } else if (resizeCorner === "bl") {
-        nw = Math.max(minW, prev.x + (prev.width || 0) - offsetX);
-        nx = Math.min(prev.x + (prev.width || 0) - minW, offsetX);
-        nh = Math.max(minH, offsetY - prev.y);
-      } else if (resizeCorner === "tl") {
-        nw = Math.max(minW, prev.x + (prev.width || 0) - offsetX);
-        nx = Math.min(prev.x + (prev.width || 0) - minW, offsetX);
-        nh = Math.max(minH, prev.y + (prev.height || 0) - offsetY);
-        ny = Math.min(prev.y + (prev.height || 0) - minH, offsetY);
+      if (prev.type === "freehand") {
+        return {
+          points: [...prev.points, { x: offsetX, y: offsetY }],
+          color: prev.color || freehandColor, // ✅ ensure stroke uses selected color
+        };
       }
-
-      // Auto height grow to fit current text
-      const maxTextWidth = Math.max(0, nw - 12);
-      const lines = wrapTextToWidth(
-        prev.text || "",
-        maxTextWidth,
-        prev.fontSize,
-        prev.fontFamily,
-        prev.bold,
-        prev.italic
-      );
-      const lineHeight = (prev.fontSize || 16) * 1.2;
-      const neededH = Math.max(
-        minH,
-        lines.length > 0 ? lineHeight * lines.length + 12 : minH
-      );
-      nh = Math.max(nh, neededH);
-
-      return { x: nx, y: ny, width: nw, height: nh };
+      if (prev.type === "rect") {
+        return { width: offsetX - prev.x, height: offsetY - prev.y };
+      }
+      if (prev.type === "circle") {
+        const dx = offsetX - prev.cx;
+        const dy = offsetY - prev.cy;
+        const radius = Math.sqrt(dx * dx + dy * dy);
+        return { r: radius };
+      }
+      if (prev.type === "line") {
+        return { x2: offsetX, y2: offsetY };
+      }
+      return {};
     });
-    reflowColumns(selectedShapeId);
-    return;
-  }
-
-  if (selectedTool === "eraser" && isErasing) {
-    eraseAt(offsetX, offsetY);
-    return;
-  }
-
-  if (isDragging && selectedShapeId) {
-    updateShape(selectedShapeId, (prev) => ({
-      x: offsetX - dragOffset.dx,
-      y: offsetY - dragOffset.dy,
-    }));
-    return;
-  }
-
-  if (!currentShapeId) return;
-
-  updateShape(currentShapeId, (prev) => {
-    if (prev.type === "freehand") {
-      return {
-        points: [...prev.points, { x: offsetX, y: offsetY }],
-        color: prev.color || freehandColor, // ✅ ensure stroke uses selected color
-      };
-    }
-    if (prev.type === "rect") {
-      return { width: offsetX - prev.x, height: offsetY - prev.y };
-    }
-    if (prev.type === "circle") {
-      const dx = offsetX - prev.cx;
-      const dy = offsetY - prev.cy;
-      const radius = Math.sqrt(dx * dx + dy * dy);
-      return { r: radius };
-    }
-    if (prev.type === "line") {
-      return { x2: offsetX, y2: offsetY };
-    }
-    return {};
-  });
-};
-
+  };
 
   const handleMouseUp = () => {
     setCurrentShapeId(null);
@@ -721,23 +717,19 @@ function Canvas() {
         border: "1px solid #ddd",
       }}
     >
-    <svg
-  ref={svgRef}
-  className="w-[100%] h-[100%] border"
-  onMouseDown={handleMouseDown}
-  onMouseMove={handleMouseMove}
-  onMouseUp={handleMouseUp}
-style={{
-  cursor:
-    selectedTool === "eraser"
-      ? 'url("/images/eraser.jpg") 16 16, auto'
-      : "crosshair",
-}}
-
-
->
-
-
+      <svg
+        ref={svgRef}
+        className="w-[100%] h-[100%] border"
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        style={{
+          cursor:
+            selectedTool === "eraser"
+              ? 'url("/images/eraser.jpg") 16 16, auto'
+              : "crosshair",
+        }}
+      >
         {shapes.map((shape) => (
           <g key={shape.id}>
             {/* EDIT MODE */}
@@ -847,8 +839,6 @@ style={{
   );
 }
 
-
-
 function SharePlugin({
   title,
   // saveTrigger,
@@ -857,7 +847,6 @@ function SharePlugin({
   // shareId,
 }) {
   try {
-    
     return (
       <div
         style={{
@@ -872,8 +861,6 @@ function SharePlugin({
           zIndex: 1000,
         }}
       >
-       
-
         <SaveButton
           // saveTrigger={saveTrigger}
           title={title}
@@ -926,8 +913,8 @@ function Toolbar() {
   const updateShape = useStore((s) => s.updateShape);
   const removeShape = useStore((s) => s.removeShape);
   const [showThicknessSlider, setShowThicknessSlider] = useState(false);
-const freehandStrokeWidth = useStore((s) => s.freehandStrokeWidth);
-const setFreehandStrokeWidth = useStore((s) => s.setFreehandStrokeWidth);
+  const freehandStrokeWidth = useStore((s) => s.freehandStrokeWidth);
+  const setFreehandStrokeWidth = useStore((s) => s.setFreehandStrokeWidth);
   const textStyle = useStore((s) => s.textStyle);
   const setTextStyle = useStore((s) => s.setTextStyle);
   const setFreehandType = useStore((s) => s.setFreehandType);
@@ -944,191 +931,212 @@ const setFreehandStrokeWidth = useStore((s) => s.setFreehandStrokeWidth);
       title: "Color",
       onClick: () => setShowColorPicker(!showColorPicker),
     },
-   {
-    id: "thickness",
-    icon: <SlidersHorizontal />,
-    title: "Thickness",
-    onClick: () => setShowThicknessSlider(!showThicknessSlider),
-  },
+    {
+      id: "thickness",
+      icon: <SlidersHorizontal />,
+      title: "Thickness",
+      onClick: () => setShowThicknessSlider(!showThicknessSlider),
+    },
   ];
- return (
-  <div
-    className="flex flex-col gap-1 bg-gray-400 absolute rounded-t-2xl
+  return (
+    <div
+      className="flex flex-col gap-1 bg-gray-400 absolute rounded-t-2xl
      rounded-b-2xl border-2 border-cyan-500/20 bg-gradient-to-r from-gray-900/90 to-gray-800/80 backdrop-blur-lg shadow-2xl z-50 p-2 border-none
      w-25"
-    style={{ top: "20vh", left: "40px" }}
-  >
-    {/* Main Toolbar Buttons */}
-    <button
-      onClick={() => setTool("freehand")}
-      className="p-5 rounded-xl flex items-center justify-center border transition-all duration-300 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20 text-minimal-primary"
-      title="Freehand"
+      style={{ top: "20vh", left: "40px" }}
     >
-      <PencilLine />
-    </button>
-    <button
-      onClick={() => setTool("rect")}
-      className="text-minimal-primary rounded-xl flex items-center justify-center p-5 drop-shadow-sm border transition-all duration-300 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20"
-      title="Shapes"
-    >
-      <RectangleHorizontal />
-    </button>
-    <button
-      onClick={() => setTool("text")}
-      className="text-minimal-primary p-5 drop-shadow-sm border transition-all duration-300 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20 rounded-xl"
-      title="Text"
-    >
-      <RemoveFormatting />
-    </button>
+      {/* Main Toolbar Buttons */}
+      <button
+        onClick={() => setTool("freehand")}
+        className="p-5 rounded-xl flex items-center justify-center border transition-all duration-300 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20 text-minimal-primary"
+        title="Freehand"
+      >
+        <PencilLine />
+      </button>
+      <button
+        onClick={() => setTool("rect")}
+        className="text-minimal-primary rounded-xl flex items-center justify-center p-5 drop-shadow-sm border transition-all duration-300 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20"
+        title="Shapes"
+      >
+        <RectangleHorizontal />
+      </button>
+      <button
+        onClick={() => setTool("text")}
+        className="text-minimal-primary p-5 drop-shadow-sm border transition-all duration-300 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20 rounded-xl"
+        title="Text"
+      >
+        <RemoveFormatting />
+      </button>
 
-    {/* Add Image Button */}
-    <button
-      onClick={() => fileInputRef.current && fileInputRef.current.click()}
-      className="text-minimal-primary p-5 drop-shadow-sm border transition-all duration-300 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20 rounded-xl"
-      title="Add Image"
-    >
-      <Image />
-    </button>
-    <input
-      type="file"
-      accept="image/*"
-      ref={fileInputRef}
-      style={{ display: "none" }}
-      onChange={handleImageUpload}
-    />
+      {/* Add Image Button */}
+      <button
+        onClick={() => fileInputRef.current && fileInputRef.current.click()}
+        className="text-minimal-primary p-5 drop-shadow-sm border transition-all duration-300 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20 rounded-xl"
+        title="Add Image"
+      >
+        <Image />
+      </button>
+      <input
+        type="file"
+        accept="image/*"
+        ref={fileInputRef}
+        style={{ display: "none" }}
+        onChange={handleImageUpload}
+      />
 
-    <button
-      onClick={() => setTool("eraser")}
-      className="text-minimal-primary p-5 drop-shadow-sm border transition-all duration-300 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20 rounded-xl"
-      title="Eraser"
-    >
-      <Eraser />
-    </button>
-    <button
-      onClick={() => Canvas.handleUndo && Canvas.handleUndo()}
-      className="text-minimal-primary p-5 drop-shadow-sm border transition-all duration-300 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20 rounded-xl"
-      title="Undo"
-    >
-      ↶
-    </button>
-    <button
-      onClick={() => Canvas.handleRedo && Canvas.handleRedo()}
-      className="text-minimal-primary p-5 drop-shadow-sm border transition-all duration-300 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20 rounded-xl"
-      title="Redo"
-    >
-      ↷
-    </button>
+      <button
+        onClick={() => setTool("eraser")}
+        className="text-minimal-primary p-5 drop-shadow-sm border transition-all duration-300 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20 rounded-xl"
+        title="Eraser"
+      >
+        <Eraser />
+      </button>
+      <button
+        onClick={() => Canvas.handleUndo && Canvas.handleUndo()}
+        className="text-minimal-primary p-5 drop-shadow-sm border transition-all duration-300 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20 rounded-xl"
+        title="Undo"
+      >
+        ↶
+      </button>
+      <button
+        onClick={() => Canvas.handleRedo && Canvas.handleRedo()}
+        className="text-minimal-primary p-5 drop-shadow-sm border transition-all duration-300 group bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-minimal-primary hover:from-cyan-500/30 hover:to-cyan-600/20 hover:shadow-lg hover:shadow-cyan-500/20 rounded-xl"
+        title="Redo"
+      >
+        ↷
+      </button>
 
-  {/* Freehand Tools + Color Picker */}
-{selectedTool === "freehand" && (
-  <div
-    className="flex flex-col gap-2 bg-gray-600 rounded-t-2xl rounded-b-2xl p-2"
-    style={{ position: "absolute", left: "90px", top: 0, width: "80px", zIndex: 100 }}
-    id="freehandDiv"
-  >
-    {freehandTools.map((t) => {
-      if (t.id === "color") {
-        return (
-          <div
-            key={t.id}
-            onMouseEnter={() => setShowColorPicker(true)}
-            onMouseLeave={() => setShowColorPicker(false)}
-            style={{ position: "relative" }}
-          >
-            <button
-              className={`flex justify-center items-center p-2 rounded-xl text-lg ${
-                showColorPicker ? "bg-blue-500 text-white" : "bg-teal-600 text-white"
-              }`}
-              title={t.title}
-              style={{ width: "100%", height: "40px" }} // ensures same size as others
-            >
-              {t.icon}
-            </button>
-            {showColorPicker && (
-              <div
-                style={{
-                  position: "absolute",
-                  top: "45px", // slightly below the button
-                  left: 0,
-                  zIndex: 9999,
-                }}
-              >
-                <SketchPicker
-                  color={freehandColor}
-                  onChangeComplete={(color) => setFreehandColor(color.hex)}
-                />
-              </div>
-            )}
-          </div>
-        );
-      } else if (t.id === "thickness") {
-    return (
-      <div key={t.id} style={{ position: "relative" }}>
-        <button
-          onClick={t.onClick}
-          className={`flex justify-center items-center p-2 rounded-xl text-lg ${
-            showThicknessSlider ? "bg-blue-500 text-white" : "bg-teal-600 text-white"
-          }`}
-          style={{ width: "100%", height: "40px" }}
-          title={t.title}
+      {/* Freehand Tools + Color Picker */}
+      {selectedTool === "freehand" && (
+        <div
+          className="flex flex-col gap-2 bg-gray-600 rounded-t-2xl rounded-b-2xl p-2"
+          style={{
+            position: "absolute",
+            left: "90px",
+            top: 0,
+            width: "80px",
+            zIndex: 100,
+          }}
+          id="freehandDiv"
         >
-          {t.icon}
-        </button>
-        {showThicknessSlider && (
-          <div
-            style={{
-              position: "absolute",
-              top: "45px",
-              left: 0,
-              zIndex: 9999,
-              background: "#333",
-              padding: "8px",
-              borderRadius: "8px",
-            }}
-          >
-            <input
-              type="range"
-              min="1"
-              max="20"
-              value={freehandStrokeWidth}
-              onChange={(e) => setFreehandStrokeWidth(Number(e.target.value))}
-            />
-            <div style={{ color: "white", fontSize: "12px", textAlign: "center" }}>
-              {freehandStrokeWidth}px
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  } else {
-        return (
-          <button
-            key={t.id}
-            onClick={() => setFreehandType(t.id)}
-            className={`flex justify-center items-center p-2 rounded-xl text-lg ${
-              freehandType === t.id ? "bg-blue-500 text-white" : "bg-teal-600 text-white"
-            }`}
-            style={{ width: "100%", height: "40px" }} // same as color button
-            title={t.title}
-          >
-            {t.icon}
-          </button>
-        );
-      }
-    })}
-  </div>
-)}
+          {freehandTools.map((t) => {
+            if (t.id === "color") {
+              return (
+                <div
+                  key={t.id}
+                  onMouseEnter={() => setShowColorPicker(true)}
+                  onMouseLeave={() => setShowColorPicker(false)}
+                  style={{ position: "relative" }}
+                >
+                  <button
+                    className={`flex justify-center items-center p-2 rounded-xl text-lg ${
+                      showColorPicker
+                        ? "bg-blue-500 text-white"
+                        : "bg-teal-600 text-white"
+                    }`}
+                    title={t.title}
+                    style={{ width: "100%", height: "40px" }} // ensures same size as others
+                  >
+                    {t.icon}
+                  </button>
+                  {showColorPicker && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "45px", // slightly below the button
+                        left: 0,
+                        zIndex: 9999,
+                      }}
+                    >
+                      <SketchPicker
+                        color={freehandColor}
+                        onChangeComplete={(color) =>
+                          setFreehandColor(color.hex)
+                        }
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            } else if (t.id === "thickness") {
+              return (
+                <div key={t.id} style={{ position: "relative" }}>
+                  <button
+                    onClick={t.onClick}
+                    className={`flex justify-center items-center p-2 rounded-xl text-lg ${
+                      showThicknessSlider
+                        ? "bg-blue-500 text-white"
+                        : "bg-teal-600 text-white"
+                    }`}
+                    style={{ width: "100%", height: "40px" }}
+                    title={t.title}
+                  >
+                    {t.icon}
+                  </button>
+                  {showThicknessSlider && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "45px",
+                        left: 0,
+                        zIndex: 9999,
+                        background: "#333",
+                        padding: "8px",
+                        borderRadius: "8px",
+                      }}
+                    >
+                      <input
+                        type="range"
+                        min="1"
+                        max="20"
+                        value={freehandStrokeWidth}
+                        onChange={(e) =>
+                          setFreehandStrokeWidth(Number(e.target.value))
+                        }
+                      />
+                      <div
+                        style={{
+                          color: "white",
+                          fontSize: "12px",
+                          textAlign: "center",
+                        }}
+                      >
+                        {freehandStrokeWidth}px
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            } else {
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setFreehandType(t.id)}
+                  className={`flex justify-center items-center p-2 rounded-xl text-lg ${
+                    freehandType === t.id
+                      ? "bg-blue-500 text-white"
+                      : "bg-teal-600 text-white"
+                  }`}
+                  style={{ width: "100%", height: "40px" }} // same as color button
+                  title={t.title}
+                >
+                  {t.icon}
+                </button>
+              );
+            }
+          })}
+        </div>
+      )}
 
+      {/* Text Tool Panel */}
+      {selectedTool === "text" && (
+        <TextPanel textStyle={textStyle} setTextStyle={setTextStyle} />
+      )}
 
-
-    {/* Text Tool Panel */}
-    {selectedTool === "text" && <TextPanel textStyle={textStyle} setTextStyle={setTextStyle} />}
-
-    {/* Shapes Panel */}
-    {selectedTool === "rect" && <ShapesPanel />}
-  </div>
-);
-
+      {/* Shapes Panel */}
+      {selectedTool === "rect" && <ShapesPanel />}
+    </div>
+  );
 }
 // ---- APP ----
 function LexicalEditor() {
@@ -1184,7 +1192,7 @@ function LexicalEditor() {
         <div class="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
         <div class="absolute inset-0 opacity-40 pointer-events-none bg-gradient-to-br from-black to-black"></div>
         <UpdatedDashboard2 />
-        
+
         <SharePlugin title={title} />
         <Toolbar />
         <Canvas />

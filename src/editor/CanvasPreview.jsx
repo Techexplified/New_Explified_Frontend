@@ -107,9 +107,10 @@ export default function CanvasPreview({ shapes = [] }) {
 
   return (
     <div
-      ref={containerRef}
-      className="w-full h-40 md:h-48 lg:h-56 rounded-t-2xl overflow-hidden border-b border-slate-700/40 bg-white"
-    >
+  ref={containerRef}
+  className="w-full h-32 md:h-36 lg:h-40 rounded-t-xl overflow-hidden border-b border-slate-700/40 bg-white"
+>
+
       <canvas
         ref={canvasRef}
         className="w-full h-full block"
