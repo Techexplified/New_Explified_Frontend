@@ -20,6 +20,7 @@ export const INTEGRATION_PROVIDERS = [
     icon: <img src={GeminiLogo} alt="Grok" className="w-6 h-6" />,
     byok: true,
     description: "Google's Gemini models for text, chat and multimodal tasks.",
+    dropdown: ["Gemini 2.5 Lite", "Gemini 1.5", "Gemini Nano"],
     apiUrl: "https://generativelanguage.googleapis.com/v1beta/", // Google AI Studio API
     docs: "https://ai.google.dev/gemini-api/docs",
   },
@@ -31,6 +32,7 @@ export const INTEGRATION_PROVIDERS = [
     // icon: <img src={ChatGPT} alt="Grok" className="w-6 h-6" />,
     byok: true,
     description: "OpenAI GPT models for powerful text and chat experiences.",
+    dropdown: ["GPT-5 nano", "GPT-4o", "GPT-3.5", "GPT-3"],
     apiUrl: "https://api.openai.com/v1/",
     docs: "https://platform.openai.com/docs/api-reference",
   },
@@ -42,6 +44,8 @@ export const INTEGRATION_PROVIDERS = [
     icon: <FiZap className="text-black" size={20} />,
     byok: true,
     description: "xAI Grok models for reasoning and fast responses.",
+
+    dropdown: ["Grok 3 Mini"],
     apiUrl: "https://api.x.ai/v1/", // xAI Grok API
     docs: "https://docs.x.ai/api",
   },
@@ -52,6 +56,7 @@ export const INTEGRATION_PROVIDERS = [
     // icon: <img src={Anthropic} alt="Grok" className="w-6 h-6" />,
     byok: true,
     description: "Claude models by Anthropic for safe, helpful outputs.",
+    dropdown: ["Claude Haiku 4.5", "Claude 3 Opus", "Claude Instant"],
     apiUrl: "https://api.anthropic.com/v1/",
     docs: "https://docs.anthropic.com/claude/reference",
   },
@@ -61,6 +66,7 @@ export const INTEGRATION_PROVIDERS = [
     icon: <img src={MistralLogo} alt="Grok" className="w-6 h-6" />,
     byok: true,
     description: "Mistral small, medium and mixtral models.",
+    dropdown: ["Grok 3 Mini"],
     apiUrl: "https://api.mistral.ai/v1/",
     docs: "https://docs.mistral.ai/",
   },
@@ -70,6 +76,7 @@ export const INTEGRATION_PROVIDERS = [
     icon: <img src={CohereLogo} alt="Grok" className="w-6 h-6" />,
     byok: true,
     description: "Cohere Command and Embed models for text and vectors.",
+    dropdown: ["Grok 3 Mini"],
     apiUrl: "https://api.cohere.ai/v1/",
     docs: "https://docs.cohere.com/docs",
   },

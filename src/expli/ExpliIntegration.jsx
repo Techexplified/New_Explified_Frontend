@@ -12,6 +12,7 @@ function ExpliIntegration() {
     sidebarPinned,
     isSidebarOpen,
     setClosedChats,
+    closedChats,
   } = useExpli();
 
   const [showIntegrationsModal, setShowIntegrationsModal] = useState(false);
@@ -43,6 +44,7 @@ function ExpliIntegration() {
           setProviderKeys={setProviderKeys}
           setShowIntegrationsModal={setShowIntegrationsModal}
           setClosedChats={setClosedChats}
+          closedChats={closedChats}
         />
       )}
     </>

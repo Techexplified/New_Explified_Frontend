@@ -14,17 +14,9 @@ import {
 import ExpliIntegration from "./ExpliIntegration";
 import { useNavigate } from "react-router-dom";
 import SettingsModal from "./SettingsModal";
+import { ExpliLogo } from "../assets";
 
-export default function ExpliSidebar({
-  setModalOpen,
-  // setSettingsOpen,
-  onNewChat,
-  onSelectChat,
-  onDeleteChat,
-  chats,
-  activeSection,
-  setActiveSection,
-}) {
+export default function ExpliSidebar({ activeSection, setActiveSection }) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const navigate = useNavigate();
   const sidebarItems = [
@@ -45,13 +37,7 @@ export default function ExpliSidebar({
     <aside className="relative w-16 flex flex-col justify-between py-4 bg-black text-white border-r border-gray-900 shadow-inner">
       <div className="flex flex-col items-center gap-3">
         {/* Tag / Images icon */}
-        <button
-          className="w-10 h-10 rounded-full flex items-center justify-center bg-[#151515] border border-gray-800 text-gray-300 hover:text-[#23b5b5] transition transform hover:scale-105"
-          onClick={() => setActiveSection("integrate")}
-          title="Images / Tags"
-        >
-          <FaTag size={18} />
-        </button>
+        <img className="h-10" alt="Logo" src={ExpliLogo} />
 
         {/* New Chat + history */}
         <div
@@ -66,19 +52,7 @@ export default function ExpliSidebar({
             <FaPlus size={18} />
           </button>
 
-          <ChatHistoryPopover
-            visible={showHistory}
-            chats={chats}
-            onSelectChat={(id) => {
-              setActiveSection("home");
-              onSelectChat(id);
-            }}
-            onNewChat={() => {
-              setActiveSection("home");
-              onNewChat();
-            }}
-            onDeleteChat={onDeleteChat}
-          />
+          <ChatHistoryPopover visible={showHistory} />
         </div>
 
         {/* main nav */}

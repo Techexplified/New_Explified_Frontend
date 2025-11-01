@@ -49,20 +49,31 @@ function ChatContainer({
       }}
     >
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-black/80 backdrop-blur-xl py-4 mb-6 -mx-4 sm:-mx-6 px-4 sm:px-6 border-b border-gray-800/50">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+      <div className="sticky top-0 z-20 bg-black/80 backdrop-blur-xl py-3 mb-4 -mx-4 sm:-mx-6 px-4 sm:px-6 border-b border-gray-800/60">
+        <div
+          className={`flex items-center ${
+            onlyExpliOpen ? "justify-center" : "justify-between"
+          } `}
+        >
+          {/* Left: Icon + Tool Name */}
+          <div className="flex items-center justify-end gap-2">
             <img
-              className={`${toolName === "Expli" ? "h-8" : "h-6"} rounded-lg`}
-              alt={toolName}
               src={logo}
+              alt={toolName}
+              className={`${toolName === "Expli" ? "h-8" : "h-6"} rounded-lg`}
             />
-            <h1 className="text-lg font-semibold text-white">{toolName}</h1>
+            <h1 className="text-base font-semibold text-white tracking-tight">
+              {toolName}
+            </h1>
           </div>
 
+          {/* Right: Toggle + Close */}
           {!onlyExpliOpen && (
             <div className="flex items-center gap-3">
-              {/* Toggle Switch */}
+              <span className="text-[11px] text-gray-400 font-medium px-2 py-0.5 rounded-full bg-gray-800">
+                Chat Mode
+              </span>
+              {/* Toggle */}
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
@@ -70,18 +81,18 @@ function ChatContainer({
                   onChange={() => setEnabled(!enabled)}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:bg-white transition-colors duration-300"></div>
-                <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-black rounded-full transition-transform duration-300 peer-checked:translate-x-5"></div>
+                <div className="w-10 h-5 bg-gray-700/80 rounded-full peer-focus:ring-2 peer-focus:ring-[#23B5B5]/40 transition-all peer-checked:bg-[#22d3d3]"></div>
+                <div className="absolute translate-x-0.5 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5"></div>
               </label>
 
-              {/* Close Button */}
+              {/* Close */}
               {toolName !== "Expli" && (
                 <button
                   onClick={() => handleCloseChat(pid)}
-                  className="p-1.5 text-gray-400 hover:text-gray-200 hover:bg-gray-800 rounded-lg transition-colors"
                   aria-label="Close chat"
+                  className="p-1 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
                 >
-                  <X size={20} />
+                  <X size={18} />
                 </button>
               )}
             </div>
@@ -93,10 +104,9 @@ function ChatContainer({
       <div className="w-full flex flex-col gap-6 flex-1">
         {/* Empty State */}
         {(!messages || messages.length === 0) && (
-          <div className="flex flex-col items-center justify-center h-full text-center py-20">
-            <h3 className="text-xl font-medium text-gray-100 mb-2">Hi</h3>
-            <p className="text-gray-400 text-base mb-8">
-              Hello! How can I help you today?
+          <div className="flex">
+            <p className="bg-gray-900 text-gray-200 px-4 py-2.5 rounded-lg text-sm leading-relaxed mb-8">
+              👋 Hello! How can I assist you ?
             </p>
           </div>
         )}

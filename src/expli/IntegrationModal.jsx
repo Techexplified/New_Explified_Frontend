@@ -12,6 +12,7 @@ function IntegrationModal({
   setProviderKeys,
   setShowIntegrationsModal,
   setClosedChats,
+  closedChats,
 }) {
   const [integrationTab, setIntegrationTab] = useState("my");
   const [integrationSearch, setIntegrationSearch] = useState("");
@@ -188,76 +189,95 @@ function IntegrationModal({
               }).map((p) => {
                 const Icon = p.icon;
                 const hasKey = Boolean(providerKeys[p.id]);
+                console.log(p.id);
+
                 return (
                   <div
                     key={p.id}
                     onClick={() => handleOpenProvider(p.id)}
-                    className="bg-gray-50 border border-gray-200 rounded-lg p-4 hover:bg-gray-100 hover:border-gray-300 transition-all duration-300 cursor-pointer group"
+                    className="flex items-center justify-between  bg-gray-100 rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group"
                   >
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-4 flex-1">
-                        <div className="text-2xl mt-1">{Icon}</div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="text-gray-900 font-semibold text-sm group-hover:text-gray-800">
-                              {p.name}
-                            </h4>
-                            {p.byok && (
-                              <span className="bg-gray-200 text-gray-700 text-[10px] px-2 py-0.5 rounded border border-gray-300 font-medium">
-                                BYOK
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-gray-500 text-xs leading-relaxed">
-                            {p.description}
-                          </p>
-                        </div>
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-xl">
+                        {Icon}
                       </div>
+                      <div>
+                        <h4 className="text-gray-900 font-semibold text-sm group-hover:text-gray-800">
+                          {p.name}
+                        </h4>
+                        <p className="text-gray-500 text-xs">{p.description}</p>
+                      </div>
+                    </div>
 
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        {!(p.id === "openai" || p.id === "gemini") && (
-                          <button
-                            type="button"
-                            onClick={(e) => e.stopPropagation()}
-                            className="w-9 h-9 bg-gray-200 hover:bg-gray-300 border border-gray-300 rounded-lg flex items-center justify-center transition-all duration-200"
-                            title="Premium"
-                          >
-                            <Lock className="text-gray-600" size={16} />
-                          </button>
-                        )}
-
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      {!hasKey && (
                         <button
                           type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setClosedChats((prev) => ({
-                              ...prev,
-                              [p.id]: false,
-                            }));
-                          }}
-                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200 border ${
-                            hasKey
-                              ? "bg-green-100 border-green-300 text-green-600 hover:bg-green-200"
-                              : "bg-gray-200 hover:bg-gray-300 border-gray-300 text-gray-600"
-                          }`}
-                          title="Toggle"
+                          onClick={(e) => e.stopPropagation()}
+                          className="w-9 h-9 bg-gray-200 hover:bg-gray-300 border border-gray-300 rounded-lg flex items-center justify-center transition-all duration-200"
+                          title="Premium"
                         >
-                          <Plus size={15} />
+                          <Lock className="text-gray-600" size={16} />
                         </button>
+                      )}
 
-                        {integrationTab === "my" && (
+                      {integrationTab === "my" && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setClosedChats((prev) => ({
+                                ...prev,
+                                [p.id]: false,
+                              }));
+                            }}
+                            className={`ml-2 w-10 h-5 flex items-center rounded-full transition-colors shadow ${
+                              closedChats[p.id] === false
+                                ? "bg-indigo-500"
+                                : "bg-gray-300"
+                            }`}
+                            title="Toggle"
+                          >
+                            <span
+                              className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${
+                                closedChats[p.id] === false
+                                  ? "translate-x-5"
+                                  : "translate-x-0.5"
+                              }`}
+                            />
+                          </button>
+                          {/* <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setClosedChats((prev) => ({
+                                  ...prev,
+                                  [p.id]: false,
+                                }));
+                              }}
+                              className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200 border ${
+                                closedChats[p.id] === true
+                                  ? "bg-green-100 border-green-300 text-green-600 hover:bg-green-200"
+                                  : "bg-gray-200 hover:bg-gray-300 border-gray-300 text-gray-600"
+                              }`}
+                              title="Toggle"
+                            >
+                              <Plus size={15} />
+                            </button> */}
+
                           <button
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleRemoveProvider(p.id);
                             }}
-                            className="w-7 h-7 bg-red-100 hover:bg-red-200 border border-red-300 rounded-lg flex items-center justify-center text-red-600 transition-all duration-200"
+                            className="text-gray-600 hover:text-red-600 w-7 h-7 flex items-center justify-center  transition-all duration-200"
                           >
                             <X size={15} />
                           </button>
-                        )}
-                      </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 );
