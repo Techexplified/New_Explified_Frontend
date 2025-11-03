@@ -41,7 +41,7 @@ export const INTEGRATION_PROVIDERS = [
     name: "Grok",
     // icon: <img src={GrokLogo} alt="Grok" className="w-6 h-6" />,
     // icon: FiZap,
-    icon: <FiZap className="text-black" size={20} />,
+    icon: <img src={GrokLogo} alt="Grok" className="w-6 h-6" />,
     byok: true,
     description: "xAI Grok models for reasoning and fast responses.",
 

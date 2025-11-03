@@ -50,11 +50,7 @@ function ChatContainer({
     >
       {/* Header */}
       <div className="sticky top-0 z-20 bg-black/80 backdrop-blur-xl py-3 mb-4 -mx-4 sm:-mx-6 px-4 sm:px-6 border-b border-gray-800/60">
-        <div
-          className={`flex items-center ${
-            onlyExpliOpen ? "justify-center" : "justify-between"
-          } `}
-        >
+        <div className={`flex items-center justify-between`}>
           {/* Left: Icon + Tool Name */}
           <div className="flex items-center justify-end gap-2">
             <img

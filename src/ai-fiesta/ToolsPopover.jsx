@@ -1,8 +1,10 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaChartLine, FaBrain, FaStickyNote } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 export default function ToolsPopover({ visible }) {
+  const navigate = useNavigate();
   const tools = [
     {
       label: "Dashboard",
@@ -31,9 +33,9 @@ export default function ToolsPopover({ visible }) {
           </p>
 
           {tools.map((tool) => (
-            <motion.a
+            <motion.div
               key={tool.label}
-              href={tool.url}
+              onClick={() => navigate(tool.url)}
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{
@@ -48,7 +50,7 @@ export default function ToolsPopover({ visible }) {
                 <tool.icon size={14} />
               </div>
               <span className="text-sm font-medium">{tool.label}</span>
-            </motion.a>
+            </motion.div>
           ))}
         </motion.div>
       )}

@@ -119,7 +119,7 @@ function IntegrationModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] overflow-scroll flex items-center justify-center backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 overflow-scroll flex items-center justify-center ">
       <div
         className="absolute inset-0 bg-black/70"
         onClick={() => setShowIntegrationsModal(false)}
@@ -127,7 +127,7 @@ function IntegrationModal({
       <div
         className={`relative w-full ${
           showProviderHelp ? "max-w-4xl" : "max-w-2xl"
-        } mx-4 bg-white border border-gray-200 rounded-xl shadow-2xl p-6`}
+        } bg-white border border-gray-200 rounded-xl shadow-2xl p-6`}
       >
         <button
           aria-label="Close"
@@ -195,7 +195,7 @@ function IntegrationModal({
                   <div
                     key={p.id}
                     onClick={() => handleOpenProvider(p.id)}
-                    className="flex items-center justify-between  bg-gray-100 rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group"
+                    className="flex items-center justify-between  bg-gray-100 rounded-xl border border-gray-200 px-4 py-2 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group"
                   >
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-xl">
@@ -210,6 +210,25 @@ function IntegrationModal({
                     </div>
 
                     <div className="flex items-center gap-2 flex-shrink-0">
+                      <div
+                        className="relative"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <select
+                          value={p.defaultModel ?? ""}
+                          className=" px-2 py-1 rounded-xl border border-gray-300 text-gray-800 shadow-sm bg-white appearance-none pr-6"
+                        >
+                          {p.dropdown?.map((model) => (
+                            <option key={model} value={model}>
+                              {model}
+                            </option>
+                          ))}
+                        </select>
+
+                        {/* Chevron */}
+                        <FiChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none text-sm" />
+                      </div>
+
                       {!hasKey && (
                         <button
                           type="button"
@@ -282,6 +301,19 @@ function IntegrationModal({
                   </div>
                 );
               })}
+            </div>
+
+            <button className="w-full mt-5 py-2 bg-black text-white rounded-xl font-semibold hover:bg-gray-800 transition shadow">
+              Update preferences
+            </button>
+            <div className="w-full mt-3 flex flex-col items-center bg-gray-100 rounded-xl pt-3">
+              <div className="font-semibold mb-1 text-black">
+                Upgrade and Unlock Premium AI Models
+              </div>
+              <div className="text-xs text-gray-600 text-center">
+                Access all six top AI models for just{" "}
+                <span className="font-semibold">$12/month</span>.
+              </div>
             </div>
           </>
         )}
