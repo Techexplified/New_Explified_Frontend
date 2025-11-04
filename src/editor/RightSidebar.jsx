@@ -54,17 +54,22 @@ export default function RightSidebar() {
     setTextStyle({ opacity: value / 100 });
   };
 
+   const hiddenTools = ["pan", "lock", "select", "eraser"];
+  const shouldShowSidebar =
+    selectedTool && !hiddenTools.includes(selectedTool);
+
   return (
     <AnimatePresence>
-      {selectedTool && (
+      {shouldShowSidebar && (
         <motion.div
+          key={selectedTool}
           initial={{ x: 50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: 50, opacity: 0 }}
           transition={{ duration: 0.25 }}
-          className="fixed right-6 top-3/2 -translate-y-1/2 w-[240px] max-h-[90vh] overflow-auto bg-white 
-                     shadow-[0_0_10px_rgba(0,0,0,0.05)] border border-[#E5E5E5] rounded-xl p-4 
-                     font-inter text-[13px] text-gray-800 z-50"
+          className="fixed right-6 top-3/2 -translate-y-1/2 w-[240px] max-h-[90vh] overflow-auto 
+                     bg-white shadow-[0_0_10px_rgba(0,0,0,0.05)] border border-[#E5E5E5] 
+                     rounded-xl p-4 font-inter text-[13px] text-gray-800 z-50"
         >
           {/* ========== FREEHAND TOOL ========== */}
           {(selectedTool === "freehand" || selectedTool === "pencil") && (
@@ -137,6 +142,9 @@ export default function RightSidebar() {
             </motion.div>
           )}
 
+        
+
+
           {/* ========== STICKY NOTE TOOL ========== */}
 {selectedTool === "sticky" && (
   <motion.div
@@ -151,19 +159,30 @@ export default function RightSidebar() {
       <h3 className="text-sm font-medium text-gray-600 mb-2">Color</h3>
       <div className="flex items-center gap-3">
         {["#fae316", "#054098", "#b62005", "#069714", "#ffd180", "#cb0bec"].map(
-          (color) => (
-            <div
-              key={color}
-              onClick={() =>
-                useStore.getState().updateSelectedShape({ color })
-              }
-              className={`w-6 h-6 rounded-md border cursor-pointer 
-                ${color === "#ffffff" ? "border-gray-300" : "border-transparent"} 
-                hover:ring-2 hover:ring-indigo-400 
-                ${useStore.getState().selectedShape?.color === color ? "ring-2 ring-indigo-500" : ""}`}
-              style={{ backgroundColor: color }}
-            />
-          )
+          (color) => {
+            const currentColor = useStore.getState().selectedShape?.fill || "#fae316";
+            return (
+              <div
+                key={color}
+                onClick={() => {
+                  const selectedShape = useStore.getState().selectedShape;
+                  if (selectedShape) {
+                    // Update existing sticky
+                    useStore.getState().updateShape(selectedShape.id, { fill: color });
+                    useStore.getState().setSelectedShape({ ...selectedShape, fill: color });
+                  } else {
+                    // Set default color for new stickies
+                    useStore.getState().setStickyColor(color);
+                  }
+                }}
+                className={`w-6 h-6 rounded-md border cursor-pointer 
+                  border-transparent
+                  hover:ring-2 hover:ring-indigo-400 
+                  ${currentColor === color ? "ring-2 ring-indigo-500" : ""}`}
+                style={{ backgroundColor: color }}
+              />
+            );
+          }
         )}
       </div>
     </div>
@@ -173,23 +192,29 @@ export default function RightSidebar() {
       <h3 className="text-sm font-medium text-gray-600 mb-2">Size</h3>
       <div className="flex items-center gap-2">
         <button
-          onClick={() =>
-            useStore.getState().updateSelectedShape((s) => ({
-              width: s.width + 20,
-              height: s.height + 20,
-            }))
-          }
+          onClick={() => {
+            const selectedShape = useStore.getState().selectedShape;
+            if (selectedShape) {
+              useStore.getState().updateShape(selectedShape.id, {
+                width: selectedShape.width + 20,
+                height: selectedShape.height + 20,
+              });
+            }
+          }}
           className="w-10 h-10 bg-gray-100 rounded-lg hover:bg-gray-200 flex items-center justify-center"
         >
           +
         </button>
         <button
-          onClick={() =>
-            useStore.getState().updateSelectedShape((s) => ({
-              width: Math.max(50, s.width - 20),
-              height: Math.max(50, s.height - 20),
-            }))
-          }
+          onClick={() => {
+            const selectedShape = useStore.getState().selectedShape;
+            if (selectedShape) {
+              useStore.getState().updateShape(selectedShape.id, {
+                width: Math.max(50, selectedShape.width - 20),
+                height: Math.max(50, selectedShape.height - 20),
+              });
+            }
+          }}
           className="w-10 h-10 bg-gray-100 rounded-lg hover:bg-gray-200 flex items-center justify-center"
         >
           −
@@ -206,9 +231,14 @@ export default function RightSidebar() {
           min="0"
           max="100"
           value={(useStore.getState().selectedShape?.opacity || 1) * 100}
-          onChange={(e) =>
-            useStore.getState().updateSelectedShape({ opacity: e.target.value / 100 })
-          }
+          onChange={(e) => {
+            const selectedShape = useStore.getState().selectedShape;
+            if (selectedShape) {
+              useStore.getState().updateShape(selectedShape.id, {
+                opacity: e.target.value / 100,
+              });
+            }
+          }}
           className="flex-1 accent-indigo-400 cursor-pointer"
         />
         <span className="text-xs text-gray-600 w-6">
@@ -332,7 +362,8 @@ export default function RightSidebar() {
               transition={{ duration: 0.3 }}
               className="flex flex-col gap-5"
             >
-              {/* Shape Type */}
+             
+ {/* Shape Type */}
               <div>
                 <h3 className="text-sm font-semibold text-gray-600 mb-2">Shapes</h3>
                 <div className="grid grid-cols-4 gap-3">
@@ -344,6 +375,8 @@ export default function RightSidebar() {
                     { id: "triangle", label: "△" },
                     { id: "polygon", label: "⬡" },
                     { id: "line", label: "／" },
+                    { id: "arrow", label: "➜" },
+                    
                   ].map((s) => (
                     <button
                       key={s.id}
@@ -360,7 +393,6 @@ export default function RightSidebar() {
                   ))}
                 </div>
               </div>
-
               {/* Stroke Color */}
               <div>
                 <h3 className="text-sm font-medium text-gray-600 mb-2">Stroke Color</h3>

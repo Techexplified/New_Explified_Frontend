@@ -5,7 +5,7 @@ export const useStore = create((set) => ({
   shapes: [],
   selectedTool: "hand", // default tool
   setTool: (tool) => set({ selectedTool: tool }),
-  
+  selectedStickyId: null,
   addShape: (shape) => set((state) => ({ shapes: [...state.shapes, shape] })),
   setShapes: (shapes) => set({ shapes }),
   updateShape: (id, updater) =>

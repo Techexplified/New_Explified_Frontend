@@ -2,6 +2,9 @@ import React, { useRef, useState, useEffect, forwardRef } from "react";
 import { useStore } from "../store";
 import Shape from "./Shape";
 import ImageTool from "./ImageTool";
+// import StickyNotesCanvas from "./StickyNotesCanvas";
+import StickyShape from "./StickyShape";
+
 import { createShape, updateShapeDimensions } from "./ShapeDrawer";
 import { nanoid } from "nanoid";
 
@@ -71,7 +74,6 @@ const Canvas = forwardRef((_, ref) => {
   // save text when switching tool
   const prevToolRef = useRef(selectedTool);
 
-
   // convert to canvas coords
   const toCanvasCoords = (x, y) => ({
     x: (x - panRef.current.x) / zoomRef.current,
@@ -91,6 +93,38 @@ const Canvas = forwardRef((_, ref) => {
     });
   };
 
+  const handleCanvasClick = (e) => {
+    const { selectedTool, addShape, setSelectedShape, shapes } =
+      useStore.getState();
+
+    // check if clicked on an existing shape
+    const clickedShape = shapes.find((s) =>
+      e.target.closest(`[data-shape-id="${s.id}"]`)
+    );
+
+    if (clickedShape) {
+      // ✅ Select existing sticky note for editing
+      setSelectedShape(clickedShape);
+      return;
+    }
+
+    // ✅ Create new sticky note only if clicked on empty space
+    if (selectedTool === "sticky") {
+      const newNote = {
+        id: crypto.randomUUID(),
+        type: "sticky",
+        x: e.clientX,
+        y: e.clientY,
+        width: 200,
+        height: 150,
+        text: "Write something...",
+        fill: "#fae316",
+      };
+      addShape(newNote);
+      setSelectedShape(newNote);
+    }
+  };
+
   // handle clicks / drawing
   const handlePointerDown = (e) => {
     const { offsetX, offsetY } = e.nativeEvent;
@@ -100,19 +134,19 @@ const Canvas = forwardRef((_, ref) => {
     if (selectedTool === "text") {
       // Save existing text if present
       if (textContent.trim().length > 0 && textPos) {
-       const style = useStore.getState().textStyle;
-const textShape = {
-  id: nanoid(),
-  type: "text",
-  lines: textContent.split("\n"),
-  x: textPos.x,
-  y: textPos.y,
-  color: style.color,
-  fontSize: style.fontSize,
-  fontFamily: style.fontFamily,
-  textAlign: style.textAlign,
-  opacity: style.opacity,
-};
+        const style = useStore.getState().textStyle;
+        const textShape = {
+          id: nanoid(),
+          type: "text",
+          lines: textContent.split("\n"),
+          x: textPos.x,
+          y: textPos.y,
+          color: style.color,
+          fontSize: style.fontSize,
+          fontFamily: style.fontFamily,
+          textAlign: style.textAlign,
+          opacity: style.opacity,
+        };
 
         addShape(textShape);
       }
@@ -123,27 +157,27 @@ const textShape = {
       return;
     }
 
-   // Pointer down
-if (selectedTool === "pan" || e.nativeEvent.button === 1) {
-  setIsPanning(true);
-  lastPointer.current = { x: e.clientX, y: e.clientY };
-  return;
-}
+    // Pointer down
+    if (selectedTool === "pan" || e.nativeEvent.button === 1) {
+      setIsPanning(true);
+      lastPointer.current = { x: e.clientX, y: e.clientY };
+      return;
+    }
 
-// Pointer move
-if (isPanning) {
-  const dx = e.clientX - lastPointer.current.x;
-  const dy = e.clientY - lastPointer.current.y;
-  lastPointer.current = { x: e.clientX, y: e.clientY };
-  setPan((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
-  return;
-}
+    // Pointer move
+    if (isPanning) {
+      const dx = e.clientX - lastPointer.current.x;
+      const dy = e.clientY - lastPointer.current.y;
+      lastPointer.current = { x: e.clientX, y: e.clientY };
+      setPan((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
+      return;
+    }
 
-// Pointer up
-const handlePointerUp = () => {
-  setIsPanning(false);
-  setCurrentShapeId(null);
-};
+    // Pointer up
+    const handlePointerUp = () => {
+      setIsPanning(false);
+      setCurrentShapeId(null);
+    };
 
     // 🖊️ Drawing Tools
     let newShape = null;
@@ -158,30 +192,50 @@ const handlePointerUp = () => {
         opacity: 1,
         isEraser: true,
       };
-   } else if (selectedTool === "freehand" || selectedTool === "pencil") {
-  const { freehandColor, freehandStrokeWidth, freehandOpacity } = useStore.getState();
+    } else if (selectedTool === "freehand" || selectedTool === "pencil") {
+      const { freehandColor, freehandStrokeWidth, freehandOpacity } =
+        useStore.getState();
 
-  newShape = {
-    id: nanoid(),
-    type: "freehand",
-    points: [{ x, y }],
-    color: freehandColor,
-    strokeWidth: freehandStrokeWidth,
-    opacity: freehandOpacity,
-  };
-} 
-else if (selectedTool === "shape") {
-  const { shapeType, shapeColor, shapeFill, shapeStrokeWidth, shapeOpacity } =
-    useStore.getState();
+      newShape = {
+        id: nanoid(),
+        type: "freehand",
+        points: [{ x, y }],
+        color: freehandColor,
+        strokeWidth: freehandStrokeWidth,
+        opacity: freehandOpacity,
+      };
+    } else if (selectedTool === "shape") {
+      const {
+        shapeType,
+        shapeColor,
+        shapeFill,
+        shapeStrokeWidth,
+        shapeOpacity,
+      } = useStore.getState();
 
-  newShape = createShape(shapeType, x, y, {
-    stroke: shapeColor,
-    fill: shapeFill,
-    strokeWidth: shapeStrokeWidth,
-    opacity: shapeOpacity,
-  });
-}
-else  if (selectedTool === "sticky") {
+      newShape = createShape(shapeType, x, y, {
+        color: shapeColor,
+        fill: shapeFill,
+        strokeWidth: shapeStrokeWidth,
+        opacity: shapeOpacity,
+      });
+    } else if (selectedTool === "sticky") {
+      // ✅ Check if clicked on existing sticky
+      const clickedSticky = shapes.find(
+        (s) =>
+          s.type === "sticky" &&
+          x >= s.x &&
+          x <= s.x + s.width &&
+          y >= s.y &&
+          y <= s.y + s.height
+      );
+
+      if (clickedSticky) {
+        setSelectedShape(clickedSticky);
+        return; // Stop further processing
+      }
+
+      // ✅ Create new sticky
       const sticky = {
         id: nanoid(),
         type: "sticky",
@@ -196,15 +250,22 @@ else  if (selectedTool === "sticky") {
         text: "Your note here",
         opacity: 1,
       };
+
       addShape(sticky);
       setSelectedShape(sticky);
-      setCurrentShapeId(sticky.id);
-      setIsDragging(true);
-      lastPointer.current = { x, y };
+
+      // ✅ Switch back to hand tool
+      requestAnimationFrame(() => setTool("hand"));
+      return;
     } else {
       // select existing sticky if clicked
       const clicked = shapes.find(
-        (s) => s.type === "sticky" && x >= s.x && x <= s.x + s.width && y >= s.y && y <= s.y + s.height
+        (s) =>
+          s.type === "sticky" &&
+          x >= s.x &&
+          x <= s.x + s.width &&
+          y >= s.y &&
+          y <= s.y + s.height
       );
       if (clicked) {
         setSelectedShape(clicked);
@@ -221,44 +282,46 @@ else  if (selectedTool === "sticky") {
   };
 
   // handle pointer move
-const handlePointerMove = (e) => {
-  if (selectedTool === "text") return;
+  const handlePointerMove = (e) => {
+    if (selectedTool === "text") return;
 
-  const { offsetX, offsetY } = e.nativeEvent;
-  const { x, y } = toCanvasCoords(offsetX, offsetY);
+    const { offsetX, offsetY } = e.nativeEvent;
+    const { x, y } = toCanvasCoords(offsetX, offsetY);
 
-  // Panning the canvas
-  if (isPanning) {
-    const dx = e.clientX - lastPointer.current.x;
-    const dy = e.clientY - lastPointer.current.y;
-    lastPointer.current = { x: e.clientX, y: e.clientY };
-    setPan((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
-    return;
-  }
+    // Panning the canvas
+    if (isPanning) {
+      const dx = e.clientX - lastPointer.current.x;
+      const dy = e.clientY - lastPointer.current.y;
+      lastPointer.current = { x: e.clientX, y: e.clientY };
+      setPan((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
+      return;
+    }
 
-  const selectedImageId = useStore.getState().selectedImageId;
+    const selectedImageId = useStore.getState().selectedImageId;
 
-  // Dragging the selected image
-  if (selectedTool === "image" && selectedImageId && currentShapeId === selectedImageId) {
-    updateShape(selectedImageId, (prev) => ({
-      ...prev,
-      x: x - dragOffset.current.x,
-      y: y - dragOffset.current.y,
-    }));
-    return;
-  }
+    // Dragging the selected image
+    if (
+      selectedTool === "image" &&
+      selectedImageId &&
+      currentShapeId === selectedImageId
+    ) {
+      updateShape(selectedImageId, (prev) => ({
+        ...prev,
+        x: x - dragOffset.current.x,
+        y: y - dragOffset.current.y,
+      }));
+      return;
+    }
 
-  
-
-  // Drawing freehand or shapes
-  if (!currentShapeId) return;
-  updateShape(currentShapeId, (prev) => {
-    if (prev.type === "freehand") return { ...prev, points: [...prev.points, { x, y }] };
-    if (selectedTool === "shape") return updateShapeDimensions(prev, x, y);
-    return prev;
-  });
-};
-
+    // Drawing freehand or shapes
+    if (!currentShapeId) return;
+    updateShape(currentShapeId, (prev) => {
+      if (prev.type === "freehand")
+        return { ...prev, points: [...prev.points, { x, y }] };
+      if (selectedTool === "shape") return updateShapeDimensions(prev, x, y);
+      return prev;
+    });
+  };
 
   const handlePointerUp = () => {
     setIsPanning(false);
@@ -268,7 +331,10 @@ const handlePointerMove = (e) => {
   const handleWheel = (e) => {
     e.preventDefault();
     const scaleFactor = -e.deltaY * 0.001;
-    const newZoom = Math.min(Math.max(zoomRef.current * (1 + scaleFactor), 0.1), 10);
+    const newZoom = Math.min(
+      Math.max(zoomRef.current * (1 + scaleFactor), 0.1),
+      10
+    );
 
     const rect = svgRef.current.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
@@ -281,7 +347,7 @@ const handlePointerMove = (e) => {
     setZoom(newZoom);
   };
 
-   const handleDoubleClick = (e) => {
+  const handleDoubleClick = (e) => {
     const rect = svgRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -296,7 +362,6 @@ const handlePointerMove = (e) => {
     );
 
     if (clickedImage) {
-    
       useStore.getState().setSelectedImageId(clickedImage.id);
       setTool("image");
     }
@@ -317,7 +382,12 @@ const handlePointerMove = (e) => {
           width: "100vw",
           height: "100vh",
           backgroundColor: bgColor,
-          cursor: selectedTool === "text" ? "text" : selectedTool === "pan" ? "grab" : "crosshair",
+          cursor:
+            selectedTool === "text"
+              ? "text"
+              : selectedTool === "pan"
+              ? "grab"
+              : "crosshair",
         }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -331,86 +401,90 @@ const handlePointerMove = (e) => {
           <>
             {textContent.split("\n").map((line, i) => (
               <text
-  key={i}
-  x={textPos.x}
-  y={textPos.y + i * textStyle.fontSize * 1.5}
-  fill={textStyle.color}
-  fontSize={textStyle.fontSize}
-  fontFamily={textStyle.fontFamily}
-  opacity={textStyle.opacity ?? 1}
-  textAnchor={
-    textStyle.textAlign === "center"
-      ? "middle"
-      : textStyle.textAlign === "right"
-      ? "end"
-      : "start"
-  }
-
->
-  {line}
-</text>
-
+                key={i}
+                x={textPos.x}
+                y={textPos.y + i * textStyle.fontSize * 1.5}
+                fill={textStyle.color}
+                fontSize={textStyle.fontSize}
+                fontFamily={textStyle.fontFamily}
+                opacity={textStyle.opacity ?? 1}
+                textAnchor={
+                  textStyle.textAlign === "center"
+                    ? "middle"
+                    : textStyle.textAlign === "right"
+                    ? "end"
+                    : "start"
+                }
+              >
+                {line}
+              </text>
             ))}
             {caretVisible && (
               <line
                 x1={
                   textPos.x + (textContent.split("\n").at(-1)?.length || 0) * 9
                 }
-                y1={
-                  textPos.y -
-                  15 +
-                  (textContent.split("\n").length - 1) * 24
-                }
+                y1={textPos.y - 15 + (textContent.split("\n").length - 1) * 24}
                 x2={
                   textPos.x + (textContent.split("\n").at(-1)?.length || 0) * 9
                 }
                 y2={textPos.y + (textContent.split("\n").length - 1) * 24}
-               stroke={textStyle.color}
-
+                stroke={textStyle.color}
                 strokeWidth={1}
               />
             )}
           </>
         )}
 
-      {/* 🎨 Saved shapes */}
-<g transform={`translate(${pan.x}, ${pan.y}) scale(${zoom})`}>
-  {shapes.map((shape) => {
-    if (shape.type === "image") return null;
+        {/* 🎨 Saved shapes */}
+        <g transform={`translate(${pan.x}, ${pan.y}) scale(${zoom})`}>
+          {shapes.map((shape) => {
+            if (shape.type === "image") return null;
 
-    if (shape.type === "text") {
-      const lines = shape.lines || [shape.text || ""];
-      const fontSize = shape.fontSize ?? 18;
-      const lineHeight = fontSize * 1.5;
+            if (shape.type === "text") {
+              const lines = shape.lines || [shape.text || ""];
+              const fontSize = shape.fontSize ?? 18;
+              const lineHeight = fontSize * 1.5;
 
-      return lines.map((line, idx) => (
-        <text
-          key={shape.id + idx}
-          x={shape.x}
-          y={shape.y + idx * lineHeight}
-          fill={shape.color}
-          fontSize={fontSize}
-          fontFamily={shape.fontFamily}
-          opacity={typeof shape.opacity === "number" ? shape.opacity : 1}
-          textAnchor={
-            shape.textAlign === "center"
-              ? "middle"
-              : shape.textAlign === "right"
-              ? "end"
-              : "start"
-          }
-        >
-          {line}
-        </text>
-      ));
-    }
+              return lines.map((line, idx) => (
+                <text
+                  key={shape.id + idx}
+                  x={shape.x}
+                  y={shape.y + idx * lineHeight}
+                  fill={shape.color}
+                  fontSize={fontSize}
+                  fontFamily={shape.fontFamily}
+                  opacity={
+                    typeof shape.opacity === "number" ? shape.opacity : 1
+                  }
+                  textAnchor={
+                    shape.textAlign === "center"
+                      ? "middle"
+                      : shape.textAlign === "right"
+                      ? "end"
+                      : "start"
+                  }
+                >
+                  {line}
+                </text>
+              ));
+            }
+            if (shape.type === "sticky") {
+              return (
+                <StickyShape
+                  key={shape.id}
+                  shape={shape}
+                  isSelected={
+                    shape.id === useStore.getState().selectedShape?.id
+                  }
+                />
+              );
+            }
 
-    return <Shape key={shape.id} {...shape} />;
-  })}
-  <ImageTool selectedTool={selectedTool} pan={pan} zoom={zoom} />
-</g>
-
-
+            return <Shape key={shape.id} {...shape} />;
+          })}
+          <ImageTool selectedTool={selectedTool} pan={pan} zoom={zoom} />
+        </g>
       </svg>
     </div>
   );

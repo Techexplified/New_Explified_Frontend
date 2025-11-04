@@ -44,13 +44,7 @@ export default function Toolbar() {
   const [openMenu, setOpenMenu] = useState(null);
   const fileInputRef = useRef(null);
 
-  // freehand texture preview
-  const textureOptions = [
-    { id: "solid", label: "Smooth", preview: "linear-gradient(#23b5b5,#23b5b5)" },
-    { id: "rough", label: "Rough", preview: "repeating-linear-gradient(45deg,#23b5b5 0 2px,#0d1418 2px 4px)" },
-    { id: "chalk", label: "Chalk", preview: "radial-gradient(circle,#23b5b5 20%,transparent 20%)" },
-    { id: "spray", label: "Spray", preview: "radial-gradient(circle,#23b5b5 1px,transparent 1px)" },
-  ];
+  
 
   const tools = [
     { id: "lock", icon: <Lock size={18} /> },
@@ -59,8 +53,8 @@ export default function Toolbar() {
     { id: "square", icon: <Square size={18} />, key: "2" },
     // { id: "diamond", icon: <Diamond size={18} />, key: "3" },
     // { id: "circle", icon: <Circle size={18} />, key: "4" },
-    { id: "arrow", icon: <ArrowRight size={18} />, key: "5" },
-    { id: "line", icon: <Minus size={18} />, key: "6" },
+   
+   
     { id: "pencil", icon: <Pencil size={18} />, key: "7" },
     { id: "text", icon: <Type size={18} />, key: "8" },
     { id: "image", icon: <ImageIcon size={18} />, key: "9" },

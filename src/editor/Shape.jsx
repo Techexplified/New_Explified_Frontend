@@ -183,6 +183,45 @@ export default function Shape(props) {
         </text>
       );
 
+
+      case "sticky":
+  return (
+    <foreignObject
+      x={x}
+      y={y}
+      width={width}
+      height={height}
+      style={{ overflow: "visible" }}
+    >
+      <div
+        xmlns="http://www.w3.org/1999/xhtml"
+        style={{
+          width: "100%",
+          height: "100%",
+          backgroundColor: fill,
+          borderRadius: "8px",
+          padding: "8px",
+          boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+          fontFamily: fontFamily || "Arial",
+          fontSize: fontSize || 16,
+          color: color || "#000",
+          whiteSpace: "pre-wrap",
+        }}
+        contentEditable
+        suppressContentEditableWarning
+        onInput={(e) => {
+          const updatedText = e.currentTarget.textContent;
+          useStore.getState().updateShape(props.id, (prev) => ({
+            ...prev,
+            text: updatedText,
+          }));
+        }}
+      >
+        {text || "Your note here"}
+      </div>
+    </foreignObject>
+  );
+
     default:
       return null;
   }

@@ -97,7 +97,10 @@ function ChatContainer({
       </div>
 
       {/* Messages Container */}
-      <div className="w-full flex flex-col gap-6 flex-1">
+      <div
+        className={`w-full flex flex-col gap-6 
+    ${onlyExpliOpen ? "max-w-3xl mx-auto flex-1" : "flex-1"}`}
+      >
         {/* Empty State */}
         {(!messages || messages.length === 0) && (
           <div className="flex">
@@ -117,7 +120,9 @@ function ChatContainer({
           >
             {msg.sender === "bot" && (
               <img
-                className="h-5 w-5 rounded mt-1 flex-shrink-0"
+                className={`${
+                  onlyExpliOpen ? "w-8 h-8" : "w-5 h-5"
+                }  rounded mt-1 flex-shrink-0`}
                 alt={toolName}
                 src={logo}
               />
@@ -163,7 +168,11 @@ function ChatContainer({
             </div>
 
             {msg.sender === "user" && (
-              <div className="w-5 h-5 rounded-full bg-gray-700 flex-shrink-0 flex items-center justify-center text-xs font-bold text-gray-300">
+              <div
+                className={`${
+                  onlyExpliOpen ? "w-7 h-7" : "w-5 h-5"
+                }  rounded-full bg-gray-700 flex-shrink-0 flex items-center justify-center text-xs font-bold text-gray-300`}
+              >
                 S
               </div>
             )}
