@@ -13,6 +13,7 @@ import ExpliIntegration from "./ExpliIntegration";
 import { useNavigate } from "react-router-dom";
 import SettingsModal from "./SettingsModal";
 import { ExpliLogo } from "../assets";
+import SettingsPortal from "./SettingsPortal";
 
 export default function ExpliSidebar({
   activeSection,
@@ -133,7 +134,7 @@ export default function ExpliSidebar({
             </button>
             <span className="text-[11px] text-gray-400">Account</span>
 
-            <SettingsModal
+            <SettingsPortal
               open={settingsOpen}
               onClose={() => setSettingsOpen(false)}
             />

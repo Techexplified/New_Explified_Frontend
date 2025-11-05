@@ -40,19 +40,17 @@ function ExpliInput({
       className={`fixed ${
         onlyExpliOpen && chatNotPresent
           ? "top-1/2 -translate-y-1/2"
-          : "bottom-6"
-      } left-0 right-0 z-10 transition-all duration-500`}
+          : "bottom-4"
+      } left-0 right-0 z-30 transition-all duration-500 px-3 md:px-0`}
     >
       {onlyExpliOpen && chatNotPresent && (
-        <div className="text-center mb-6 text-5xl">Expli</div>
+        <div className="text-center mb-6 text-4xl md:text-5xl">Expli</div>
       )}
 
-      <div
-        className={`max-w-3xl mx-auto py-2 bg-[#111] border border-gray-800 rounded-2xl`}
-      >
-        {/* Input Bar (ONE LINE) */}
-        <div className="w-full  px-5 py-3 shadow-lg flex items-center gap-3">
-          <button className="text-gray-500 hover:text-gray-300 transition">
+      <div className="max-w-3xl mx-auto py-2 bg-[#111] border border-gray-800 rounded-2xl shadow-lg">
+        {/* Input Row */}
+        <div className="w-full px-4 py-2 flex items-center gap-2 md:gap-3">
+          <button className="text-gray-500 hover:text-gray-300 transition hidden md:block">
             <FiSearch size={18} />
           </button>
 
@@ -69,8 +67,8 @@ function ExpliInput({
           />
         </div>
 
-        {/* Buttons Below (Right Aligned) */}
-        <div className="flex justify-end gap-3 mt-2 pr-8">
+        {/* Icons */}
+        <div className="flex justify-end gap-3 mt-2 pr-4 md:pr-8 pb-2 text-sm md:text-base">
           <div
             className="relative flex items-center"
             onMouseEnter={() => setShowGlobePopup(true)}
@@ -79,7 +77,6 @@ function ExpliInput({
             <button className="text-gray-500 hover:text-gray-300 transition">
               <FiGlobe size={18} />
             </button>
-
             {showGlobePopup && <UpgradePopup />}
           </div>
 
@@ -90,9 +87,9 @@ function ExpliInput({
             <FiPaperclip size={18} />
           </button>
 
-          <button className="text-gray-500 hover:text-gray-300 transition">
+          {/* <button className="text-gray-500 hover:text-gray-300 transition hidden xs:flex">
             <FiMic size={18} />
-          </button>
+          </button> */}
 
           <button
             type="button"
@@ -102,7 +99,7 @@ function ExpliInput({
               }
             }}
             disabled={!prompt.trim()}
-            className="bg-[#23b5b5] hover:bg-[#21a5a5] text-white rounded-lg px-3 py-2 transition disabled:opacity-60"
+            className="bg-[#23b5b5] hover:bg-[#21a5a5] text-white rounded-md px-3 py-1.5 md:py-2 transition disabled:opacity-60"
           >
             <FiSend size={18} />
           </button>
@@ -118,11 +115,9 @@ function ExpliInput({
 
         {/* File Preview */}
         {selectedFile && (
-          <div className="mt-3 px-3 py-2 rounded-lg bg-gray-800/50 border border-gray-700/50 flex items-center gap-2">
+          <div className="mt-2 mx-3 px-3 py-2 rounded-lg bg-gray-800/50 border border-gray-700/50 flex items-center gap-2 text-xs md:text-sm">
             <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-            <span className="text-xs text-gray-300 truncate">
-              {selectedFile.name}
-            </span>
+            <span className="text-gray-300 truncate">{selectedFile.name}</span>
           </div>
         )}
       </div>

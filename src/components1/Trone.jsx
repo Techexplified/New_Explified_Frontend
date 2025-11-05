@@ -37,7 +37,7 @@ function Trone() {
       {/* <ExpliSidebar link={"https://explified.com/expli/"} /> */}
 
       <button
-        className="lg:hidden absolute top-4 left-4 z-10 bg-black/70 text-white p-2 rounded-md"
+        className="lg:hidden absolute top-2 left-4 z-10 bg-black/70 text-white p-2 rounded-md"
         onClick={() => setIsMobileOpen(true)}
       >
         ☰
