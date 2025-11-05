@@ -4,6 +4,7 @@ import IntegrationModal from "./IntegrationModal";
 import { FaCodeBranch } from "react-icons/fa6";
 import { useExpli } from "../context/ExpliContext";
 import { FaPuzzlePiece } from "react-icons/fa";
+import IntegrationModalPortal from "./IntegrationModalPortal";
 
 function ExpliIntegration() {
   const {
@@ -38,8 +39,17 @@ function ExpliIntegration() {
           </button>
         </div>
       </div>
-      {showIntegrationsModal && (
+      {/* {showIntegrationsModal && (
         <IntegrationModal
+          providerKeys={providerKeys}
+          setProviderKeys={setProviderKeys}
+          setShowIntegrationsModal={setShowIntegrationsModal}
+          setClosedChats={setClosedChats}
+          closedChats={closedChats}
+        />
+      )} */}
+      {showIntegrationsModal && (
+        <IntegrationModalPortal
           providerKeys={providerKeys}
           setProviderKeys={setProviderKeys}
           setShowIntegrationsModal={setShowIntegrationsModal}

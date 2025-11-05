@@ -47,7 +47,9 @@ function ExpliInput({
         <div className="text-center mb-6 text-5xl">Expli</div>
       )}
 
-      <div className="max-w-3xl mx-auto py-2 bg-[#111] border border-gray-800 rounded-2xl">
+      <div
+        className={`max-w-3xl mx-auto py-2 bg-[#111] border border-gray-800 rounded-2xl`}
+      >
         {/* Input Bar (ONE LINE) */}
         <div className="w-full  px-5 py-3 shadow-lg flex items-center gap-3">
           <button className="text-gray-500 hover:text-gray-300 transition">

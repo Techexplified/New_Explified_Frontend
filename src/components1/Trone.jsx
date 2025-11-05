@@ -1,10 +1,10 @@
+import { useState } from "react";
 import ExpliIntegration from "../expli/ExpliIntegration";
-
 import ExpliSidebar from "../expli/ExpliSidebar";
-
 import { Outlet } from "react-router-dom";
 
 function Trone() {
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   return (
     <div className="flex relative text-white h-screen bg-[#0a0a0a] overflow-hidden">
       {/* Animated Background with Multiple Layers */}
@@ -34,7 +34,21 @@ function Trone() {
         />
       </div>
 
-      <ExpliSidebar link={"https://explified.com/expli/"} />
+      {/* <ExpliSidebar link={"https://explified.com/expli/"} /> */}
+
+      <button
+        className="lg:hidden absolute top-4 left-4 z-10 bg-black/70 text-white p-2 rounded-md"
+        onClick={() => setIsMobileOpen(true)}
+      >
+        ☰
+      </button>
+
+      {/* Sidebar */}
+      <ExpliSidebar
+        isMobileOpen={isMobileOpen}
+        setIsMobileOpen={setIsMobileOpen}
+        link={"https://explified.com/expli/"}
+      />
 
       {/* <Outlet /> */}
       <Outlet />

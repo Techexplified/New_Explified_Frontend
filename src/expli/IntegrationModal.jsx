@@ -119,15 +119,18 @@ function IntegrationModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-scroll flex items-center justify-center ">
+    <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 sm:p-6">
       <div
         className="absolute inset-0 bg-black/70"
         onClick={() => setShowIntegrationsModal(false)}
       />
       <div
-        className={`relative w-full ${
-          showProviderHelp ? "max-w-4xl" : "max-w-2xl"
-        } bg-white border border-gray-200 rounded-xl shadow-2xl p-6`}
+        className={`relative w-full
+    ${showProviderHelp ? "max-w-4xl" : "max-w-2xl"}
+    bg-white border border-gray-200 rounded-xl shadow-2xl
+    p-4 sm:p-6
+    max-h-[90vh] overflow-y-auto
+  `}
       >
         <button
           aria-label="Close"
@@ -144,7 +147,7 @@ function IntegrationModal({
 
         {!selectedProviderId && (
           <>
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4">
               <button
                 onClick={() => setIntegrationTab("my")}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
@@ -174,7 +177,7 @@ function IntegrationModal({
                 value={integrationSearch}
                 onChange={(e) => setIntegrationSearch(e.target.value)}
                 placeholder="Search integrations..."
-                className="w-full bg-gray-100 border border-gray-300 rounded-lg pl-4 pr-12 py-3 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300 transition-all duration-200"
+                className="w-full bg-gray-100 border border-gray-300 rounded-lg pl-4 pr-12 py-2.5 sm:py-3 text-sm text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300 transition-all duration-200"
               />
               <FiSearch className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" />
             </div>
@@ -195,7 +198,7 @@ function IntegrationModal({
                   <div
                     key={p.id}
                     onClick={() => handleOpenProvider(p.id)}
-                    className="flex items-center justify-between  bg-gray-100 rounded-xl border border-gray-200 px-4 py-2 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-gray-100 rounded-xl border border-gray-200 px-4 py-3 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group"
                   >
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-xl">
@@ -420,7 +423,7 @@ function IntegrationModal({
                     </div>
                   </div>
 
-                  <div className="mt-6 flex justify-end gap-3">
+                  <div className="mt-6 flex flex-col sm:flex-row justify-end gap-3">
                     <button
                       className="px-4 py-2 rounded-lg bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition-all duration-200"
                       onClick={() =>

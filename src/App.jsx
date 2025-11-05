@@ -151,6 +151,7 @@ import AcmecorpAdmin from "./client_component/AcmecorpAdmin.jsx";
 import NewsPage from "./components1/NewsPage.jsx";
 import ChatPanel from "./expli/ChatPanel.jsx";
 import AIChatApp from "./ai-fiesta/AIChatGrid.jsx";
+import AllApps from "./pages/about_pages/AllApps.jsx";
 function App() {
   usePageTracking();
   const navigate = useNavigate();
@@ -172,7 +173,7 @@ function App() {
         <Route path="/result" element={<Result />} />
         <Route path="influmark/:name" element={<InfluencerProfile />} />
         <Route path="/login" element={<LoginPage />} />
-
+        <Route path="/all-apps" element={<AllApps />} />
         {/* <Route path="/influmark" element={<Influmark />} /> */}
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/about-us" element={<AboutUs />} />

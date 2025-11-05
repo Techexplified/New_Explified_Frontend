@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Youtube,
   FileText,
@@ -28,16 +28,26 @@ import {
   Trash2,
   MoreHorizontal,
   Sparkles,
+  LayoutDashboard,
+  Layers,
+  Workflow,
+  PlugZap,
+  ChevronRight,
+  ChevronLeft,
+  CircleUserRound,
+  Grip,
+  LogOut,
+  TrendingUp,
+  Star,
+  Link,
 } from "lucide-react";
+import { useNavigate, useLocation, NavLink } from "react-router-dom";
+import { MdElderlyWoman, MdOutlineGifBox } from "react-icons/md";
+import { SiGmail, SiGooglesheets } from "react-icons/si";
 import { PiSubtitles } from "react-icons/pi";
-import {
-  MdOutlineGifBox,
-  MdFaceRetouchingNatural,
-  MdElderlyWoman,
-} from "react-icons/md";
+import { MdFaceRetouchingNatural } from "react-icons/md";
 import MostPopular from "./workflows/MostPopular";
 import InstagramAnalytics from "./InstagramAnalytics";
-import { useNavigate, Link, useLocation } from "react-router-dom";
 import MainWorkflowPage from "./workflowPages/MainWorkflowPage";
 import IntegrationsPage from "../../components1/Integrations";
 import {
@@ -46,8 +56,6 @@ import {
   removeRecentTool,
 } from "../../utils/recentTools.js";
 import {
-  SiGmail,
-  SiGooglesheets,
   SiGoogledrive,
   SiGooglecalendar,
   SiZoom,
@@ -60,6 +68,8 @@ import {
 } from "react-icons/si";
 import { MdBusiness } from "react-icons/md";
 import { useSelector } from "react-redux";
+import notes from "../../../public/images/notes-image.png";
+import expli from "../../../public/images/expli-image.png";
 const navItems = [
   { name: "Recent", icon: FileText, active: false, badge: null },
   { name: "Start", icon: Play, active: false, badge: null },
@@ -68,6 +78,67 @@ const navItems = [
   { name: "Integrations", icon: Plus, active: false, badge: null },
   { name: "Search", icon: Search, active: true, badge: null },
 ];
+import AllPages from "../../pages/about_pages/AllApps.jsx";
+
+import {
+  FaYoutube,
+  FaFileAlt,
+  FaVideo,
+  FaProjectDiagram,
+  FaImage,
+  FaImages,
+  FaBolt,
+  FaLaughSquint,
+  FaPlug,
+  FaLink,
+  FaDatabase,
+  FaSearch,
+  FaPlay,
+} from "react-icons/fa";
+import { AiOutlineFileImage } from "react-icons/ai";
+import { MdEdit } from "react-icons/md";
+
+// Sidebar menu config
+const menuItems = [
+  {
+    path: "/",
+    label: "Dashboard",
+    icon: <LayoutDashboard className="w-5 h-5" />,
+  },
+  {
+    path: "/all-apps",
+    label: "All Apps",
+    icon: <Layers className="w-5 h-5" />,
+  },
+  {
+    path: "/workflows",
+    label: "Workflows",
+    icon: <Workflow className="w-5 h-5" />,
+  },
+  {
+    path: "/integrations",
+    label: "Integrations",
+    icon: <PlugZap className="w-5 h-5" />,
+  },
+];
+
+const iconMap = {
+  Youtube,
+  FileText,
+  Projector,
+  ImagePlay,
+  Images,
+  FileVideo2,
+  Laugh,
+  Zap,
+  BoomBox,
+  MdOutlineGifBox,
+  ScreenShare,
+  MdElderlyWoman,
+  PenOff,
+  Image,
+  Link,
+};
 
 const sampleWorkflows = [
   {
@@ -257,1390 +328,925 @@ const sampleWorkflows = [
   },
 ];
 
-const menuOptions = [
+const allTools = [
   {
-    icon: ExternalLink,
-    label: "View Details",
-    action: "view",
-    className: "text-minimal-muted hover:text-minimal-primary",
+    title: "Youtube Summarizer",
+    description: "A YouTube Summarizer quickly turns long videos into short.",
+    icon: <FaYoutube />,
+    color: "from-teal-500 to-teal-700",
+    route: "/youtube-summarizer",
   },
   {
-    icon: Copy,
-    label: "Duplicate",
-    action: "duplicate",
-    className: "text-minimal-muted hover:text-minimal-primary",
+    title: "AI Subtitler",
+    description: "Centralized AI Subtitler for your videos",
+    icon: <FaFileAlt />,
+    color: "from-teal-500 to-teal-700",
+    route: "/ai-subtitler",
   },
   {
-    icon: Edit3,
-    label: "Edit",
-    action: "edit",
-    className: "text-minimal-muted hover:text-minimal-primary",
+    title: "Text To Video Generator",
+    description: "Generate videos using prompts.",
+    icon: <FaVideo />,
+    route: "/text-to-video",
+    color: "from-teal-500 to-teal-700",
   },
   {
-    icon: Settings,
-    label: "Settings",
-    action: "settings",
-    className: "text-minimal-muted hover:text-minimal-primary",
+    title: "Slideshow Maker",
+    description: "Create stunning slideshows.",
+    icon: <FaProjectDiagram />,
+    route: "/presentation",
+    color: "from-teal-500 to-teal-700",
   },
   {
-    icon: Trash2,
-    label: "Remove",
-    action: "remove",
-    className: "text-minimal-gray-500 hover:text-minimal-gray-400",
+    title: "Bg Remover",
+    description: "Remove background from images.",
+    icon: <AiOutlineFileImage />,
+    route: "/bg-remover",
+    color: "from-teal-500 to-teal-700",
+  },
+  {
+    title: "Image Styler",
+    description: "Style your images.",
+    icon: <FaImages />,
+    route: "/image-styler",
+    color: "from-teal-500 to-teal-700",
+  },
+  {
+    title: "Video Meme Generator AI",
+    description: "Turn any clip into a share-worthy meme in seconds with AI.",
+    icon: <FaLaughSquint />,
+    route: "/video-meme-generator",
+    color: "from-teal-500 to-teal-700",
+  },
+  {
+    title: "Integrations",
+    description: "Instantly share across your socials.",
+    icon: <FaPlug />,
+    route: "/integrations",
+    color: "from-teal-500 to-teal-700",
+  },
+  {
+    title: "Socials",
+    description: "One click, everywhere.",
+    icon: <FaBolt />,
+    route: "/socials",
+    color: "from-teal-500 to-teal-700",
+  },
+  {
+    title: "AI GIF Generator",
+    description: "Viral GIFs, AI-powered in seconds.",
+    icon: <MdOutlineGifBox />,
+    route: "/ai-gif-generator",
+    color: "from-teal-500 to-teal-700",
+  },
+  {
+    title: "AI Hugging Video Maker",
+    description: "Bring warm hugs to life with AI-powered videos.",
+    icon: <FaPlay />,
+    route: "/ai-hugging-video-maker",
+    color: "from-teal-500 to-teal-700",
+  },
+  {
+    title: "Ageing Video Maker AI",
+    description: "See yourself age in seconds with AI-powered videos.",
+    icon: <MdElderlyWoman />,
+    route: "/ageing-video-maker-ai",
+    color: "from-teal-500 to-teal-700",
+  },
+  {
+    title: "AI Tattoo Art Generator",
+    description: "Design unique tattoo art instantly with AI.",
+    icon: <MdEdit />,
+    route: "/ai-tattoo-art-generator",
+    color: "from-teal-500 to-teal-700",
+  },
+  {
+    title: "Image To Video AI",
+    description: "Transform any image into a stunning video with AI.",
+    icon: <FaImage />,
+    route: "/image-to-video-ai",
+    color: "from-teal-500 to-teal-700",
+  },
+  {
+    title: "Link To Video AI",
+    description: "Turn any link into an engaging video with AI.",
+    icon: <FaLink />,
+    route: "/link-to-video-ai",
+    color: "from-teal-500 to-teal-700",
   },
 ];
 
-const RenderMyIntegrations = () => {
-  const myIntegrations = [
-    {
-      name: "Explified Engine",
-      icon: <Youtube />,
-      description: "A platform to share videos",
-      connected: true,
-      lastSync: "2 hours ago",
-    },
-  ];
-
-  return (
-    <>
-      <p className="p-4 w-full md:text-3xl font-bold bg-gradient-to-tr from-teal-300 to-cyan-900 bg-clip-text text-transparent text-minimal-white tracking-tighter">
-        Integrations
-      </p>
-
-      <div className="relative">
-        <div className="flex items-center justify-center w-full mb-6">
-          <div className="flex-1 h-px bg-gradient-to-r from-transparent to-emerald-400"></div>
-
-          <div className="flex-1 h-px bg-gradient-to-l from-transparent to-emerald-400"></div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-        {myIntegrations.map((tool, index) => (
-          <div
-            key={index}
-            className="bg-teal-800 bg-opacity-30 border border-teal-600 rounded-xl p-5 hover:bg-opacity-50 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg hover:shadow-teal-500/20 relative group"
-          >
-            {/* Connected status indicator */}
-            <div className="absolute top-3 right-3 flex items-center gap-1">
-              <div
-                className={`w-2 h-2 rounded-full ${
-                  tool.connected ? "bg-green-400" : "bg-red-400"
-                } animate-pulse`}
-              ></div>
-              <span className="text-xs text-gray-400">
-                {tool.connected ? "Connected" : "Disconnected"}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-teal-600 to-teal-800 rounded-lg flex items-center justify-center text-white">
-                {tool.icon}
-              </div>
-              <h3 className="text-white font-semibold text-sm">{tool.name}</h3>
-            </div>
-            <p className="text-gray-300 text-xs leading-relaxed mb-3">
-              {tool.description}
-            </p>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-gray-400">Last sync: {tool.lastSync}</span>
-              <div
-                className={`flex items-center gap-1 ${
-                  tool.connected ? "text-green-400" : "text-gray-400"
-                } `}
-              >
-                <Check className="w-3 h-3" />
-                <span>{tool.connected ? "Active" : "Inctive"}</span>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </>
-  );
-};
-
-const NavBarSection = ({
-  selectedTool,
-  onNavClick,
-  searchQuery,
-  setSearchQuery,
-  searchResults,
-  setSearchResults,
-  handleSearch,
-  iconMap,
-  setRecentTools,
-  navigate,
-  highlightMatch,
-}) => (
-  <>
-    <div className="w-full pt-[30px] px-6 sm:px-12 lg:px-24 flex flex-col items-center gap-6 animate-fadeIn">
-      <div className="w-full max-w-screen-lg mx-auto flex flex-col items-center gap-6">
-        {/* Heading */}
-        <div className="relative text-center mb-12">
-          {/* Professional animated background elements */}
-
-          <div className="absolute top-1/4 left-1/4 w-66 h-66 bg-teal-500/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-teal-500/5 rounded-full blur-3xl animate-pulse delay-500" />
-
-          <h1 className="text-6xl font-bold bg-gradient-to-r from-cyan-400 via-teal-300 to-purple-600 bg-clip-text text-transparent mb-4 animate-slideDown">
-            Explified
-          </h1>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto animate-fadeInUp delay-200">
-            Transform your workflow with AI-powered tools and seamless
-            automation
-          </p>
-        </div>
-
-        {/* Search Bar */}
-        <div className="relative w-[80%] mx-auto mb-8 animate-fadeInUp delay-300">
-          <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search tools, workflows, and integrations..."
-            value={searchQuery}
-            onChange={handleSearch}
-            className="w-full bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 rounded-2xl pl-16 pr-6 py-4 text-white placeholder-gray-400 focus:outline-none focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-300 hover:border-gray-700/80"
-          />
-        </div>
-
-        {/* Bottom Row - Nav buttons */}
-        {/* <div className="flex gap-3 sm:gap-4 overflow-x-auto flex-nowrap animate-fadeInUp delay-200 w-full px-2 sm:px-4 justify-center">
-          {navItems
-            .filter((item) => item.name !== "Search")
-            .map((item) => (
-              <button
-                key={item.name}
-                type="button"
-                onClick={() => onNavClick(item.name)}
-                className={`px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm md:text-base font-medium transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95 whitespace-nowrap ${
-                  selectedTool === item.name
-                    ? "bg-gradient-to-r from-teal-600 to-teal-700 text-white shadow-lg shadow-teal-500/20 border border-teal-500"
-                    : "bg-black/20 border border-gray-600 text-gray-300 hover:bg-gray-700/60 hover:border-gray-500"
-                }`}
-              >
-                <span>{item.name}</span>
-              </button>
-            ))}
-        </div> */}
-
-        {/* Navigation */}
-        <div className="flex justify-center mb-8 animate-fadeInUp delay-400">
-          <div className="flex gap-2 bg-gray-900/40 backdrop-blur-sm border border-gray-800/60 rounded-2xl p-2">
-            {navItems
-              .filter((item) => item.name !== "Search")
-              .map((item) => (
-                <button
-                  key={item.name}
-                  onClick={() => onNavClick(item.name)}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
-                    selectedTool === item.name
-                      ? "bg-gradient-to-r from-cyan-500 to-teal-800 text-white shadow-lg"
-                      : "text-gray-400 hover:text-white hover:bg-gray-800/60"
-                  }`}
-                >
-                  {item.icon && <item.icon className="w-4 h-4" />}
-                  {item.name}
-                </button>
-              ))}
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <style jsx>{`
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(10px) scale(0.98);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0) scale(1);
-        }
-      }
-      @keyframes fadeInUp {
-        from {
-          opacity: 0;
-          transform: translateY(15px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      @keyframes slideDown {
-        from {
-          opacity: 0;
-          transform: translateY(-10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      .animate-fadeIn {
-        animation: fadeIn 0.5s ease-out forwards;
-      }
-      .animate-fadeInUp {
-        animation: fadeInUp 0.4s ease-out forwards;
-      }
-      .animate-slideDown {
-        animation: slideDown 0.4s ease-out forwards;
-      }
-    `}</style>
-  </>
-);
-
 const MainDashboard = () => {
-  const [isOpenTools, setIsOpenTools] = useState(false);
-  const [isOpenAllTools, setIsOpenAllTools] = useState(false);
-  // Holds all selected filters; 'Recent' always included internally
-  const [selectedTools, setSelectedTools] = useState("Recent");
-  const [openMenuId, setOpenMenuId] = useState(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
+  // Sidebar states
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [closeSidebar, setCloseSidebar] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const [showAllApps, setShowAllApps] = useState(false);
+  const [showAllWorkflows, setShowAllWorkflows] = useState(false);
 
-  // Define start section items for search
-  const startItems = [
+  // Carousel states
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Search/filter state
+  const [searchText, setSearchText] = useState("");
+
+  // Use your own or generated HD images URLs here
+  const expliImageUrl = expli;
+  const notesImageUrl = notes;
+
+  const carouselItems = [
     {
+      id: 1,
       title: "Expli",
       description: "Advanced AI assistant for complex tasks and analysis",
       route: "/expli",
-      category: "Start",
-      icon: "Sparkles",
-      type: "start",
+      image: expliImageUrl,
     },
     {
+      id: 2,
       title: "Notes",
       description: "Create and manage your personal notes and documentation",
       route: "/tasks",
-      category: "Start",
-      icon: "FileText",
-      type: "start",
-    },
-    {
-      title: "Memory",
-      description: "Store and retrieve important information using AI memory",
-      route: "/memory",
-      category: "Start",
-      icon: "Database",
-      type: "start",
-    },
-    {
-      title: "Search",
-      description: "Search across all your tools, workflows, and integrations",
-      route: "/search",
-      category: "Start",
-      icon: "Search",
-      type: "start",
+      image: notesImageUrl,
     },
   ];
 
-  // Define integration items for search
-  const integrationItems = [
+  // Most popular apps
+  // Most popular apps - selected from allTools
+  const popularApps = [
     {
-      title: "Explified Engine",
-      description: "A platform to share videos and content",
-      route: "/integrations",
-      category: "Integrations",
-      icon: "Youtube",
-      type: "integration",
+      id: 1,
+      name: "Image Styler",
+      icon: <Images className="w-8 h-8" />,
+      color: "from-purple-500 to-pink-600",
+      route: "/image-styler",
     },
-  ];
+    {
+      id: 2,
+      name: "Image To Video AI",
+      icon: <FaImage className="w-8 h-8" />,
+      color: "from-blue-500 to-cyan-600",
+      route: "/image-to-video-ai",
+    },
+    {
+      id: 3,
+      name: "Slideshow Maker",
+      icon: <Projector className="w-8 h-8" />,
+      color: "from-orange-500 to-red-600",
+      route: "/presentation",
+    },
+    {
+      id: 4,
+      name: "AI GIF Generator",
+      icon: <MdOutlineGifBox className="w-8 h-8" />,
+      color: "from-green-500 to-teal-600",
+      route: "/ai-gif-generator",
+    },
+  ].filter((app) =>
+    searchText.trim().length === 0
+      ? true
+      : app.name.toLowerCase().includes(searchText.toLowerCase())
+  );
 
-  const handleSearch = (e) => {
-    const query = e.target.value.toLowerCase();
-    setSearchQuery(query);
-
-    if (query.trim() === "") {
-      setSearchResults([]);
-      return;
-    }
-
-    // Add type property to existing arrays for identification
-    const toolsWithType = allTools.map((tool) => ({ ...tool, type: "tool" }));
-    const workflowsWithType = sampleWorkflows.map((workflow) => ({
-      ...workflow,
-      type: "workflow",
-      route: "/locked", // workflows go to locked page
-    }));
-
-    // Combine all searchable items
-    const allSearchableItems = [
-      ...toolsWithType,
-      ...workflowsWithType,
-      ...startItems,
-      ...integrationItems,
-    ];
-
-    // Search in title first
-    const titleMatches = allSearchableItems.filter((item) =>
-      item.title.toLowerCase().includes(query)
-    );
-
-    // Search in description but not already in titleMatches
-    const descriptionMatches = allSearchableItems.filter(
-      (item) =>
-        item.description.toLowerCase().includes(query) &&
-        !titleMatches.find(
-          (match) => match.title === item.title && match.type === item.type
-        )
-    );
-
-    // Search in category but not already in previous matches
-    const categoryMatches = allSearchableItems.filter(
-      (item) =>
-        item.category &&
-        item.category.toLowerCase().includes(query) &&
-        !titleMatches.find(
-          (match) => match.title === item.title && match.type === item.type
-        ) &&
-        !descriptionMatches.find(
-          (match) => match.title === item.title && match.type === item.type
-        )
-    );
-
-    // Combine results with title matches first, then description, then category
-    const results = [
-      ...titleMatches,
-      ...descriptionMatches,
-      ...categoryMatches,
-    ];
-
-    setSearchResults(results);
-  };
-
-  const highlightMatch = (text, query) => {
-    if (!query) return text;
-
-    const regex = new RegExp(`(${query})`, "gi");
-    const parts = text.split(regex);
-
-    return parts.map((part, i) =>
-      part.toLowerCase() === query.toLowerCase() ? (
-        <span key={i} className="text-yellow-500 font-semibold">
-          {part}
-        </span>
-      ) : (
-        part
-      )
-    );
-  };
-
-  // recent tools feature
-  const [recentTools, setRecentTools] = useState([]);
+  // Stats
+  const allAppsCount = 1240;
+  const workflowsCount = 89;
 
   useEffect(() => {
-    setRecentTools(getRecentTools());
-  }, []);
-  const handleRemove = (title) => {
-    removeRecentTool(title);
-    setRecentTools(getRecentTools()); // refresh list
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % carouselItems.length);
+    }, 2300);
+    return () => clearInterval(interval);
+  }, [carouselItems.length]);
+
+  // Profile dropdown handlers
+  let profileTimeoutId;
+  const handleProfileEnter = () => {
+    clearTimeout(profileTimeoutId);
+    setIsProfileOpen(true);
+  };
+  const handleProfileLeave = () => {
+    profileTimeoutId = setTimeout(() => setIsProfileOpen(false), 200);
   };
 
-  const iconMap = {
-    Youtube,
-    FileText,
-    Projector,
-    ImagePlay,
-    Images,
-    FileVideo2,
-    Laugh,
-    Zap,
-    BoomBox,
-    MdOutlineGifBox,
-    ScreenShare,
-    MdElderlyWoman,
-    PenOff,
-    Image,
-    Link,
-  };
+  // Carousel controls
+  const goToSlide = (index) => setCurrentSlide(index);
+  const nextSlide = () =>
+    setCurrentSlide((prev) => (prev + 1) % carouselItems.length);
+  const prevSlide = () =>
+    setCurrentSlide(
+      (prev) => (prev - 1 + carouselItems.length) % carouselItems.length
+    );
 
-  const menuRef = useRef(null);
+  // Limit items when not expanded
+  const displayedApps = showAllApps ? allTools : allTools.slice(0, 8);
+  const displayedWorkflows = showAllWorkflows
+    ? sampleWorkflows
+    : sampleWorkflows.slice(0, 6);
 
-  const onToggleTool = (toolName) => {
-    setSelectedTool(toolName);
-    if (selectedTool === toolName) {
-      setSelectedTools("Recent");
-    } else {
-      setSelectedTools(toolName);
-    }
-  };
+  // AppsGrid component (for inside All Apps card)
+  function AppsGrid() {
+    return (
+      <>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3 mt-4 flex-1 overflow-y-auto">
+          {(showAllApps ? allTools : allTools.slice(0, 2)).map((tool) => {
+            const IconComponent =
+              iconMap[tool.icon?.displayName] ||
+              iconMap[tool.icon?.name] ||
+              Images;
+            return (
+              <div
+                key={tool.title}
+                className="flex items-center gap-2 bg-gradient-to-br from-gray-800/60 to-black/40 hover:from-[#23b5b5]/20 hover:to-cyan-800/20 p-3 rounded-lg transition group cursor-pointer"
+                onClick={() => navigate(tool.route)}
+              >
+                <span
+                  className={`rounded-md flex items-center justify-center text-xl text-white`}
+                >
+                  {typeof tool.icon === "string" ? (
+                    tool.icon
+                  ) : tool.icon?.type ? (
+                    <tool.icon.type className="w-6 h-6" />
+                  ) : (
+                    <Images className="w-6 h-6" />
+                  )}
+                </span>
+                <div>
+                  <h4 className="font-semibold text-white text-sm">
+                    {tool.title}
+                  </h4>
+                  <span className="block text-xs text-gray-400 line-clamp-1">
+                    {tool.description}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <button
+          className="mt-2 px-4 py-2 rounded-lg bg-gradient-to-r from-[#23b5b5] to-cyan-600 text-white font-bold"
+          onClick={() => setShowAllApps((v) => !v)}
+        >
+          {showAllApps ? "Show Less" : "Expand All"}
+        </button>
+      </>
+    );
+  }
 
-  const toggleMenu = (workflowId, e) => {
-    e.stopPropagation();
-    setOpenMenuId(openMenuId === workflowId ? null : workflowId);
-  };
-
-  const handleMenuAction = (action, workflowTitle) => {
-    console.log(`${action} action for: ${workflowTitle}`);
-    setOpenMenuId(null);
-  };
-
-  // Separate refs for measuring height of different grids
-  const toolsGridRef = useRef(null);
-  const allToolsGridRef = useRef(null);
-
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarPinned, setSidebarPinned] = useState(false);
-
-  const toolName = "Dashboard";
-  const link = "https://explified.com/";
-
-  const [selectedTool, setSelectedTool] = useState("Recent");
-
-  // Refs for sections to scroll to
-  const startRef = useRef(null);
-  const recentRef = useRef(null);
-  const allToolsRef = useRef(null);
-  const workflowsRef = useRef(null);
-  const integrationsRef = useRef(null);
-
-  const handleNavBarClick = (navName) => {
-    setSelectedTool(navName);
-    switch (navName) {
-      case "Start":
-        startRef.current?.scrollIntoView({ behavior: "smooth" });
-        break;
-      case "Recent":
-        recentRef.current?.scrollIntoView({ behavior: "smooth" });
-        break;
-      case "All Apps":
-        allToolsRef.current?.scrollIntoView({ behavior: "smooth" });
-        break;
-      case "Workflows":
-        workflowsRef.current?.scrollIntoView({ behavior: "smooth" });
-        break;
-      case "Integrations":
-        integrationsRef.current?.scrollIntoView({ behavior: "smooth" });
-        break;
-      case "Search":
-        allToolsRef.current?.scrollIntoView({ behavior: "smooth" }); // or wherever Search should go
-        break;
-      default:
-        break;
-    }
-  };
-
-  const allTools = [
-    {
-      title: "Youtube Summarizer",
-      description: "A YouTube Summarizer quickly turns long videos into short.",
-      icon: "Youtube",
-      color: "from-teal-500 to-teal-700",
-      route: "/youtube-summarizer",
-    },
-    {
-      title: "AI Subtitler",
-      description: "Centralized AI Subtitler for your videos",
-      icon: "FileText",
-      color: "from-teal-500 to-teal-700",
-      route: "/ai-subtitler",
-    },
-    {
-      title: "Text To Video Generator",
-      description: "Generate videos using prompts.",
-      icon: "FileVideo2",
-      route: "/text-to-video",
-      color: "from-teal-500 to-teal-700",
-    },
-    {
-      title: "Slideshow Maker",
-      description: "Create stunning slideshows.",
-      icon: "Projector",
-      route: "/presentation",
-      color: "from-teal-500 to-teal-700",
-    },
-    {
-      title: "Bg Remover",
-      description: "Remove background from images.",
-      icon: "ImagePlay",
-      route: "/bg-remover",
-      color: "from-teal-500 to-teal-700",
-    },
-    {
-      title: "Image Styler",
-      description: "Style your images.",
-      icon: "Images",
-      route: "/image-styler",
-      color: "from-teal-500 to-teal-700",
-    },
-    {
-      title: "Video Meme Generator AI",
-      description: "Turn any clip into a share-worthy meme in seconds with AI.",
-      icon: "Laugh",
-      route: "/video-meme-generator",
-      color: "from-teal-500 to-teal-700",
-    },
-    {
-      title: "Integrations",
-      description: "Instantly share across your socials.",
-      icon: "Zap",
-      route: "/integrations",
-      color: "from-teal-500 to-teal-700",
-    },
-    {
-      title: "Socials",
-      description: "One click, everywhere.",
-      icon: "BoomBox",
-      route: "/socials",
-      color: "from-teal-500 to-teal-700",
-    },
-    {
-      title: "AI GIF Generator",
-      description: "Viral GIFs, AI-powered in seconds.",
-      icon: "MdOutlineGifBox",
-      route: "/ai-gif-generator",
-      color: "from-teal-500 to-teal-700",
-    },
-    {
-      title: "AI Hugging Video Maker",
-      description: "Bring warm hugs to life with AI-powered videos.",
-      icon: "ScreenShare",
-      route: "/ai-hugging-video-maker",
-      color: "from-teal-500 to-teal-700",
-    },
-    {
-      title: "Ageing Video Maker AI",
-      description: "See yourself age in seconds with AI-powered videos.",
-      icon: "MdElderlyWoman",
-      route: "/ageing-video-maker-ai",
-      color: "from-teal-500 to-teal-700",
-    },
-    {
-      title: "AI Tattoo Art Generator",
-      description: "Design unique tattoo art instantly with AI.",
-      icon: "PenOff",
-      route: "/ai-tattoo-art-generator",
-      color: "from-teal-500 to-teal-700",
-    },
-    {
-      title: "Image To Video AI",
-      description: "Transform any image into a stunning video with AI.",
-      icon: "Image",
-      route: "/image-to-video-ai",
-      color: "from-teal-500 to-teal-700",
-    },
-    {
-      title: "Link To Video AI",
-      description: "Turn any link into an engaging video with AI.",
-      icon: "Link",
-      route: "/link-to-video-ai",
-      color: "from-teal-500 to-teal-700",
-    },
-  ];
-
-  const tools = [
-    {
-      title: "Youtube Summarizer",
-      description: "A YouTube Summarizer quickly turns long videos into short.",
-      icon: Youtube,
-      color: "from-minimal-primary to-minimal-gray-400",
-      route: "/youtube-summarizer",
-    },
-    {
-      title: "AI Subtitler",
-      description: "Centralized AI Subtitler for your videos",
-      icon: FileText,
-      color: "from-minimal-primary to-minimal-gray-500",
-      route: "/ai-subtitler",
-    },
-  ];
+  // WorkflowsGrid component (for inside Workflows card)
+  function WorkflowsGrid() {
+    return (
+      <>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3 mt-4 flex-1 overflow-y-auto">
+          {(showAllWorkflows
+            ? sampleWorkflows
+            : sampleWorkflows.slice(0, 2)
+          ).map((flow) => (
+            <div
+              key={flow.id}
+              className="bg-gradient-to-br from-gray-800/60 to-black/40 hover:from-cyan-700/20 hover:to-teal-700/20 p-3 rounded-lg flex flex-col transition group cursor-pointer"
+              onClick={() => navigate("/workflows")}
+            >
+              <h4 className="font-semibold text-white text-sm mb-0.5">
+                {flow.title}
+              </h4>
+              <span className="block text-xs text-gray-400 line-clamp-2">
+                {flow.description}
+              </span>
+            </div>
+          ))}
+        </div>
+        <button
+          className="mt-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-600 to-[#23b5b5] text-white font-bold"
+          onClick={() => setShowAllWorkflows((v) => !v)}
+        >
+          {showAllWorkflows ? "Show Less" : "Explore Workflows"}
+        </button>
+      </>
+    );
+  }
 
   return (
     <>
-      <div className="w-full relative px-5 min-h-screen flex flex-col items-center bg-black pb-10">
-        {/* Animated Background Elements */}
-        <div className="fixed inset-0 pointer-events-none">
+      <div className="w-full relative min-h-screen flex bg-black">
+        {/* Animated Background */}
+        <div className="fixed inset-0 pointer-events-none z-0">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse" />
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-teal-500/5 rounded-full blur-3xl animate-pulse delay-500" />
         </div>
-        <div>
-          <div
-            className="absolute left-0 top-0 h-full w-6 z-30"
-            onMouseEnter={() => setSidebarOpen(true)}
-            onMouseLeave={() => setSidebarOpen(false)}
-          />
-          {/* Sidebar */}
-          <div
-            className={`fixed top-0 left-0 h-full bg-minimal-dark-200 backdrop-blur-xl border-r border-minimal-primary/20 flex flex-col justify-between transition-transform duration-500 ease-in-out z-50 ${
-              sidebarOpen
-                ? "translate-x-0 opacity-100 w-64 px-6"
-                : "-translate-x-full opacity-0 w-56 px-6"
-            }`}
-            onMouseEnter={() => !sidebarPinned && setSidebarOpen(true)}
-            onMouseLeave={() => !sidebarPinned && setSidebarOpen(false)}
-          >
-            {/* Top section */}
-            <div className="mt-8 animate-fadeUp will-change-[opacity,transform]">
-              <div className="flex items-center gap-3 mb-2">
-                <h2 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-minimal-primary bg-clip-text text-transparent animate-gradientText will-change-[background-position]">
-                  {toolName}
-                </h2>
-                <button
-                  onClick={() => {
-                    setSidebarPinned(!sidebarPinned);
-                    setSidebarOpen(true); // Ensure open when pinned
-                  }}
-                  className="p-2 rounded-lg hover:bg-minimal-cardHover transition-colors duration-200"
+        {/* Sidebar Trigger Area */}
+        <div
+          className="fixed left-0 top-0 h-full w-6 z-30 hover-zone"
+          onMouseEnter={() => setSidebarOpen(true)}
+          onMouseLeave={() => setSidebarOpen(false)}
+        />
+        {/* Sidebar */}
+        <div
+          className={`fixed top-0 left-0 h-full bg-minimal-dark-200 backdrop-blur-xl border-r border-minimal-primary/20 flex flex-col justify-between transition-all duration-300 ease-in-out z-50 ${
+            sidebarOpen ? "w-60 px-4" : "w-20 px-3"
+          }`}
+        >
+          {/* Collapse/Expand Button */}
+          <div className="mt-6 flex justify-end">
+            <button
+              onClick={() => setSidebarOpen((s) => !s)}
+              className="p-2 rounded-md bg-minimal-cardHover hover:bg-minimal-cardHover/70 text-minimal-primary transition-all"
+            >
+              {sidebarOpen ? (
+                <ChevronLeft size={18} />
+              ) : (
+                <ChevronRight size={18} />
+              )}
+            </button>
+          </div>
+          {/* Navigation */}
+          <div className="flex-1 mt-6">
+            <nav className="space-y-2">
+              {menuItems.map(({ path, label, icon }) => (
+                <NavLink
+                  key={path}
+                  to={path}
+                  onClick={closeSidebar}
+                  className={({ isActive }) =>
+                    `relative block transition-all duration-300 ease-in-out`
+                  }
                 >
-                  {sidebarPinned ? <PinOff size={20} /> : <Pin size={20} />}
-                </button>
+                  {({ isActive }) => (
+                    <div
+                      className={`flex items-center font-medium px-3 py-2.5 rounded-lg transition-all duration-300 group relative
+              ${
+                isActive
+                  ? "bg-minimal-cardHover text-[#23b5b5] shadow-sm shadow-[#23b5b5]/10"
+                  : "text-gray-300 hover:text-[#23b5b5] hover:bg-minimal-cardHover/70"
+              }`}
+                    >
+                      {/* 🔹 Left line indicator */}
+                      <span
+                        className={`absolute left-0 top-0 h-full w-[3px] rounded-r-md transition-all duration-300 ${
+                          isActive
+                            ? "bg-[#23b5b5] opacity-100"
+                            : "bg-transparent opacity-0 group-hover:opacity-50 group-hover:bg-[#23b5b5]/50"
+                        }`}
+                      ></span>
+
+                      {/* 🔹 Icon */}
+                      <div
+                        className={`p-2 rounded-md transition-all duration-300 flex-shrink-0 ${
+                          collapsed ? "mx-auto" : ""
+                        } ${
+                          isActive
+                            ? "text-[#23b5b5] scale-110 drop-shadow-[0_0_8px_#23b5b5]"
+                            : "text-gray-300 group-hover:text-[#23b5b5] group-hover:scale-105"
+                        }`}
+                        title={!sidebarOpen ? label : ""}
+                      >
+                        {icon}
+                      </div>
+
+                      {/* 🔹 Label (collapse animation) */}
+                      <span
+                        className={`whitespace-nowrap text-sm overflow-hidden transition-all duration-300 ease-in-out ${
+                          collapsed
+                            ? "opacity-0 w-0"
+                            : "opacity-100 w-auto ml-2"
+                        } ${
+                          isActive
+                            ? "text-[#23b5b5]"
+                            : "text-gray-300 group-hover:text-[#23b5b5]"
+                        }`}
+                      >
+                        {label}
+                      </span>
+
+                      {/* 🔹 Tooltip (only when collapsed) */}
+                      {collapsed && (
+                        <span className="absolute left-full ml-3 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs rounded-md py-1 px-2 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50 shadow-lg border border-gray-700">
+                          {label}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </NavLink>
+              ))}
+            </nav>
+          </div>
+
+          {/* Profile */}
+          <div
+            onMouseEnter={handleProfileEnter}
+            onMouseLeave={handleProfileLeave}
+            className="relative flex flex-col items-center justify-center mt-auto mb-4 group"
+          >
+            {/* Profile Button */}
+            <button
+              onClick={() => navigate?.("/profile")}
+              className={`flex items-center gap-3 px-3 py-2 rounded-xl w-full transition-all duration-200 transform relative
+      ${
+        location.pathname === "/profile"
+          ? "scale-105 text-[#23b5b5] bg-minimal-primary/20 border border-[#23b5b5]/40"
+          : "text-minimal-white hover:text-[#23b5b5] hover:bg-minimal-cardHover"
+      }`}
+            >
+              {/* Left Accent Strip (Active State) */}
+              {location.pathname === "/profile" && (
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#23b5b5] rounded-r-sm transition-all duration-200" />
+              )}
+
+              <CircleUserRound className="w-5 h-5 flex-shrink-0" />
+
+              {/* Label visible only when expanded */}
+              {sidebarOpen && (
+                <span className="text-sm font-medium text-white whitespace-nowrap">
+                  Profile
+                </span>
+              )}
+            </button>
+
+            {/* Tooltip for collapsed state */}
+            {!sidebarOpen && (
+              <span className="absolute left-full ml-3 bottom-2 bg-gray-900 text-white text-xs rounded-md py-1 px-2 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-150 whitespace-nowrap z-40 shadow-lg border border-gray-700">
+                Profile
+              </span>
+            )}
+
+            {/* Dropdown (adjusted position to prevent overlap) */}
+            {isProfileOpen && (
+              <div
+                className="absolute bottom-14 left-0 min-w-[220px]
+      bg-gradient-to-br from-[#0d1418] to-[#111c20]
+      backdrop-blur-xl border border-[#23b5b5]/40 rounded-xl shadow-lg
+      p-4 flex flex-col items-center z-50
+      transform transition-all duration-300 ease-out
+      animate-in fade-in-20 scale-in-95"
+              >
+                {/* For Enterprises */}
+                <a
+                  className="w-full h-9 mb-3 rounded-lg border border-[#23b5b5]/40 text-sm font-medium text-white
+          bg-transparent hover:bg-[#23b5b5]/15 hover:border-[#23b5b5]
+          hover:shadow-md hover:shadow-cyan-500/20 transition-all duration-200 flex items-center justify-center"
+                  href="https://explified.com/explified-labs"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  For Enterprises
+                </a>
+
+                {/* Quick Tools */}
+                <div className="flex gap-2 w-full mb-3">
+                  {[
+                    { icon: Plus, to: "/expli" },
+                    { icon: FileText, to: "/tasks" },
+                  ].map(({ icon: Icon, to }, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        navigate?.(to);
+                        setIsProfileOpen(false);
+                      }}
+                      className="flex-1 h-9 flex items-center justify-center rounded-lg border border-[#23b5b5]/40 bg-transparent
+                hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] hover:shadow-sm hover:shadow-cyan-500/20
+                text-white transition-all duration-200"
+                    >
+                      <Icon className="w-4 h-4" />
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex gap-2 w-full mb-3">
+                  {[{ icon: Search, to: "/discover" }].map(
+                    ({ icon: Icon, to }, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          navigate?.(to);
+                          setIsProfileOpen(false);
+                        }}
+                        className="flex-1 h-9 flex items-center justify-center rounded-lg border border-[#23b5b5]/40 bg-transparent
+              hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] hover:shadow-sm hover:shadow-cyan-500/20
+              text-white transition-all duration-200"
+                      >
+                        <Icon className="w-4 h-4" />
+                      </button>
+                    )
+                  )}
+                </div>
+
+                {/* Workflows */}
+                <div className="mb-3 w-full">
+                  <h3 className="text-white text-xs font-semibold opacity-80 mb-2">
+                    Workflows
+                  </h3>
+                  <div className="flex gap-2 w-full">
+                    {[
+                      { icon: Workflow, to: "/workflows" },
+                      { icon: Zap, to: "/integrations" },
+                    ].map(({ icon: Icon, to }, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          navigate?.(to);
+                          setIsProfileOpen(false);
+                        }}
+                        className="flex-1 h-9 flex items-center justify-center rounded-lg border border-[#23b5b5]/40 bg-transparent
+                  hover:bg-[#23b5b5]/15 hover:border-[#23b5b5] hover:shadow-sm hover:shadow-cyan-500/20
+                  text-white transition-all duration-200"
+                      >
+                        <Icon className="w-4 h-4" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* All Tools */}
+                <div className="w-full mb-1">
+                  <h3 className="text-white text-xs font-semibold opacity-80 mb-2">
+                    All Tools
+                  </h3>
+                  <button
+                    onClick={() => {
+                      navigate?.("/alltools");
+                      setIsProfileOpen(false);
+                    }}
+                    className="flex items-center justify-center w-12 h-12 mx-auto rounded-lg border border-[#23b5b5]/40 
+            text-white bg-transparent hover:bg-[#23b5b5]/15 hover:border-[#23b5b5]
+            hover:shadow-md hover:shadow-cyan-500/20 transition-all duration-200"
+                  >
+                    <Grip className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
-            </div>
-            {/* Bottom section */}
-            <div className="mb-8">
-              <Link to={"https://explified.com/explified-labs"}>
-                <button className="w-full bg-gradient-to-r from-minimal-primary to-minimal-primary/80 hover:from-minimal-primary/80 hover:to-minimal-primary text-white font-semibold py-3 px-6 rounded-xl transition-transform duration-300 hover:scale-[1.04] hover:shadow-lg hover:shadow-minimal-primary/25 will-change-transform">
-                  Learn More
-                </button>
-              </Link>
-            </div>
+            )}
           </div>
         </div>
 
-        {/* FILTER BAR */}
-        <div className="bg-transparent pt-[30px] max-w-[1480px] w-full animate-fadeUp will-change-[opacity,transform]">
-          <NavBarSection
-            selectedTools={selectedTools}
-            selectedTool={selectedTool}
-            onNavClick={onToggleTool}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            searchResults={searchResults}
-            setSearchResults={setSearchResults}
-            handleSearch={handleSearch}
-            iconMap={iconMap}
-            setRecentTools={setRecentTools}
-            navigate={navigate}
-            highlightMatch={highlightMatch}
-          />
-        </div>
+        {/* Main Content */}
+        <div className="flex-1 ml-20 relative z-10">
+          <div className="w-full min-h-screen bg-black pt-10 pb-20">
+            <div className="w-full px-4 sm:px-6 lg:px-8">
+              <div className="mx-auto">
+                {/* Top Title, Subtitle, Filter Bar */}
+                <div className="mb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+                  <div>
+                    <h1
+                      className="text-5xl font-extrabold leading-tight bg-gradient-to-r from-teal-400 via-cyan-300 to-blue-400 text-transparent bg-clip-text animate-gradientText"
+                      style={{
+                        backgroundSize: "200% 200%",
+                        backgroundPosition: "left center",
+                        WebkitTextStroke: "1px #0ff6ef22",
+                      }}
+                    >
+                      Explified
+                    </h1>
+                    <p className="text-lg text-gray-400 mt-3 font-medium">
+                      Transform your workflow with AI-powered tools and seamless
+                      automation
+                    </p>
+                  </div>
+                  <div className="flex-1 flex items-end justify-end">
+                    <div className="relative w-full max-w-md">
+                      {/* Search Icon */}
+                      <Search
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-[#23b5b5] pointer-events-none"
+                        size={20}
+                      />
 
-        {/* Search Results Section */}
-        {searchQuery && searchResults.length > 0 && (
-          <div className="max-w-[1480px] w-full animate-fadeUp will-change-[opacity,transform] mb-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-cyan-800 via-teal-700 to-emerald-900 bg-clip-text text-transparent">
-                Search Results for "{searchQuery}"
-              </h2>
-              <span className="text-gray-400 text-sm">
-                {searchResults.length} result
-                {searchResults.length !== 1 ? "s" : ""} found
-              </span>
-            </div>
+                      {/* Search Input */}
+                      <input
+                        type="text"
+                        className="w-full py-2 pl-10 pr-4 rounded-lg bg-gray-900 text-white border border-[#23b5b5]/30 placeholder:text-gray-400 focus:outline-none focus:border-[#23b5b5] transition-all"
+                        placeholder="Search apps..."
+                        value={searchText}
+                        onChange={(e) => setSearchText(e.target.value)}
+                      />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {searchResults.map((item, index) => {
-                const IconComponent = iconMap[item.icon];
-
-                // Render different card types based on item type
-                const renderCard = () => {
-                  switch (item.type) {
-                    case "start":
-                      return (
-                        <div
-                          key={`${item.type}-${index}`}
-                          onClick={() => navigate(item.route)}
-                          className="tool-card justify-center text-2xl font-bold text-minimal-white transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-emerald-500/20 will-change-transform cursor-pointer"
-                        >
-                          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                          <div className="relative z-10 flex flex-col items-center gap-2">
-                            {IconComponent && (
-                              <div className="w-12 h-12 bg-gradient-to-br from-emerald-500/20 to-emerald-600/30 rounded-xl flex items-center justify-center text-emerald-400 mb-2">
-                                <IconComponent className="w-6 h-6" />
-                              </div>
-                            )}
-                            <span className="text-lg font-bold group-hover:text-emerald-300 transition-colors">
-                              {highlightMatch(item.title, searchQuery)}
-                            </span>
-                            <span className="text-xs px-2 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
-                              Start
-                            </span>
-                          </div>
-                        </div>
-                      );
-
-                    case "tool":
-                      return (
-                        <div
-                          key={`${item.type}-${index}`}
-                          onClick={() => {
-                            addRecentTool(item);
-                            setRecentTools(getRecentTools());
-                            navigate(item.route);
-                          }}
-                          className="tool-card transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-cyan-500/20 will-change-transform cursor-pointer"
-                        >
-                          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-500/10 to-teal-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                          <div className="relative z-10 flex flex-col justify-between h-full">
-                            <div className="tool_description flex gap-3 items-start">
+                      {/* Dropdown Filter Results */}
+                      {searchText && (
+                        <div className="absolute top-full left-0 w-full mt-1 bg-gray-800 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto border border-[#23b5b5]/30">
+                          {allTools
+                            .filter((app) =>
+                              app.title
+                                .toLowerCase()
+                                .includes(searchText.toLowerCase())
+                            )
+                            .map((app) => (
                               <div
-                                className={`h-8 w-8 flex items-center p-2 rounded-lg bg-gradient-to-br from-cyan-500/20 to-teal-600/30 mb-2 transition-transform duration-300`}
+                                key={app.title}
+                                onClick={() => navigate(app.route)}
+                                className="flex items-center gap-3 px-4 py-2 hover:bg-[#23b5b5]/20 cursor-pointer transition-colors"
                               >
-                                {IconComponent && (
-                                  <IconComponent className="w-5 h-5 text-cyan-400" />
-                                )}
-                              </div>
-                              <div>
-                                <h3 className="text-base font-semibold text-minimal-white mb-1 transition-colors duration-300">
-                                  {highlightMatch(item.title, searchQuery)}
-                                </h3>
-                                <p className="text-minimal-muted text-xs leading-snug transition-colors duration-300">
-                                  {highlightMatch(
-                                    item.description,
-                                    searchQuery
-                                  )}
-                                </p>
-                                {item.category && (
-                                  <span className="text-xs text-gray-500 mt-1 block">
-                                    {item.category}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                            <div className="mt-1 flex items-center justify-between">
-                              <div className="flex items-center text-cyan-400 opacity-100 transition-all duration-300">
-                                <span className="text-xs font-medium">
-                                  Launch Tool
-                                </span>
-                                <svg
-                                  className="w-3 h-3 ml-1"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
+                                {/* App Icon */}
+                                <span
+                                  className={`w-8 h-8 flex items-center justify-center rounded-md text-lg bg-gradient-to-br ${
+                                    app.color ?? "from-[#23b5b5] to-cyan-600"
+                                  }`}
                                 >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M9 5l7 7-7 7"
-                                  />
-                                </svg>
-                              </div>
-                              <span className="text-xs px-2 py-1 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/40">
-                                Tool
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      );
-
-                    case "workflow":
-                      return (
-                        <div
-                          key={`${item.type}-${index}`}
-                          onClick={() => navigate(item.route)}
-                          className="group relative px-6 py-4 rounded-2xl bg-gradient-to-br from-gray-950/80 to-gray-900/60 bg-opacity-70 border border-gray-800/40 backdrop-blur-md shadow-lg transition-all duration-200 hover:bg-gray-900/80 hover:shadow-cyan-700/20 hover:scale-[1.02] cursor-pointer flex flex-col h-[210px] w-full will-change-transform"
-                        >
-                          {/* Hover gradient overlay to match workflow cards */}
-                          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                          <div className="relative z-10 flex flex-col h-full">
-                            {/* Header - Tools Icons */}
-                            <div className="flex items-center justify-between mb-4">
-                              <div className="flex items-center space-x-3">
-                                <div className="flex -space-x-2">
-                                  {item.tools?.map((tool, toolIndex) => (
-                                    <div
-                                      key={toolIndex}
-                                      className={`w-10 h-10 ${tool.bgColor} rounded-lg flex items-center justify-center text-minimal-white text-lg shadow-lg border-2 border-minimal-border transition-transform duration-300`}
-                                      title={tool.name}
-                                      style={{
-                                        zIndex:
-                                          (item.tools?.length || 0) - toolIndex,
-                                      }}
-                                    >
-                                      {tool.icon}
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                              <span className="text-xs px-2 py-1 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/40">
-                                Workflow
-                              </span>
-                            </div>
-
-                            {/* Content - Category, Title, Description */}
-                            <div className="flex-1">
-                              {item.category && (
-                                <div className="inline-block px-2 py-1 bg-minimal-gray-800 rounded-md text-xs text-minimal-primary mb-3">
-                                  {item.category}
-                                </div>
-                              )}
-                              <h3 className="text-base font-semibold line-clamp-3 text-minimal-white transition-colors duration-300 leading-tight">
-                                {highlightMatch(item.title, searchQuery)}
-                              </h3>
-                              <p className="text-gray-300 text-sm leading-relaxed mt-2 line-clamp-2">
-                                {highlightMatch(item.description, searchQuery)}
-                              </p>
-                            </div>
-
-                            {/* Footer - Recommended/CTA */}
-                            <div className="flex items-center justify-between pt-2">
-                              {item.recommended ? (
-                                <div className="flex items-center text-minimal-primary">
-                                  <Sparkles className="w-4 h-4 mr-2" />
-                                  <span className="text-xs font-medium">
-                                    Recommended for you
-                                  </span>
-                                </div>
-                              ) : (
-                                <span />
-                              )}
-                              <div className="flex items-center text-minimal-primary opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-0 group-hover:translate-x-1 ml-auto">
-                                <span className="text-xs font-medium">
-                                  Use Workflow
+                                  {app.icon}
                                 </span>
-                                <svg
-                                  className="w-4 h-4 ml-1"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M9 5l7 7-7 7"
-                                  />
-                                </svg>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      );
 
-                    case "integration":
-                      return (
-                        <div
-                          key={`${item.type}-${index}`}
-                          onClick={() => navigate(item.route)}
-                          className="bg-orange-800 bg-opacity-30 border border-orange-600 rounded-xl p-5 hover:bg-opacity-50 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg hover:shadow-orange-500/20 relative group cursor-pointer"
-                        >
-                          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-orange-500/10 to-orange-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                          <div className="relative z-10">
-                            <div className="flex items-center justify-between mb-4">
-                              <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 bg-gradient-to-br from-orange-500/20 to-orange-600/30 rounded-lg flex items-center justify-center text-orange-400 shadow-lg group-hover:scale-110 transition-transform duration-200">
-                                  {IconComponent && (
-                                    <IconComponent className="w-6 h-6" />
-                                  )}
-                                </div>
+                                {/* App Title */}
+                                <span className="text-white">{app.title}</span>
                               </div>
-                              <span className="text-xs px-2 py-1 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/40">
-                                Integration
-                              </span>
-                            </div>
-                            <h3 className="text-white font-semibold text-sm mb-2 group-hover:text-orange-300 transition-colors">
-                              {highlightMatch(item.title, searchQuery)}
-                            </h3>
-                            <p className="text-gray-300 text-xs leading-relaxed mb-3">
-                              {highlightMatch(item.description, searchQuery)}
-                            </p>
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="text-gray-500">
-                                {item.category}
-                              </span>
-                              <div className="flex items-center gap-2">
-                                {item.trending && (
-                                  <span className="text-orange-400 flex items-center gap-1">
-                                    <Sparkles className="w-3 h-3" />
-                                    Trending
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      );
+                            ))}
 
-                    default:
-                      return (
-                        <div
-                          key={`${item.type}-${index}`}
-                          onClick={() => navigate(item.route)}
-                          className="group relative bg-gradient-to-br from-gray-900/60 to-gray-800/40 backdrop-blur-sm border border-gray-700/50 hover:border-gray-500/70 rounded-2xl p-4 hover:shadow-lg hover:shadow-gray-500/10 transition-all duration-300 cursor-pointer hover:scale-[1.02]"
-                        >
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-gradient-to-br from-gray-500/20 to-gray-600/30 rounded-xl flex items-center justify-center text-gray-400">
-                                {IconComponent && (
-                                  <IconComponent className="w-5 h-5" />
-                                )}
-                              </div>
-                              <div>
-                                <h3 className="text-white font-semibold text-sm group-hover:text-gray-300 transition-colors">
-                                  {highlightMatch(item.title, searchQuery)}
-                                </h3>
-                                <div className="flex items-center gap-2">
-                                  {item.category && (
-                                    <span className="text-xs text-gray-500">
-                                      {item.category}
-                                    </span>
-                                  )}
-                                  <span className="text-xs px-2 py-1 rounded-full bg-gray-800/60 text-gray-400">
-                                    {item.type}
-                                  </span>
-                                </div>
-                              </div>
+                          {/* No results message */}
+                          {allTools.filter((app) =>
+                            app.title
+                              .toLowerCase()
+                              .includes(searchText.toLowerCase())
+                          ).length === 0 && (
+                            <div className="px-4 py-2 text-gray-400">
+                              No apps found
                             </div>
-                          </div>
-                          <p
-                            className="text-gray-300 text-xs leading-relaxed mb-3 overflow-hidden"
-                            style={{
-                              display: "-webkit-box",
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: "vertical",
-                            }}
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Top Section: Carousel & Apps, 2 columns - equal width */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                  {/* Carousel: left half */}
+                  <div className="flex flex-col gap-4 h-full">
+                    <div className="relative w-full h-full rounded-2xl overflow-hidden group">
+                      {carouselItems.map((item, index) => (
+                        <div
+                          key={item.id}
+                          onClick={() => navigate(item.route)} // 👈 Makes the whole slide clickable
+                          className={`absolute inset-0 transition-all duration-700 ease-in-out cursor-pointer ${
+                            index === currentSlide
+                              ? "opacity-100 scale-100"
+                              : "opacity-0 scale-95 pointer-events-none"
+                          }`}
+                        >
+                          <div
+                            className="w-full h-full p-6 flex flex-col justify-end rounded-2xl relative overflow-hidden bg-cover bg-center"
+                            style={{ backgroundImage: `url(${item.image})` }}
                           >
-                            {highlightMatch(item.description, searchQuery)}
+                            {/* Gradient overlay for depth */}
+                            {/* Gradient overlay with teal accent */}
+                            <div className="absolute inset-0 bg-gradient-to-tr from-[#0f2027]/90 via-[#23b5b5]/40 to-transparent z-0"></div>
+
+                            {/* Glow effects */}
+                            <div className="absolute inset-0 opacity-20 z-0">
+                              <div className="absolute top-0 right-0 w-40 h-40 bg-white rounded-full blur-3xl" />
+                              <div className="absolute bottom-0 left-0 w-32 h-32 bg-white rounded-full blur-2xl" />
+                            </div>
+
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Carousel Controls */}
+                      <button
+                        onClick={prevSlide}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-black/50 text-white hover:bg-[#23b5b5]/60 transition-all duration-200 opacity-0 group-hover:opacity-100 backdrop-blur-sm border border-[#23b5b5]/30"
+                      >
+                        <ChevronLeft size={20} />
+                      </button>
+                      <button
+                        onClick={nextSlide}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-black/50 text-white hover:bg-[#23b5b5]/60 transition-all duration-200 opacity-0 group-hover:opacity-100 backdrop-blur-sm border border-[#23b5b5]/30"
+                      >
+                        <ChevronRight size={20} />
+                      </button>
+
+                      {/* Dots Indicator */}
+                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex gap-2">
+                        {carouselItems.map((_, index) => (
+                          <button
+                            key={index}
+                            onClick={() => goToSlide(index)}
+                            className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                              index === currentSlide
+                                ? "w-6 bg-[#23b5b5]"
+                                : "w-2 bg-white/40 hover:bg-white/60"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Most Popular Apps: right half */}
+                  <div className="flex flex-col gap-3 mb-4">
+                    {/* Most Popular Apps Heading */}
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div>
+                        <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">
+                          Most Popular Apps
+                        </h2>
+                        
+                      </div>
+                      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#23b5b5]/10 to-transparent border border-[#23b5b5]/30">
+                        <Star
+                          size={14}
+                          className="text-[#23b5b5] flex-shrink-0"
+                        />
+                        <span className="text-xs font-semibold text-[#23b5b5] whitespace-nowrap">
+                          Trending
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Most Popular Apps Grid */}
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4 flex-1">
+                      {popularApps.map((app) => (
+                        <div
+                          key={app.id}
+                          onClick={() => navigate(app.route)}
+                          className="group relative overflow-hidden rounded-xl border border-gray-700 hover:border-[#23b5b5]/50 bg-gradient-to-br from-gray-900/50 to-black/50 p-4 backdrop-blur-sm transition-all duration-300 hover:from-gray-900/80 hover:to-black/80 cursor-pointer hover:shadow-lg hover:shadow-[#23b5b5]/20 flex flex-col justify-between min-h-32 sm:min-h-40"
+                        >
+                          <div
+                            className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300 bg-gradient-to-br ${app.color}`}
+                          />
+                          <div className="relative z-10">
+                            <div className="text-3xl sm:text-4xl mb-2 flex items-center justify-center">
+                              {typeof app.icon === "string"
+                                ? app.icon
+                                : app.icon}
+                            </div>
+                            <h3 className="text-white font-semibold text-sm sm:text-base line-clamp-1 text-center">
+                              {app.name}
+                            </h3>
+                            <div className="flex items-center gap-1 mt-2 justify-center">
+                              <Star
+                                size={12}
+                                className="text-yellow-400 fill-yellow-400 flex-shrink-0"
+                              />
+                              <span className="text-xs text-gray-400">4.8</span>
+                            </div>
+                          </div>
+                          <div className="absolute inset-0 bg-gradient-to-br from-[#23b5b5]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl flex items-end p-3">
+                            <button className="w-full text-xs font-semibold text-white bg-[#23b5b5] hover:bg-[#1a9393] rounded-lg py-2 transition-all duration-200 shadow-lg">
+                              Explore
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                {/* Bottom Section: All Apps & Workflows statistic cards */}
+                <div className="flex flex-col md:flex-row gap-6 min-h-[320px]">
+                  {/* All Apps Card */}
+                  <div className="flex-1 flex flex-col group overflow-hidden rounded-2xl border border-gray-700 hover:border-[#23b5b5]/50 bg-gradient-to-br from-gray-900/30 to-black/30 p-6 sm:p-8 backdrop-blur-sm transition-shadow duration-300 hover:shadow-lg cursor-pointer">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#23b5b5] to-cyan-600 flex items-center justify-center">
+                          <Database size={24} className="text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-white text-xl font-bold">
+                            All Apps
+                          </h3>
+                          <p className="text-gray-400 text-sm">
+                            Explore our complete collection
                           </p>
                         </div>
-                      );
-                  }
-                };
+                      </div>
+                      
+                    </div>
 
-                return renderCard();
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Empty Search State */}
-        {searchQuery && searchResults.length === 0 && (
-          <div className="max-w-[1480px] w-full animate-fadeUp will-change-[opacity,transform] mb-8">
-            <div className="text-center py-12 border-2 border-dashed border-gray-700 rounded-xl">
-              <Search className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-              <p className="text-gray-400 mb-2">
-                No results found for "{searchQuery}"
-              </p>
-              <p className="text-gray-500 text-sm">
-                Try searching with different keywords or browse our tools below
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Start Section */}
-        {selectedTools === "Start" && (
-          <div
-            className="max-w-[1480px] w-full animate-fadeUp will-change-[opacity,transform]"
-            ref={startRef}
-          >
-            <p className="p-4 w-full md:text-3xl font-bold bg-gradient-to-tr from-teal-300 to-emerald-900 bg-clip-text text-transparent text-minimal-white tracking-tighter">
-              Start
-            </p>
-
-            <div className="relative">
-              <div className="flex items-center justify-center w-full mb-6">
-                <div className="flex-1 h-px bg-gradient-to-r from-transparent to-emerald-400"></div>
-
-                <div className="flex-1 h-px bg-gradient-to-l from-transparent to-emerald-400"></div>
-              </div>
-            </div>
-            {/* main dashboard */}
-            <div
-              className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6"
-              ref={toolsGridRef}
-            >
-              <div
-                className="tool-card justify-center text-2xl font-bold text-minimal-white transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-minimal-primary/20 will-change-transform"
-                onClick={() => navigate("/expli")}
-              >
-                Expli
-              </div>
-              <div
-                className="tool-card justify-center transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-minimal-primary/20 will-change-transform"
-                onClick={() => navigate("/tasks")}
-              >
-                <h1 className="text-2xl font-bold text-minimal-white group-hover:text-minimal-primary transition-colors duration-300">
-                  Notes
-                </h1>
-              </div>
-              <div
-                className="tool-card justify-center transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-minimal-primary/20 will-change-transform"
-                onClick={() => navigate("/memory")}
-              >
-                <h1 className="text-2xl font-bold text-minimal-white group-hover:text-minimal-primary transition-colors duration-300">
-                  Memory
-                </h1>
-              </div>
-              <div
-                className="tool-card justify-center transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-minimal-primary/20 will-change-transform"
-                onClick={() => navigate("/search")}
-              >
-                <h1 className="text-2xl font-bold text-minimal-white group-hover:text-minimal-primary transition-colors duration-300">
-                  Search
-                </h1>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {selectedTool === "Recent" && (
-          <div
-            className="max-w-[1480px] w-full animate-fadeUp will-change-[opacity,transform]"
-            ref={recentRef}
-          >
-            {/* Section Header */}
-            <p className="p-4 w-full md:text-3xl font-bold bg-gradient-to-tr from-teal-300 to-emerald-900 bg-clip-text text-transparent text-minimal-white tracking-tighter">
-              Recent
-            </p>
-
-            <div className="relative">
-              <div className="flex items-center justify-center w-full mb-6">
-                <div className="flex-1 h-px bg-gradient-to-r from-transparent to-cyan-400"></div>
-
-                <div className="flex-1 h-px bg-gradient-to-l from-transparent to-emerald-400"></div>
-              </div>
-            </div>
-            {/* Grid of Recent Tools */}
-            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-              {/* Special Cards */}
-              <div
-                className="tool-card  justify-center text-2xl font-bold text-minimal-white transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-minimal-primary/20 will-change-transform"
-                onClick={() => navigate("/expli")}
-              >
-                {/* Background overlay */}
-                {/* <div className="absolute inset-0 rounded-xl pointer-events-none bg-gradient-to-br from-black/50 to-black/50"></div> */}
-                <span className="relative z-10">Expli</span>
-              </div>
-
-              <div
-                className="tool-card justify-center text-2xl font-bold text-minimal-white transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-minimal-primary/20 will-change-transform"
-                onClick={() => navigate("/tasks")}
-              >
-                {/* <div className="absolute inset-0 rounded-xl pointer-events-none bg-gradient-to-br from-black/50 to-black/50"></div> */}
-                <span className="relative z-10">Notes</span>
-              </div>
-
-              {/* Dynamic Recent Tools */}
-              {recentTools.length === 0 ? (
-                <p className="text-gray-400 col-span-full text-center">
-                  No recent tools yet.
-                </p>
-              ) : (
-                recentTools
-                  .slice()
-                  .reverse()
-                  .map((tool, i) => {
-                    const IconComponent = iconMap[tool.icon] || FileText;
-                    return (
-                      <div
-                        key={i}
-                        className="tool-card cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-minimal-primary/20 will-change-transform"
-                        style={{ animationDelay: `${i * 50}ms` }}
-                        onClick={() => {
-                          addRecentTool(tool);
-                          setRecentTools(getRecentTools());
-                          navigate(tool.route);
-                        }}
-                      >
-                        {/* Cross Button */}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemove(tool.title);
-                          }}
-                          className="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors"
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
+                      {displayedApps.map((app) => (
+                        <div
+                          key={app.title}
+                          onClick={() => navigate(app.route)}
+                          className="relative bg-[#13161a] rounded-xl p-5 cursor-pointer hover:shadow-xl hover:border-[#23b5b5] border border-transparent transition-all group flex flex-col"
                         >
-                          ✕
-                        </button>
-                        <div className="flex flex-col items-start justify-between h-full">
-                          {/* Icon */}
-                          <div
-                            className={`h-10 w-10 flex items-center justify-center rounded-lg bg-gradient-to-r ${tool.color} mb-3 transition-transform duration-300`}
-                          >
-                            <IconComponent className="w-6 h-6 text-minimal-white" />
-                          </div>
-
-                          {/* Title + Description */}
-                          <div className="flex-1">
-                            <h3 className="text-sm font-semibold text-minimal-white mb-1">
-                              {tool.title}
+                          {/* Header: Icon + Title side by side */}
+                          <div className="flex items-center gap-3 mb-2">
+                            {app.icon && (
+                              <span
+                                className={`w-9 h-9 flex items-center justify-center rounded-md text-xl bg-gradient-to-br ${
+                                  app.color ?? "from-[#23b5b5] to-cyan-600"
+                                }`}
+                              >
+                                {typeof app.icon === "string"
+                                  ? app.icon
+                                  : app.icon}
+                              </span>
+                            )}
+                            <h3 className="font-semibold text-lg text-white">
+                              {app.title}
                             </h3>
-                            <p className="text-minimal-muted text-xs leading-snug">
-                              {tool.description}
-                            </p>
                           </div>
 
-                          {/* CTA */}
-                          <div className="mt-2 flex items-center text-minimal-primary">
-                            <span className="text-xs font-medium">
-                              Launch Tool
+                          {/* Category badge below title */}
+                          {app.category && (
+                            <span className="text-[11px] px-2 py-1 rounded bg-[#24282c] text-teal-400 font-bold mb-2 w-max block uppercase">
+                              {app.category}
                             </span>
-                            <svg
-                              className="w-3 h-3 ml-1"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M9 5l7 7-7 7"
-                              />
-                            </svg>
+                          )}
+
+                          {/* Description */}
+                          <p className="text-gray-400 text-[13px] mb-5 flex-1">
+                            {app.description}
+                          </p>
+
+                          {/* CTA / Recommendation row */}
+                          <div className="flex items-center text-[#23b5b5] text-xs font-medium">
+                            <span className="mr-1">Launch Tool</span>
+                            <span className="inline-block">&rarr;</span>
                           </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Expand Button */}
+                    {allTools.length > 8 && (
+                      <button
+                        onClick={() => navigate("/all-apps")}
+                        className="mt-4 py-2 rounded-lg bg-gradient-to-r from-[#23b5b5] to-cyan-600 text-white font-semibold hover:from-cyan-600 hover:to-[#23b5b5] transition-colors"
+                      >
+                        Expand All
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Workflows Card */}
+                  <div className="flex-1 flex flex-col group overflow-hidden rounded-2xl border border-gray-700 hover:border-[#23b5b5]/50 bg-gradient-to-br from-gray-900/30 to-black/30 p-6 sm:p-8 backdrop-blur-sm transition-shadow duration-300 hover:shadow-lg cursor-pointer">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-600 to-[#23b5b5] flex items-center justify-center">
+                          <Workflow size={24} className="text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-white text-xl font-bold">
+                            Workflows
+                          </h3>
+                          <p className="text-gray-400 text-sm">
+                            Pre-built automation templates
+                          </p>
                         </div>
                       </div>
-                    );
-                  })
-              )}
-            </div>
-          </div>
-        )}
+                      
+                    </div>
 
-        {/* All Tools Section */}
-        {selectedTools === "All Apps" && (
-          <div
-            className="max-w-[1480px] w-full animate-fadeUp will-change-[opacity,transform]"
-            ref={allToolsRef}
-          >
-            <p className="p-4 w-full md:text-3xl font-bold bg-gradient-to-tr from-teal-300 to-emerald-900 bg-clip-text text-transparent text-minimal-white tracking-tighter">
-              Workflows
-            </p>
-
-            <div className="relative">
-              <div className="flex items-center justify-center w-full mb-6">
-                <div className="flex-1 h-px bg-gradient-to-r from-transparent to-emerald-400"></div>
-                {/* <div className="px-4">
-                  <div className="w-4 h-4 border-2 border-emerald-400 rotate-45 bg-gray-900"></div>
-                </div> */}
-                <div className="flex-1 h-px bg-gradient-to-l from-transparent to-emerald-400"></div>
-              </div>
-            </div>
-            <div className="flex gap-4 w-full">
-              <div className="h-fit w-full">
-                <div
-                  style={{
-                    transition: "max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
-                    overflow: "hidden",
-                  }}
-                >
-                  <div
-                    ref={allToolsGridRef}
-                    className="grid grid-cols-1  sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full"
-                  >
-                    {allTools.map((tool, index) => {
-                      const IconComponent = iconMap[tool.icon] || FileText;
-                      return (
+                    {/* Workflows Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
+                      {displayedWorkflows.map((wf) => (
                         <div
-                          key={index}
-                          className="tool-card transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-minimal-primary/20 will-change-transform"
-                          onClick={() => {
-                            addRecentTool({ ...tool, icon: tool.icon });
-                            setRecentTools(getRecentTools());
-                            navigate(tool.route);
-                          }}
-                          style={{ animationDelay: `${index * 50}ms` }}
+                          key={wf.id}
+                          onClick={() => navigate("/locked")}
+                          className="relative bg-[#13161a] rounded-xl p-5 cursor-pointer hover:shadow-xl hover:border-[#23b5b5] border border-transparent transition-all group flex flex-col"
                         >
-                          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                          <div className="relative z-10 flex flex-col justify-between h-full">
-                            <div className="tool_description flex gap-3 items-start">
-                              <div
-                                className={`h-8 w-8 flex items-center p-2 rounded-lg bg-gradient-to-br ${tool.color} mb-2 transition-transform duration-300`}
-                              >
-                                <IconComponent className="w-5 h-5 text-minimal-white" />
-                              </div>
-                              <div>
-                                <h3 className="text-base font-semibold text-minimal-white mb-1 transition-colors duration-300">
-                                  {tool.title}
-                                </h3>
-                                <p className="text-minimal-muted text-xs leading-snug transition-colors duration-300">
-                                  {tool.description}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="mt-1 flex items-center text-minimal-primary opacity-100 transition-all duration-300 transform translate-x-2">
-                              <span className="text-xs font-medium">
-                                Launch Tool
+                          {/* Integrations/Icons Top Row */}
+                          <div className="flex items-center gap-2 mb-3">
+                            {wf.tools &&
+                              wf.tools.map((tool, idx) => (
+                                <span
+                                  key={idx}
+                                  className={`w-8 h-8 flex items-center justify-center rounded-md text-lg bg-gradient-to-br ${tool.bgColor}`}
+                                >
+                                  {tool.icon}
+                                </span>
+                              ))}
+                            {wf.category && (
+                              <span className="text-[11px] px-2 py-1 rounded bg-[#24282c] text-teal-400 font-bold ml-2 uppercase">
+                                {wf.category}
                               </span>
-                              <svg
-                                className="w-3 h-3 ml-1"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M9 5l7 7-7 7"
-                                />
-                              </svg>
-                            </div>
+                            )}
+                          </div>
+                          {/* Title */}
+                          <h3 className="font-semibold text-lg text-white mb-0.5">
+                            {wf.title}
+                          </h3>
+                          {/* Description */}
+                          <p className="text-gray-400 text-[13px] mb-5 flex-1">
+                            {wf.description}
+                          </p>
+                          {/* Recommendation/CTA */}
+                          <div className="text-[#23b5b5] text-xs font-medium flex items-center">
+                            <span className="mr-1">Recommended for you</span>
+                            <span className="inline-block">&#9733;</span>
                           </div>
                         </div>
-                      );
-                    })}
+                      ))}
+                    </div>
+
+                    {/* Expand Button */}
+                    {sampleWorkflows.length > 2 && (
+                      <button
+                        onClick={() => navigate("/workflows")}
+                        className="mt-4 py-2 rounded-lg bg-gradient-to-r from-cyan-600 to-[#23b5b5] text-white font-semibold hover:from-[#23b5b5] hover:to-cyan-600 transition-colors"
+                      >
+                        {showAllWorkflows ? "Show Less" : "Explore Workflows"}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        )}
-
-        {/* Workflows Section */}
-        {selectedTools === "Workflows" && (
-          <div
-            className="max-w-[1480px] w-full animate-fadeUp will-change-[opacity,transform]"
-            ref={workflowsRef}
-          >
-            <p className="p-4 w-full md:text-3xl font-bold bg-gradient-to-tr from-teal-300 to-emerald-900 bg-clip-text text-transparent text-minimal-white tracking-tighter">
-              Workflows
-            </p>
-
-            <div className="relative">
-              <div className="flex items-center justify-center w-full mb-6">
-                <div className="flex-1 h-px bg-gradient-to-r from-transparent to-emerald-400"></div>
-                {/* <div className="px-4">
-                  <div className="w-4 h-4 border-2 border-emerald-400 rotate-45 bg-gray-900"></div>
-                </div> */}
-                <div className="flex-1 h-px bg-gradient-to-l from-transparent to-emerald-400"></div>
-              </div>
-            </div>
-            <div className="grid md:grid-cols-[repeat(auto-fit,minmax(0,330px))] gap-6">
-              {sampleWorkflows.map((workflow) => {
-                const isMenuOpen = openMenuId === workflow.id;
-
-                return (
-                  <div
-                    key={workflow.id}
-                    className="group relative px-6 py-4 rounded-2xl bg-gradient-to-br from-gray-950/80 to-gray-900/60 bg-opacity-70 border border-gray-800/40 backdrop-blur-md shadow-lg transition-all duration-200 hover:bg-gray-900/80 hover:shadow-cyan-700/20 hover:scale-[1.02] cursor-pointer flex flex-col h-[210px] w-[330px] will-change-transform"
-                    onClick={() => navigate("/locked")}
-                  >
-                    {/* Hover gradient overlay */}
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-                    <div className="relative z-10 flex flex-col h-full">
-                      {/* Header - Tools Icons and Menu */}
-                      <div className="flex items-center justify-between mb-4 border-minimal-border/50">
-                        <div className="flex items-center space-x-3">
-                          {/* Tool Icons */}
-                          <div className="flex -space-x-2">
-                            {workflow.tools.map((tool, index) => (
-                              <div
-                                key={index}
-                                className={`w-10 h-10 ${tool.bgColor} rounded-lg flex items-center justify-center text-minimal-white text-lg shadow-lg border-2 border-minimal-border transition-transform duration-300`}
-                                title={tool.name}
-                                style={{
-                                  zIndex: workflow.tools.length - index,
-                                }}
-                              >
-                                {tool.icon}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Menu Button */}
-                        <div className="relative" ref={menuRef}>
-                          <button
-                            onClick={(e) => toggleMenu(workflow.id, e)}
-                            className="p-2 rounded-lg hover:bg-minimal-cardHover transition-colors duration-200 z-20 relative"
-                          >
-                            <MoreHorizontal className="w-5 h-5 text-minimal-muted hover:text-minimal-primary transition-colors duration-200" />
-                          </button>
-
-                          {/* Dropdown Menu */}
-                          {isMenuOpen && (
-                            <div className="absolute right-0 top-10 w-48 bg-minimal-dark-100 rounded-lg border border-minimal-border shadow-2xl z-30 overflow-hidden animate-fadeIn will-change-[opacity,transform]">
-                              <div className="absolute inset-0 bg-minimal-dark-100/95 backdrop-blur-sm"></div>
-                              <div className="relative z-10 py-2">
-                                {menuOptions.map((option, optionIndex) => {
-                                  const OptionIcon = option.icon;
-                                  return (
-                                    <button
-                                      key={optionIndex}
-                                      onClick={() =>
-                                        handleMenuAction(
-                                          option.action,
-                                          workflow.title
-                                        )
-                                      }
-                                      className={`w-full flex items-center px-4 py-2 text-sm hover:bg-minimal-cardHover/50 transition-all duration-200 ${option.className}`}
-                                    >
-                                      <OptionIcon className="w-4 h-4 mr-3" />
-                                      <span>{option.label}</span>
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                              <div className="absolute inset-0 rounded-lg border border-minimal-primary/20 pointer-events-none"></div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Content - Workflow Description */}
-                      <div className="flex-1 ">
-                        <div className="inline-block px-2 py-1 bg-minimal-gray-800 rounded-md text-xs text-minimal-primary mb-3">
-                          {workflow.category}
-                        </div>
-
-                        <h3 className="text-base font-semibold line-clamp-3 text-minimal-white transition-colors duration-300 leading-tight">
-                          {workflow.title}
-                        </h3>
-                      </div>
-
-                      {/* Footer - Recommended Badge */}
-                      <div className="flex items-center justify-between pt-2 border-t border-minimal-border/50">
-                        {workflow.recommended && (
-                          <div className="flex items-center text-minimal-primary">
-                            <Sparkles className="w-4 h-4 mr-2" />
-                            <span className="text-xs font-medium">
-                              Recommended for you
-                            </span>
-                          </div>
-                        )}
-
-                        <div className="flex items-center text-minimal-primary opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-0 group-hover:translate-x-1 ml-auto">
-                          <span className="text-xs font-medium">
-                            Use Workflow
-                          </span>
-                          <svg
-                            className="w-4 h-4 ml-1"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 5l7 7-7 7"
-                            />
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Integrations Section */}
-        {selectedTools === "Integrations" && (
-          <div
-            className="max-w-[1480px] w-full animate-fadeUp will-change-[opacity,transform]"
-            ref={integrationsRef}
-          >
-            <RenderMyIntegrations />
-          </div>
-        )}
+        </div>
       </div>
-
-      {/* Only animation helpers; no content changed */}
       <style jsx>{`
         @keyframes fadeUp {
           from {
@@ -1670,6 +1276,9 @@ const MainDashboard = () => {
         }
         .animate-fadeIn {
           animation: fadeUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .hover-zone {
+          cursor: pointer;
         }
       `}</style>
     </>
