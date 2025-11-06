@@ -545,11 +545,11 @@ export default function LandingPage() {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-radial from-[#23b5b5]/5 to-transparent rounded-full animate-spin-slow"></div>
       </div>
 
-      <SidebarOnHover
+      {/* <SidebarOnHover
         link={"https://explified.com/slideshow-maker-ai-tool/"}
         toolName={"AutoDeck AI"}
         id={"presentation"}
-      />
+      /> */}
 
       {/* Brand header */}
       <header className="flex flex-col items-center pt-8 px-4 space-y-1 text-center">

@@ -173,7 +173,7 @@ function App() {
         <Route path="/result" element={<Result />} />
         <Route path="influmark/:name" element={<InfluencerProfile />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/all-apps" element={<AllApps />} />
+
         {/* <Route path="/influmark" element={<Influmark />} /> */}
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/about-us" element={<AboutUs />} />
@@ -263,6 +263,7 @@ function App() {
         <Route path="/notes" element={<LexicalEditor />} />
         <Route path="/" element={<UpdatedDashboard />}>
           <Route index element={<MainDashboard />}></Route>
+          <Route path="/all-apps" element={<AllApps />} />
           <Route path="/socials" element={<SocialsPage />}></Route>
           <Route path="/history" element={<History />}></Route>
           <Route path="/canvas" element={<Canvas />}></Route>

@@ -34,9 +34,9 @@ import {
   Users,
 } from "lucide-react";
 
-import logo from "../assets/logos/explified_logo.png";
 import UserModal from "./UserModal";
 import { useSelector } from "react-redux";
+import MainSidebar from "./MAinSidebar";
 
 // ---------------- FILTER ITEMS ----------------
 const navItems = [
@@ -76,17 +76,12 @@ const NavBarSection = ({ selectedTool, onNavClick }) => (
 // ---------------- DASHBOARD ----------------
 const UpdatedDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeNav, setActiveNav] = useState("");
+
   const [selectedTool, setSelectedTool] = useState("");
   const [showContent, setShowContent] = useState(true);
   const [showNavbar, setShowNavbar] = useState(true);
-  // const [lastScrollY, setLastScrollY] = useState(0);
-  // const [showUserModal, setShowUserModal] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
-  // const [searchQuery, setSearchQuery] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
-  const [isPlusOpen, setIsPlusOpen] = useState(false);
 
   const user = useSelector((state) => state.user);
 
@@ -160,42 +155,16 @@ const UpdatedDashboard = () => {
   }, [location.pathname]);
 
   // ---------------- Navbar Hover ----------------
-  let timeoutId;
-  const handleMouseEnter = () => {
-    clearTimeout(timeoutId);
-    setIsOpen(true);
-  };
-  const handleMouseLeave = () => {
-    timeoutId = setTimeout(() => setIsOpen(false), 200);
-  };
-
-  // ---------------- NavBarClick ----------------
-  const handleNavBarClick = (navName) => {
-    setSelectedTool(navName);
-    if (navName === "Start") navigate("/");
-    else if (navName === "Search") navigate("/");
-    else if (navName === "Recent") navigate("/");
-    else if (navName === "All Apps") navigate("/");
-    else if (navName === "Workflows") navigate("/workflows");
-    else if (navName === "Integrations") navigate("/integrations");
-  };
 
   // ---------------- JSX ----------------
   return (
     <div className="min-h-screen bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 flex flex-col overflow-hidden">
       {/* Header / Navbar */}
-      
 
       {/* CONTENT */}
-      <div
-        className={`${
-          sidebarOpen ? "ml-80" : "ml-0"
-        } w-full transition-all duration-300`}
-      >
-        {/* FILTER BAR */}
-
+      <div>
+        <MainSidebar />
         {/* MAIN CONTENT SLOT */}
-
         <Outlet />
       </div>
     </div>

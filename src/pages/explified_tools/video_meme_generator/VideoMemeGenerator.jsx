@@ -176,11 +176,11 @@ export default function AIMemeGenerator() {
 
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 text-white flex flex-col p-6">
-      <SidebarOnHover
+      {/* <SidebarOnHover
         link={"https://explified.com/video-meme-generator-ai/"}
         toolName={"AI Meme Generator"}
         id={"memegenerator"}
-      />
+      /> */}
 
       {/* Header */}
       <div className="text-center py-8">

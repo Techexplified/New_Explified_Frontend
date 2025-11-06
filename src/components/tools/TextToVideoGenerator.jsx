@@ -192,11 +192,11 @@ const TextToVideoGenerator = () => {
 
   return (
     <>
-      <SidebarOnHover
+      {/* <SidebarOnHover
         link={"https://explified.com/text-to-video-ai/"}
         toolName={"AI Video Generator"}
         id={"vidgen"}
-      />
+      /> */}
 
       <div className="min-h-screen relative bg-black text-gray-100 overflow-hidden">
         {/* Background effects */}

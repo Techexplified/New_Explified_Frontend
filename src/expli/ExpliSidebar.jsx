@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import SettingsModal from "./SettingsModal";
 import { ExpliLogo } from "../assets";
 import SettingsPortal from "./SettingsPortal";
+import { LayoutDashboard } from "lucide-react";
 
 export default function ExpliSidebar({
   activeSection,
@@ -25,7 +26,12 @@ export default function ExpliSidebar({
   const navigate = useNavigate();
 
   const sidebarItems = [
-    { icon: FaRegCommentDots, label: "Home", section: "home", url: "/expli" },
+    // {
+    //   icon: LayoutDashboard,
+    //   label: "Dashboard",
+    //   section: "dashboard",
+    //   url: "/",
+    // },
     {
       icon: FaRegFileAlt,
       label: "Discover",
@@ -52,7 +58,7 @@ export default function ExpliSidebar({
           fixed lg:static top-0 left-0 h-full
           z-50
           w-16 lg:w-16
-          flex flex-col justify-between py-4
+          flex flex-col justify-between py-2
           bg-black text-white border-r border-gray-900 shadow-inner
           transition-transform duration-300
           ${
@@ -70,11 +76,11 @@ export default function ExpliSidebar({
             ✕
           </button>
           {/* Logo */}
-          <img className="h-10" alt="Logo" src={ExpliLogo} />
+          <img className="h-14 " alt="Logo" src={ExpliLogo} />
 
           {/* New Chat + history */}
           <div
-            className="relative mt-2"
+            className="relative "
             onMouseEnter={() => setShowHistory(true)}
             onMouseLeave={() => setShowHistory(false)}
           >
@@ -89,7 +95,7 @@ export default function ExpliSidebar({
           </div>
 
           {/* main nav */}
-          <div className="space-y-2 mt-2">
+          <div className="space-y-2 ">
             {sidebarItems.map((it) => (
               <SidebarItem
                 key={it.section}

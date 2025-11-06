@@ -444,11 +444,11 @@ const YoutubeSummarizer = () => {
 
   return (
     <div className="flex flex-col relative min-h-screen bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 ">
-      <SidebarOnHover
+      {/* <SidebarOnHover
         link={"https://explified.com/youtube-summariser/"}
         toolName={"Youtube Summarizer"}
         id={"ytsummarizer"}
-      />
+      /> */}
 
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">

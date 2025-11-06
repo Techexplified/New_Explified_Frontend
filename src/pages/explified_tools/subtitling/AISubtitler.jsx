@@ -72,11 +72,11 @@ export default function AISubtitler() {
         <div className="absolute bottom-1/4 left-1/2 w-96 h-96 bg-minimal-primary rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse delay-500"></div>
       </div>
 
-      <SidebarOnHover
+      {/* <SidebarOnHover
         link={"https://explified.com/subtitler-tool-landing-page/"}
         toolName={"AI Subtitler"}
         id={"subtitler"}
-      />
+      /> */}
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-12 ml-0 relative z-0">

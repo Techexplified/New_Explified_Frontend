@@ -40,11 +40,11 @@ export default function BgToolsApp() {
 
   return (
     <div className="h-full min-h-screen flex flex-col bg-black">
-      <SidebarOnHover
+      {/* <SidebarOnHover
         link={"https://explified.com/bg-remover/"}
         toolName={"RemoveBg"}
         id={"removebg"}
-      />
+      /> */}
       <WorkFlowButton />
 
       {/* ── Top Toolbar ── */}

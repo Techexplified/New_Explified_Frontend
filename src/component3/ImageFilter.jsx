@@ -196,34 +196,20 @@ const AiImageTool = () => {
   return (
     <>
       {/* Left-edge activator to open when collapsed (below navbar) */}
-      <div
+      {/* <div
         className="fixed left-0 h-[calc(100vh-0px)] w-10 z-50"
         onMouseEnter={() => setSidebarOpen(true)}
-      />
+      /> */}
 
       {/* Sidebar (appears below navbar) */}
-      <div
+      {/* <div
         className={`fixed left-0 h-[calc(100vh-0px)] bg-black/95 backdrop-blur-xl border-r border-[#23b5b5]/20 
               flex flex-col justify-between transition-all duration-300 z-40
               ${sidebarOpen ? "w-72 px-6" : "w-0 px-0 overflow-hidden"}`}
         onMouseEnter={() => !sidebarPinned && setSidebarOpen(true)}
         onMouseLeave={() => !sidebarPinned && setSidebarOpen(false)}
       >
-        {/* Top section */}
         <div className="mt-8">
-          {/* <div className="flex items-center gap-3 mb-2">
-                  <h2 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-[#23b5b5] bg-clip-text text-transparent">
-                    AI Image Styler
-                  </h2>
-                  <button
-                    onClick={() => {
-                      setSidebarPinned(!sidebarPinned);
-                      setSidebarOpen(true);
-                    }}
-                  >
-                    {sidebarPinned ? <PinOff size={20} /> : <Pin size={20} />}
-                  </button>
-                </div> */}
           <div className="grid pt-6 grid-cols-1 gap-4">
             <div className="flex items-center gap-3 mb-2">
               <h2 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-[#23b5b5] bg-clip-text text-transparent">
@@ -241,7 +227,6 @@ const AiImageTool = () => {
           </div>
         </div>
 
-        {/* Bottom section */}
         <div className="mb-8">
           <button
             onClick={() =>
@@ -252,7 +237,7 @@ const AiImageTool = () => {
             Learn More
           </button>
         </div>
-      </div>
+      </div> */}
 
       <div className="min-h-screen relative flex bg-minimal-background text-minimal-heading font-poppins">
         {/* Sidebar */}
