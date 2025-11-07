@@ -24,6 +24,10 @@ export const useStore = create((set) => ({
   // ======= Shape Selection =======
   selectedShapeId: null,
   setSelectedShapeId: (id) => set({ selectedShapeId: id }),
+  // ======= Multi-Selection Support =======
+selectedShapes: [],
+setSelectedShapes: (selected) => set({ selectedShapes: selected }),
+clearSelection: () => set({ selectedShapes: [] }),
 
   // ======= Text Styles =======
   textStyle: {

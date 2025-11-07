@@ -19,7 +19,8 @@ export const createShape = (
 
     case "square":
       return { id, type: "square", x, y, size: 0, ...style };
-
+    case "arrow":
+      return { id, type: "arrow", points: [{ x, y }, { x, y }], ...style };
     case "circle":
       return { id, type: "circle", x, y, radius: 0, ...style };
 
@@ -54,6 +55,8 @@ export const updateShapeDimensions = (shape, x, y) => {
     case "square":
       const size = Math.max(Math.abs(x - shape.x), Math.abs(y - shape.y));
       return { size };
+   case "arrow":
+      return { points: [shape.points[0], { x, y }] };
 
     case "circle":
       return {
