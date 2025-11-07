@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useStore } from "../store";
 import { nanoid } from "nanoid";
@@ -48,12 +48,18 @@ export default function RightSidebar() {
 
   // ✅ Local opacity state for text tool
   const [opacity, setOpacity] = useState(textStyle.opacity * 100);
-
+  const selectedShape = useStore((s) => s.selectedShape);
+const updateShape = useStore((s) => s.updateShape);
+const [shapeSize, setShapeSize] = useState(selectedShape?.width || 200);
   const handleOpacityChange = (value) => {
     setOpacity(value);
     setTextStyle({ opacity: value / 100 });
   };
 
+  // Sync local state when selectedShape changes
+useEffect(() => {
+  if (selectedShape) setShapeSize(selectedShape.width);
+}, [selectedShape]);
    const hiddenTools = ["pan", "lock", "select", "eraser"];
   const shouldShowSidebar =
     selectedTool && !hiddenTools.includes(selectedTool);
@@ -217,7 +223,7 @@ export default function RightSidebar() {
           }}
           className="w-10 h-10 bg-gray-100 rounded-lg hover:bg-gray-200 flex items-center justify-center"
         >
-          −
+          -
         </button>
       </div>
     </div>
@@ -475,117 +481,149 @@ export default function RightSidebar() {
             </motion.div>
           )}
 
-         {/* ========== IMAGE TOOL ========== */}
-{selectedTool === "image" && (
-  <motion.div
-    initial={{ x: 80, opacity: 0 }}
-    animate={{ x: 0, opacity: 1 }}
-    exit={{ x: 80, opacity: 0 }}
-    transition={{ duration: 0.3 }}
-    className="flex flex-col gap-5"
-  >
-    {/* Upload */}
-    <div>
-      <h3 className="text-sm font-medium text-gray-600 mb-2">Upload Image</h3>
-      <label className="w-full flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-4 text-gray-500 cursor-pointer hover:border-indigo-400 transition">
-        <input
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files[0];
-            if (file) {
-              const url = URL.createObjectURL(file);
-              useStore.getState().addShape({
-                id: nanoid(),
-                type: "image",
-                src: url,
-                x: 150,
-                y: 150,
-                width: 200,
-                height: 200,
-                rotation: 0,
-              });
-            }
-          }}
-        />
-        <ImageIcon size={22} className="text-indigo-400 mb-1" />
-        <span className="text-xs">Click to upload</span>
-      </label>
-    </div>
+         
+ {/* ========== IMAGE TOOL ========== */}
+          {selectedTool === "image" && (
+            <motion.div
+              initial={{ x: 80, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 80, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="flex flex-col gap-5"
+            >
+              {/* Upload */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-600 mb-2">
+                  Upload Image
+                </h3>
+                <label className="w-full flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-4 text-gray-500 cursor-pointer hover:border-indigo-400 transition">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                          const src = event.target.result;
+                          useStore.getState().addShape({
+                            id: nanoid(),
+                            type: "image",
+                            src,
+                            x: 150,
+                            y: 150,
+                            width: 200,
+                            height: 200,
+                            rotation: 0,
+                            opacity: 1,
+                          });
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                  />
+                  <ImageIcon size={22} className="text-indigo-400 mb-1" />
+                  <span className="text-xs">Click to upload</span>
+                </label>
+              </div>
 
-    {/* Opacity */}
-    <div>
-      <h3 className="text-sm font-medium text-gray-600 mb-2">Opacity</h3>
-      <div className="flex items-center gap-2">
-        <input
-          type="range"
-          min="0"
-          max="100"
-          value={shapeOpacity * 100}
-          onChange={(e) => setShapeOpacity(e.target.value / 100)}
-          className="flex-1 accent-indigo-400 cursor-pointer"
-        />
-        <span className="text-xs text-gray-600 w-6">
-          {Math.round(shapeOpacity * 100)}
-        </span>
-      </div>
-    </div>
+              {/* Sliders */}
+              <ImageControls />
+            </motion.div>
+          )}
 
-    {/* Image Size */}
-<div>
-  <h3 className="text-sm font-medium text-gray-600 mb-2">Size</h3>
-  <div className="flex items-center gap-2">
-    <button
-      onClick={() =>
-        useStore.getState().updateSelectedShape((s) => ({
-          width: s.width + 20,
-          height: s.height + 20,
-        }))
-      }
-      className="w-10 h-10 bg-gray-100 rounded-lg hover:bg-gray-200 flex items-center justify-center"
-    >
-      +
-    </button>
-    <button
-      onClick={() =>
-        useStore.getState().updateSelectedShape((s) => ({
-          width: Math.max(50, s.width - 20),
-          height: Math.max(50, s.height - 20),
-        }))
-      }
-      className="w-10 h-10 bg-gray-100 rounded-lg hover:bg-gray-200 flex items-center justify-center"
-    >
-      −
-    </button>
-  </div>
-</div>
 
-{/* Rotation */}
-<div>
-  <h3 className="text-sm font-medium text-gray-600 mb-2">Rotation</h3>
-  <div className="flex items-center gap-2">
-    <input
-      type="range"
-      min="0"
-      max="360"
-      value={useStore.getState().selectedShape?.rotation || 0}
-      onChange={(e) =>
-        useStore.getState().updateSelectedShape({ rotation: parseInt(e.target.value) })
-      }
-      className="flex-1 accent-indigo-400 cursor-pointer"
-    />
-    <span className="text-xs text-gray-600 w-10 text-right">
-      {useStore.getState().selectedShape?.rotation || 0}°
-    </span>
-  </div>
-</div>
-
-  </motion.div>
-)}
 
         </motion.div>
       )}
     </AnimatePresence>
   );
 }
+
+/* ========== IMAGE CONTROLS COMPONENT ========== */
+const ImageControls = () => {
+  const selectedShape = useStore((s) => s.selectedShape);
+  const updateShape = useStore((s) => s.updateShape);
+
+  if (!selectedShape || selectedShape.type !== "image") {
+    return (
+      <p className="text-xs text-gray-400 italic text-center">
+        Select an image to edit
+      </p>
+    );
+  }
+
+  return (
+    <>
+      {/* Opacity */}
+      <div>
+        <h3 className="text-sm font-medium text-gray-600 mb-2">Opacity</h3>
+        <div className="flex items-center gap-2">
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={(selectedShape.opacity ?? 1) * 100}
+            onChange={(e) =>
+              updateShape(selectedShape.id, {
+                opacity: e.target.value / 100,
+              })
+            }
+            className="flex-1 accent-indigo-400 cursor-pointer"
+          />
+          <span className="text-xs text-gray-600 w-6">
+            {Math.round((selectedShape.opacity ?? 1) * 100)}
+          </span>
+        </div>
+      </div>
+
+      {/* Size */}
+      <div>
+        <h3 className="text-sm font-medium text-gray-600 mb-2">Size</h3>
+        <div className="flex items-center gap-2">
+          <input
+            type="range"
+            min="50"
+            max="600"
+            step="5"
+            value={selectedShape.width || 200}
+            onChange={(e) => {
+              const newSize = Number(e.target.value);
+              updateShape(selectedShape.id, {
+                width: newSize,
+                height: newSize,
+              });
+            }}
+            className="flex-1 accent-indigo-400 cursor-pointer"
+          />
+          <span className="text-xs text-gray-600 w-12 text-right">
+            {selectedShape.width}px
+          </span>
+        </div>
+      </div>
+
+      {/* Rotation */}
+      <div>
+        <h3 className="text-sm font-medium text-gray-600 mb-2">Rotation</h3>
+        <div className="flex items-center gap-2">
+          <input
+            type="range"
+            min="0"
+            max="360"
+            value={selectedShape.rotation || 0}
+            onChange={(e) =>
+              updateShape(selectedShape.id, {
+                rotation: parseInt(e.target.value),
+              })
+            }
+            className="flex-1 accent-indigo-400 cursor-pointer"
+          />
+          <span className="text-xs text-gray-600 w-10 text-right">
+            {selectedShape.rotation || 0}°
+          </span>
+        </div>
+      </div>
+    </>
+  );
+};

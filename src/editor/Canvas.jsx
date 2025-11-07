@@ -9,6 +9,12 @@ import { createShape, updateShapeDimensions } from "./ShapeDrawer";
 import { nanoid } from "nanoid";
 
 const Canvas = forwardRef((_, ref) => {
+  const [selectionBox, setSelectionBox] = useState(null);
+const [dragStart, setDragStart] = useState(null);
+const [isDraggingSelection, setIsDraggingSelection] = useState(false);
+const selectedShapes = useStore((s) => s.selectedShapes);
+const setSelectedShapes = useStore((s) => s.setSelectedShapes);
+const clearSelection = useStore((s) => s.clearSelection);
   const shapes = useStore((s) => s.shapes);
   const addShape = useStore((s) => s.addShape);
   const updateShape = useStore((s) => s.updateShape);
@@ -79,6 +85,29 @@ const Canvas = forwardRef((_, ref) => {
     x: (x - panRef.current.x) / zoomRef.current,
     y: (y - panRef.current.y) / zoomRef.current,
   });
+  
+// --- Utility: check shape bounds ---
+const getShapeBounds = (shape) => {
+  if (shape.type === "rect" || shape.type === "square")
+    return { x: shape.x, y: shape.y, w: shape.width || shape.size, h: shape.height || shape.size };
+  if (shape.type === "circle")
+    return { x: shape.x - shape.radius, y: shape.y - shape.radius, w: shape.radius * 2, h: shape.radius * 2 };
+  if (shape.type === "line" || shape.type === "arrow") {
+    const xs = shape.points.map((p) => p.x);
+    const ys = shape.points.map((p) => p.y);
+    return { x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) };
+  }
+  if (shape.type === "sticky" || shape.type === "image")
+    return { x: shape.x, y: shape.y, w: shape.width, h: shape.height };
+  return { x: shape.x, y: shape.y, w: 0, h: 0 };
+};
+
+// --- Detect intersection with selection box ---
+const intersects = (a, b) =>
+  a.x < b.x + b.w &&
+  a.x + a.w > b.x &&
+  a.y < b.y + b.h &&
+  a.y + a.h > b.y;
 
   // handle typing
   const handleKeyDown = (e) => {
@@ -129,7 +158,8 @@ const Canvas = forwardRef((_, ref) => {
   const handlePointerDown = (e) => {
     const { offsetX, offsetY } = e.nativeEvent;
     const { x, y } = toCanvasCoords(offsetX, offsetY);
-
+    
+     
     // ✏️ Text Tool
     if (selectedTool === "text") {
       // Save existing text if present
@@ -156,6 +186,34 @@ const Canvas = forwardRef((_, ref) => {
       setTextContent("");
       return;
     }
+
+     if (selectedTool === "select" || selectedTool === "mousepointer") {
+    const clicked = shapes.find((s) => {
+      const b = getShapeBounds(s);
+      return x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h;
+    });
+
+    if (clicked) {
+      // Shift+Click → multi-select toggle
+      if (e.shiftKey) {
+        setSelectedShapes((prev) =>
+          prev.includes(clicked.id)
+            ? prev.filter((id) => id !== clicked.id)
+            : [...prev, clicked.id]
+        );
+      } else {
+        setSelectedShapes([clicked.id]);
+      }
+      // Start dragging the selection
+      setDragStart({ x, y });
+      setIsDraggingSelection(true);
+    } else {
+      // Start new selection box
+      clearSelection();
+      setSelectionBox({ x, y, w: 0, h: 0 });
+    }
+    return;
+  }
 
     // Pointer down
     if (selectedTool === "pan" || e.nativeEvent.button === 1) {
@@ -282,50 +340,92 @@ const Canvas = forwardRef((_, ref) => {
   };
 
   // handle pointer move
-  const handlePointerMove = (e) => {
-    if (selectedTool === "text") return;
+ const handlePointerMove = (e) => {
+  const { offsetX, offsetY } = e.nativeEvent;
+  const { x, y } = toCanvasCoords(offsetX, offsetY);
 
-    const { offsetX, offsetY } = e.nativeEvent;
-    const { x, y } = toCanvasCoords(offsetX, offsetY);
+  // --- TEXT TOOL ---
+  if (selectedTool === "text") return;
 
-    // Panning the canvas
-    if (isPanning) {
-      const dx = e.clientX - lastPointer.current.x;
-      const dy = e.clientY - lastPointer.current.y;
-      lastPointer.current = { x: e.clientX, y: e.clientY };
-      setPan((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
+  // --- PAN TOOL ---
+  if (isPanning) {
+    const dx = e.clientX - lastPointer.current.x;
+    const dy = e.clientY - lastPointer.current.y;
+    lastPointer.current = { x: e.clientX, y: e.clientY };
+    setPan((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
+    return;
+  }
+
+  // --- SELECT TOOL (drag-select / move shapes) ---
+  if (selectedTool === "select" || selectedTool === "mousepointer") {
+    if (selectionBox) {
+      // Resize selection rectangle
+      setSelectionBox((prev) => ({ ...prev, w: x - prev.x, h: y - prev.y }));
       return;
     }
 
-    const selectedImageId = useStore.getState().selectedImageId;
+    if (isDraggingSelection && dragStart) {
+      const dx = x - dragStart.x;
+      const dy = y - dragStart.y;
+      setDragStart({ x, y });
 
-    // Dragging the selected image
-    if (
-      selectedTool === "image" &&
-      selectedImageId &&
-      currentShapeId === selectedImageId
-    ) {
-      updateShape(selectedImageId, (prev) => ({
-        ...prev,
-        x: x - dragOffset.current.x,
-        y: y - dragOffset.current.y,
-      }));
+      selectedShapes.forEach((id) => {
+        useStore.getState().updateShape(id, (s) => ({
+          ...s,
+          x: s.x + dx,
+          y: s.y + dy,
+          points: s.points
+            ? s.points.map((p) => ({ x: p.x + dx, y: p.y + dy }))
+            : s.points,
+        }));
+      });
       return;
     }
+  }
 
-    // Drawing freehand or shapes
-    if (!currentShapeId) return;
-    updateShape(currentShapeId, (prev) => {
-      if (prev.type === "freehand")
-        return { ...prev, points: [...prev.points, { x, y }] };
-      if (selectedTool === "shape") return updateShapeDimensions(prev, x, y);
-      return prev;
-    });
-  };
+  // --- IMAGE DRAGGING ---
+  const selectedImageId = useStore.getState().selectedImageId;
+  if (
+    selectedTool === "image" &&
+    selectedImageId &&
+    currentShapeId === selectedImageId
+  ) {
+    updateShape(selectedImageId, (prev) => ({
+      ...prev,
+      x: x - dragOffset.current.x,
+      y: y - dragOffset.current.y,
+    }));
+    return;
+  }
+
+  // --- DRAWING TOOLS (freehand or shape) ---
+  if (!currentShapeId) return;
+  updateShape(currentShapeId, (prev) => {
+    if (prev.type === "freehand")
+      return { ...prev, points: [...prev.points, { x, y }] };
+    if (selectedTool === "shape") return updateShapeDimensions(prev, x, y);
+    return prev;
+  });
+};
 
   const handlePointerUp = () => {
     setIsPanning(false);
     setCurrentShapeId(null);
+     if (selectionBox) {
+    const rect = {
+      x: Math.min(selectionBox.x, selectionBox.x + selectionBox.w),
+      y: Math.min(selectionBox.y, selectionBox.y + selectionBox.h),
+      w: Math.abs(selectionBox.w),
+      h: Math.abs(selectionBox.h),
+    };
+    const selected = shapes
+      .filter((s) => intersects(getShapeBounds(s), rect))
+      .map((s) => s.id);
+    setSelectedShapes(selected);
+    setSelectionBox(null);
+  }
+  setIsDraggingSelection(false);
+  setDragStart(null);
   };
 
   const handleWheel = (e) => {

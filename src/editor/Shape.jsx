@@ -60,6 +60,7 @@ export default function Shape(props) {
     prevToolRef.current = selectedTool;
   }, [selectedTool, notes, addShape, writePosition, color, setWritePosition, setNotes]);
 
+
   // ✅ Render shapes dynamically
   switch (type) {
     case "freehand":
@@ -74,6 +75,41 @@ export default function Shape(props) {
           opacity={opacity}
         />
       );
+
+
+      // ✅ NEW: Arrow shape support
+    case "arrow": {
+      if (!points || points.length < 2) return null;
+      const [start, end] = points;
+
+      const dx = end.x - start.x;
+      const dy = end.y - start.y;
+      const angle = Math.atan2(dy, dx);
+      const headLength = 10 + strokeWidth; // scales with thickness
+
+      const x1 = end.x - headLength * Math.cos(angle - Math.PI / 6);
+      const y1 = end.y - headLength * Math.sin(angle - Math.PI / 6);
+      const x2 = end.x - headLength * Math.cos(angle + Math.PI / 6);
+      const y2 = end.y - headLength * Math.sin(angle + Math.PI / 6);
+
+      return (
+        <g opacity={opacity}>
+          <line
+            x1={start.x}
+            y1={start.y}
+            x2={end.x}
+            y2={end.y}
+            stroke={color}
+            strokeWidth={strokeWidth}
+          />
+          <polygon
+            points={`${end.x},${end.y} ${x1},${y1} ${x2},${y2}`}
+            fill={color}
+          />
+        </g>
+      );
+    }
+
 
     case "rect":
       return (
