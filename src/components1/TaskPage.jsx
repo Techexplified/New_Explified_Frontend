@@ -23,14 +23,28 @@ export default function TaskManager() {
       lastModified: new Date().toISOString(),
 
       // 👇 Sample shared contributors
-    sharedWith: [
-  { name: "Kashish", avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Kashish&backgroundColor=b6e3f4,c0aede,d1d4f9" },
-  { name: "Aisha", avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Aisha&backgroundColor=b6e3f4,c0aede,d1d4f9" },
-  { name: "Riya", avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Riya&backgroundColor=b6e3f4,c0aede,d1d4f9" },
-  { name: "Mohit", avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Mohit&backgroundColor=b6e3f4,c0aede,d1d4f9" },
-],
-
-
+      sharedWith: [
+        {
+          name: "Kashish",
+          avatar:
+            "https://api.dicebear.com/7.x/adventurer/svg?seed=Kashish&backgroundColor=b6e3f4,c0aede,d1d4f9",
+        },
+        {
+          name: "Aisha",
+          avatar:
+            "https://api.dicebear.com/7.x/adventurer/svg?seed=Aisha&backgroundColor=b6e3f4,c0aede,d1d4f9",
+        },
+        {
+          name: "Riya",
+          avatar:
+            "https://api.dicebear.com/7.x/adventurer/svg?seed=Riya&backgroundColor=b6e3f4,c0aede,d1d4f9",
+        },
+        {
+          name: "Mohit",
+          avatar:
+            "https://api.dicebear.com/7.x/adventurer/svg?seed=Mohit&backgroundColor=b6e3f4,c0aede,d1d4f9",
+        },
+      ],
     };
 
     const existingNotes = JSON.parse(localStorage.getItem("notes") || "[]");
@@ -70,13 +84,17 @@ export default function TaskManager() {
     const updatedNotes = notes.map((note) =>
       note.id === id ? { ...note, pinned: !note.pinned } : note
     );
-    updatedNotes.sort((a, b) => (b.pinned === a.pinned ? 0 : b.pinned ? 1 : -1));
+    updatedNotes.sort((a, b) =>
+      b.pinned === a.pinned ? 0 : b.pinned ? 1 : -1
+    );
     setNotes(updatedNotes);
     localStorage.setItem("notes", JSON.stringify(updatedNotes));
   };
 
   const handleDelete = (id) => {
-    const confirmed = window.confirm("Are you sure you want to delete this note?");
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this note?"
+    );
     if (!confirmed) return;
     const updatedNotes = notes.filter((note) => note.id !== id);
     setNotes(updatedNotes);
@@ -107,12 +125,20 @@ export default function TaskManager() {
 
   const slideLeft = {
     hidden: { opacity: 0, x: -60 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease: "easeOut" } },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: { duration: 0.7, ease: "easeOut" },
+    },
   };
 
   const slideRight = {
     hidden: { opacity: 0, x: 60 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease: "easeOut" } },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: { duration: 0.7, ease: "easeOut" },
+    },
   };
 
   const cardVariants = {
@@ -128,7 +154,7 @@ export default function TaskManager() {
 
   return (
     <motion.div
-      className="min-h-screen pt-7 w-full relative bg-[#0b0f10] text-white overflow-hidden"
+      className="min-h-screen p-7 w-full relative bg-[#0b0f10] text-white overflow-hidden"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
@@ -151,8 +177,6 @@ export default function TaskManager() {
       />
 
       <div className="relative z-10 flex flex-col h-screen p-10 overflow-y-auto custom-scrollbar">
-       
-
         {/* Top Controls */}
         <div className="flex flex-wrap items-center justify-between gap-5 mb-10">
           {/* Tabs */}
@@ -212,7 +236,8 @@ export default function TaskManager() {
                 whileHover={{
                   scale: 1.05,
                   boxShadow: "0 0 15px rgba(34,211,238,0.3)",
-                  background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+                  background:
+                    "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
                 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleNewNote}
@@ -334,46 +359,48 @@ export default function TaskManager() {
                       })}
                     </p>
 
-           {/* 👇 Shared Avatars Section */}
-{activeTab === "sharedFiles" && note.sharedWith?.length > 0 && (
-  <div className="mt-3">
-    <h4 className="text-xs font-medium text-cyan-300 mb-2 tracking-wide">
-      Shared To
-    </h4>
+                    {/* 👇 Shared Avatars Section */}
+                    {activeTab === "sharedFiles" &&
+                      note.sharedWith?.length > 0 && (
+                        <div className="mt-3">
+                          <h4 className="text-xs font-medium text-cyan-300 mb-2 tracking-wide">
+                            Shared To
+                          </h4>
 
-    <div className="flex items-center -space-x-3">
-      {note.sharedWith.slice(0, 3).map((user, idx) => (
-        <div
-          key={idx}
-          className="relative w-9 h-9 rounded-full border-2 border-slate-900
+                          <div className="flex items-center -space-x-3">
+                            {note.sharedWith.slice(0, 3).map((user, idx) => (
+                              <div
+                                key={idx}
+                                className="relative w-9 h-9 rounded-full border-2 border-slate-900
                      bg-slate-800 overflow-hidden hover:scale-110
                      transition-transform shadow-[0_0_10px_rgba(34,211,238,0.3)]"
-        >
-          <img
-            src={
-              user.avatar ||
-              `https://api.dicebear.com/7.x/adventurer/svg?seed=${user.name}`
-            }
-            alt={user.name}
-            className="w-full h-full object-cover rounded-full"
-          />
-          {/* Soft cyan glow overlay */}
-          <div className="absolute inset-0 rounded-full bg-cyan-400/10 opacity-0 hover:opacity-100 transition-opacity" />
-        </div>
-      ))}
+                              >
+                                <img
+                                  src={
+                                    user.avatar ||
+                                    `https://api.dicebear.com/7.x/adventurer/svg?seed=${user.name}`
+                                  }
+                                  alt={user.name}
+                                  className="w-full h-full object-cover rounded-full"
+                                />
+                                {/* Soft cyan glow overlay */}
+                                <div className="absolute inset-0 rounded-full bg-cyan-400/10 opacity-0 hover:opacity-100 transition-opacity" />
+                              </div>
+                            ))}
 
-      {note.sharedWith.length > 3 && (
-        <div className="w-9 h-9 flex items-center justify-center rounded-full
+                            {note.sharedWith.length > 3 && (
+                              <div
+                                className="w-9 h-9 flex items-center justify-center rounded-full
                         bg-slate-700 text-[11px] text-cyan-300 font-semibold
                         border-2 border-slate-900 hover:scale-105 transition-transform
-                        shadow-[0_0_6px_rgba(34,211,238,0.4)]">
-          +{note.sharedWith.length - 3}
-        </div>
-      )}
-    </div>
-  </div>
-)}
-
+                        shadow-[0_0_6px_rgba(34,211,238,0.4)]"
+                              >
+                                +{note.sharedWith.length - 3}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
                   </div>
                 </motion.div>
               ))}

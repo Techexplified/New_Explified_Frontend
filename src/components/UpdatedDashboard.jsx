@@ -37,6 +37,7 @@ import {
 import UserModal from "./UserModal";
 import { useSelector } from "react-redux";
 import MainSidebar from "./MAinSidebar";
+import ProfileSettingsModal from "./subLayoutComponents/ProfileSettingsModal";
 
 // ---------------- FILTER ITEMS ----------------
 const navItems = [
@@ -76,7 +77,7 @@ const NavBarSection = ({ selectedTool, onNavClick }) => (
 // ---------------- DASHBOARD ----------------
 const UpdatedDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
+  const [isProfileSettingsOpen, setIsProfileSettingsOpen] = useState(false);
   const [selectedTool, setSelectedTool] = useState("");
   const [showContent, setShowContent] = useState(true);
   const [showNavbar, setShowNavbar] = useState(true);
@@ -163,10 +164,19 @@ const UpdatedDashboard = () => {
 
       {/* CONTENT */}
       <div>
-        <MainSidebar />
+        <MainSidebar
+          isProfileSettingsOpen={isProfileSettingsOpen}
+          setIsProfileSettingsOpen={setIsProfileSettingsOpen}
+        />
         {/* MAIN CONTENT SLOT */}
         <Outlet />
       </div>
+
+      {/* Render the ProfileSettingsModal at top-level so it centers correctly */}
+      <ProfileSettingsModal
+        isOpen={isProfileSettingsOpen}
+        onClose={() => setIsProfileSettingsOpen(false)}
+      />
     </div>
   );
 };
