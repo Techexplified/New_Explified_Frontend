@@ -56,7 +56,7 @@ function ChatContainer({
             <img
               src={logo}
               alt={toolName}
-              className={`${toolName === "Expli" ? "h-8" : "h-6"} rounded-lg`}
+              className={`${toolName === "Expli" ? "h-6" : "h-6"} rounded-lg`}
             />
             <h1 className="text-base font-semibold text-white tracking-tight">
               {toolName}
@@ -66,9 +66,9 @@ function ChatContainer({
           {/* Right: Toggle + Close */}
           {!onlyExpliOpen && (
             <div className="flex items-center gap-3">
-              <span className="text-[11px] text-gray-400 font-medium px-2 py-0.5 rounded-full bg-gray-800">
+              {/* <span className="text-[11px] text-gray-400 font-medium px-2 py-0.5 rounded-full bg-gray-800">
                 Chat Mode
-              </span>
+              </span> */}
               {/* Toggle */}
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
@@ -98,7 +98,7 @@ function ChatContainer({
 
       {/* Messages Container */}
       <div
-        className={`w-full flex flex-col gap-6 
+        className={`w-full flex flex-col gap-6 pb-14
     ${onlyExpliOpen ? "max-w-3xl mx-auto flex-1" : "flex-1"}`}
       >
         {/* Empty State */}

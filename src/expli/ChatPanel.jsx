@@ -38,7 +38,7 @@ export default function ChatPanel() {
 
   return (
     <div className="w-full flex-1 border border-cyan-500/20 shadow-[...] bg-black flex flex-col gap-4 relative backdrop-blur-xl">
-      <div className="flex divide-x-1 divide-gray-700 flex-1 overflow-x-auto overflow-y-hidden flex-nowrap [&>*]:min-w-[350px]">
+      <div className="flex divide-x-1  divide-gray-700 flex-1 overflow-x-auto overflow-y-hidden flex-nowrap [&>*]:min-w-[350px]">
         <ChatContainer
           messages={currentMessages}
           isTyping={isTyping.expli}

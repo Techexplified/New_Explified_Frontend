@@ -17,6 +17,8 @@ import {
   CircleUserRound,
   Grip,
   Star,
+  Clipboard,
+  ClipboardPen,
 } from "lucide-react";
 import { useNavigate, useLocation, NavLink } from "react-router-dom";
 import { MdElderlyWoman, MdOutlineGifBox } from "react-icons/md";
@@ -416,17 +418,17 @@ const MainDashboard = () => {
   const popularApps = [
     {
       id: 1,
-      name: "Image Styler",
-      icon: <Images className="w-8 h-8" />,
+      name: "Expli",
+      icon: <Plus className="w-8 h-8" />,
       color: "from-purple-500 to-pink-600",
-      route: "/image-styler",
+      route: "/expli",
     },
     {
       id: 2,
-      name: "Image To Video AI",
-      icon: <FaImage className="w-8 h-8" />,
+      name: "Notes",
+      icon: <ClipboardPen className="w-8 h-8" />,
       color: "from-blue-500 to-cyan-600",
-      route: "/image-to-video-ai",
+      route: "/notes",
     },
     {
       id: 3,

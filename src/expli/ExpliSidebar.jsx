@@ -85,6 +85,7 @@ export default function ExpliSidebar({
             onMouseLeave={() => setShowHistory(false)}
           >
             <button
+              onClick={() => navigate("/expli")}
               className="mb-2 w-10 h-10 rounded-full flex items-center justify-center bg-[#1b1b1b] text-gray-200 hover:text-white border border-gray-800 hover:border-[#23b5b5]/30 shadow"
               title="New Chat (Ctrl+T)"
             >

@@ -16,6 +16,7 @@ import { formatText } from "../utils/data/TroneData";
 import { AiOutlineOpenAI } from "react-icons/ai";
 import { RiGeminiLine } from "react-icons/ri";
 import ChatMenuPortal from "./ChatMenuPortal";
+import { useNavigate } from "react-router-dom";
 
 export default function ChatHistoryPopover({ visible }) {
   const {
@@ -36,6 +37,7 @@ export default function ChatHistoryPopover({ visible }) {
     );
   }, [searchQuery, chatHistory]);
   const [portalPos, setPortalPos] = useState(null);
+  const navigate = useNavigate();
 
   const handleHistoryClick = useCallback(
     (session) => {
@@ -105,6 +107,7 @@ export default function ChatHistoryPopover({ visible }) {
                       onMouseEnter={() => setHoverChat(item.id)} // set hovered chat ID
                       onMouseLeave={() => setHoverChat(null)} // reset when leaving
                       onClick={() => {
+                        navigate("/expli");
                         handleHistoryClick(item);
                         setMenuOpen(false);
                       }}
@@ -118,7 +121,7 @@ export default function ChatHistoryPopover({ visible }) {
                           className="text-sm text-gray-300 group-hover:text-white truncate"
                         />
 
-                        {hoverChat === item.id && (
+                        {/* {hoverChat === item.id && (
                           <div className="flex gap-2 mt-1">
                             {item.qa[0].answers.map((ans) => (
                               <span
@@ -135,7 +138,7 @@ export default function ChatHistoryPopover({ visible }) {
                               </span>
                             ))}
                           </div>
-                        )}
+                        )} */}
 
                         <div className="relative">
                           {/* <button
@@ -227,7 +230,10 @@ export default function ChatHistoryPopover({ visible }) {
 
             {/* New chat button */}
             <button
-              onClick={newChat}
+              onClick={() => {
+                navigate("/expli");
+                newChat();
+              }}
               className="mt-3 w-full bg-[#23B5B5]/10 text-[#23B5B5] text-sm font-semibold py-1.5 rounded-lg border border-[#23B5B5]/20 hover:bg-[#23B5B5]/20 transition"
             >
               + New Chat
