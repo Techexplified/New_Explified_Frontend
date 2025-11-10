@@ -21,6 +21,7 @@ import {
   Zap,
   Star,
   Check,
+  ArrowLeft,
 } from "lucide-react";
 import { FaGoogleDrive, FaSearch } from "react-icons/fa";
 import {
@@ -490,11 +491,21 @@ export default function IntegrationsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 text-white">
-      <SidebarOnHover
+    <div className="min-h-screen relative bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 text-white">
+      {/* <SidebarOnHover
         link={"https://explified.com/integrations/"}
         toolName={"Integrations"}
-      />
+      /> */}
+
+      {/* Back Button */}
+      <div className="absolute top-6 left-20 z-20">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 p-4 rounded-full bg-black text-gray-300 hover:text-[#23b5b5] border border-gray-800 hover:border-[#23b5b5]/40 transition-all duration-200 shadow-md"
+        >
+          <ArrowLeft size={20} />
+        </button>
+      </div>
 
       {/* Animated background elements */}
       <div
@@ -505,7 +516,7 @@ export default function IntegrationsPage() {
       ></div>
 
       {/* Header */}
-      <div className="relative px-6 py-8">
+      <div className="relative px-12 pl-24 py-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-teal-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent mb-2">
             Integrations
@@ -598,7 +609,7 @@ export default function IntegrationsPage() {
       </div>
 
       {/* Content */}
-      <div className="relative px-6 pb-8">
+      <div className="relative px-12 pl-24 pb-8">
         {/* Results Summary */}
         {searchQuery && (
           <div className="mb-6 text-center">

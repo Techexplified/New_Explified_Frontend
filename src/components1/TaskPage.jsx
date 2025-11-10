@@ -154,7 +154,7 @@ export default function TaskManager() {
 
   return (
     <motion.div
-      className="min-h-screen pt-7 px-10 w-full relative bg-[#0b0f10] text-white overflow-hidden"
+      className="min-h-screen pt-7 pl-14 w-full relative bg-[#0b0f10] text-white overflow-hidden"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}

@@ -428,7 +428,7 @@ const MainDashboard = () => {
       name: "Notes",
       icon: <ClipboardPen className="w-8 h-8" />,
       color: "from-blue-500 to-cyan-600",
-      route: "/notes",
+      route: "/tasks",
     },
     {
       id: 3,

@@ -1,9 +1,12 @@
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import WorkflowEngine from "../WorkflowEngine";
 import SidebarOnHover from "../../../reusable_components/SidebarOnHover";
-import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 const MainWorkflowPage = () => {
+  const navigate = useNavigate();
+
   // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -20,13 +23,18 @@ const MainWorkflowPage = () => {
         style={{ zIndex: 0 }}
       ></div>
 
-      {/* Page content - placed above background */}
-      <div className="relative z-10 w-full max-w-6xl">
-        <SidebarOnHover
-          link={"https://explified.com/8x-workflows/"}
-          toolName={"Workflows"}
-        />
+      {/* Back Button */}
+      <div className="absolute top-6 left-20 z-20">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 p-4 rounded-full bg-black text-gray-300 hover:text-[#23b5b5] border border-gray-800 hover:border-[#23b5b5]/40 transition-all duration-200 shadow-md"
+        >
+          <ArrowLeft size={20} />
+        </button>
+      </div>
 
+      {/* Page content */}
+      <div className="relative z-10 w-full max-w-6xl">
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-6xl font-bold text-minimal-white mb-4">
@@ -40,7 +48,7 @@ const MainWorkflowPage = () => {
           </p>
         </div>
 
-        {/* workflows engine */}
+        {/* Workflows Engine */}
         <WorkflowEngine />
       </div>
     </div>

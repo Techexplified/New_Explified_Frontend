@@ -82,7 +82,11 @@ function ExpliInput({
 
           <button
             className="text-gray-500 hover:text-gray-300 transition"
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => {
+              setTimeout(() => {
+                fileInputRef.current?.click();
+              }, 0);
+            }}
           >
             <FiPaperclip size={18} />
           </button>

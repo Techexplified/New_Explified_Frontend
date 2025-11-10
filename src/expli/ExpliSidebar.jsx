@@ -14,7 +14,9 @@ import { useNavigate } from "react-router-dom";
 import SettingsModal from "./SettingsModal";
 import { ExpliLogo } from "../assets";
 import SettingsPortal from "./SettingsPortal";
-import { LayoutDashboard } from "lucide-react";
+import { CircleUserRound, LayoutDashboard } from "lucide-react";
+import ProfileSettingsModal from "../components/subLayoutComponents/ProfileSettingsModal";
+import { useExpli } from "../context/ExpliContext";
 
 export default function ExpliSidebar({
   activeSection,
@@ -22,9 +24,10 @@ export default function ExpliSidebar({
   isMobileOpen,
   setIsMobileOpen,
 }) {
+  const { newChat } = useExpli();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const navigate = useNavigate();
-
+  const [isProfileSettingsOpen, setIsProfileSettingsOpen] = useState(false);
   const sidebarItems = [
     // {
     //   icon: LayoutDashboard,
@@ -79,20 +82,36 @@ export default function ExpliSidebar({
           <img className="h-14 " alt="Logo" src={ExpliLogo} />
 
           {/* New Chat + history */}
-          <div
-            className="relative "
-            onMouseEnter={() => setShowHistory(true)}
-            onMouseLeave={() => setShowHistory(false)}
-          >
+          {/* New Chat and Chat History buttons */}
+          <div className="flex flex-col items-center gap-2 relative">
+            {/* ➕ New Chat button */}
             <button
-              onClick={() => navigate("/expli")}
-              className="mb-2 w-10 h-10 rounded-full flex items-center justify-center bg-[#1b1b1b] text-gray-200 hover:text-white border border-gray-800 hover:border-[#23b5b5]/30 shadow"
-              title="New Chat (Ctrl+T)"
+              onClick={() => {
+                navigate("/expli");
+                newChat();
+              }}
+              className="w-10 h-10 mb-2 rounded-full flex items-center justify-center bg-[#1b1b1b] text-gray-200 hover:text-white border border-gray-800 hover:border-[#23b5b5]/30 shadow"
+              title="New Chat"
             >
               <FaPlus size={18} />
             </button>
 
-            <ChatHistoryPopover visible={showHistory} />
+            {/* 💬 Chat History modal trigger */}
+            <button
+              onClick={() => setShowHistory(true)}
+              className="flex flex-col items-center w-full py-2 hover:bg-[#1a1a1a] rounded-xl 
+      transition relative group
+       hover:text-[#23b5b5] text-gray-400"
+              title="Chat History"
+            >
+              <FaRegCommentDots size={20} />
+              <span
+                className={`text-[11px] mt-1 font-semibold text-[#23b5b5]"
+                    : "text-gray-500 group-hover:text-[#23b5b5]`}
+              >
+                Chats
+              </span>
+            </button>
           </div>
 
           {/* main nav */}
@@ -132,7 +151,7 @@ export default function ExpliSidebar({
 
         {/* account */}
         <div>
-          <div className="flex flex-col items-center gap-4 mb-2">
+          {/* <div className="flex flex-col items-center gap-4 mb-2">
             <button
               className="w-10 h-10 rounded-full flex items-center justify-center bg-[#1b1b1b] border border-gray-700 text-gray-300 hover:text-white"
               onClick={() => setSettingsOpen(true)}
@@ -145,9 +164,30 @@ export default function ExpliSidebar({
               open={settingsOpen}
               onClose={() => setSettingsOpen(false)}
             />
+          </div> */}
+
+          <div className="flex flex-col items-center pb-4">
+            <button
+              onClick={() => setIsProfileSettingsOpen(true)}
+              className="flex flex-col items-center gap-1 px-2 py-3 rounded-lg text-gray-300 hover:text-[#23b5b5] hover:bg-minimal-cardHover/50 transition-all"
+            >
+              <CircleUserRound className="w-5 h-5" />
+              <span className="text-[11px] font-medium">Profile</span>
+            </button>
           </div>
         </div>
       </aside>
+
+      {/* 🪟 Chat History Modal */}
+      <ChatHistoryPopover
+        visible={showHistory}
+        onClose={() => setShowHistory(false)}
+      />
+
+      <ProfileSettingsModal
+        isOpen={isProfileSettingsOpen}
+        onClose={() => setIsProfileSettingsOpen(false)}
+      />
     </>
   );
 }
