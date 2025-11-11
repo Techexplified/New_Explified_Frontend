@@ -1,11 +1,15 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { X, Cloud, Loader } from "lucide-react";
+
 import MarketOutlook from "./MarketOutlook";
 
 const DiscoverPage = () => {
-  const [selectedInterest, setSelectedInterest] = useState("tech"); // ✅ single topic
+  const [selectedInterests, setSelectedInterests] = useState(["example"]);
   const [showInterestModal, setShowInterestModal] = useState(false);
+  const navigate = useNavigate();
+
+  // State for API data
   const [newsData, setNewsData] = useState({
     featured: null,
     articles: [],
@@ -14,45 +18,34 @@ const DiscoverPage = () => {
   });
   const [weatherData, setWeatherData] = useState(null);
   const fetchedRef = useRef(false);
-  const navigate = useNavigate();
-
-  const interests = [
-    "business",
-    "science",
-    "tech",
-    "finance",
-    "arts",
-    "sports",
-    "entertainment",
-    "politics",
-    "health",
-    "travel",
-  ];
-
-  // ✅ Toggle single interest
-  const toggleInterest = (interest) => {
-    setSelectedInterest((prev) => (prev === interest ? null : interest));
+  // API Configuration - Add your API keys here
+  const API_KEYS = {
+    // Get free API key from https://newsapi.org/
+    news: "2bc51ce017dc42069fbe9574f32c0e75",
+    // Get free API key from https://openweathermap.org/api
+    weather: "YOUR_WEATHER_API_KEY",
+    // No API key needed for Open-Meteo
+    // Get free API key from https://www.alphavantage.co/
+    finance: "YOUR_ALPHA_VANTAGE_KEY",
   };
 
-  // ✅ Fetch news based on selectedInterest
+  const NEWS_API_KEY = "2bc51ce017dc42069fbe9574f32c0e75";
+
+  // Fetch News Data
   const fetchNews = async () => {
     try {
-      setNewsData((prev) => ({ ...prev, loading: true, error: null }));
-
-      // Use selected interest or fallback
-      const topic = selectedInterest || "world";
-
+      setNewsData((prev) => ({ ...prev, loading: true }));
       const response = await fetch(
-        `https://newsdata.io/api/1/latest?apikey=${
+        ` https://newsdata.io/api/1/latest?apikey=${
           import.meta.env.VITE_NEWS_API_KEY_SARITA
-        }&q=${encodeURIComponent(topic)}&language=en`
+        }&q=sports&language=en`
       );
-
       const data = await response.json();
 
-      if (data.results && data.results.length > 0) {
-        const articles = data.results;
+      console.log(data);
 
+      if (data.results && data.results.length > 0) {
+        let articles = data.results;
         setNewsData({
           featured: {
             title: articles[0].title,
@@ -67,34 +60,29 @@ const DiscoverPage = () => {
             title: a.title,
             sources: Math.floor(Math.random() * 50) + 10,
             image: a.image_url,
-            category: topic,
+            category: "tech",
             url: a.source_url,
+            // content: a.content,
             publishedTime: new Date(a.pubDate).toLocaleString(),
           })),
           loading: false,
           error: null,
         });
-      } else {
-        setNewsData({
-          featured: null,
-          articles: [],
-          loading: false,
-          error: "No articles found for this topic.",
-        });
       }
     } catch (err) {
-      console.error("Error fetching news:", err);
-      setNewsData((prev) => ({
-        ...prev,
-        loading: false,
-        error: "Failed to fetch news.",
-      }));
+      // setNewsData((prev) => ({
+      //   ...prev,
+      //   loading: false,
+      //   error: err.message,
+      // }));
+      console.log(err);
     }
   };
 
-  // ✅ Fetch Weather (unchanged)
+  // Fetch Weather Data
   const fetchWeather = async () => {
     try {
+      // Using Open-Meteo (free, no API key required)
       const response = await fetch(
         "https://api.open-meteo.com/v1/forecast?latitude=22.5726&longitude=88.3639&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto"
       );
@@ -123,6 +111,7 @@ const DiscoverPage = () => {
       }
     } catch (error) {
       console.error("Error fetching weather:", error);
+      // Fallback to mock data
       setWeatherData({
         current: "30°C",
         condition: "Mostly cloudy",
@@ -138,16 +127,21 @@ const DiscoverPage = () => {
     }
   };
 
-  // ✅ Fetch on mount and whenever selectedInterest changes
+  // Load data on component mount
   useEffect(() => {
-    if (!fetchedRef.current) {
-      fetchedRef.current = true;
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+
+    fetchNews();
+    fetchWeather();
+
+    const interval = setInterval(() => {
       fetchNews();
       fetchWeather();
-    } else {
-      fetchNews();
-    }
-  }, [selectedInterest]);
+    }, 300000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleArticleClick = (article) => {
     if (article) {
@@ -157,31 +151,63 @@ const DiscoverPage = () => {
       navigate(`/expli/discover/${slug}`, {
         state: { article: { title: article.title, url: article.url } },
       });
+    } else {
+      console.log("No article data available");
     }
   };
 
-  // --- UI Section
+  const interests = [
+    "business",
+    "science",
+    "tech",
+    "finance",
+    "arts",
+    "sports",
+    "entertainment",
+    "politics",
+    "health",
+    "travel",
+  ];
+
+  const toggleInterest = (interest) => {
+    if (selectedInterests.includes(interest)) {
+      setSelectedInterests((prev) => prev.filter((i) => i !== interest));
+    } else {
+      setSelectedInterests((prev) => [...prev, interest]);
+    }
+  };
+
   return (
-    <div className="w-full flex-1 overflow-scroll border border-cyan-500/20 bg-black flex flex-col gap-4 relative backdrop-blur-xl">
+    <div className="w-full flex-1 overflow-scroll border border-cyan-500/20 shadow-[...] bg-black flex flex-col gap-4 relative backdrop-blur-xl">
       <div className="flex">
-        {/* MAIN CONTENT */}
+        {/* Main Content */}
+
         <main className="flex-1 p-6">
+          {/* Loading State */}
           {newsData.loading && (
             <div className="flex items-center justify-center py-12">
               <Loader className="animate-spin text-[#23b5b5]" size={32} />
-              <span className="ml-3 text-gray-400">
-                Loading {selectedInterest || "world"} news...
-              </span>
+              <span className="ml-3 text-gray-400">Loading latest news...</span>
             </div>
           )}
 
+          {/* Error State */}
           {newsData.error && (
             <div className="bg-red-900/20 border border-red-500/50 rounded-xl p-4 mb-8">
-              <p className="text-red-400">{newsData.error}</p>
+              <p className="text-red-400">
+                Error loading news: {newsData.error}
+              </p>
+              <button
+                onClick={fetchNews}
+                className="mt-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm"
+              >
+                Retry
+              </button>
             </div>
           )}
 
-          {!newsData.loading && newsData.featured && (
+          {/* Featured Article */}
+          {newsData.featured && !newsData.loading && (
             <div
               className="bg-[#121212] rounded-2xl cursor-pointer p-6 mb-8 flex"
               onClick={() => handleArticleClick(newsData.featured)}
@@ -190,27 +216,49 @@ const DiscoverPage = () => {
                 <h2 className="text-4xl font-bold text-[#23b5b5] mb-4 leading-tight">
                   {newsData.featured.title}
                 </h2>
+                <div className="flex items-center text-gray-400 text-sm mb-4">
+                  <span>📅 Published {newsData.featured.publishedTime}</span>
+                </div>
                 <p className="text-gray-300 text-lg mb-6 leading-relaxed">
                   {newsData.featured.summary}
                 </p>
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2">
+                    <div className="flex -space-x-2">
+                      <div className="w-6 h-6 bg-[#23b5b5] rounded-full border-2 border-black"></div>
+                      <div className="w-6 h-6 bg-gray-500 rounded-full border-2 border-black"></div>
+                      <div className="w-6 h-6 bg-gray-700 rounded-full border-2 border-black"></div>
+                    </div>
+                    <span className="text-gray-400 text-sm">
+                      {newsData.featured.sources} sources
+                    </span>
+                  </div>
+                  {/* <button className="text-gray-400 hover:text-[#23b5b5]">
+                    <Heart size={20} />
+                  </button> */}
+                  {/* <button className="text-gray-400 hover:text-[#23b5b5]">
+                    <MoreHorizontal size={20} />
+                  </button> */}
+                </div>
               </div>
-              {newsData.featured.image && (
+              <div className="w-96">
                 <img
                   src={newsData.featured.image}
-                  alt="Featured"
-                  className="w-96 h-64 object-cover rounded-lg"
+                  alt="Featured article"
+                  className="w-full h-64 object-cover rounded-lg"
                 />
-              )}
+              </div>
             </div>
           )}
 
+          {/* News Grid */}
           {!newsData.loading && newsData.articles.length > 0 && (
             <div className="grid grid-cols-3 gap-6">
               {newsData.articles.map((article) => (
                 <div
                   key={article.id}
-                  onClick={() => handleArticleClick(article)}
                   className="bg-[#121212] rounded-xl overflow-hidden hover:bg-[#1a1a1a] transition-colors cursor-pointer"
+                  onClick={() => handleArticleClick(article)}
                 >
                   <img
                     src={article.image}
@@ -221,31 +269,64 @@ const DiscoverPage = () => {
                     <h3 className="font-semibold text-lg mb-3 leading-tight">
                       {article.title}
                     </h3>
-                    <span className="text-gray-400 text-sm">
-                      {article.sources} sources
-                    </span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <div className="flex -space-x-1">
+                          <div className="w-4 h-4 bg-[#23b5b5] rounded-full border border-black"></div>
+                          <div className="w-4 h-4 bg-gray-500 rounded-full border border-black"></div>
+                        </div>
+                        <span className="text-gray-400 text-sm">
+                          {article.sources} sources
+                        </span>
+                      </div>
+                      {/* <div className="flex items-center space-x-2 text-gray-400">
+                        <button className="hover:text-[#23b5b5]">
+                          <Heart size={16} />
+                        </button>
+                        <button className="hover:text-[#23b5b5]">
+                          <MoreHorizontal size={16} />
+                        </button>
+                      </div> */}
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           )}
+
+          {/* Refresh Button */}
+          <div className="mt-8 text-center">
+            <button
+              onClick={fetchNews}
+              className="px-6 py-2 bg-[#23b5b5] hover:bg-[#1ca0a0] text-black rounded-lg text-sm font-medium"
+              disabled={newsData.loading}
+            >
+              {newsData.loading ? "Loading..." : "Refresh News"}
+            </button>
+          </div>
         </main>
 
-        {/* RIGHT SIDEBAR */}
+        {/* Right Sidebar */}
         <aside className="w-80 p-6 border-l border-[#23b5b5]/30">
-          {/* INTERESTS CARD */}
+          {/* Interests Card */}
           <div className="bg-[#1a1a1a] rounded-xl p-4 mb-6 relative">
-            <h3 className="font-bold text-lg mb-2">Choose Your Interest</h3>
+            <button
+              className="absolute top-2 right-2 text-white hover:text-[#23b5b5]"
+              onClick={() => setShowInterestModal(false)}
+            >
+              <X size={20} />
+            </button>
+            <h3 className="font-bold text-lg mb-2">Make it yours</h3>
             <p className="text-sm text-gray-400 mb-4">
-              Select one topic to customize your Discover experience
+              Select topics and interests to customize your Discover experience
             </p>
             <div className="flex flex-wrap gap-2 mb-4">
-              {interests.slice(0, 8).map((interest) => (
+              {interests.slice(0, 4).map((interest) => (
                 <button
                   key={interest}
                   onClick={() => toggleInterest(interest)}
                   className={`px-3 py-1 rounded-full text-sm border ${
-                    selectedInterest === interest
+                    selectedInterests.includes(interest)
                       ? "bg-[#23b5b5] text-black border-[#23b5b5]"
                       : "bg-transparent text-white border-[#23b5b5]/50 hover:bg-[#23b5b5]/20"
                   }`}
@@ -254,9 +335,15 @@ const DiscoverPage = () => {
                 </button>
               ))}
             </div>
+            <button
+              className="w-full bg-[#23b5b5] hover:bg-[#1ca0a0] text-black py-2 px-4 rounded-lg font-medium"
+              onClick={() => setShowInterestModal(true)}
+            >
+              Save Interests
+            </button>
           </div>
 
-          {/* WEATHER CARD */}
+          {/* Weather Card */}
           {weatherData && (
             <div className="bg-[#121212] rounded-xl p-4 mb-6">
               <div className="flex items-center justify-between mb-4">
@@ -273,10 +360,23 @@ const DiscoverPage = () => {
                 </div>
                 <Cloud size={32} className="text-gray-400" />
               </div>
+              <div className="flex justify-between">
+                {weatherData.forecast.map((day, index) => (
+                  <div key={index} className="text-center">
+                    <div className="text-xs text-gray-400 mb-1">{day.day}</div>
+                    <div className="text-sm font-medium">{day.temp}</div>
+                    <div className="text-xs mt-1">
+                      {day.condition === "sunny" && "☀️"}
+                      {day.condition === "cloudy" && "☁️"}
+                      {day.condition === "rainy" && "🌧️"}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
-          {/* MARKET OUTLOOK */}
+          {/* Market Outlook */}
           <MarketOutlook />
         </aside>
       </div>

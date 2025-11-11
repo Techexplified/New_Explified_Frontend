@@ -453,7 +453,7 @@ const MainDashboard = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % carouselItems.length);
-    }, 2300);
+    }, 6000);
     return () => clearInterval(interval);
   }, [carouselItems.length]);
 

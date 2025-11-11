@@ -11,8 +11,6 @@ const NewsPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  //   console.log(article);
-
   const NEWS_API_KEY = "2bc51ce017dc42069fbe9574f32c0e75";
 
   useEffect(() => {
