@@ -152,6 +152,7 @@ import NewsPage from "./components1/NewsPage.jsx";
 import ChatPanel from "./expli/ChatPanel.jsx";
 import AIChatApp from "./ai-fiesta/AIChatGrid.jsx";
 import AllApps from "./pages/about_pages/AllApps.jsx";
+import BGRemover from "./pages/explified_tools/bgRemover/BGRemover.jsx";
 function App() {
   usePageTracking();
   const navigate = useNavigate();
@@ -403,7 +404,8 @@ function App() {
           <Route path="/image-styler/expander" element={<ImageExpander />} />
           <Route path="/image-styler/editor" element={<ImageEditor />} />
           <Route path="/profile" element={<UserPage />} />
-          <Route path="/bg-remover" element={<BGLayout />} />
+          <Route path="/bg-remover0" element={<BGLayout />} />
+          <Route path="/bg-remover" element={<BGRemover />} />
 
           <Route path="/result" element={<Result />} />
           <Route path="/zeno" element={<NewZapier />} />
