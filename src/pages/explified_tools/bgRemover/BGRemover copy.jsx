@@ -16,6 +16,26 @@ const backgroundThumbnails = [
   "./images/background/bg4.jpg",
   "./images/background/bg5.jpg",
   "./images/background/bg6.jpg",
+  "./images/background/bg7.jpg",
+  "./images/background/bg8.jpg",
+  "./images/background/bg9.jpg",
+  "./images/background/bg10.jpg",
+  "./images/background/bg11.jpg",
+  "./images/background/bg12.jpg",
+];
+
+const imageThumbnails = [
+  "./images/background/img1.jpg",
+  "./images/background/img2.jpg",
+  "./images/background/img3.jpg",
+  "./images/background/img4.jpg",
+  "./images/background/img5.jpg",
+  "./images/background/img6.jpg",
+  "./images/background/img7.jpg",
+  "./images/background/img8.jpg",
+  "./images/background/img9.jpg",
+  "./images/background/img10.jpg",
+  "./images/background/img11.jpg",
 ];
 
 const colorOptions = [
@@ -791,6 +811,161 @@ export default function BackgroundRemover() {
               </div>
             </div>
           )}
+        </div>
+
+        <div className="absolute right-96 top-28 w-80 bg-white rounded-2xl shadow-xl p-4 z-40">
+          <div className="flex gap-3 mb-4">
+            <button
+              onClick={() => setBackgroundType("magic")}
+              className={`flex-1 py-2 rounded-lg font-semibold ${
+                backgroundType === "magic"
+                  ? "bg-gray-200"
+                  : "bg-gray-100 text-gray-600"
+              }`}
+            >
+              Magic
+            </button>
+            <button
+              onClick={() => setBackgroundType("photo")}
+              className={`flex-1 py-2 rounded-lg font-semibold ${
+                backgroundType === "photo"
+                  ? "bg-gray-200"
+                  : "bg-gray-100 text-gray-600"
+              }`}
+            >
+              Photo
+            </button>
+            <button
+              onClick={() => setBackgroundType("color")}
+              className={`flex-1 py-2 rounded-lg font-semibold ${
+                backgroundType === "color"
+                  ? "bg-gray-200"
+                  : "bg-gray-100 text-gray-600"
+              }`}
+            >
+              Color
+            </button>
+          </div>
+          {/* ✅ MAGIC / PHOTO GRID */}
+          {backgroundType !== "color" && (
+            <div className="grid grid-cols-3 gap-3 max-h-64 overflow-y-auto pr-1">
+              {backgroundThumbnails.map((thumb, i) => (
+                <img
+                  key={i}
+                  src={thumb}
+                  onClick={() => applyImageBackground(thumb)}
+                  className={`w-full h-20 rounded-lg object-cover cursor-pointer
+  ${selectedBackground === thumb ? "ring-4 ring-teal-400" : ""}
+`}
+                />
+              ))}
+            </div>
+          )}
+          {/* ✅ COLOR PICKER GRID */}
+          {backgroundType === "color" && (
+            <div className="grid grid-cols-5 gap-2 max-h-64 overflow-y-auto">
+              {colorOptions.map((color, i) => (
+                <div
+                  key={i}
+                  onClick={() => applyColorBackground(color)}
+                  className={`w-10 h-10 rounded-lg cursor-pointer
+  ${selectedBackground === color ? "ring-4 ring-teal-400" : ""}
+`}
+                  style={{ background: color }}
+                />
+              ))}
+            </div>
+          )}
+          <button
+            onClick={() => setIsBackgroundMode(false)}
+            className="mt-4 w-full py-2 rounded-xl bg-gray-100 hover:bg-gray-200 font-semibold"
+          >
+            Close
+          </button>
+        </div>
+
+        <div className="absolute right-4 top-28 w-80 bg-white text-gray-600 rounded-2xl shadow-xl p-4 z-40">
+          <div className="flex gap-3 mb-4">
+            <button
+              onClick={() => setBackgroundType("magic")}
+              className={`flex-1 py-2 rounded-lg font-semibold hover:bg-gray-200 duration-200 ${
+                backgroundType === "magic" ? "bg-gray-200" : "bg-white"
+              }`}
+            >
+              Magic
+            </button>
+            <button
+              onClick={() => setBackgroundType("photo")}
+              className={`flex-1 py-2 rounded-lg font-semibold hover:bg-gray-200 duration-200 ${
+                backgroundType === "photo" ? "bg-gray-200" : "bg-white"
+              }`}
+            >
+              Photo
+            </button>
+            <button
+              onClick={() => setBackgroundType("color")}
+              className={`flex-1 py-2 rounded-lg font-semibold hover:bg-gray-200 duration-200 ${
+                backgroundType === "color" ? "bg-gray-200" : "bg-white"
+              }`}
+            >
+              Color
+            </button>
+          </div>
+
+          {/* ✅ MAGIC / PHOTO GRID */}
+          {backgroundType === "magic" && (
+            <div className="grid grid-cols-3 gap-3 max-h-64 overflow-y-auto pr-1 custom-scroll">
+              {backgroundThumbnails.map((thumb, i) => (
+                <img
+                  key={i}
+                  src={thumb}
+                  onClick={() => applyImageBackground(thumb)}
+                  className={`w-full h-20 rounded-lg object-cover cursor-pointer
+  ${selectedBackground === thumb ? "ring-4 ring-teal-400" : ""}
+`}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* ✅ MAGIC / PHOTO GRID */}
+          {backgroundType === "photo" && (
+            <div className="grid grid-cols-3 gap-3 max-h-64 overflow-y-auto pr-1 custom-scroll">
+              {imageThumbnails.map((thumb, i) => (
+                <img
+                  key={i}
+                  src={thumb}
+                  onClick={() => applyImageBackground(thumb)}
+                  className={`w-full h-20 rounded-lg object-cover cursor-pointer
+  ${selectedBackground === thumb ? "ring-4 ring-teal-400" : ""}
+`}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* ✅ COLOR PICKER GRID */}
+          {backgroundType === "color" && (
+            <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto custom-scroll">
+              {colorOptions.map((color, i) => (
+                <div
+                  key={i}
+                  onClick={() => applyColorBackground(color)}
+                  className={`w-full h-20 rounded-lg cursor-pointer
+  ${selectedBackground === color ? "ring-4 ring-teal-400" : ""}
+`}
+                  style={{ background: color }}
+                />
+              ))}
+            </div>
+          )}
+
+          <button
+            onClick={() => setIsBackgroundMode(false)}
+            className="mt-4 w-full py-2 rounded-xl bg-gray-200 hover:bg-gray-300 duration-200 font-semibold"
+          >
+            Close
+          </button>
         </div>
       </div>
     </div>

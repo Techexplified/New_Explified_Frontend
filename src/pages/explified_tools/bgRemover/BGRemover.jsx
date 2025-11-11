@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
+import "./BGRemover.css";
+
 import {
   Upload,
   Sparkles,
@@ -16,6 +18,26 @@ const backgroundThumbnails = [
   "./images/background/bg4.jpg",
   "./images/background/bg5.jpg",
   "./images/background/bg6.jpg",
+  "./images/background/bg7.jpg",
+  "./images/background/bg8.jpg",
+  "./images/background/bg9.jpg",
+  "./images/background/bg10.jpg",
+  "./images/background/bg11.jpg",
+  "./images/background/bg12.jpg",
+];
+
+const imageThumbnails = [
+  "./images/background/img1.jpg",
+  "./images/background/img2.jpg",
+  "./images/background/img3.jpg",
+  "./images/background/img4.jpg",
+  "./images/background/img5.jpg",
+  "./images/background/img6.jpg",
+  "./images/background/img7.jpg",
+  "./images/background/img8.jpg",
+  "./images/background/img9.jpg",
+  "./images/background/img10.jpg",
+  "./images/background/img11.jpg",
 ];
 
 const colorOptions = [
@@ -50,6 +72,10 @@ export default function BackgroundRemover() {
   const [isBackgroundMode, setIsBackgroundMode] = useState(false);
   const [backgroundType, setBackgroundType] = useState("magic"); // magic | photo | color
   const [selectedBackground, setSelectedBackground] = useState(null);
+
+  const [isEffectsMode, setIsEffectsMode] = useState(false);
+  const [blurEnabled, setBlurEnabled] = useState(false);
+  const [blurAmount, setBlurAmount] = useState(10); // default blur level
 
   useEffect(() => {
     if (!processedImage) return;
@@ -328,7 +354,9 @@ export default function BackgroundRemover() {
           bg.src = selectedBackground;
 
           bg.onload = () => {
+            ctx.filter = blurEnabled ? `blur(${blurAmount}px)` : "none";
             ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+            ctx.filter = "none";
 
             // Step 4 → Draw cutout image on top
             ctx.drawImage(img, 0, 0);
@@ -343,16 +371,56 @@ export default function BackgroundRemover() {
     };
   };
 
-  // const downloadImage = () => {
-  //   if (!processedImage) return;
+  const applyEffectsToCanvas = () => {
+    const canvas = canvasRef.current;
+    const ctx = ctxRef.current;
+    if (!canvas || !ctx) return;
+    if (!processedImage) return;
 
-  //   const link = document.createElement("a");
-  //   link.href = processedImage;
-  //   link.download = `no-bg-${selectedFile?.name?.replace(/\.[^/.]+$/, "")}.png`;
-  //   document.body.appendChild(link);
-  //   link.click();
-  //   document.body.removeChild(link);
-  // };
+    const img = new Image();
+    img.src = processedImage;
+
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      // Step 1 → Clear
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Step 2 → Apply background FIRST
+      if (selectedBackground) {
+        if (selectedBackground.startsWith("#")) {
+          // Color background
+          ctx.fillStyle = selectedBackground;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        } else {
+          // Image background
+          const bg = new Image();
+          bg.src = selectedBackground;
+
+          bg.onload = () => {
+            // ✅ If blur is ON → apply CSS canvas filter
+            if (blurEnabled) {
+              ctx.filter = `blur(${blurAmount}px)`;
+            } else {
+              ctx.filter = "none";
+            }
+
+            ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+            ctx.filter = "none"; // reset before drawing cutout
+
+            // Draw cutout image on top
+            ctx.drawImage(img, 0, 0);
+          };
+
+          return;
+        }
+      }
+
+      // If no background -> just draw foreground
+      ctx.drawImage(img, 0, 0);
+    };
+  };
 
   const downloadImage = () => {
     const canvas = canvasRef.current;
@@ -514,9 +582,17 @@ export default function BackgroundRemover() {
                       Background
                     </button>
 
-                    <button className="text-white font-semibold hover:opacity-80">
+                    <button
+                      onClick={() => {
+                        setIsCutoutMode(false);
+                        setIsBackgroundMode(false);
+                        setIsEffectsMode(true);
+                      }}
+                      className="text-white font-semibold hover:opacity-80"
+                    >
                       Effects
                     </button>
+
                     <button className="text-white font-semibold hover:opacity-80">
                       Adjust
                     </button>
@@ -597,34 +673,34 @@ export default function BackgroundRemover() {
 
                 {/* ✅ RIGHT SIDE BACKGROUND TOOL PANEL */}
                 {isBackgroundMode && (
-                  <div className="absolute right-4 top-28 w-80 bg-white rounded-2xl shadow-xl p-4 z-40">
+                  <div className="absolute right-4 top-28 w-80 bg-white text-gray-600 rounded-2xl shadow-xl p-4 z-40">
                     <div className="flex gap-3 mb-4">
                       <button
                         onClick={() => setBackgroundType("magic")}
-                        className={`flex-1 py-2 rounded-lg font-semibold ${
+                        className={`flex-1 py-2 rounded-lg font-semibold hover:bg-gray-200 duration-200 ${
                           backgroundType === "magic"
                             ? "bg-gray-200"
-                            : "bg-gray-100 text-gray-600"
+                            : "bg-white"
                         }`}
                       >
                         Magic
                       </button>
                       <button
                         onClick={() => setBackgroundType("photo")}
-                        className={`flex-1 py-2 rounded-lg font-semibold ${
+                        className={`flex-1 py-2 rounded-lg font-semibold hover:bg-gray-200 duration-200 ${
                           backgroundType === "photo"
                             ? "bg-gray-200"
-                            : "bg-gray-100 text-gray-600"
+                            : "bg-white"
                         }`}
                       >
                         Photo
                       </button>
                       <button
                         onClick={() => setBackgroundType("color")}
-                        className={`flex-1 py-2 rounded-lg font-semibold ${
+                        className={`flex-1 py-2 rounded-lg font-semibold hover:bg-gray-200 duration-200 ${
                           backgroundType === "color"
                             ? "bg-gray-200"
-                            : "bg-gray-100 text-gray-600"
+                            : "bg-white"
                         }`}
                       >
                         Color
@@ -632,16 +708,32 @@ export default function BackgroundRemover() {
                     </div>
 
                     {/* ✅ MAGIC / PHOTO GRID */}
-                    {backgroundType !== "color" && (
-                      <div className="grid grid-cols-3 gap-3 max-h-64 overflow-y-auto pr-1">
+                    {backgroundType === "magic" && (
+                      <div className="grid grid-cols-3 gap-3 max-h-56 overflow-y-auto pr-1 custom-scroll">
                         {backgroundThumbnails.map((thumb, i) => (
                           <img
                             key={i}
                             src={thumb}
                             onClick={() => applyImageBackground(thumb)}
                             className={`w-full h-20 rounded-lg object-cover cursor-pointer
-    ${selectedBackground === thumb ? "ring-4 ring-teal-400" : ""}
-  `}
+  ${selectedBackground === thumb ? "ring-4 ring-teal-400" : ""}
+`}
+                          />
+                        ))}
+                      </div>
+                    )}
+
+                    {/* ✅ MAGIC / PHOTO GRID */}
+                    {backgroundType === "photo" && (
+                      <div className="grid grid-cols-3 gap-3 max-h-56 overflow-y-auto pr-1 custom-scroll">
+                        {imageThumbnails.map((thumb, i) => (
+                          <img
+                            key={i}
+                            src={thumb}
+                            onClick={() => applyImageBackground(thumb)}
+                            className={`w-full h-20 rounded-lg object-cover cursor-pointer
+  ${selectedBackground === thumb ? "ring-4 ring-teal-400" : ""}
+`}
                           />
                         ))}
                       </div>
@@ -649,14 +741,14 @@ export default function BackgroundRemover() {
 
                     {/* ✅ COLOR PICKER GRID */}
                     {backgroundType === "color" && (
-                      <div className="grid grid-cols-5 gap-2 max-h-64 overflow-y-auto">
+                      <div className="grid grid-cols-3 gap-2 max-h-56 overflow-y-auto custom-scroll">
                         {colorOptions.map((color, i) => (
                           <div
                             key={i}
                             onClick={() => applyColorBackground(color)}
-                            className={`w-10 h-10 rounded-lg cursor-pointer
-    ${selectedBackground === color ? "ring-4 ring-teal-400" : ""}
-  `}
+                            className={`w-full h-20 rounded-lg cursor-pointer
+  ${selectedBackground === color ? "ring-4 ring-teal-400" : ""}
+`}
                             style={{ background: color }}
                           />
                         ))}
@@ -665,7 +757,57 @@ export default function BackgroundRemover() {
 
                     <button
                       onClick={() => setIsBackgroundMode(false)}
-                      className="mt-4 w-full py-2 rounded-xl bg-gray-100 hover:bg-gray-200 font-semibold"
+                      className="mt-4 w-full py-2 rounded-xl bg-gray-200 hover:bg-gray-300 duration-200 font-semibold"
+                    >
+                      Close
+                    </button>
+                  </div>
+                )}
+
+                {isEffectsMode && (
+                  <div className="absolute right-4 top-28 w-80 bg-white rounded-2xl shadow-xl p-4 text-gray-700 z-40">
+                    {/* Toggle Blur */}
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="font-semibold text-gray-800">
+                        Blur background
+                      </span>
+
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="sr-only peer"
+                          checked={blurEnabled}
+                          onChange={() => {
+                            setBlurEnabled(!blurEnabled);
+                            setTimeout(applyEffectsToCanvas, 20);
+                          }}
+                        />
+                        <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-blue-500 transition"></div>
+                        <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5"></div>
+                      </label>
+                    </div>
+
+                    {/* Blur Amount Slider */}
+                    {blurEnabled && (
+                      <>
+                        <p className="font-medium mb-1">Blur amount</p>
+                        <input
+                          type="range"
+                          min="0"
+                          max="25"
+                          value={blurAmount}
+                          onChange={(e) => {
+                            setBlurAmount(Number(e.target.value));
+                            applyEffectsToCanvas();
+                          }}
+                          className="w-full mb-4"
+                        />
+                      </>
+                    )}
+
+                    <button
+                      onClick={() => setIsEffectsMode(false)}
+                      className="w-full py-2 mt-2 rounded-xl bg-gray-200 hover:bg-gray-300 font-semibold"
                     >
                       Close
                     </button>
