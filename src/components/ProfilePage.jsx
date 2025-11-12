@@ -36,7 +36,7 @@ const UserPage = () => {
     // <div className="bg-black text-white flex h-screen relative overflow-hidden">
     // <div className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent animate-pulse" style={{zIndex:0}}></div>
     <div className="bg-black text-white flex h-screen relative overflow-hidden">
-      <div className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
+      {/* <div className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div> */}
       {/* <div
     className="absolute inset-0 rounded-xl opacity-30 pointer-events-none 
                bg-gradient-to-br from-transparent via-cyan-600 to-transparent 

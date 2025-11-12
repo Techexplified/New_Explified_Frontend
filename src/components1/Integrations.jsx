@@ -491,7 +491,7 @@ export default function IntegrationsPage() {
   );
 
   return (
-    <div className="min-h-screen relative bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 text-white">
+    <div className="min-h-screen relative bg-black text-white">
       {/* <SidebarOnHover
         link={"https://explified.com/integrations/"}
         toolName={"Integrations"}
@@ -500,7 +500,7 @@ export default function IntegrationsPage() {
       {/* Back Button */}
       <div className="absolute top-6 left-20 z-20">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/")}
           className="flex items-center gap-2 p-4 rounded-full bg-black text-gray-300 hover:text-[#23b5b5] border border-gray-800 hover:border-[#23b5b5]/40 transition-all duration-200 shadow-md"
         >
           <ArrowLeft size={20} />
@@ -508,12 +508,12 @@ export default function IntegrationsPage() {
       </div>
 
       {/* Animated background elements */}
-      <div
+      {/* <div
         className="fixed inset-0 min-h-screen w-full opacity-30 pointer-events-none 
   bg-gradient-to-br from-transparent via-cyan-500 to-transparent 
   animate-pulse brightness-75 duration-[20s]"
         style={{ zIndex: 0 }}
-      ></div>
+      ></div> */}
 
       {/* Header */}
       <div className="relative px-12 pl-24 py-8">

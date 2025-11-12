@@ -159,7 +159,7 @@ const UpdatedDashboard = () => {
 
   // ---------------- JSX ----------------
   return (
-    <div className="min-h-screen bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 flex flex-col overflow-hidden">
+    <div className="min-h-screen bg-black flex flex-col overflow-hidden">
       {/* Header / Navbar */}
 
       {/* CONTENT */}

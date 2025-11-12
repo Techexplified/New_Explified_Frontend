@@ -69,10 +69,10 @@ export default function SocialsPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto pt-14">
+    <div className="max-w-7xl bg-black mx-auto pt-14">
       {/* Header */}
-      <div className="fixed inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
-      
+      {/* <div className="fixed inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div> */}
+
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-6xl font-bold text-white">
           Socials <span className="text-2xl">(Coming Soon)</span>

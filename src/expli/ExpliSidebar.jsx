@@ -79,13 +79,19 @@ export default function ExpliSidebar({
             ✕
           </button>
           {/* Logo */}
-          <img className="h-14 " alt="Logo" src={ExpliLogo} />
+          <img
+            className="h-14 "
+            alt="Logo"
+            src={ExpliLogo}
+            onClick={() => {
+              navigate("/expli");
+              newChat();
+            }}
+          />
 
           {/* New Chat + history */}
-          {/* New Chat and Chat History buttons */}
           <div className="flex flex-col items-center gap-2 relative">
-            {/* ➕ New Chat button */}
-            <button
+            {/* <button
               onClick={() => {
                 navigate("/expli");
                 newChat();
@@ -94,7 +100,7 @@ export default function ExpliSidebar({
               title="New Chat"
             >
               <FaPlus size={18} />
-            </button>
+            </button> */}
 
             {/* 💬 Chat History modal trigger */}
             <button
@@ -133,7 +139,7 @@ export default function ExpliSidebar({
           </div>
 
           {/* tools popover */}
-          <div
+          {/* <div
             className="relative mt-3"
             onMouseEnter={() => setShowTools(true)}
             onMouseLeave={() => setShowTools(false)}
@@ -146,11 +152,11 @@ export default function ExpliSidebar({
             </div>
 
             <ToolsPopover visible={showTools} />
-          </div>
+          </div> */}
         </div>
 
         {/* account */}
-        <div>
+        <div className="flex flex-col items-center gap-2">
           {/* <div className="flex flex-col items-center gap-4 mb-2">
             <button
               className="w-10 h-10 rounded-full flex items-center justify-center bg-[#1b1b1b] border border-gray-700 text-gray-300 hover:text-white"
@@ -165,6 +171,22 @@ export default function ExpliSidebar({
               onClose={() => setSettingsOpen(false)}
             />
           </div> */}
+
+          {/* tools popover */}
+          <div
+            className="relative my-3"
+            onMouseEnter={() => setShowTools(true)}
+            onMouseLeave={() => setShowTools(false)}
+          >
+            <div className="group">
+              <button className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-br from-[#141414] to-[#1b1b1b] text-gray-200 border border-[#222] hover:text-white shadow">
+                <FaTools size={18} />
+              </button>
+              <span className="sr-only">Tools</span>
+            </div>
+
+            <ToolsPopover visible={showTools} />
+          </div>
 
           <div className="flex flex-col items-center pb-4">
             <button

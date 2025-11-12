@@ -18,15 +18,15 @@ const MainWorkflowPage = () => {
       style={{ minHeight: "100vh" }}
     >
       {/* Background gradient overlay with animation */}
-      <div
+      {/* <div
         className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent animate-pulse brightness-75"
         style={{ zIndex: 0 }}
-      ></div>
+      ></div> */}
 
       {/* Back Button */}
       <div className="absolute top-6 left-20 z-20">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/")}
           className="flex items-center gap-2 p-4 rounded-full bg-black text-gray-300 hover:text-[#23b5b5] border border-gray-800 hover:border-[#23b5b5]/40 transition-all duration-200 shadow-md"
         >
           <ArrowLeft size={20} />

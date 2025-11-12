@@ -443,7 +443,7 @@ const YoutubeSummarizer = () => {
   };
 
   return (
-    <div className="flex flex-col relative min-h-screen bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 ">
+    <div className="flex flex-col relative min-h-screen bg-black ">
       {/* <SidebarOnHover
         link={"https://explified.com/youtube-summariser/"}
         toolName={"Youtube Summarizer"}
