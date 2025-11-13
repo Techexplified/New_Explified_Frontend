@@ -1,5 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./BGRemover.css";
+import {
+  Wand2,
+  SlidersHorizontal,
+  LayoutDashboard,
+  Undo2,
+  Redo2,
+} from "lucide-react";
 
 import {
   Upload,
@@ -77,6 +84,9 @@ export default function BackgroundRemover() {
   const [blurEnabled, setBlurEnabled] = useState(false);
   const [blurAmount, setBlurAmount] = useState(10); // default blur level
 
+  const [undoStack, setUndoStack] = useState([]);
+  const [redoStack, setRedoStack] = useState([]);
+
   useEffect(() => {
     if (!processedImage) return;
 
@@ -139,6 +149,7 @@ export default function BackgroundRemover() {
     };
 
     const startDrawing = (e) => {
+      saveCanvasState(); // save before editing
       drawing = true;
       draw(e);
     };
@@ -300,6 +311,7 @@ export default function BackgroundRemover() {
   };
 
   const applyImageBackground = (imgUrl) => {
+    saveCanvasState();
     setSelectedBackground(imgUrl); // ✅ store selection
     setTimeout(redrawCanvas, 10);
     const canvas = canvasRef.current;
@@ -314,6 +326,7 @@ export default function BackgroundRemover() {
   };
 
   const applyColorBackground = (color) => {
+    saveCanvasState();
     setSelectedBackground(color); // ✅ store selection
     setTimeout(redrawCanvas, 10);
     const canvas = canvasRef.current;
@@ -324,6 +337,50 @@ export default function BackgroundRemover() {
     ctx.fillStyle = color;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.restore();
+  };
+
+  // Save current canvas state to undo stack
+  const saveCanvasState = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const dataUrl = canvas.toDataURL("image/png");
+    setUndoStack((prev) => [...prev, dataUrl]);
+    setRedoStack([]); // clear redo after new action
+  };
+
+  // Undo the last change
+  const handleUndo = () => {
+    if (undoStack.length === 0) return;
+
+    const lastState = undoStack[undoStack.length - 1];
+    setUndoStack((prev) => prev.slice(0, -1));
+    setRedoStack((prev) => [...prev, canvasRef.current.toDataURL("image/png")]);
+    restoreCanvasFromDataURL(lastState);
+  };
+
+  // Redo the previously undone change
+  const handleRedo = () => {
+    if (redoStack.length === 0) return;
+
+    const nextState = redoStack[redoStack.length - 1];
+    setRedoStack((prev) => prev.slice(0, -1));
+    setUndoStack((prev) => [...prev, canvasRef.current.toDataURL("image/png")]);
+    restoreCanvasFromDataURL(nextState);
+  };
+
+  // Helper to restore canvas from saved DataURL
+  const restoreCanvasFromDataURL = (dataUrl) => {
+    const canvas = canvasRef.current;
+    const ctx = ctxRef.current;
+    const img = new Image();
+    img.src = dataUrl;
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+    };
   };
 
   const redrawCanvas = () => {
@@ -372,6 +429,7 @@ export default function BackgroundRemover() {
   };
 
   const applyEffectsToCanvas = () => {
+    saveCanvasState();
     const canvas = canvasRef.current;
     const ctx = ctxRef.current;
     if (!canvas || !ctx) return;
@@ -565,55 +623,95 @@ export default function BackgroundRemover() {
 
                 {/* TOP TOOLBAR (only visible after processing) */}
                 {processedImage && (
-                  <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-4 bg-white/20 backdrop-blur-xl px-6 py-3 rounded-2xl shadow-xl border border-white/10">
+                  <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 bg-neutral-800/80 backdrop-blur-xl px-5 py-2.5 rounded-full shadow-lg border border-neutral-700">
+                    {/* Cutout */}
                     <button
                       onClick={() => setIsCutoutMode(true)}
-                      className="text-white font-semibold hover:opacity-80"
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-full font-medium text-sm transition-all ${
+                        isCutoutMode
+                          ? "bg-neutral-700 text-teal-300"
+                          : "text-gray-300 hover:bg-neutral-700/60 hover:text-white"
+                      }`}
                     >
+                      <Wand2 size={16} />
                       Cutout
                     </button>
+
+                    {/* Background */}
                     <button
                       onClick={() => {
                         setIsCutoutMode(false);
                         setIsBackgroundMode(true);
+                        setIsEffectsMode(false);
                       }}
-                      className="text-white font-semibold hover:opacity-80"
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-full font-medium text-sm transition-all ${
+                        isBackgroundMode
+                          ? "bg-neutral-700 text-teal-300"
+                          : "text-gray-300 hover:bg-neutral-700/60 hover:text-white"
+                      }`}
                     >
+                      <ImageIcon size={16} />
                       Background
                     </button>
 
+                    {/* Effects */}
                     <button
                       onClick={() => {
                         setIsCutoutMode(false);
                         setIsBackgroundMode(false);
                         setIsEffectsMode(true);
                       }}
-                      className="text-white font-semibold hover:opacity-80"
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-full font-medium text-sm transition-all ${
+                        isEffectsMode
+                          ? "bg-neutral-700 text-teal-300"
+                          : "text-gray-300 hover:bg-neutral-700/60 hover:text-white"
+                      }`}
                     >
+                      <Sparkles size={16} />
                       Effects
                     </button>
 
-                    <button className="text-white font-semibold hover:opacity-80">
+                    {/* Adjust */}
+                    <button className="flex items-center gap-2 px-3 py-1.5 rounded-full font-medium text-sm text-gray-300 hover:bg-neutral-700/60 hover:text-white transition-all">
+                      <SlidersHorizontal size={16} />
                       Adjust
                     </button>
-                    <button className="text-white font-semibold hover:opacity-80">
+
+                    {/* Design */}
+                    <button className="flex items-center gap-2 px-3 py-1.5 rounded-full font-medium text-sm text-gray-300 hover:bg-neutral-700/60 hover:text-white transition-all">
+                      <LayoutDashboard size={16} />
                       Design
                     </button>
-                    <button className="text-white font-semibold hover:opacity-80">
-                      Undo
-                    </button>
-                    <button className="text-white font-semibold hover:opacity-80">
-                      Redo
-                    </button>
-                    <button className="text-white font-semibold hover:opacity-80">
-                      Compare
+
+                    {/* Divider */}
+                    <div className="w-px h-6 bg-neutral-600 mx-1"></div>
+
+                    {/* Undo */}
+                    <button
+                      onClick={handleUndo}
+                      disabled={undoStack.length === 0}
+                      className="p-2 rounded-full hover:bg-neutral-700/60 text-gray-300 disabled:opacity-40"
+                      title="Undo"
+                    >
+                      <Undo2 size={18} />
                     </button>
 
-                    {/* Download button styled differently */}
+                    {/* Redo */}
+                    <button
+                      onClick={handleRedo}
+                      disabled={redoStack.length === 0}
+                      className="p-2 rounded-full hover:bg-neutral-700/60 text-gray-300 disabled:opacity-40"
+                      title="Redo"
+                    >
+                      <Redo2 size={18} />
+                    </button>
+
+                    {/* Download */}
                     <button
                       onClick={downloadImage}
-                      className="ml-3 bg-teal-400 text-black font-bold px-4 py-2 rounded-lg shadow hover:scale-105 transition"
+                      className="ml-2 bg-teal-500 hover:bg-teal-400 text-black font-semibold px-5 py-2 rounded-full flex items-center gap-1 transition"
                     >
+                      <Download size={18} />
                       Download
                     </button>
                   </div>
@@ -621,8 +719,8 @@ export default function BackgroundRemover() {
 
                 {/* ✅ RIGHT SIDE CUTOUT TOOL PANEL */}
                 {isCutoutMode && (
-                  <div className="absolute right-4 top-28 w-72 bg-white rounded-2xl shadow-xl p-4 z-40">
-                    <h2 className="font-bold mb-4 text-gray-800">
+                  <div className="absolute right-4 top-28 w-72 bg-neutral-700 text-gray-300 rounded-2xl shadow-xl p-4 z-40">
+                    <h2 className="font-bold mb-4 text-gray-300">
                       Magic Brush
                     </h2>
 
@@ -631,8 +729,8 @@ export default function BackgroundRemover() {
                         onClick={() => setIsErasing(true)}
                         className={`flex-1 p-3 rounded-xl border ${
                           isErasing
-                            ? "border-blue-500 bg-blue-50 text-blue-500"
-                            : " border-gray-400 text-gray-800"
+                            ? "border-teal-500/40 bg-teal-500/20 text-teal-300"
+                            : "border-neutral-700 bg-neutral-800 hover:bg-neutral-900 text-gray-300"
                         }`}
                       >
                         Erase
@@ -642,8 +740,8 @@ export default function BackgroundRemover() {
                         onClick={() => setIsErasing(false)}
                         className={`flex-1 p-3 rounded-xl border ${
                           !isErasing
-                            ? "border-blue-500 bg-blue-50 text-blue-500"
-                            : "border-gray-400 text-gray-800"
+                            ? "border-teal-500/40 bg-teal-500/20 text-teal-300"
+                            : "border-neutral-700 bg-neutral-800 hover:bg-neutral-900 text-gray-300"
                         }`}
                       >
                         Restore
@@ -658,13 +756,13 @@ export default function BackgroundRemover() {
                         max="80"
                         value={brushSize}
                         onChange={(e) => setBrushSize(Number(e.target.value))}
-                        className="w-full"
+                        className="w-full accent-teal-400"
                       />
                     </div>
 
                     <button
                       onClick={() => setIsCutoutMode(false)}
-                      className="mt-3 w-full py-2 text-gray-800 font-bold rounded-xl bg-gray-100 hover:bg-gray-200"
+                      className="mt-3 w-full py-2 text-gray-200 font-bold rounded-xl bg-neutral-800 hover:bg-neutral-900 border border-neutral-700 duration-200"
                     >
                       Close
                     </button>
@@ -673,35 +771,38 @@ export default function BackgroundRemover() {
 
                 {/* ✅ RIGHT SIDE BACKGROUND TOOL PANEL */}
                 {isBackgroundMode && (
-                  <div className="absolute right-4 top-28 w-80 bg-white text-gray-600 rounded-2xl shadow-xl p-4 z-40">
+                  <div className="absolute right-4 top-28 w-80 bg-neutral-700 text-gray-300 rounded-2xl shadow-2xl p-4 z-40 border border-neutral-800">
                     <div className="flex gap-3 mb-4">
                       <button
                         onClick={() => setBackgroundType("magic")}
-                        className={`flex-1 py-2 rounded-lg font-semibold hover:bg-gray-200 duration-200 ${
-                          backgroundType === "magic"
-                            ? "bg-gray-200"
-                            : "bg-white"
-                        }`}
+                        className={`flex-1 py-2 rounded-lg font-semibold duration-200 transition-colors
+        ${
+          backgroundType === "magic"
+            ? "bg-teal-500/20 text-teal-300 border border-teal-500/30"
+            : "bg-neutral-800 hover:bg-neutral-900 border border-neutral-700"
+        }`}
                       >
                         Magic
                       </button>
                       <button
                         onClick={() => setBackgroundType("photo")}
-                        className={`flex-1 py-2 rounded-lg font-semibold hover:bg-gray-200 duration-200 ${
-                          backgroundType === "photo"
-                            ? "bg-gray-200"
-                            : "bg-white"
-                        }`}
+                        className={`flex-1 py-2 rounded-lg font-semibold duration-200 transition-colors
+        ${
+          backgroundType === "photo"
+            ? "bg-teal-500/20 text-teal-300 border border-teal-500/30"
+            : "bg-neutral-800 hover:bg-neutral-900 border border-neutral-700"
+        }`}
                       >
                         Photo
                       </button>
                       <button
                         onClick={() => setBackgroundType("color")}
-                        className={`flex-1 py-2 rounded-lg font-semibold hover:bg-gray-200 duration-200 ${
-                          backgroundType === "color"
-                            ? "bg-gray-200"
-                            : "bg-white"
-                        }`}
+                        className={`flex-1 py-2 rounded-lg font-semibold duration-200 transition-colors
+        ${
+          backgroundType === "color"
+            ? "bg-teal-500/20 text-teal-300 border border-teal-500/30"
+            : "bg-neutral-800 hover:bg-neutral-900 border border-neutral-700"
+        }`}
                       >
                         Color
                       </button>
@@ -715,15 +816,16 @@ export default function BackgroundRemover() {
                             key={i}
                             src={thumb}
                             onClick={() => applyImageBackground(thumb)}
-                            className={`w-full h-20 rounded-lg object-cover cursor-pointer
-  ${selectedBackground === thumb ? "ring-4 ring-teal-400" : ""}
-`}
+                            className={`w-full h-20 rounded-lg object-cover cursor-pointer transition-transform hover:scale-105
+            ${
+              selectedBackground === thumb ? "ring-4 ring-teal-400" : "ring-0"
+            }`}
                           />
                         ))}
                       </div>
                     )}
 
-                    {/* ✅ MAGIC / PHOTO GRID */}
+                    {/* ✅ PHOTO GRID */}
                     {backgroundType === "photo" && (
                       <div className="grid grid-cols-3 gap-3 max-h-56 overflow-y-auto pr-1 custom-scroll">
                         {imageThumbnails.map((thumb, i) => (
@@ -731,9 +833,10 @@ export default function BackgroundRemover() {
                             key={i}
                             src={thumb}
                             onClick={() => applyImageBackground(thumb)}
-                            className={`w-full h-20 rounded-lg object-cover cursor-pointer
-  ${selectedBackground === thumb ? "ring-4 ring-teal-400" : ""}
-`}
+                            className={`w-full h-20 rounded-lg object-cover cursor-pointer transition-transform hover:scale-105
+            ${
+              selectedBackground === thumb ? "ring-4 ring-teal-400" : "ring-0"
+            }`}
                           />
                         ))}
                       </div>
@@ -746,9 +849,10 @@ export default function BackgroundRemover() {
                           <div
                             key={i}
                             onClick={() => applyColorBackground(color)}
-                            className={`w-full h-20 rounded-lg cursor-pointer
-  ${selectedBackground === color ? "ring-4 ring-teal-400" : ""}
-`}
+                            className={`w-full h-20 rounded-lg cursor-pointer transition-transform hover:scale-105
+            ${
+              selectedBackground === color ? "ring-4 ring-teal-400" : "ring-0"
+            }`}
                             style={{ background: color }}
                           />
                         ))}
@@ -757,7 +861,7 @@ export default function BackgroundRemover() {
 
                     <button
                       onClick={() => setIsBackgroundMode(false)}
-                      className="mt-4 w-full py-2 rounded-xl bg-gray-200 hover:bg-gray-300 duration-200 font-semibold"
+                      className="mt-4 w-full py-2 rounded-xl bg-neutral-800 hover:bg-neutral-900 border border-neutral-700 duration-200 font-semibold text-gray-200"
                     >
                       Close
                     </button>
@@ -765,10 +869,10 @@ export default function BackgroundRemover() {
                 )}
 
                 {isEffectsMode && (
-                  <div className="absolute right-4 top-28 w-80 bg-white rounded-2xl shadow-xl p-4 text-gray-700 z-40">
+                  <div className="absolute right-4 top-28 w-80 bg-neutral-700 text-gray-300 rounded-2xl shadow-xl p-4 z-40">
                     {/* Toggle Blur */}
                     <div className="flex items-center justify-between mb-4">
-                      <span className="font-semibold text-gray-800">
+                      <span className="font-semibold text-gray-300">
                         Blur background
                       </span>
 
@@ -782,7 +886,7 @@ export default function BackgroundRemover() {
                             setTimeout(applyEffectsToCanvas, 20);
                           }}
                         />
-                        <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-blue-500 transition"></div>
+                        <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-teal-500 transition"></div>
                         <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5"></div>
                       </label>
                     </div>
@@ -807,7 +911,7 @@ export default function BackgroundRemover() {
 
                     <button
                       onClick={() => setIsEffectsMode(false)}
-                      className="w-full py-2 mt-2 rounded-xl bg-gray-200 hover:bg-gray-300 font-semibold"
+                      className="w-full py-2 mt-2 rounded-xl bg-neutral-800 hover:bg-neutral-900 font-semibold"
                     >
                       Close
                     </button>
