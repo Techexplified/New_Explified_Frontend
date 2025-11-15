@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "./BGRemover.css";
 import {
   Wand2,
+  SlidersHorizontal,
   LayoutDashboard,
   Undo2,
   Redo2,
@@ -15,15 +16,52 @@ import {
   Download,
   X,
   Image as ImageIcon,
-  Type,
 } from "lucide-react";
-import {
-  backgroundThumbnails,
-  imageThumbnails,
-  colorOptions,
-} from "../../../../public/bg-remover";
+import { Type, Layout, TextQuote, ExternalLink } from "lucide-react";
 
 const apiKey = "reSe1VEif8KBPdhpzCncgxyF";
+
+const backgroundThumbnails = [
+  "./images/background/bg1.jpg",
+  "./images/background/bg2.jpg",
+  "./images/background/bg3.jpg",
+  "./images/background/bg4.jpg",
+  "./images/background/bg5.jpg",
+  "./images/background/bg6.jpg",
+  "./images/background/bg7.jpg",
+  "./images/background/bg8.jpg",
+  "./images/background/bg9.jpg",
+  "./images/background/bg10.jpg",
+  "./images/background/bg11.jpg",
+  "./images/background/bg12.jpg",
+];
+
+const imageThumbnails = [
+  "./images/background/img1.jpg",
+  "./images/background/img2.jpg",
+  "./images/background/img3.jpg",
+  "./images/background/img4.jpg",
+  "./images/background/img5.jpg",
+  "./images/background/img6.jpg",
+  "./images/background/img7.jpg",
+  "./images/background/img8.jpg",
+  "./images/background/img9.jpg",
+  "./images/background/img10.jpg",
+  "./images/background/img11.jpg",
+];
+
+const colorOptions = [
+  "#ffffff",
+  "#000000",
+  "#ff5757",
+  "#ffc947",
+  "#27ae60",
+  "#3498db",
+  "#9b59b6",
+  "#f368e0",
+  "#ff9f43",
+  "#10ac84",
+];
 
 export default function BackgroundRemover() {
   const [processedImage, setProcessedImage] = useState(null);
@@ -54,9 +92,6 @@ export default function BackgroundRemover() {
 
   const [isDesignMode, setIsDesignMode] = useState(false);
   const [textElements, setTextElements] = useState([]);
-  const [activeTextId, setActiveTextId] = useState(null); // which one is being edited
-  const textRefs = useRef({});
-  const [hideTextDuringExport, setHideTextDuringExport] = useState(false);
 
   useEffect(() => {
     if (!processedImage) return;
@@ -183,24 +218,8 @@ export default function BackgroundRemover() {
   }, [isBackgroundMode]);
 
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      // If user clicked inside any editable text box, do nothing
-      if (e.target.closest(".editable-text")) {
-        return;
-      }
-
-      // If user clicked inside the design panel (toolbar), also do nothing
-      if (e.target.closest(".design-panel")) {
-        return;
-      }
-
-      // Otherwise close edit mode
-      setActiveTextId(null);
-    };
-
-    window.addEventListener("mousedown", handleClickOutside);
-    return () => window.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    if (selectedBackground) redrawCanvas();
+  }, [selectedBackground]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -300,7 +319,7 @@ export default function BackgroundRemover() {
   const applyImageBackground = (imgUrl) => {
     saveCanvasState();
     setSelectedBackground(imgUrl); // ✅ store selection
-    redrawCanvas(imgUrl).catch((e) => console.error(e));
+    setTimeout(redrawCanvas, 10);
     const canvas = canvasRef.current;
     const ctx = ctxRef.current;
     const bgImg = new Image();
@@ -315,7 +334,7 @@ export default function BackgroundRemover() {
   const applyColorBackground = (color) => {
     saveCanvasState();
     setSelectedBackground(color); // ✅ store selection
-    redrawCanvas(color).catch((e) => console.error(e));
+    setTimeout(redrawCanvas, 10);
     const canvas = canvasRef.current;
     const ctx = ctxRef.current;
 
@@ -331,12 +350,8 @@ export default function BackgroundRemover() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const snapshot = {
-      image: canvas.toDataURL("image/png"),
-      text: JSON.parse(JSON.stringify(textElements)), // deep clone
-    };
-    // const dataUrl = canvas.toDataURL("image/png");
-    setUndoStack((prev) => [...prev, snapshot]);
+    const dataUrl = canvas.toDataURL("image/png");
+    setUndoStack((prev) => [...prev, dataUrl]);
     setRedoStack([]); // clear redo after new action
   };
 
@@ -344,39 +359,10 @@ export default function BackgroundRemover() {
   const handleUndo = () => {
     if (undoStack.length === 0) return;
 
-    const last = undoStack[undoStack.length - 1];
-
-    // move current state to redo
-    setRedoStack((prev) => [
-      ...prev,
-      {
-        image: canvasRef.current.toDataURL("image/png"),
-        text: JSON.parse(JSON.stringify(textElements)),
-      },
-    ]);
-
-    restoreCanvasFromState(last);
+    const lastState = undoStack[undoStack.length - 1];
     setUndoStack((prev) => prev.slice(0, -1));
-  };
-  const restoreCanvasFromState = (state) => {
-    const { image, text } = state;
-
-    // restore text
-    setTextElements(text);
-
-    // restore canvas image
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-
-    const img = new Image();
-    img.src = image;
-
-    img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0);
-    };
+    setRedoStack((prev) => [...prev, canvasRef.current.toDataURL("image/png")]);
+    restoreCanvasFromDataURL(lastState);
   };
 
   // Redo the previously undone change
@@ -403,60 +389,49 @@ export default function BackgroundRemover() {
     };
   };
 
-  // promise loader for images (useful to avoid race conditions)
-  const loadImage = (src) =>
-    new Promise((resolve, reject) => {
-      if (!src) return resolve(null);
-      const img = new Image();
-      img.crossOrigin = "anonymous"; // safe when possible
-      img.onload = () => resolve(img);
-      img.onerror = (err) => reject(err);
-      img.src = src;
-    });
-
-  const redrawCanvas = async (bgOption = selectedBackground) => {
+  const redrawCanvas = () => {
     const canvas = canvasRef.current;
     const ctx = ctxRef.current;
-    if (!canvas || !ctx || !processedImage) return;
 
-    try {
-      // load the cutout image and optional background image (if image-based)
-      const [cutoutImg, bgImg] = await Promise.all([
-        loadImage(processedImage),
-        bgOption && !bgOption.startsWith("#")
-          ? loadImage(bgOption)
-          : Promise.resolve(null),
-      ]);
+    if (!canvas || !ctx) return;
+    if (!processedImage) return;
 
-      // ensure canvas matches cutout image resolution
-      if (!cutoutImg) return;
-      canvas.width = cutoutImg.width;
-      canvas.height = cutoutImg.height;
+    const img = new Image();
+    img.src = processedImage;
 
-      // clear and draw background first (ALWAYS)
-      ctx.save();
+    img.onload = () => {
+      // Step 1 → Resize canvas
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      // Step 2 → Clear old content
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.globalCompositeOperation = "source-over";
-      if (bgOption) {
-        if (bgOption.startsWith("#")) {
-          ctx.fillStyle = bgOption;
+
+      // Step 3 → Draw background FIRST
+      if (selectedBackground) {
+        if (selectedBackground.startsWith("#")) {
+          ctx.fillStyle = selectedBackground;
           ctx.fillRect(0, 0, canvas.width, canvas.height);
-        } else if (bgImg) {
-          // draw bg image stretched to fill canvas
-          ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+        } else {
+          const bg = new Image();
+          bg.src = selectedBackground;
+
+          bg.onload = () => {
+            ctx.filter = blurEnabled ? `blur(${blurAmount}px)` : "none";
+            ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+            ctx.filter = "none";
+
+            // Step 4 → Draw cutout image on top
+            ctx.drawImage(img, 0, 0);
+          };
+
+          return; // ✅ important to prevent double-draw
         }
-      } else {
-        // no bg — keep transparent or white if desired
-        // ctx.clearRect already left it transparent
       }
 
-      // draw cutout image on TOP of background
-      ctx.drawImage(cutoutImg, 0, 0, canvas.width, canvas.height);
-
-      ctx.restore();
-    } catch (err) {
-      console.error("redrawCanvas error:", err);
-    }
+      // Step 4 → Draw cutout (no background chosen)
+      ctx.drawImage(img, 0, 0);
+    };
   };
 
   const applyEffectsToCanvas = () => {
@@ -511,23 +486,12 @@ export default function BackgroundRemover() {
     };
   };
 
-  const downloadImage = async () => {
+  const downloadImage = () => {
     const canvas = canvasRef.current;
-    const ctx = ctxRef.current;
-    if (!canvas || !ctx) return;
-    setHideTextDuringExport(true);
-    // Redraw the image first (if needed)
-    await redrawCanvas(); // Ensure the base image is there (might be async, so better to directly redraw here or ensure ready)
-
-    // Draw the text elements on the canvas
-    drawTextElements(ctx);
-    await new Promise((res) => setTimeout(res, 50));
     const link = document.createElement("a");
     link.download = "cutout.png";
     link.href = canvas.toDataURL("image/png");
     link.click();
-    setHideTextDuringExport(false);
-    redrawCanvas();
   };
 
   const reset = () => {
@@ -564,112 +528,24 @@ export default function BackgroundRemover() {
       type,
       text: style.text,
       x: 100,
-      y: 100,
+      y: 100 + textElements.length * 50,
       fontSize: style.fontSize,
       fontWeight: style.fontWeight,
-      isDragging: false,
     };
 
     setTextElements((prev) => [...prev, newText]);
-    setActiveTextId(id); // start in edit mode
 
+    // ✅ focus newly added element after next render
     setTimeout(() => {
       const el = document.querySelector(`[data-text-id="${id}"]`);
-      if (el) {
-        el.focus();
-        placeCaretAtEnd(el);
-      }
+      if (el) el.focus();
     }, 50);
   };
 
-  // const handleTextChange = (id, newText) => {
-  //   setTextElements((prev) =>
-  //     prev.map((t) => (t.id === id ? { ...t, text: newText } : t))
-  //   );
-  // };
-
   const handleTextChange = (id, newText) => {
-    const el = textRefs.current[id];
-    let selectionStart = 0;
-    let selectionEnd = 0;
-
-    if (el && window.getSelection) {
-      const sel = window.getSelection();
-      if (sel.rangeCount > 0) {
-        const range = sel.getRangeAt(0);
-        const preSelectionRange = range.cloneRange();
-        preSelectionRange.selectNodeContents(el);
-        preSelectionRange.setEnd(range.startContainer, range.startOffset);
-        selectionStart = preSelectionRange.toString().length;
-
-        preSelectionRange.setEnd(range.endContainer, range.endOffset);
-        selectionEnd = preSelectionRange.toString().length;
-      }
-    }
-
     setTextElements((prev) =>
       prev.map((t) => (t.id === id ? { ...t, text: newText } : t))
     );
-
-    // After state update, restore caret position
-    setTimeout(() => {
-      if (!el) return;
-      el.focus();
-
-      if (window.getSelection) {
-        const sel = window.getSelection();
-        const range = document.createRange();
-
-        // Set to start same node and offset approximated by text length difference
-        let charIndex = 0;
-        let nodeStack = [el];
-        let node;
-        let foundStart = false;
-        let stop = false;
-
-        while (!stop && (node = nodeStack.pop())) {
-          if (node.nodeType === 3) {
-            const nextCharIndex = charIndex + node.length;
-            if (
-              !foundStart &&
-              selectionStart >= charIndex &&
-              selectionStart <= nextCharIndex
-            ) {
-              range.setStart(node, selectionStart - charIndex);
-              foundStart = true;
-            }
-            if (
-              foundStart &&
-              selectionEnd >= charIndex &&
-              selectionEnd <= nextCharIndex
-            ) {
-              range.setEnd(node, selectionEnd - charIndex);
-              stop = true;
-            }
-            charIndex = nextCharIndex;
-          } else {
-            let i = node.childNodes.length;
-            while (i--) {
-              nodeStack.push(node.childNodes[i]);
-            }
-          }
-        }
-        sel.removeAllRanges();
-        sel.addRange(range);
-      }
-    }, 0);
-  };
-
-  const drawTextElements = (ctx) => {
-    const { scaleX, scaleY } = getCanvasScale();
-
-    textElements.forEach((t) => {
-      ctx.font = `${t.fontWeight} ${parseFloat(t.fontSize) * scaleY}px Arial`;
-      ctx.fillStyle = "white";
-      ctx.textBaseline = "top";
-
-      ctx.fillText(t.text, t.x * scaleX, t.y * scaleY);
-    });
   };
 
   const handleDragEnd = (id, e) => {
@@ -687,70 +563,6 @@ export default function BackgroundRemover() {
           : t
       )
     );
-  };
-
-  const handleMouseDown = (e, id) => {
-    setActiveTextId(id); // also enter edit mode when clicked
-
-    const element = textElements.find((t) => t.id === id);
-    if (!element) return;
-
-    const startX = e.clientX;
-    const startY = e.clientY;
-    const initialX = element.x;
-    const initialY = element.y;
-
-    const handleMove = (ev) => {
-      const { scaleX, scaleY } = getCanvasScale();
-
-      const dx = (ev.clientX - startX) * scaleX;
-      const dy = (ev.clientY - startY) * scaleY;
-
-      setTextElements((prev) =>
-        prev.map((t) =>
-          t.id === id ? { ...t, x: initialX + dx, y: initialY + dy } : t
-        )
-      );
-    };
-
-    const stopDrag = () => {
-      window.removeEventListener("mousemove", handleMove);
-      window.removeEventListener("mouseup", stopDrag);
-    };
-
-    window.addEventListener("mousemove", handleMove);
-    window.addEventListener("mouseup", stopDrag);
-  };
-
-  // Put this inside the component
-  const placeCaretAtEnd = (el) => {
-    if (!el) return;
-
-    el.focus();
-
-    const range = document.createRange();
-    const sel = window.getSelection();
-
-    // Select all content
-    range.selectNodeContents(el);
-    // Collapse to end
-    range.collapse(false);
-
-    // Clear any existing selections and add new range
-    sel.removeAllRanges();
-    sel.addRange(range);
-  };
-
-  const getCanvasScale = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return { scaleX: 1, scaleY: 1 };
-
-    const rect = canvas.getBoundingClientRect();
-
-    return {
-      scaleX: canvas.width / rect.width,
-      scaleY: canvas.height / rect.height,
-    };
   };
 
   return (
@@ -880,12 +692,7 @@ export default function BackgroundRemover() {
                   <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 bg-neutral-800/80 backdrop-blur-xl px-5 py-2.5 rounded-full shadow-lg border border-neutral-700">
                     {/* Cutout */}
                     <button
-                      onClick={() => {
-                        setIsCutoutMode(true);
-                        setIsBackgroundMode(false);
-                        setIsEffectsMode(false);
-                        setIsDesignMode(false);
-                      }}
+                      onClick={() => setIsCutoutMode(true)}
                       className={`flex items-center gap-2 px-3 py-1.5 rounded-full font-medium text-sm transition-all ${
                         isCutoutMode
                           ? "bg-neutral-700 text-teal-300"
@@ -902,7 +709,6 @@ export default function BackgroundRemover() {
                         setIsCutoutMode(false);
                         setIsBackgroundMode(true);
                         setIsEffectsMode(false);
-                        setIsDesignMode(false);
                       }}
                       className={`flex items-center gap-2 px-3 py-1.5 rounded-full font-medium text-sm transition-all ${
                         isBackgroundMode
@@ -920,7 +726,6 @@ export default function BackgroundRemover() {
                         setIsCutoutMode(false);
                         setIsBackgroundMode(false);
                         setIsEffectsMode(true);
-                        setIsDesignMode(false);
                       }}
                       className={`flex items-center gap-2 px-3 py-1.5 rounded-full font-medium text-sm transition-all ${
                         isEffectsMode
@@ -930,6 +735,12 @@ export default function BackgroundRemover() {
                     >
                       <Sparkles size={16} />
                       Effects
+                    </button>
+
+                    {/* Adjust */}
+                    <button className="flex items-center gap-2 px-3 py-1.5 rounded-full font-medium text-sm text-gray-300 hover:bg-neutral-700/60 hover:text-white transition-all">
+                      <SlidersHorizontal size={16} />
+                      Adjust
                     </button>
 
                     {/* Design */}
@@ -1038,8 +849,8 @@ export default function BackgroundRemover() {
 
                 {/* ✅ RIGHT SIDE BACKGROUND TOOL PANEL */}
                 {isBackgroundMode && (
-                  <div className="absolute right-4 top-28 w-80 bg-neutral-700 text-gray-300 rounded-2xl shadow-2xl p-3 z-40">
-                    <div className="flex gap-3 mb-2 p-1">
+                  <div className="absolute right-4 top-28 w-80 bg-neutral-700 text-gray-300 rounded-2xl shadow-2xl p-4 z-40 border border-neutral-800">
+                    <div className="flex gap-3 mb-4">
                       <button
                         onClick={() => setBackgroundType("magic")}
                         className={`flex-1 py-2 rounded-lg font-semibold duration-200 transition-colors
@@ -1077,7 +888,7 @@ export default function BackgroundRemover() {
 
                     {/* ✅ MAGIC / PHOTO GRID */}
                     {backgroundType === "magic" && (
-                      <div className="grid grid-cols-3 gap-3 max-h-56 overflow-y-auto p-1 custom-scroll">
+                      <div className="grid grid-cols-3 gap-3 max-h-56 overflow-y-auto pr-1 custom-scroll">
                         {backgroundThumbnails.map((thumb, i) => (
                           <img
                             key={i}
@@ -1085,7 +896,7 @@ export default function BackgroundRemover() {
                             onClick={() => applyImageBackground(thumb)}
                             className={`w-full h-20 rounded-lg object-cover cursor-pointer transition-transform hover:scale-105
             ${
-              selectedBackground === thumb ? "ring-2 ring-teal-400" : "ring-0"
+              selectedBackground === thumb ? "ring-4 ring-teal-400" : "ring-0"
             }`}
                           />
                         ))}
@@ -1094,7 +905,7 @@ export default function BackgroundRemover() {
 
                     {/* ✅ PHOTO GRID */}
                     {backgroundType === "photo" && (
-                      <div className="grid grid-cols-3 gap-3 max-h-56 overflow-y-auto p-1 custom-scroll">
+                      <div className="grid grid-cols-3 gap-3 max-h-56 overflow-y-auto pr-1 custom-scroll">
                         {imageThumbnails.map((thumb, i) => (
                           <img
                             key={i}
@@ -1102,7 +913,7 @@ export default function BackgroundRemover() {
                             onClick={() => applyImageBackground(thumb)}
                             className={`w-full h-20 rounded-lg object-cover cursor-pointer transition-transform hover:scale-105
             ${
-              selectedBackground === thumb ? "ring-2 ring-teal-400" : "ring-0"
+              selectedBackground === thumb ? "ring-4 ring-teal-400" : "ring-0"
             }`}
                           />
                         ))}
@@ -1111,14 +922,14 @@ export default function BackgroundRemover() {
 
                     {/* ✅ COLOR PICKER GRID */}
                     {backgroundType === "color" && (
-                      <div className="grid grid-cols-3 gap-2 max-h-56 overflow-y-auto p-1 custom-scroll">
+                      <div className="grid grid-cols-3 gap-2 max-h-56 overflow-y-auto custom-scroll">
                         {colorOptions.map((color, i) => (
                           <div
                             key={i}
                             onClick={() => applyColorBackground(color)}
                             className={`w-full h-20 rounded-lg cursor-pointer transition-transform hover:scale-105
             ${
-              selectedBackground === color ? "ring-2 ring-teal-400" : "ring-0"
+              selectedBackground === color ? "ring-4 ring-teal-400" : "ring-0"
             }`}
                             style={{ background: color }}
                           />
@@ -1186,10 +997,10 @@ export default function BackgroundRemover() {
                 )}
 
                 {isDesignMode && (
-                  <div className="design-panel absolute right-4 top-28 w-80 bg-neutral-700 text-gray-300 rounded-2xl shadow-xl p-4 z-40">
+                  <div className="absolute right-4 top-28 w-80 bg-neutral-800/90 backdrop-blur-xl text-gray-200 rounded-2xl shadow-2xl p-5 z-40 border border-neutral-700">
                     {/* Add Heading */}
-                    <div className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-800 transition-colors rounded-2xl">
-                      <Heading className="w-7 h-7 text-teal-400" />
+                    <div className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-700/60 transition-colors">
+                      <Heading className="w-5 h-5 text-teal-400" />
                       <button
                         onClick={() => addTextElement("heading")}
                         className="font-medium"
@@ -1199,8 +1010,8 @@ export default function BackgroundRemover() {
                     </div>
 
                     {/* Add Subheading */}
-                    <div className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-800 transition-colors rounded-2xl">
-                      <Type className="w-7 h-7 text-teal-400" />
+                    <div className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-700/60 transition-colors">
+                      <Type className="w-5 h-5 text-teal-400" />
                       <button
                         onClick={() => addTextElement("subheading")}
                         className="font-medium"
@@ -1210,8 +1021,8 @@ export default function BackgroundRemover() {
                     </div>
 
                     {/* Add Paragraph */}
-                    <div className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-800 transition-colors rounded-2xl">
-                      <Pilcrow className="w-7 h-7 text-teal-400" />
+                    <div className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-700/60 transition-colors">
+                      <Pilcrow className="w-5 h-5 text-teal-400" />
                       <button
                         onClick={() => addTextElement("paragraph")}
                         className="font-medium"
@@ -1220,12 +1031,15 @@ export default function BackgroundRemover() {
                       </button>
                     </div>
 
-                    <button
-                      onClick={() => setIsDesignMode(false)}
-                      className="w-full py-2 mt-2 rounded-xl bg-neutral-800 hover:bg-neutral-900 font-semibold"
-                    >
-                      Close
-                    </button>
+                    {/* Footer */}
+                    <div className="mt-5 border-t border-neutral-700 pt-3 text-center">
+                      <button
+                        onClick={() => setIsDesignMode(false)}
+                        className="w-full py-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 duration-200 font-semibold text-gray-200"
+                      >
+                        Close
+                      </button>
+                    </div>
                   </div>
                 )}
 
@@ -1264,62 +1078,39 @@ export default function BackgroundRemover() {
                         className={`absolute inset-0 z-20 pointer-events-none max-w-full max-h-96 object-contain`}
                       />
                       {/* ✅ Render editable text elements */}
-                      {!hideTextDuringExport &&
-                        textElements.map((t) => (
-                          <div
-                            ref={(el) => (textRefs.current[t.id] = el)}
-                            key={t.id}
-                            data-text-id={t.id}
-                            contentEditable={activeTextId === t.id}
-                            suppressContentEditableWarning
-                            spellCheck={false}
-                            dir="ltr"
-                            onInput={(e) => {
-                              saveCanvasState(); // snapshot before writing
-                              handleTextChange(
-                                t.id,
-                                e.currentTarget.textContent
-                              );
-                            }}
-                            onFocus={(e) => {
-                              placeCaretAtEnd(e.currentTarget);
-                              setActiveTextId(t.id);
-                            }}
-                            onMouseDown={(e) => {
-                              e.stopPropagation();
-                              if (e.target === e.currentTarget)
-                                handleMouseDown(e, t.id);
-                            }}
-                            style={{
-                              position: "absolute",
-                              top: `${t.y}px`,
-                              left: `${t.x}px`,
-                              fontSize: t.fontSize,
-                              fontWeight: t.fontWeight,
-                              color: "white",
-                              padding: "4px 8px",
-                              borderRadius: "4px",
-                              direction: "ltr",
-                              textAlign: "left",
-                              cursor: activeTextId === t.id ? "text" : "grab",
-                              userSelect: "text",
-                              outline:
-                                activeTextId === t.id
-                                  ? "1px dashed teal"
-                                  : "none",
-                              background:
-                                activeTextId === t.id
-                                  ? "rgba(0,0,0,0.3)"
-                                  : "transparent",
-                              minWidth: "50px",
-                              zIndex: 50,
-                              whiteSpace: "pre-wrap",
-                            }}
-                            className="editable-text"
-                          >
-                            {t.text}
-                          </div>
-                        ))}
+                      {textElements.map((t) => (
+                        <div
+                          data-text-id={t.id}
+                          contentEditable
+                          suppressContentEditableWarning
+                          spellCheck={false}
+                          onInput={(e) =>
+                            handleTextChange(t.id, e.currentTarget.textContent)
+                          }
+                          style={{
+                            position: "absolute",
+                            top: `${t.y}px`,
+                            left: `${t.x}px`,
+                            fontSize: t.fontSize,
+                            fontWeight: t.fontWeight,
+                            color: "white",
+                            outline: "1px dashed gray",
+                            padding: "4px 8px",
+                            borderRadius: "4px",
+                            cursor: "move",
+                            userSelect: "text",
+                            zIndex: 50, // ✅ ensure it’s above the canvas
+                            background: "rgba(0,0,0,0.2)",
+                            minWidth: "100px",
+                          }}
+                          className="editable-text"
+                          onMouseDown={(e) => e.stopPropagation()} // ✅ prevent accidental canvas focus
+                          draggable
+                          onDragEnd={(e) => handleDragEnd(t.id, e)}
+                        >
+                          {t.text}
+                        </div>
+                      ))}
                     </>
                   </div>
 
@@ -1379,7 +1170,30 @@ export default function BackgroundRemover() {
                     )}
                   </button>
                 ) : (
-                  <></>
+                  <>
+                    <button
+                      onClick={downloadImage}
+                      className="group relative px-8 py-4 rounded-xl font-semibold text-black transition-all duration-300 bg-gradient-to-r from-teal-400 to-cyan-400 shadow-md hover:shadow-xl hover:scale-105 backdrop-blur-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 overflow-hidden text-lg"
+                      style={{
+                        boxShadow: "0 6px 20px rgba(0, 200, 200, 0.3)",
+                      }}
+                    >
+                      <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                      <Download className="w-5 h-5" />
+                      Download Image
+                    </button>
+                    <button
+                      onClick={() => setProcessedImage(null)}
+                      className="px-8 py-5 rounded-xl font-bold text-lg transition-all duration-300 hover:scale-105 backdrop-blur-xl"
+                      style={{
+                        background: "rgba(255, 255, 255, 0.05)",
+                        border: "1px solid rgba(255, 255, 255, 0.1)",
+                        color: "white",
+                      }}
+                    >
+                      Process Again
+                    </button>
+                  </>
                 )}
               </div>
             </div>

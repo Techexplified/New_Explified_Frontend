@@ -56,7 +56,6 @@ export default function BackgroundRemover() {
   const [textElements, setTextElements] = useState([]);
   const [activeTextId, setActiveTextId] = useState(null); // which one is being edited
   const textRefs = useRef({});
-  const [hideTextDuringExport, setHideTextDuringExport] = useState(false);
 
   useEffect(() => {
     if (!processedImage) return;
@@ -183,6 +182,10 @@ export default function BackgroundRemover() {
   }, [isBackgroundMode]);
 
   useEffect(() => {
+    if (selectedBackground) redrawCanvas();
+  }, [selectedBackground]);
+
+  useEffect(() => {
     const handleClickOutside = (e) => {
       // If user clicked inside any editable text box, do nothing
       if (e.target.closest(".editable-text")) {
@@ -300,7 +303,7 @@ export default function BackgroundRemover() {
   const applyImageBackground = (imgUrl) => {
     saveCanvasState();
     setSelectedBackground(imgUrl); // ✅ store selection
-    redrawCanvas(imgUrl).catch((e) => console.error(e));
+    setTimeout(redrawCanvas, 10);
     const canvas = canvasRef.current;
     const ctx = ctxRef.current;
     const bgImg = new Image();
@@ -315,7 +318,7 @@ export default function BackgroundRemover() {
   const applyColorBackground = (color) => {
     saveCanvasState();
     setSelectedBackground(color); // ✅ store selection
-    redrawCanvas(color).catch((e) => console.error(e));
+    setTimeout(redrawCanvas, 10);
     const canvas = canvasRef.current;
     const ctx = ctxRef.current;
 
@@ -331,12 +334,8 @@ export default function BackgroundRemover() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const snapshot = {
-      image: canvas.toDataURL("image/png"),
-      text: JSON.parse(JSON.stringify(textElements)), // deep clone
-    };
-    // const dataUrl = canvas.toDataURL("image/png");
-    setUndoStack((prev) => [...prev, snapshot]);
+    const dataUrl = canvas.toDataURL("image/png");
+    setUndoStack((prev) => [...prev, dataUrl]);
     setRedoStack([]); // clear redo after new action
   };
 
@@ -344,39 +343,10 @@ export default function BackgroundRemover() {
   const handleUndo = () => {
     if (undoStack.length === 0) return;
 
-    const last = undoStack[undoStack.length - 1];
-
-    // move current state to redo
-    setRedoStack((prev) => [
-      ...prev,
-      {
-        image: canvasRef.current.toDataURL("image/png"),
-        text: JSON.parse(JSON.stringify(textElements)),
-      },
-    ]);
-
-    restoreCanvasFromState(last);
+    const lastState = undoStack[undoStack.length - 1];
     setUndoStack((prev) => prev.slice(0, -1));
-  };
-  const restoreCanvasFromState = (state) => {
-    const { image, text } = state;
-
-    // restore text
-    setTextElements(text);
-
-    // restore canvas image
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-
-    const img = new Image();
-    img.src = image;
-
-    img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0);
-    };
+    setRedoStack((prev) => [...prev, canvasRef.current.toDataURL("image/png")]);
+    restoreCanvasFromDataURL(lastState);
   };
 
   // Redo the previously undone change
@@ -403,60 +373,49 @@ export default function BackgroundRemover() {
     };
   };
 
-  // promise loader for images (useful to avoid race conditions)
-  const loadImage = (src) =>
-    new Promise((resolve, reject) => {
-      if (!src) return resolve(null);
-      const img = new Image();
-      img.crossOrigin = "anonymous"; // safe when possible
-      img.onload = () => resolve(img);
-      img.onerror = (err) => reject(err);
-      img.src = src;
-    });
-
-  const redrawCanvas = async (bgOption = selectedBackground) => {
+  const redrawCanvas = () => {
     const canvas = canvasRef.current;
     const ctx = ctxRef.current;
-    if (!canvas || !ctx || !processedImage) return;
 
-    try {
-      // load the cutout image and optional background image (if image-based)
-      const [cutoutImg, bgImg] = await Promise.all([
-        loadImage(processedImage),
-        bgOption && !bgOption.startsWith("#")
-          ? loadImage(bgOption)
-          : Promise.resolve(null),
-      ]);
+    if (!canvas || !ctx) return;
+    if (!processedImage) return;
 
-      // ensure canvas matches cutout image resolution
-      if (!cutoutImg) return;
-      canvas.width = cutoutImg.width;
-      canvas.height = cutoutImg.height;
+    const img = new Image();
+    img.src = processedImage;
 
-      // clear and draw background first (ALWAYS)
-      ctx.save();
+    img.onload = () => {
+      // Step 1 → Resize canvas
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      // Step 2 → Clear old content
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.globalCompositeOperation = "source-over";
-      if (bgOption) {
-        if (bgOption.startsWith("#")) {
-          ctx.fillStyle = bgOption;
+
+      // Step 3 → Draw background FIRST
+      if (selectedBackground) {
+        if (selectedBackground.startsWith("#")) {
+          ctx.fillStyle = selectedBackground;
           ctx.fillRect(0, 0, canvas.width, canvas.height);
-        } else if (bgImg) {
-          // draw bg image stretched to fill canvas
-          ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+        } else {
+          const bg = new Image();
+          bg.src = selectedBackground;
+
+          bg.onload = () => {
+            ctx.filter = blurEnabled ? `blur(${blurAmount}px)` : "none";
+            ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+            ctx.filter = "none";
+
+            // Step 4 → Draw cutout image on top
+            ctx.drawImage(img, 0, 0);
+          };
+
+          return; // ✅ important to prevent double-draw
         }
-      } else {
-        // no bg — keep transparent or white if desired
-        // ctx.clearRect already left it transparent
       }
 
-      // draw cutout image on TOP of background
-      ctx.drawImage(cutoutImg, 0, 0, canvas.width, canvas.height);
-
-      ctx.restore();
-    } catch (err) {
-      console.error("redrawCanvas error:", err);
-    }
+      // Step 4 → Draw cutout (no background chosen)
+      ctx.drawImage(img, 0, 0);
+    };
   };
 
   const applyEffectsToCanvas = () => {
@@ -511,22 +470,20 @@ export default function BackgroundRemover() {
     };
   };
 
-  const downloadImage = async () => {
+  const downloadImage = () => {
     const canvas = canvasRef.current;
     const ctx = ctxRef.current;
     if (!canvas || !ctx) return;
-    setHideTextDuringExport(true);
+
     // Redraw the image first (if needed)
-    await redrawCanvas(); // Ensure the base image is there (might be async, so better to directly redraw here or ensure ready)
+    redrawCanvas(); // Ensure the base image is there (might be async, so better to directly redraw here or ensure ready)
 
     // Draw the text elements on the canvas
     drawTextElements(ctx);
-    await new Promise((res) => setTimeout(res, 50));
     const link = document.createElement("a");
     link.download = "cutout.png";
     link.href = canvas.toDataURL("image/png");
     link.click();
-    setHideTextDuringExport(false);
     redrawCanvas();
   };
 
@@ -1264,62 +1221,57 @@ export default function BackgroundRemover() {
                         className={`absolute inset-0 z-20 pointer-events-none max-w-full max-h-96 object-contain`}
                       />
                       {/* ✅ Render editable text elements */}
-                      {!hideTextDuringExport &&
-                        textElements.map((t) => (
-                          <div
-                            ref={(el) => (textRefs.current[t.id] = el)}
-                            key={t.id}
-                            data-text-id={t.id}
-                            contentEditable={activeTextId === t.id}
-                            suppressContentEditableWarning
-                            spellCheck={false}
-                            dir="ltr"
-                            onInput={(e) => {
-                              saveCanvasState(); // snapshot before writing
-                              handleTextChange(
-                                t.id,
-                                e.currentTarget.textContent
-                              );
-                            }}
-                            onFocus={(e) => {
-                              placeCaretAtEnd(e.currentTarget);
-                              setActiveTextId(t.id);
-                            }}
-                            onMouseDown={(e) => {
-                              e.stopPropagation();
-                              if (e.target === e.currentTarget)
-                                handleMouseDown(e, t.id);
-                            }}
-                            style={{
-                              position: "absolute",
-                              top: `${t.y}px`,
-                              left: `${t.x}px`,
-                              fontSize: t.fontSize,
-                              fontWeight: t.fontWeight,
-                              color: "white",
-                              padding: "4px 8px",
-                              borderRadius: "4px",
-                              direction: "ltr",
-                              textAlign: "left",
-                              cursor: activeTextId === t.id ? "text" : "grab",
-                              userSelect: "text",
-                              outline:
-                                activeTextId === t.id
-                                  ? "1px dashed teal"
-                                  : "none",
-                              background:
-                                activeTextId === t.id
-                                  ? "rgba(0,0,0,0.3)"
-                                  : "transparent",
-                              minWidth: "50px",
-                              zIndex: 50,
-                              whiteSpace: "pre-wrap",
-                            }}
-                            className="editable-text"
-                          >
-                            {t.text}
-                          </div>
-                        ))}
+                      {textElements.map((t) => (
+                        <div
+                          ref={(el) => (textRefs.current[t.id] = el)}
+                          key={t.id}
+                          data-text-id={t.id}
+                          contentEditable={activeTextId === t.id}
+                          suppressContentEditableWarning
+                          spellCheck={false}
+                          dir="ltr"
+                          onInput={(e) =>
+                            handleTextChange(t.id, e.currentTarget.textContent)
+                          }
+                          onFocus={(e) => {
+                            placeCaretAtEnd(e.currentTarget);
+                            setActiveTextId(t.id);
+                          }}
+                          onMouseDown={(e) => {
+                            e.stopPropagation();
+                            if (e.target === e.currentTarget)
+                              handleMouseDown(e, t.id);
+                          }}
+                          style={{
+                            position: "absolute",
+                            top: `${t.y}px`,
+                            left: `${t.x}px`,
+                            fontSize: t.fontSize,
+                            fontWeight: t.fontWeight,
+                            color: "white",
+                            padding: "4px 8px",
+                            borderRadius: "4px",
+                            direction: "ltr",
+                            textAlign: "left",
+                            cursor: activeTextId === t.id ? "text" : "grab",
+                            userSelect: "text",
+                            outline:
+                              activeTextId === t.id
+                                ? "1px dashed teal"
+                                : "none",
+                            background:
+                              activeTextId === t.id
+                                ? "rgba(0,0,0,0.3)"
+                                : "transparent",
+                            minWidth: "50px",
+                            zIndex: 50,
+                            whiteSpace: "pre-wrap",
+                          }}
+                          className="editable-text"
+                        >
+                          {t.text}
+                        </div>
+                      ))}
                     </>
                   </div>
 

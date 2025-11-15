@@ -11,3 +11,22 @@
   scrollbar-width: thin;
   scrollbar-color: #a3a3a3 transparent;
 }
+
+.editable-text:focus {
+  outline: 1px dotted #23b5b5;
+  background: rgba(35, 181, 181, 0.15);
+  border-radius: 6px;
+}
+
+.editable-text::selection {
+  background: rgba(35, 181, 181, 0.3);
+}
+/* .editable-text {
+  pointer-events: auto !important;
+  caret-color: white;
+} */
+.editable-text {
+  direction: ltr !important;
+  unicode-bidi: plaintext !important;
+  user-select: text !important;
+}
