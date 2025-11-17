@@ -338,24 +338,6 @@ export default function BackgroundRemover() {
     setRedoStack([]); // clear redo after new action
   };
 
-  // Undo the last change
-  const handleUndo = () => {
-    if (undoStack.length === 0) return;
-
-    const last = undoStack[undoStack.length - 1];
-
-    // move current state to redo
-    setRedoStack((prev) => [
-      ...prev,
-      {
-        image: canvasRef.current.toDataURL("image/png"),
-        text: JSON.parse(JSON.stringify(textElements)),
-      },
-    ]);
-
-    restoreCanvasFromState(last);
-    setUndoStack((prev) => prev.slice(0, -1));
-  };
   const restoreCanvasFromState = (state) => {
     const { image, text } = state;
 
@@ -377,14 +359,44 @@ export default function BackgroundRemover() {
     };
   };
 
+  // Undo the last change
+  const handleUndo = () => {
+    if (undoStack.length === 0) return;
+
+    const last = undoStack[undoStack.length - 1];
+
+    // move current state to redo
+    setRedoStack((prev) => [
+      ...prev,
+      {
+        image: canvasRef.current.toDataURL("image/png"),
+        text: JSON.parse(JSON.stringify(textElements)),
+      },
+    ]);
+
+    restoreCanvasFromState(last);
+    setUndoStack((prev) => prev.slice(0, -1));
+  };
   // Redo the previously undone change
   const handleRedo = () => {
     if (redoStack.length === 0) return;
 
     const nextState = redoStack[redoStack.length - 1];
+
+    // Save current state (same format as undo uses)
+    setUndoStack((prev) => [
+      ...prev,
+      {
+        image: canvasRef.current.toDataURL("image/png"),
+        text: JSON.parse(JSON.stringify(textElements)),
+      },
+    ]);
+
+    // Remove from redo stack
     setRedoStack((prev) => prev.slice(0, -1));
-    setUndoStack((prev) => [...prev, canvasRef.current.toDataURL("image/png")]);
-    restoreCanvasFromDataURL(nextState);
+
+    // Restore full state (image + text)
+    restoreCanvasFromState(nextState);
   };
 
   // Helper to restore canvas from saved DataURL
@@ -579,12 +591,6 @@ export default function BackgroundRemover() {
       }
     }, 50);
   };
-
-  // const handleTextChange = (id, newText) => {
-  //   setTextElements((prev) =>
-  //     prev.map((t) => (t.id === id ? { ...t, text: newText } : t))
-  //   );
-  // };
 
   const handleTextChange = (id, newText) => {
     const el = textRefs.current[id];
