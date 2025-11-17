@@ -399,20 +399,6 @@ export default function BackgroundRemover() {
     restoreCanvasFromState(nextState);
   };
 
-  // Helper to restore canvas from saved DataURL
-  const restoreCanvasFromDataURL = (dataUrl) => {
-    const canvas = canvasRef.current;
-    const ctx = ctxRef.current;
-    const img = new Image();
-    img.src = dataUrl;
-    img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0);
-    };
-  };
-
   // promise loader for images (useful to avoid race conditions)
   const loadImage = (src) =>
     new Promise((resolve, reject) => {
@@ -674,23 +660,6 @@ export default function BackgroundRemover() {
 
       ctx.fillText(t.text, t.x * scaleX, t.y * scaleY);
     });
-  };
-
-  const handleDragEnd = (id, e) => {
-    const rect = e.target.getBoundingClientRect();
-    const canvasRect = canvasRef.current.getBoundingClientRect();
-
-    setTextElements((prev) =>
-      prev.map((t) =>
-        t.id === id
-          ? {
-              ...t,
-              x: rect.left - canvasRect.left,
-              y: rect.top - canvasRect.top,
-            }
-          : t
-      )
-    );
   };
 
   const handleMouseDown = (e, id) => {
