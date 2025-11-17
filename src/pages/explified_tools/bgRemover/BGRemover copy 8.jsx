@@ -117,8 +117,9 @@ export default function BackgroundRemover() {
       };
     };
 
-    const startDrawing = (e) => {
-      saveCanvasState(); // save before editing
+    const startDrawing = async (e) => {
+      await saveCanvasState();
+      // save before editing
       drawing = true;
       draw(e);
     };
@@ -295,8 +296,8 @@ export default function BackgroundRemover() {
     }
   };
 
-  const applyImageBackground = (imgUrl) => {
-    saveCanvasState();
+  const applyImageBackground = async (imgUrl) => {
+    await saveCanvasState();
     setSelectedBackground(imgUrl); // ✅ store selection
     redrawCanvas(imgUrl).catch((e) => console.error(e));
     const canvas = canvasRef.current;
@@ -310,8 +311,8 @@ export default function BackgroundRemover() {
     };
   };
 
-  const applyColorBackground = (color) => {
-    saveCanvasState();
+  const applyColorBackground = async (color) => {
+    await saveCanvasState();
     setSelectedBackground(color); // ✅ store selection
     redrawCanvas(color).catch((e) => console.error(e));
     const canvas = canvasRef.current;
@@ -325,66 +326,105 @@ export default function BackgroundRemover() {
   };
 
   // Save current canvas state to undo stack
-  const saveCanvasState = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  // const saveCanvasState = () => {
+  //   const canvas = canvasRef.current;
+  //   if (!canvas) return;
 
-    const snapshot = {
-      image: canvas.toDataURL("image/png"),
-      text: JSON.parse(JSON.stringify(textElements)), // deep clone
+  //   const snapshot = {
+  //     image: canvas.toDataURL("image/png"),
+  //     text: JSON.parse(JSON.stringify(textElements)), // deep clone
+  //   };
+  //   // const dataUrl = canvas.toDataURL("image/png");
+  //   setUndoStack((prev) => [...prev, snapshot]);
+  //   setRedoStack([]); // clear redo after new action
+  // };
+
+  const snapshotCurrentState = async () => {
+    const canvas = canvasRef.current;
+    const ctx = ctxRef.current;
+
+    if (!canvas || !ctx) return null;
+
+    // redraw canvas to ensure correct background + blur
+    await redrawCanvas();
+
+    const imageData = canvas.toDataURL("image/png");
+
+    return {
+      imageData,
+      text: JSON.parse(JSON.stringify(textElements)),
+      selectedBackground,
+      blurEnabled,
+      blurAmount,
     };
-    // const dataUrl = canvas.toDataURL("image/png");
+  };
+
+  const saveCanvasState = async () => {
+    const snapshot = await snapshotCurrentState();
+    if (!snapshot) return;
     setUndoStack((prev) => [...prev, snapshot]);
-    setRedoStack([]); // clear redo after new action
+    setRedoStack([]); // clear redo on new change
   };
 
   // Undo the last change
-  const handleUndo = () => {
+  const handleUndo = async () => {
     if (undoStack.length === 0) return;
 
-    const last = undoStack[undoStack.length - 1];
+    const lastState = undoStack[undoStack.length - 1];
 
-    // move current state to redo
-    setRedoStack((prev) => [
-      ...prev,
-      {
-        image: canvasRef.current.toDataURL("image/png"),
-        text: JSON.parse(JSON.stringify(textElements)),
-      },
-    ]);
+    // Move current state to redo
+    const currentSnapshot = await snapshotCurrentState();
+    setRedoStack((prev) => [...prev, currentSnapshot]);
 
-    restoreCanvasFromState(last);
+    // Remove from undo
     setUndoStack((prev) => prev.slice(0, -1));
+
+    // Restore
+    await restoreCanvasFromState(lastState);
   };
-  const restoreCanvasFromState = (state) => {
-    const { image, text } = state;
 
-    // restore text
-    setTextElements(text);
+  const restoreCanvasFromState = async (state) => {
+    if (!state) return;
 
-    // restore canvas image
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
+    const ctx = ctxRef.current;
 
+    // restore editor UI state
+    setTextElements(state.text || []);
+    setSelectedBackground(state.selectedBackground || null);
+    setBlurEnabled(state.blurEnabled || false);
+    setBlurAmount(state.blurAmount || 0);
+
+    // restore canvas pixels
     const img = new Image();
-    img.src = image;
+    img.src = state.imageData;
 
-    img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0);
-    };
+    await new Promise((resolve) => {
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+        resolve();
+      };
+    });
   };
 
   // Redo the previously undone change
-  const handleRedo = () => {
+  const handleRedo = async () => {
     if (redoStack.length === 0) return;
 
     const nextState = redoStack[redoStack.length - 1];
+
+    // Move current state to undo
+    const currentSnapshot = await snapshotCurrentState();
+    setUndoStack((prev) => [...prev, currentSnapshot]);
+
+    // Remove from redo
     setRedoStack((prev) => prev.slice(0, -1));
-    setUndoStack((prev) => [...prev, canvasRef.current.toDataURL("image/png")]);
-    restoreCanvasFromDataURL(nextState);
+
+    // Restore
+    await restoreCanvasFromState(nextState);
   };
 
   // Helper to restore canvas from saved DataURL
@@ -457,8 +497,8 @@ export default function BackgroundRemover() {
     }
   };
 
-  const applyEffectsToCanvas = () => {
-    saveCanvasState();
+  const applyEffectsToCanvas = async () => {
+    await saveCanvasState();
     const canvas = canvasRef.current;
     const ctx = ctxRef.current;
     if (!canvas || !ctx) return;
@@ -513,19 +553,62 @@ export default function BackgroundRemover() {
     const canvas = canvasRef.current;
     const ctx = ctxRef.current;
     if (!canvas || !ctx) return;
-    setHideTextDuringExport(true);
-    // Redraw the image first (if needed)
-    await redrawCanvas(); // Ensure the base image is there (might be async, so better to directly redraw here or ensure ready)
 
-    // Draw the text elements on the canvas
+    setHideTextDuringExport(true);
+
+    // 1️⃣ If blur is ON → we must draw blur effect here
+    if (blurEnabled) {
+      await applyBlurForExport(ctx);
+    } else {
+      await redrawCanvas(); // normal redraw (no blur)
+    }
+
+    // 2️⃣ Draw text on top
     drawTextElements(ctx);
+
+    // 3️⃣ Download
     await new Promise((res) => setTimeout(res, 50));
     const link = document.createElement("a");
     link.download = "cutout.png";
     link.href = canvas.toDataURL("image/png");
     link.click();
+
     setHideTextDuringExport(false);
+
+    // 4️⃣ Restore preview (without drawn-on-canvas text)
     redrawCanvas();
+  };
+
+  const applyBlurForExport = async (ctx) => {
+    const canvas = canvasRef.current;
+    if (!canvas || !processedImage) return;
+
+    const [cutoutImg, bgImg] = await Promise.all([
+      loadImage(processedImage),
+      selectedBackground && !selectedBackground.startsWith("#")
+        ? loadImage(selectedBackground)
+        : Promise.resolve(null),
+    ]);
+
+    canvas.width = cutoutImg.width;
+    canvas.height = cutoutImg.height;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw background WITH blur
+    if (selectedBackground) {
+      if (selectedBackground.startsWith("#")) {
+        ctx.fillStyle = selectedBackground;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      } else if (bgImg) {
+        ctx.filter = blurEnabled ? `blur(${blurAmount}px)` : "none";
+        ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+        ctx.filter = "none";
+      }
+    }
+
+    // Draw cutout on top
+    ctx.drawImage(cutoutImg, 0, 0, canvas.width, canvas.height);
   };
 
   const reset = () => {
@@ -687,7 +770,9 @@ export default function BackgroundRemover() {
     );
   };
 
-  const handleMouseDown = (e, id) => {
+  const handleMouseDown = async (e, id) => {
+    await saveCanvasState();
+
     setActiveTextId(id); // also enter edit mode when clicked
 
     const element = textElements.find((t) => t.id === id);
@@ -1135,9 +1220,10 @@ export default function BackgroundRemover() {
                           type="checkbox"
                           className="sr-only peer"
                           checked={blurEnabled}
-                          onChange={() => {
+                          onChange={async () => {
+                            await saveCanvasState();
                             setBlurEnabled(!blurEnabled);
-                            setTimeout(applyEffectsToCanvas, 20);
+                            applyEffectsToCanvas();
                           }}
                         />
                         <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-teal-500 transition"></div>
@@ -1154,7 +1240,12 @@ export default function BackgroundRemover() {
                           min="0"
                           max="25"
                           value={blurAmount}
+                          onMouseUp={async () => {
+                            // Snapshot AFTER user finishes dragging
+                            await saveCanvasState();
+                          }}
                           onChange={(e) => {
+                            // await saveCanvasState();
                             setBlurAmount(Number(e.target.value));
                             applyEffectsToCanvas();
                           }}
@@ -1252,7 +1343,7 @@ export default function BackgroundRemover() {
                       />
                       {/* ✅ Render editable text elements */}
                       {!hideTextDuringExport &&
-                        textElements.map((t) => (
+                        textElements?.map((t) => (
                           <div
                             ref={(el) => (textRefs.current[t.id] = el)}
                             key={t.id}
@@ -1261,8 +1352,8 @@ export default function BackgroundRemover() {
                             suppressContentEditableWarning
                             spellCheck={false}
                             dir="ltr"
-                            onInput={(e) => {
-                              saveCanvasState(); // snapshot before writing
+                            onInput={async (e) => {
+                              await saveCanvasState(); // snapshot before writing
                               handleTextChange(
                                 t.id,
                                 e.currentTarget.textContent
@@ -1272,10 +1363,12 @@ export default function BackgroundRemover() {
                               placeCaretAtEnd(e.currentTarget);
                               setActiveTextId(t.id);
                             }}
-                            onMouseDown={(e) => {
+                            onMouseDown={async (e) => {
                               e.stopPropagation();
-                              if (e.target === e.currentTarget)
+                              if (e.target === e.currentTarget) {
+                                await saveCanvasState();
                                 handleMouseDown(e, t.id);
+                              }
                             }}
                             style={{
                               position: "absolute",
