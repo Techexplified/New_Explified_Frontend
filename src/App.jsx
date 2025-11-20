@@ -150,7 +150,7 @@ import AcmecorpInventory from "./client_component/AcmecorpInventory.jsx";
 import AcmecorpAdmin from "./client_component/AcmecorpAdmin.jsx";
 import NewsPage from "./components1/NewsPage.jsx";
 import ChatPanel from "./expli/ChatPanel.jsx";
-import AIChatApp from "./ai-fiesta/AIChatGrid.jsx";
+// import AIChatApp from "./ai-fiesta/AIChatGrid.jsx";
 import AllApps from "./pages/about_pages/AllApps.jsx";
 import BackgroundRemover from "./pages/explified_tools/bgRemover/BGRemover.jsx";
 import AutoDeckPage from "./slideShowAi/AutoDeckPage.jsx";
@@ -386,10 +386,10 @@ function App() {
           <Route path="/socials/:id/lastPosts" element={<LastPosts />} />
           <Route path="/socials/:id/:id1" element={<ScheduleDraftPosts />} />
           <Route path="/socials/newPost" element={<NewPost />} />
-          <Route
+          {/* <Route
             path="/presentation"
             element={<PresentationLandingPage />}
-          ></Route>
+          ></Route> */}
           {/* <Route
               path="/presentation/create"
               element={<CreatePresentation />} 
@@ -440,7 +440,7 @@ function App() {
             element={<DeepSearch />}
           />
 
-          <Route path="/presentations" element={<AutoDeckPage />}></Route>
+          <Route path="/presentation" element={<AutoDeckPage />}></Route>
           <Route path="/decktitle" element={<DeckTitle />} />
           <Route path="/presentation/create" element={<CreatePresentation />} />
           <Route path="/zapier" element={<AutomatedVideoGenerator />} />
