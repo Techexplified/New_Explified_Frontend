@@ -171,33 +171,32 @@ function AISubtitler() {
 
   // Upload file to backend
   async function uploadFileToBackend(file, onProgress) {
-  const UPLOAD_URL = backendOrigin + "/upload-audio";
-  const form = new FormData();
-  form.append("file", file);
+    const UPLOAD_URL = backendOrigin + "/upload-audio";
+    const form = new FormData();
+    form.append("file", file);
 
-  onProgress?.({
-    stage: "uploading",
-    message: "Uploading file...",
-    progress: 20,
-  });
+    onProgress?.({
+      stage: "uploading",
+      message: "Uploading file...",
+      progress: 20,
+    });
 
-  const res = await fetch(UPLOAD_URL, {
-    method: "POST",
-    body: form,
-  });
+    const res = await fetch(UPLOAD_URL, {
+      method: "POST",
+      body: form,
+    });
 
-  if (!res.ok) {
-    const txt = await res.text();
-    throw new Error(`Upload failed ${res.status}: ${txt}`);
+    if (!res.ok) {
+      const txt = await res.text();
+      throw new Error(`Upload failed ${res.status}: ${txt}`);
+    }
+
+    const json = await res.json();
+    console.log("📥 Backend response:", json);
+    console.log("📥 transcriptId:", json.transcriptId);
+
+    return json; // ✅ This now includes transcriptId
   }
-
-  const json = await res.json();
-  console.log("📥 Backend response:", json);
-  console.log("📥 transcriptId:", json.transcriptId);
-  
-  return json; // ✅ This now includes transcriptId
-}
-
 
   // Upload URL to backend (downloads + transcribes)
   async function uploadUrlToBackend(url) {
@@ -288,23 +287,24 @@ function AISubtitler() {
           const absoluteVtt = normalizeVttUrl(vttUrl);
 
           navigate("/ai-subtitler-ui", {
-  state: {
-    videoUrl,
-    videoMetadata,
-    fileName: selectedFileName || "Video from device",
-    sourceType: "file",
-    subtitles: segments || [],
-    vttUrl: absoluteVtt,
-    transcriptionText: text || "",
-    originalUrl: null,
-    transcriptId: result?.transcriptId || result?.transcript_id || null,
-    detectedLanguage:
-      result?.detectedLanguage ||
-      result?.detected_language ||
-      result?.language ||
-      null,
-  },
-});
+            state: {
+              videoUrl,
+              videoMetadata,
+              fileName: selectedFileName || "Video from device",
+              sourceType: "file",
+              subtitles: segments || [],
+              vttUrl: absoluteVtt,
+              transcriptionText: text || "",
+              originalUrl: null,
+              transcriptId:
+                result?.transcriptId || result?.transcript_id || null,
+              detectedLanguage:
+                result?.detectedLanguage ||
+                result?.detected_language ||
+                result?.language ||
+                null,
+            },
+          });
 
           return;
         } catch (err) {
@@ -353,23 +353,24 @@ function AISubtitler() {
 
           setIsExtracting(false);
           navigate("/ai-subtitler-ui", {
-  state: {
-    videoUrl,
-    videoMetadata,
-    fileName: "Video from URL",
-    sourceType: "url",
-    subtitles: segments || [],
-    vttUrl: absoluteVtt,
-    transcriptionText: text || "",
-    originalUrl: pasteToUse,
-    transcriptId: result?.transcriptId || result?.transcript_id || null,
-    detectedLanguage:
-      result?.detectedLanguage ||
-      result?.detected_language ||
-      result?.language ||
-      null,
-  },
-});
+            state: {
+              videoUrl,
+              videoMetadata,
+              fileName: "Video from URL",
+              sourceType: "url",
+              subtitles: segments || [],
+              vttUrl: absoluteVtt,
+              transcriptionText: text || "",
+              originalUrl: pasteToUse,
+              transcriptId:
+                result?.transcriptId || result?.transcript_id || null,
+              detectedLanguage:
+                result?.detectedLanguage ||
+                result?.detected_language ||
+                result?.language ||
+                null,
+            },
+          });
 
           return;
         } catch (err) {
@@ -645,13 +646,6 @@ function AISubtitler() {
           100% { transform: rotate(360deg); }
         }
       `}</style>
-
-      <div style={sx.explifiedBadge} aria-hidden>
-        <div style={sx.explifiedIcon}>E</div>
-        <div style={{ color: "#fff", fontWeight: 800, fontSize: 40 }}>
-          Explified
-        </div>
-      </div>
 
       <div style={sx.titleWrap}>
         <div className="flex flex-col items-center justify-center mb-8">
@@ -1193,16 +1187,15 @@ function AiSubtitlerPlayer() {
       if (prev) prev.remove();
 
       const trackEl = document.createElement("track");
-trackEl.kind = "subtitles";
-trackEl.label = "AI Subtitles";
-// use detected language from state, fallback to 'en' (defensive)
-const srclang = state.detectedLanguage || state.detected_language || "en";
-trackEl.srclang = srclang;
-trackEl.setAttribute("data-generated-vtt", "true");
-trackEl.default = false;
-trackEl.src = vttUrl;
-videoRef.current.appendChild(trackEl);
-
+      trackEl.kind = "subtitles";
+      trackEl.label = "AI Subtitles";
+      // use detected language from state, fallback to 'en' (defensive)
+      const srclang = state.detectedLanguage || state.detected_language || "en";
+      trackEl.srclang = srclang;
+      trackEl.setAttribute("data-generated-vtt", "true");
+      trackEl.default = false;
+      trackEl.src = vttUrl;
+      videoRef.current.appendChild(trackEl);
 
       trackEl.addEventListener("load", () => {
         try {
