@@ -33,7 +33,7 @@
     "gapi-script": "^1.2.0",
     "html-to-image": "^1.11.13",
     "json5": "^2.2.3",
-    "jspdf": "^3.0.2",
+    "jspdf": "^3.0.3",
     "jwt-decode": "^4.0.0",
     "lexical": "^0.34.0",
     "lucide-react": "^0.503.0",
