@@ -52,7 +52,7 @@ import {
 } from "react-icons/fa";
 import { AiOutlineFileImage } from "react-icons/ai";
 import { MdEdit } from "react-icons/md";
-import MainSidebar from "../MAinSidebar";
+import MainSidebar from "../MainSidebar";
 
 // Sidebar menu config
 const menuItems = [

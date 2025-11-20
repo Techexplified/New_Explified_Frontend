@@ -36,7 +36,7 @@ import {
 
 import UserModal from "./UserModal";
 import { useSelector } from "react-redux";
-import MainSidebar from "./MAinSidebar";
+import MainSidebar from "./MainSidebar";
 import ProfileSettingsModal from "./subLayoutComponents/ProfileSettingsModal";
 
 // ---------------- FILTER ITEMS ----------------

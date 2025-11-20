@@ -67,7 +67,8 @@ import Favourites from "./components1/Favourites";
 import ScheduleDraftPosts from "./components1/ScheduleDraftPosts";
 import NewPost from "./components1/NewPost";
 import AISubtitler from "./pages/explified_tools/subtitling/AISubtitler";
-import SubtitleToolUI from "./pages/explified_tools/subtitling/SubtitleToolUI";
+import AiSubtitlerPage from "./pages/explified_tools/subtitling/SubtitleToolUI";
+// import SubtitleEditor from "./pages/explified_tools/subtitling/SubtitleToolUI";
 import AITools from "./components1/AITools";
 import History from "./components1/History";
 import WorkflowDashboard from "./components1/Workflows";
@@ -430,7 +431,7 @@ function App() {
           <Route path="/socials/newPost" element={<NewPost />} />
           <Route path="/youtube-summarizer" element={<YoutubeSummarizer />} />
           <Route path="/ai-subtitler" element={<AISubtitler />} />
-          <Route path="/ai-subtitler-ui" element={<SubtitleToolUI />} />
+          <Route path="/ai-subtitler-ui" element={< AiSubtitlerPage />} />
           <Route
             path="/youtube-summarizer/deep-search"
             element={<DeepSearch />}

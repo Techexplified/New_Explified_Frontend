@@ -16,7 +16,6 @@ import {
 const backendOrigin = (
   import.meta.env.REACT_APP_API_ORIGIN || "http://localhost:4000"
 ).replace(/\/$/, "");
-import Expli_logo from "../../../../public/images/Explified_logo.png"
 
 function normalizeVttUrl(vttUrl) {
   if (!vttUrl) return null;
@@ -648,7 +647,7 @@ function AISubtitler() {
       `}</style>
 
       <div style={sx.explifiedBadge} aria-hidden>
-        <div style={sx.explifiedIcon}>{Expli_logo}</div>
+        <div style={sx.explifiedIcon}>E</div>
         <div style={{ color: "#fff", fontWeight: 800, fontSize: 40 }}>
           Explified
         </div>
