@@ -153,6 +153,8 @@ import ChatPanel from "./expli/ChatPanel.jsx";
 import AIChatApp from "./ai-fiesta/AIChatGrid.jsx";
 import AllApps from "./pages/about_pages/AllApps.jsx";
 import BackgroundRemover from "./pages/explified_tools/bgRemover/BGRemover.jsx";
+import AutoDeckPage from "./slideShowAi/AutoDeckPage.jsx";
+import DeckTitle from "./slideShowAi/DeckTitle.jsx";
 function App() {
   usePageTracking();
   const navigate = useNavigate();
@@ -399,6 +401,7 @@ function App() {
             path="/image-styler/backChanger"
             element={<BackgroundChanger />}
           />
+
           <Route path="image-to-video-ai" element={<ImageToVideo />} />
           <Route path="/image-styler/merger" element={<ImageMerger />} />
           <Route path="/image-styler/expander" element={<ImageExpander />} />
@@ -436,10 +439,9 @@ function App() {
             path="/youtube-summarizer/deep-search"
             element={<DeepSearch />}
           />
-          <Route
-            path="/presentation"
-            element={<PresentationLandingPage />}
-          ></Route>
+
+          <Route path="/presentations" element={<AutoDeckPage />}></Route>
+          <Route path="/decktitle" element={<DeckTitle />} />
           <Route path="/presentation/create" element={<CreatePresentation />} />
           <Route path="/zapier" element={<AutomatedVideoGenerator />} />
           <Route path="/*" element={<FlowstateLogin />} />
