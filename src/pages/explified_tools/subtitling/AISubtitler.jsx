@@ -171,7 +171,7 @@ function AISubtitler() {
 
   // Upload file to backend
   async function uploadFileToBackend(file, onProgress) {
-    const UPLOAD_URL = backendOrigin + "/upload-audio";
+    const UPLOAD_URL = backendOrigin + "/api/subtitler/upload-audio";
     const form = new FormData();
     form.append("file", file);
 
@@ -200,7 +200,7 @@ function AISubtitler() {
 
   // Upload URL to backend (downloads + transcribes)
   async function uploadUrlToBackend(url) {
-    const UPLOAD_URL = backendOrigin + "/upload-from-url";
+    const UPLOAD_URL = backendOrigin + "/api/subtitler/upload-from-url";
 
     setExtractingMessage("Downloading video from URL...");
 
