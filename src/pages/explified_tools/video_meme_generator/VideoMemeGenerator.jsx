@@ -5,11 +5,7 @@ import {
   PiClosedCaptioningFill,
   PiClosedCaptioningLight,
 } from "react-icons/pi";
-import Inspiration from "./Inspiration";
 import axiosInstance from "../../../network/axiosInstance";
-import WorkFlowButton from "../../../reusable_components/WorkFlowButton";
-import { Link } from "react-router-dom";
-import SidebarOnHover from "../../../reusable_components/SidebarOnHover";
 const speeds = [
   { label: "5 sec", value: 5 },
   { label: "10 sec", value: 10 },
@@ -52,12 +48,15 @@ export default function AIMemeGenerator() {
     setShowModal(false);
     setIsLoading(true);
     try {
-      const response = await axiosInstance.post("api/aiMemeGenerator", {
-        topic: inputText,
-        template: selectedTone,
-      });
+      const response = await axiosInstance.post(
+        "http://localhost:8000/api/aiMemeGenerator",
+        {
+          topic: inputText,
+          template: selectedTone,
+        }
+      );
 
-      console.log(response);
+      console.log("uid-client", response?.data?.content);
       setUid(response?.data?.content);
     } catch (error) {
       console.error(error);
@@ -66,10 +65,11 @@ export default function AIMemeGenerator() {
     }
   };
   const getMeme = async () => {
+    console.log("getMeme");
     setIsLoading(true);
     try {
       const response = await axiosInstance.post(
-        "api/aiMemeGenerator/get-meme",
+        "http://localhost:8000/api/aiMemeGenerator/get-meme",
         {
           uid,
         }
@@ -471,7 +471,8 @@ export default function AIMemeGenerator() {
           <div className="flex flex-col items-center gap-6 mt-6">
             <button
               onClick={getMeme}
-              className="bg-[#23b5b5] hover:bg-[#1da3a3] text-white font-semibold px-6 py-2 rounded-full shadow-md transition-all duration-200"
+              disabled={!uid}
+              className="bg-[#23b5b5] hover:bg-[#1da3a3] disabled:opacity-50 text-white font-semibold px-6 py-2 rounded-full shadow-md transition-all duration-200"
             >
               Get GIF
             </button>
@@ -481,7 +482,7 @@ export default function AIMemeGenerator() {
                 <img
                   src={url}
                   alt="gif"
-                  className="h-48 w-48 object-cover rounded-lg border border-gray-300 shadow"
+                  className="h-48 w-72 object-cover rounded-lg border border-gray-300 shadow"
                 />
                 <a href={url} download="my-gif.gif">
                   <button className="bg-[#23b5b5] hover:bg-[#1da3a3] text-white font-medium px-4 py-2 rounded-full shadow transition duration-200">

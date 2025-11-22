@@ -56,9 +56,6 @@ export default function BackgroundRemover() {
   const textRefs = useRef({});
   const [hideTextDuringExport, setHideTextDuringExport] = useState(false);
 
-  const isSidePanelOpen =
-    isCutoutMode || isBackgroundMode || isEffectsMode || isDesignMode;
-
   useEffect(() => {
     if (!processedImage) return;
 
@@ -130,7 +127,6 @@ export default function BackgroundRemover() {
       drawing = false;
       ctx.beginPath();
       previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-      commitCanvasToProcessedImage();
     };
 
     const draw = (e) => {
@@ -736,13 +732,6 @@ export default function BackgroundRemover() {
     setTextElements((prev) =>
       prev.map((t) => (t.id === id ? { ...t, fontSize: `${newSize}px` } : t))
     );
-  };
-
-  const commitCanvasToProcessedImage = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const url = canvas.toDataURL("image/png");
-    setProcessedImage(url);
   };
 
   return (
