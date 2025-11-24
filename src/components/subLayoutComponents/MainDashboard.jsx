@@ -312,12 +312,19 @@ const allTools = [
     color: "from-teal-500 to-teal-700",
   },
   {
-    title: "Video Meme Generator AI",
+    title: "Text To Meme Generator AI",
     description: "Turn any clip into a share-worthy meme in seconds with AI.",
     icon: <FaLaughSquint />,
-    route: "/video-meme-generator",
+    route: "/text-to-meme",
     color: "from-teal-500 to-teal-700",
   },
+  // {
+  //   title: "Video Meme Generator AI",
+  //   description: "Turn any clip into a share-worthy meme in seconds with AI.",
+  //   icon: <FaLaughSquint />,
+  //   route: "/video-meme-generator",
+  //   color: "from-teal-500 to-teal-700",
+  // },
   {
     title: "Integrations",
     description: "Instantly share across your socials.",

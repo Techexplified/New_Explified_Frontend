@@ -155,6 +155,7 @@ import AllApps from "./pages/about_pages/AllApps.jsx";
 import BackgroundRemover from "./pages/explified_tools/bgRemover/BGRemover.jsx";
 import AutoDeckPage from "./slideShowAi/AutoDeckPage.jsx";
 import DeckTitle from "./slideShowAi/DeckTitle.jsx";
+import TextToMeme from "./pages/explified_tools/text-to-meme/TextToMeme.jsx";
 function App() {
   usePageTracking();
   const navigate = useNavigate();
@@ -354,6 +355,7 @@ function App() {
           <Route path="/Meme" element={<Meme />} />
           <Route path="/ai-gif-generator" element={<GIFGenerator />} />
           <Route path="/video-meme-generator" element={<AIMemeGenerator />} />
+          <Route path="/text-to-meme" element={<TextToMeme />} />
           <Route path="/history" element={<History />}></Route>
           <Route path="/favorites" element={<Favourites />}></Route>
           <Route path="/workflows" element={<MainWorkflowPage />} />
