@@ -10,11 +10,11 @@ import {
   FaTools,
 } from "react-icons/fa";
 import ExpliIntegration from "./ExpliIntegration";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SettingsModal from "./SettingsModal";
 import { ExpliLogo } from "../assets";
 import SettingsPortal from "./SettingsPortal";
-import { CircleUserRound, LayoutDashboard } from "lucide-react";
+import { ChevronLeft, CircleUserRound, LayoutDashboard } from "lucide-react";
 import ProfileSettingsModal from "../components/subLayoutComponents/ProfileSettingsModal";
 import { useExpli } from "../context/ExpliContext";
 
@@ -196,6 +196,13 @@ export default function ExpliSidebar({
               <CircleUserRound className="w-5 h-5" />
               <span className="text-[11px] font-medium">Profile</span>
             </button>
+
+            <div
+              onClick={() => navigate("/")}
+              className="p-2 mt-2 cursor-pointer  flex items-center justify-center"
+            >
+              <ChevronLeft size={30} />
+            </div>
           </div>
         </div>
       </aside>

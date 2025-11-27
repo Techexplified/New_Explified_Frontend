@@ -1,4 +1,5 @@
 import {
+  ChevronLeft,
   CircleUserRound,
   Layers,
   LayoutDashboard,
@@ -35,14 +36,9 @@ export default function MainSidebar({ setIsProfileSettingsOpen }) {
   const navigate = useNavigate();
 
   return (
-    <div className="fixed top-0 left-0 h-full bg-black text-white border-r border-gray-800 shadow-inner flex flex-col justify-between w-16 px-2 py-4 z-50">
+    <div className="fixed top-0 left-0 h-full bg-black text-white border-r border-gray-800 shadow-inner flex flex-col justify-between w-16 px-2 py-2 z-50">
       {/* Navigation */}
       <nav className="flex flex-col items-center gap-4 mt-2">
-        <Link to={"https://explified.com/"}>
-          <div className="p-2 mb-4 border-1 border-gray-400 rounded-full w-10 h-10 flex items-center justify-center">
-            <FaArrowLeftLong />
-          </div>
-        </Link>
         {menuItems.map(({ path, label, icon }) => (
           <NavLink
             key={path}
@@ -70,6 +66,12 @@ export default function MainSidebar({ setIsProfileSettingsOpen }) {
           <CircleUserRound className="w-5 h-5" />
           <span className="text-[11px] font-medium">Profile</span>
         </button>
+
+        <Link to={"https://explified.com/"}>
+          <div className="p-2 mt-4flex items-center justify-center">
+            <ChevronLeft size={30} />
+          </div>
+        </Link>
       </div>
     </div>
   );
