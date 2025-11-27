@@ -39,7 +39,7 @@ export default function MainSidebar({ setIsProfileSettingsOpen }) {
       {/* Navigation */}
       <nav className="flex flex-col items-center gap-4 mt-2">
         <Link to={"https://explified.com/"}>
-          <div className="p-2 border-1 border-gray-400 rounded-full w-10 h-10 flex items-center justify-center">
+          <div className="p-2 mb-4 border-1 border-gray-400 rounded-full w-10 h-10 flex items-center justify-center">
             <FaArrowLeftLong />
           </div>
         </Link>
