@@ -5,7 +5,8 @@ import {
   PlugZap,
   Workflow,
 } from "lucide-react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { FaArrowLeftLong } from "react-icons/fa6";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 
 const menuItems = [
   {
@@ -37,6 +38,11 @@ export default function MainSidebar({ setIsProfileSettingsOpen }) {
     <div className="fixed top-0 left-0 h-full bg-black text-white border-r border-gray-800 shadow-inner flex flex-col justify-between w-16 px-2 py-4 z-50">
       {/* Navigation */}
       <nav className="flex flex-col items-center gap-4 mt-2">
+        <Link to={"https://explified.com/"}>
+          <div className="p-2 border-1 border-gray-400 rounded-full w-10 h-10 flex items-center justify-center">
+            <FaArrowLeftLong />
+          </div>
+        </Link>
         {menuItems.map(({ path, label, icon }) => (
           <NavLink
             key={path}

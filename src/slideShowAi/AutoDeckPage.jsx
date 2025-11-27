@@ -64,9 +64,7 @@ async function fetchImageDataForSlide(query) {
   async function callServer(q) {
     try {
       const resp = await fetch(
-        `${API_BASE_URL}/api/image?query=${encodeURIComponent(
-          q
-        )}&size=1200x800`
+        `${API_BASE_URL}/api/image?query=${encodeURIComponent(q)}&size=1200x800`
       );
       if (!resp.ok) {
         console.warn("Image endpoint failed:", resp.status, resp.statusText);
@@ -180,9 +178,7 @@ const SlidePromptDialog = ({
                 <span className="uppercase tracking-wide text-slate-500">
                   Editing:
                 </span>{" "}
-                <span className="font-medium text-slate-200">
-                  {slideTitle}
-                </span>
+                <span className="font-medium text-slate-200">{slideTitle}</span>
               </div>
             )}
 
@@ -769,8 +765,7 @@ const MockEditor = ({ slides, setSlides, onClose, onExport, setStatus }) => {
    Generation Stepper Overlay
 --------------------------------------------------- */
 const GenerationStepper = ({ currentStepIndex }) => {
-  const progress =
-    (Math.max(0, currentStepIndex) / (STEPS.length - 1)) * 100;
+  const progress = (Math.max(0, currentStepIndex) / (STEPS.length - 1)) * 100;
 
   return (
     <motion.div
@@ -931,8 +926,7 @@ export default function AutoDeckProfessional() {
     {
       label: "Startup Pitch Deck",
       icon: <Zap size={14} />,
-      prompt:
-        "Series A pitch deck for a fintech startup focused on security",
+      prompt: "Series A pitch deck for a fintech startup focused on security",
     },
     {
       label: "Product Roadmap",
@@ -971,19 +965,11 @@ export default function AutoDeckProfessional() {
       // Step 1 – structure
       setCurrentStepIndex(1);
       setStatus("Generating slide structure…");
-      const data = await generateSlidesFromServer(
-        promptText,
-        slideCount,
-        tone
-      );
+      const data = await generateSlidesFromServer(promptText, slideCount, tone);
       const s = data.slides || data;
       let normalizedSlides = s;
       if (!Array.isArray(s) || s.length === 0) {
-        normalizedSlides = localHeuristicGenerate(
-          promptText,
-          slideCount,
-          tone
-        );
+        normalizedSlides = localHeuristicGenerate(promptText, slideCount, tone);
       }
 
       // Step 2 – images
@@ -1051,13 +1037,13 @@ export default function AutoDeckProfessional() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0F17] text-slate-300 flex flex-col items-center justify-center relative overflow-hidden font-sans selection:bg-[#158b8b]/30 selection:text-white">
+    <div className="min-h-screen bg-black text-slate-300 flex flex-col items-center justify-center relative overflow-hidden font-sans selection:bg-[#158b8b]/30 selection:text-white">
       {/* Background */}
-      <div className="absolute inset-0 pointer-events-none">
+      {/* <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-0 right-0 h-[500px] bg-gradient-to-b from-[#158b8b]/10 to-transparent opacity-40" />
         <div className="absolute bottom-0 left-0 right-0 h-[300px] bg-gradient-to-t from-[#0f1521] to-transparent" />
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03]" />
-      </div>
+      </div> */}
 
       {/* Editor Overlay */}
       <AnimatePresence>
@@ -1231,9 +1217,7 @@ export default function AutoDeckProfessional() {
                     disabled:opacity-50 disabled:cursor-not-allowed
                   `}
                   style={{
-                    backgroundColor: !promptText.trim()
-                      ? "#1f2937"
-                      : THEME_HEX,
+                    backgroundColor: !promptText.trim() ? "#1f2937" : THEME_HEX,
                     color: !promptText.trim() ? "#6b7280" : "#ffffff",
                   }}
                 >

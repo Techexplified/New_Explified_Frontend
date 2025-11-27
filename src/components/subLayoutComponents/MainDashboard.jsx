@@ -56,30 +56,6 @@ import { AiOutlineFileImage } from "react-icons/ai";
 import { MdEdit } from "react-icons/md";
 import MainSidebar from "../MAinSidebar";
 
-// Sidebar menu config
-const menuItems = [
-  {
-    path: "/",
-    label: "Dashboard",
-    icon: <LayoutDashboard className="w-5 h-5" />,
-  },
-  {
-    path: "/all-apps",
-    label: "All Apps",
-    icon: <Layers className="w-5 h-5" />,
-  },
-  {
-    path: "/workflows",
-    label: "Workflows",
-    icon: <Workflow className="w-5 h-5" />,
-  },
-  {
-    path: "/integrations",
-    label: "Integrations",
-    icon: <PlugZap className="w-5 h-5" />,
-  },
-];
-
 const sampleWorkflows = [
   {
     id: "GoogleSheets-Gmail",

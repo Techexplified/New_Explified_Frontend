@@ -16,7 +16,7 @@ export default function EnterpriseSectionSimple() {
     {
       id: "plan-starter",
       title: "Expli Starter",
-      price: "$200",
+      price: "$500",
       freq: "mo",
       bullets: [
         "Unlimited projects",
@@ -28,7 +28,7 @@ export default function EnterpriseSectionSimple() {
     {
       id: "plan-pro",
       title: "Expli Pro",
-      price: "$400",
+      price: "$1000",
       freq: "mo",
       bullets: [
         "Everything in Starter",
@@ -50,8 +50,8 @@ export default function EnterpriseSectionSimple() {
           <div>
             <h2 className="text-3xl font-bold text-white mb-1">Enterprise</h2>
             <p className="text-gray-400 mb-6 max-w-2xl">
-              Scale your organization with enterprise-grade features — SSO,
-              SCIM provisioning, dedicated support, and custom integrations.
+              Scale your organization with enterprise-grade features — SSO, SCIM
+              provisioning, dedicated support, and custom integrations.
             </p>
           </div>
         </div>
@@ -74,9 +74,7 @@ export default function EnterpriseSectionSimple() {
                       <div className="text-lg font-semibold text-white">
                         {plan.title}
                       </div>
-                      <div className="text-sm text-gray-400">
-                        bullet points
-                      </div>
+                      <div className="text-sm text-gray-400">bullet points</div>
                     </div>
                   </div>
 
@@ -95,7 +93,11 @@ export default function EnterpriseSectionSimple() {
                     >
                       <motion.span
                         animate={{ rotate: expanded ? 90 : 0 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 20,
+                        }}
                       >
                         <ChevronRight className="w-4 h-4 text-gray-300" />
                       </motion.span>
@@ -127,9 +129,15 @@ export default function EnterpriseSectionSimple() {
                       </div>
 
                       <div className="mt-4 flex flex-wrap gap-3 items-center">
-                        <button className="px-4 py-2 rounded-lg bg-[#23b5b5] text-black font-semibold">
-                          {plan.cta}
-                        </button>
+                        <a
+                          href="https://labs.explified.com/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <button className="px-4 py-2 rounded-lg bg-[#23b5b5] text-black font-semibold">
+                            {plan.cta}
+                          </button>
+                        </a>
                         <a
                           href="#"
                           className="text-sm text-gray-400 hover:text-white inline-flex items-center gap-2"
@@ -147,9 +155,15 @@ export default function EnterpriseSectionSimple() {
 
         {/* Contact Sales primary CTA */}
         <div className="mt-6">
-          <button className="px-5 py-3 rounded-lg border border-[#2b3b3b] text-white bg-transparent hover:bg-[#0e2b2a] transition">
-            Contact Sales
-          </button>
+          <a
+            href="https://labs.explified.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <button className="px-5 py-3 rounded-lg border border-[#2b3b3b] text-white bg-transparent hover:bg-[#0e2b2a] transition">
+              Contact Sales
+            </button>
+          </a>
         </div>
       </div>
     </div>
