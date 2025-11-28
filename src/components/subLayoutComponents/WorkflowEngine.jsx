@@ -1,19 +1,5 @@
 import React from "react";
-import {
-  Plus,
-  GitBranch,
-  Mail,
-  Database,
-  Cloud,
-  FileText,
-  Zap,
-  Users,
-  Calendar,
-  Shield,
-  BarChart3,
-  Settings,
-  Ellipsis,
-} from "lucide-react";
+import { Plus } from "lucide-react";
 import Existing from "./workflows/Existing";
 import Unfinished from "./workflows/Unfinished";
 import Recommended from "./workflows/Recommended";
@@ -79,7 +65,7 @@ const WorkflowEngine = () => {
             </div>
           </div>
           {/* Unfinished and Existing Workflows */}
-          <div className="w-full flex flex-col md:flex-row gap-6">
+          <div className="w-full flex flex-col md:flex-row gap-2">
             <div className="flex-1 bg-gradient-to-br from-cyan-1000 via-black to-cyan-950 bg-opacity-80 border border-cyan-800 rounded-xl p-6 shadow-md">
               <Unfinished />
             </div>

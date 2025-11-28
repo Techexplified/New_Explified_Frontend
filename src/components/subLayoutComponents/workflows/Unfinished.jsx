@@ -125,9 +125,7 @@ const Unfinished = () => {
               <div
                 key={workflow.id}
                 onClick={() => navigate("/locked")}
-                className="w-[220px] group relative bg-gradient-to-br from-black via-cyan-950 to-cyan-900/80 border border-cyan-700 rounded-xl p-5 
-                       hover:bg-[#23b5b5]/40 transition-all duration-300 transform hover:-translate-y-2 
-                       hover:shadow-xl hover:shadow-teal-500/30 cursor-pointer flex flex-col h-64"
+                className="group relative w-full min-h-64 bg-gradient-to-br from-black via-cyan-950 to-cyan-900/80  border border-cyan-700 rounded-xl p-5 hover:bg-[#23b5b5]/40 transition-all duration-300 transform hover:-translate-y-2  hover:shadow-xl hover:shadow-teal-500/30 cursor-pointer flex flex-col"
               >
                 {/* Hover gradient overlay */}
                 <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-700/10 to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -137,11 +135,11 @@ const Unfinished = () => {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-3">
                       {/* Tool Icons */}
-                      <div className="flex -space-x-2">
+                      <div className="flex flex-wrap gap-2">
                         {workflow.tools.map((tool, index) => (
                           <div
                             key={index}
-                            className={`w-10 h-10 ${tool.bgColor} rounded-lg flex items-center justify-center 
+                            className={`w-8 h-8  ${tool.bgColor} rounded-lg flex items-center justify-center 
                                    text-white text-lg shadow-lg border-2 border-teal-500/30 
                                    group-hover:scale-110 transition-transform duration-300`}
                             title={tool.name}
@@ -217,7 +215,7 @@ const Unfinished = () => {
                   </div>
 
                   {/* Footer - Recommended Badge */}
-                  <div className="flex items-center justify-between pt-2 border-t border-gray-700">
+                  <div className="flex flex-wrap items-center justify-between pt-2 border-t border-gray-700">
                     {workflow.recommended && (
                       <div className="flex items-center text-teal-400">
                         <Sparkles className="w-4 h-4 mr-2" />
@@ -227,7 +225,7 @@ const Unfinished = () => {
                       </div>
                     )}
 
-                    <div className="flex items-center text-teal-400 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-0 group-hover:translate-x-1 ml-auto">
+                    <div className="flex items-center text-teal-400 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-0 group-hover:translate-x-1  sm:ml-auto">
                       <span className="text-xs font-medium">Use Workflow</span>
                       <svg
                         className="w-4 h-4 ml-1"

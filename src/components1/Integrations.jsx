@@ -342,12 +342,12 @@ export default function IntegrationsPage() {
               <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-700 rounded-lg flex items-center justify-center text-white text-xl shadow-lg group-hover:scale-110 transition-transform duration-200">
                 {tool.icon}
               </div>
-              <button
+              <div
                 onClick={handlePlusClick}
                 className="w-8 h-8 bg-gradient-to-r from-teal-500 to-teal-600 rounded-full flex items-center justify-center text-white transition-all duration-200 transform hover:scale-110 shadow-lg"
               >
-                <Plus className="w-4 h-4" />
-              </button>
+                <Plus size={20} />
+              </div>
             </div>
 
             <h3 className="text-white font-semibold text-sm mb-2 group-hover:text-teal-300 transition-colors flex items-center gap-2">
@@ -518,7 +518,7 @@ export default function IntegrationsPage() {
       {/* Header */}
       <div className="relative px-12 pl-24 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-teal-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent mb-2">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-teal-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent mb-2 pb-2">
             Integrations
           </h1>
           <p className="text-gray-400 text-lg">

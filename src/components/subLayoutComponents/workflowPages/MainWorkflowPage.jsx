@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import WorkflowEngine from "../WorkflowEngine";
-import SidebarOnHover from "../../../reusable_components/SidebarOnHover";
 import { ArrowLeft } from "lucide-react";
 
 const MainWorkflowPage = () => {
@@ -17,12 +16,6 @@ const MainWorkflowPage = () => {
       className="w-full h-full flex flex-col items-center p-10 relative overflow-hidden bg-black text-white"
       style={{ minHeight: "100vh" }}
     >
-      {/* Background gradient overlay with animation */}
-      {/* <div
-        className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent animate-pulse brightness-75"
-        style={{ zIndex: 0 }}
-      ></div> */}
-
       {/* Back Button */}
       <div className="absolute top-6 left-20 z-20">
         <button
@@ -34,17 +27,17 @@ const MainWorkflowPage = () => {
       </div>
 
       {/* Page content */}
-      <div className="relative z-10 w-full max-w-6xl">
+      <div className="relative z-10 w-full max-w-6xl px-4 sm:px-6 md:px-10 ">
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-6xl font-bold text-minimal-white mb-4">
             Workflows
           </h1>
-          <p className="text-minimal-muted text-lg">
+
+          <p className="text-minimal-muted text-sm sm:text-base md:text-lg leading-relaxed px-2">
             Create, manage, and automate your processes with ease. Workflows
-            help you streamline tasks,
-            <br /> improve efficiency, and keep your team aligned—every step of
-            the way.
+            help you streamline tasks, improve efficiency, and keep your team
+            aligned—every step of the way.
           </p>
         </div>
 
