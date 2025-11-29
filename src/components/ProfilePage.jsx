@@ -21,7 +21,7 @@ const UserPage = () => {
   const isLoggedIn = !!user;
 
   const userData = {
-    name: user?.given_name || "Guest",
+    name: user?.name || "Guest",
     email: user?.email || "guest@example.com",
     avatar:
       user?.given_name?.[0]?.toUpperCase() +
@@ -36,7 +36,7 @@ const UserPage = () => {
     // <div className="bg-black text-white flex h-screen relative overflow-hidden">
     // <div className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent animate-pulse" style={{zIndex:0}}></div>
     <div className="bg-black text-white flex h-screen relative overflow-hidden">
-      <div className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div>
+      {/* <div className="absolute inset-0 rounded-xl opacity-30 pointer-events-none bg-gradient-to-br from-transparent via-cyan-500 to-transparent"></div> */}
       {/* <div
     className="absolute inset-0 rounded-xl opacity-30 pointer-events-none 
                bg-gradient-to-br from-transparent via-cyan-600 to-transparent 
@@ -46,7 +46,7 @@ const UserPage = () => {
 
       <div className="w-full h-full flex justify-center items-center lg:grid-cols-[1fr_auto_1fr] gap-0 relative z-10">
         {/* Left Column */}
-        <div className="flex flex-col items-center justify-center gap-4 p-6 lg:p-8 w-full max-w-sm mx-auto">
+        <div className="flex flex-col items-center justify-center gap-4 p-6 lg:p-8 w-full max-w-md mx-auto">
           {/* User Profile */}
           <div className="flex flex-col items-center text-center mb-8">
             <div className="w-20 h-20 bg-[#23b5b5] rounded-full flex items-center justify-center">

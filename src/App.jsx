@@ -78,8 +78,6 @@ import CreatePresentation from "./components2/CreatePresentation";
 import Integrations from "./components1/Integrations";
 import InfluencerProfile from "./components1/InfluencerProfile";
 
-import ImageFilter from "./component3/ImageFilter";
-import AiImageStyler from "./component3/AiImageStyler";
 import BackgroundChanger from "./component3/BackgroundChanger";
 import ImageMerger from "./component3/ImageMerger";
 import ImageExpander from "./component3/ImageExpander";
@@ -151,8 +149,12 @@ import AcmecorpInventory from "./client_component/AcmecorpInventory.jsx";
 import AcmecorpAdmin from "./client_component/AcmecorpAdmin.jsx";
 import NewsPage from "./components1/NewsPage.jsx";
 import ChatPanel from "./expli/ChatPanel.jsx";
-import AIChatApp from "./ai-fiesta/AIChatGrid.jsx";
+// import AIChatApp from "./ai-fiesta/AIChatGrid.jsx";
 import AllApps from "./pages/about_pages/AllApps.jsx";
+import BackgroundRemover from "./pages/explified_tools/bgRemover/BGRemover.jsx";
+import AutoDeckPage from "./slideShowAi/AutoDeckPage.jsx";
+import DeckTitle from "./slideShowAi/DeckTitle.jsx";
+import TextToMeme from "./pages/explified_tools/text-to-meme/TextToMeme.jsx";
 function App() {
   usePageTracking();
   const navigate = useNavigate();
@@ -243,7 +245,6 @@ function App() {
           <Route path="image-to-video" element={<ImageToVideoConvertor />} />
           <Route path="text-to-video" element={<TextToVideo />} />
           <Route path="text-to-image" element={<TextToImage />} />
-          <Route path="ai-image-styler" element={<AIImageStyler />} />
           <Route path="slideshow" element={<AISlideshow />} />
           <Route path="ageing_ai" element={<AgeingVideoMaker />} />
         </Route>
@@ -352,6 +353,7 @@ function App() {
           <Route path="/Meme" element={<Meme />} />
           <Route path="/ai-gif-generator" element={<GIFGenerator />} />
           <Route path="/video-meme-generator" element={<AIMemeGenerator />} />
+          <Route path="/text-to-meme" element={<TextToMeme />} />
           <Route path="/history" element={<History />}></Route>
           <Route path="/favorites" element={<Favourites />}></Route>
           <Route path="/workflows" element={<MainWorkflowPage />} />
@@ -384,28 +386,28 @@ function App() {
           <Route path="/socials/:id/lastPosts" element={<LastPosts />} />
           <Route path="/socials/:id/:id1" element={<ScheduleDraftPosts />} />
           <Route path="/socials/newPost" element={<NewPost />} />
-          <Route
+          {/* <Route
             path="/presentation"
             element={<PresentationLandingPage />}
-          ></Route>
+          ></Route> */}
           {/* <Route
               path="/presentation/create"
               element={<CreatePresentation />} 
             /> */}
 
-          <Route path="/image-styler" element={<ImageFilter />} />
-          <Route path="/image-styler/filter" element={<AiImageStyler />} />
+          <Route path="/image-styler" element={<AIImageStyler />} />
           <Route
             path="/image-styler/backChanger"
             element={<BackgroundChanger />}
           />
+
           <Route path="image-to-video-ai" element={<ImageToVideo />} />
           <Route path="/image-styler/merger" element={<ImageMerger />} />
           <Route path="/image-styler/expander" element={<ImageExpander />} />
           <Route path="/image-styler/editor" element={<ImageEditor />} />
           <Route path="/profile" element={<UserPage />} />
-          <Route path="/bg-remover" element={<BGLayout />} />
-
+          <Route path="/bg-remover0" element={<BGLayout />} />
+          <Route path="/bg-remover" element={<BackgroundRemover />} />
           <Route path="/result" element={<Result />} />
           <Route path="/zeno" element={<NewZapier />} />
           <Route path="/workflows/create" element={<CreateWorkflow />} />
@@ -431,15 +433,14 @@ function App() {
           <Route path="/socials/newPost" element={<NewPost />} />
           <Route path="/youtube-summarizer" element={<YoutubeSummarizer />} />
           <Route path="/ai-subtitler" element={<AISubtitler />} />
-          <Route path="/ai-subtitler-ui" element={< AiSubtitlerPage />} />
+          <Route path="/ai-subtitler-ui" element={<AiSubtitlerPage />} />
           <Route
             path="/youtube-summarizer/deep-search"
             element={<DeepSearch />}
           />
-          <Route
-            path="/presentation"
-            element={<PresentationLandingPage />}
-          ></Route>
+
+          <Route path="/presentation" element={<AutoDeckPage />}></Route>
+          <Route path="/decktitle" element={<DeckTitle />} />
           <Route path="/presentation/create" element={<CreatePresentation />} />
           <Route path="/zapier" element={<AutomatedVideoGenerator />} />
           <Route path="/*" element={<FlowstateLogin />} />

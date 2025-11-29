@@ -537,7 +537,7 @@ export default function LandingPage() {
   };
 
   return (
-    <section className="relative min-h-screen w-full bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 text-white overflow-x-hidden font-sans">
+    <section className="relative min-h-screen w-full bg-black text-white overflow-x-hidden font-sans">
       {/* Animated background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[#23b5b5]/10 rounded-full blur-3xl animate-pulse"></div>

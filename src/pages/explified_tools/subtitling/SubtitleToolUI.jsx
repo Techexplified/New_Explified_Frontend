@@ -30,11 +30,45 @@ import { motion, AnimatePresence } from "framer-motion";
 import Sidebar from "./Sidebar";
 import { Player } from "@remotion/player";
 import { Video, AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
-import { transcodeWebmBlobToMp4 } from "../../../lib/ffmpeg-loader";
+
+// Minimal Error Boundary for this page
+class PageErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, info) {
+    console.error("AiSubtitlerPage caught error:", error, info);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: 40, color: "white", background: "#0b1012", minHeight: "100vh" }}>
+          <h2>Something went wrong</h2>
+          <p>{this.state.error?.message || "An unexpected error occurred."}</p>
+          <p>
+            Try reloading the page or returning to the landing screen to try again.
+          </p>
+          <div style={{ marginTop: 20 }}>
+            <button onClick={() => window.location.reload()} style={{ padding: "8px 12px", borderRadius: 6 }}>Reload</button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 
 // Backend origin
+
 const BACKEND_ORIGIN = (
-  import.meta.env.VITE_API_ORIGIN || "http://localhost:4000"
+  import.meta.env.VITE_API_ORIGIN ||
+  import.meta.env.REACT_APP_API_ORIGIN ||
+  "https://api-pf6diz22ka-uc.a.run.app"
 ).replace(/\/$/, "");
 
 // Optional Cloudinary env (unsigned upload preset)
@@ -163,7 +197,7 @@ async function translateSubtitlesToBackend(
   const detectedLanguage =
     srcLangCode || (videoData && videoData.detectedLanguage) || "auto";
 
-  const endpoint = `${BACKEND_ORIGIN}/translate-subtitles`;
+  const endpoint = `${BACKEND_ORIGIN}/api/subtitler/translate-subtitles`;
   const payload = { segments, targetLang: target, detectedLanguage };
 
   const res = await fetch(endpoint, {
@@ -366,7 +400,6 @@ const InlineSubtitleEditor = ({
           fontSize: (subtitleStyle.fontSize || 16) + "px",
           fontFamily: subtitleStyle.fontFamily || "inherit",
           fontWeight: subtitleStyle.fontWeight || 400,
-          minWidth: "260px", // 👈 ensures width is consistent
         }}
       >
         {text}
@@ -375,17 +408,12 @@ const InlineSubtitleEditor = ({
   }
 
   return (
-    <div
-      style={{
-        display: "inline-block",
-        minWidth: "260px", // 👈 keeps width same when editing
-      }}
-    >
+    <div style={{ display: "inline-block", minWidth: 260 }}>
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
         rows={2}
-        className="p-2 rounded bg-gray-900 text-white w-full" // 👈 match container width
+        className="p-2 rounded bg-gray-900 text-white"
         style={{
           fontSize: (subtitleStyle.fontSize || 16) + "px",
           fontFamily: subtitleStyle.fontFamily || "inherit",
@@ -417,158 +445,6 @@ const InlineSubtitleEditor = ({
   );
 };
 
-/* ---------------------- Subtitles Remotion Composition (for preview) ---------------------- */
-const SubtitlesComposition = ({
-  videoUrl,
-  subtitles = [],
-  subtitleStyle = {},
-}) => {
-  const { fps, width, height, durationInFrames } = useVideoConfig
-    ? useVideoConfig()
-    : { fps: 30, width: 1280, height: 720, durationInFrames: 1 };
-  const frame = useCurrentFrame();
-  const currentSec = frame / (fps || 30);
-  const visible = subtitles.filter(
-    (s) => currentSec >= s.start && currentSec <= s.end
-  );
-
-  const baseStyle = {
-    pointerEvents: "none",
-    display: "flex",
-    alignItems: "flex-end",
-    justifyContent: "center",
-    height: "100%",
-    width: "100%",
-    paddingBottom: 80,
-    boxSizing: "border-box",
-  };
-
-  const textStyle = {
-    background: subtitleStyle.backgroundEnabled
-      ? subtitleStyle.backgroundColor || "rgba(0,0,0,0.7)"
-      : "transparent",
-    color: subtitleStyle.color || "#fff",
-    fontSize: subtitleStyle.fontSize || 18,
-    fontFamily: subtitleStyle.fontFamily || "Inter, system-ui, sans-serif",
-    fontWeight: subtitleStyle.fontWeight || 600,
-    padding: "8px 16px",
-    borderRadius: 8,
-    maxWidth: "85%",
-    textAlign: "center",
-    lineHeight: 1.25,
-    boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
-  };
-
-  return (
-    <AbsoluteFill style={{ backgroundColor: "black" }}>
-      <Video
-        src={videoUrl}
-        style={{ width: "100%", height: "100%", objectFit: "contain" }}
-      />
-      <div style={baseStyle}>
-        {visible.length === 0 ? null : (
-          <div style={textStyle}>
-            {visible.map((v, i) => (
-              <div key={i} style={{ margin: "6px 0" }}>
-                {v.text}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </AbsoluteFill>
-  );
-};
-
-/* ---------------------- Remotion Preview Modal ---------------------- */
-function RemotionPreviewModal({
-  open,
-  onClose,
-  videoUrl,
-  duration = 10,
-  subtitles = [],
-  subtitleStyle = {},
-  width = 1280,
-  height = 720,
-  fps = 30,
-}) {
-  if (!open) return null;
-  const durationInFrames = Math.max(1, Math.round((duration || 10) * fps));
-  return (
-    <div
-      onClick={onClose}
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(0,0,0,0.75)",
-        zIndex: 4000,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 20,
-      }}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          width: "95%",
-          maxWidth: Math.min(1400, width + 40),
-          background: "#071018",
-          borderRadius: 10,
-          padding: 12,
-          boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 8,
-          }}
-        >
-          <h3 style={{ color: "#dff7f5", margin: 0 }}>
-            Preview Burned-in Subtitles
-          </h3>
-          <button
-            onClick={onClose}
-            style={{
-              background: "transparent",
-              border: "none",
-              color: "#ccc",
-              fontSize: 20,
-            }}
-          >
-            ✕
-          </button>
-        </div>
-
-        <div
-          style={{ background: "#000", borderRadius: 8, overflow: "hidden" }}
-        >
-          <Player
-            component={SubtitlesComposition}
-            durationInFrames={durationInFrames}
-            compositionWidth={width}
-            compositionHeight={height}
-            fps={fps}
-            controls
-            style={{ width: "100%", height: "auto", background: "#000" }}
-            inputProps={{
-              videoUrl,
-              subtitles,
-              subtitleStyle,
-            }}
-          />
-        </div>
-        <div style={{ marginTop: 8, color: "#9fb0b0", fontSize: 13 }}>
-          Tip: This preview uses Remotion's Player. For final export (MP4), use
-          a Remotion render script on the server/CLI.
-        </div>
-      </div>
-    </div>
-  );
-}
 
 /* ---------------------- PlayerContainer ---------------------- */
 const PlayerContainer = ({
@@ -1029,9 +905,7 @@ function removeNativeTracks(video) {
 
     // 2) remove any <track> elements from the video element DOM
     try {
-      const tracks = video.querySelectorAll
-        ? video.querySelectorAll("track")
-        : [];
+      const tracks = video.querySelectorAll ? video.querySelectorAll("track") : [];
       tracks.forEach((t) => {
         try {
           const src = t.src || t.getAttribute("src");
@@ -1068,6 +942,7 @@ function disableNativeTracks(video) {
   removeNativeTracks(video);
 }
 // -------------------- end native-track helper --------------------
+
 
 /* ---------------------- ModernTimelineEditor ---------------------- */
 function ModernTimelineEditor({
@@ -1131,22 +1006,13 @@ function ModernTimelineEditor({
       const isMajor = t % majorInterval === 0;
       ticks.push({
         time: t,
-        label: isMajor
-          ? `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`
-          : null,
+        label: isMajor ? `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}` : null,
         isMajor,
       });
     }
 
     if (!ticks.some((x) => x.time === ceilDur)) {
-      ticks.push({
-        time: ceilDur,
-        label: `${Math.floor(ceilDur / 60)}:${String(ceilDur % 60).padStart(
-          2,
-          "0"
-        )}`,
-        isMajor: true,
-      });
+      ticks.push({ time: ceilDur, label: `${Math.floor(ceilDur / 60)}:${String(ceilDur % 60).padStart(2, "0")}`, isMajor: true });
     }
 
     return ticks.filter((t) => t.time <= sd);
@@ -1226,10 +1092,7 @@ function ModernTimelineEditor({
           {safeDuration > 0 &&
             subtitles.map((s, i) => {
               const left = (s.start / (safeDuration || 1)) * 100;
-              const width = Math.max(
-                0.5,
-                ((s.end - s.start) / (safeDuration || 1)) * 100
-              );
+              const width = Math.max(0.5, ((s.end - s.start) / (safeDuration || 1)) * 100);
               const isActive = currentTime >= s.start && currentTime < s.end;
 
               return (
@@ -1277,16 +1140,6 @@ function ModernTimelineEditor({
 }
 
 /* ---------------------- ExportModal ---------------------- */
-
-// CHANGES SUMMARY:
-// 1. Removed preview button from EditorView (lines were ~2870-2879)
-// 2. Modified ExportModal to remove subtitle list preview and cue counter
-
-// src/pages/explified_tools/subtitling/AiSubtitlerPage.jsx
-// [All imports and helper functions remain the same up to ExportModal]
-
-/* ---------------------- ExportModal (UPDATED) ---------------------- */
-
 function ExportModal({
   isOpen,
   onClose,
@@ -1297,43 +1150,6 @@ function ExportModal({
 }) {
   if (!isOpen) return null;
 
-  // ui state
-  const [exporting, setExporting] = useState(false);
-  const [exportMessage, setExportMessage] = useState("");
-  const [exportProgress, setExportProgress] = useState(0); // 0..1
-  const progressRef = useRef(0);
-  const cancelledRef = useRef(false);
-  const recorderRef = useRef(null);
-  const timeoutRef = useRef(null);
-
-  // Helper: transcode with timeout fallback
-  async function transcodeWithTimeout(recordedBlob, onProgress, timeoutMs = 60_000) {
-    return Promise.race([
-      transcodeWebmBlobToMp4(recordedBlob, onProgress),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("transcode-timeout")), timeoutMs)
-      ),
-    ]);
-  }
-
-  // Download helper (handles Blob or URL)
-  const downloadBlob = (blobOrUrl, filename) => {
-    const a = document.createElement("a");
-    a.style.display = "none";
-
-    let url = blobOrUrl;
-    if (blobOrUrl instanceof Blob) url = URL.createObjectURL(blobOrUrl);
-
-    a.href = url;
-    a.download = filename || "download";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-
-    if (blobOrUrl instanceof Blob) setTimeout(() => URL.revokeObjectURL(url), 100);
-  };
-
-  // SRT / VTT download helpers unchanged (kept simple)
   const fmtSrtTime = (time = 0) => {
     const h = Math.floor(time / 3600);
     const m = Math.floor((time % 3600) / 60);
@@ -1354,6 +1170,25 @@ function ExportModal({
       2,
       "0"
     )}:${String(s).padStart(2, "0")}.${String(ms).padStart(3, "0")}`;
+  };
+
+  const downloadBlob = (blobOrUrl, filename) => {
+    const a = document.createElement("a");
+    if (blobOrUrl instanceof Blob) {
+      const url = URL.createObjectURL(blobOrUrl);
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } else {
+      a.href = blobOrUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
   };
 
   const downloadSRT = () => {
@@ -1378,49 +1213,8 @@ function ExportModal({
     downloadBlob(blob, "subtitles.vtt");
   };
 
-  // spinner helpers that update React state
-  const startSpinner = (msg = "Processing…") => {
-    setExportMessage(msg);
-    setExportProgress(0);
-    progressRef.current = 0;
-    cancelledRef.current = false;
-    setExporting(true);
-  };
-  const setSpinnerProgress = (ratio) => {
-    const r = Math.max(0, Math.min(1, Number(ratio) || 0));
-    if (r > progressRef.current) {
-      progressRef.current = r;
-      setExportProgress(r);
-    }
-  };
-  const stopSpinner = (msg = "Done") => {
-    setExportMessage(msg);
-    clearTimeout(timeoutRef.current);
-    setTimeout(() => {
-      setExporting(false);
-      setExportProgress(0);
-      progressRef.current = 0;
-      setExportMessage("");
-      cancelledRef.current = false;
-    }, 600);
-  };
-
-  // Cancel handler (user aborts export)
-  const cancelExport = () => {
-    console.log("[export] user requested cancel");
-    cancelledRef.current = true;
-    // stop recorder if running
-    try {
-      const r = recorderRef.current;
-      if (r && r.state !== "inactive") {
-        r.stop();
-      }
-    } catch (e) {}
-    stopSpinner("Cancelled");
-  };
-
-  // Main export function
-const exportBurnedInVideo = async () => {
+  // exportBurnedInVideo (kept simple placeholder)
+  const exportBurnedInVideo = async () => {
     if (!videoData?.videoUrl) {
       alert("No video loaded.");
       return;
@@ -1705,7 +1499,6 @@ const exportBurnedInVideo = async () => {
       alert("Export failed: " + (err.message || err));
     }
   };
-
   return (
     <div
       onClick={onClose}
@@ -1755,6 +1548,10 @@ const exportBurnedInVideo = async () => {
           </button>
         </div>
 
+        <div style={{ marginBottom: 12 }}>
+          <strong>Total cues:</strong> {subtitles.length}
+        </div>
+
         <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
           <button
             onClick={downloadSRT}
@@ -1799,186 +1596,44 @@ const exportBurnedInVideo = async () => {
               cursor: "pointer",
               color: "#fff",
             }}
-            disabled={exporting}
           >
-            {exporting ? "Exporting…" : "Export Video"}
+            Export Video
           </button>
         </div>
-      </div>
 
-      {/* Export overlay */}
-      {exporting && (
-  <div
-    aria-live="polite"
-    style={{
-      position: "fixed",
-      inset: 0,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      pointerEvents: "none",
-      zIndex: 1600,
-    }}
-  >
-    <div
-      role="status"
-      style={{
-        width: 520,
-        maxWidth: "94vw",
-        background: "rgba(10, 15, 20, 0.96)",
-        color: "#fff",
-        padding: 18,
-        borderRadius: 12,
-        boxShadow: "0 14px 50px rgba(0,0,0,0.7)",
-        textAlign: "left",
-        pointerEvents: "auto",
-        display: "flex",
-        gap: 14,
-        alignItems: "center",
-      }}
-    >
-      {/* left: stepper */}
-      <div style={{ width: 220, display: "flex", flexDirection: "column", gap: 12 }}>
-        {[
-          { key: "prepare", label: "Preparing" },
-          { key: "capture", label: "Capturing" },
-          { key: "transcode", label: "Transcoding" },
-          { key: "download", label: "Downloading" },
-          { key: "done", label: "Done" },
-        ].map((step, i) => {
-          const stepPct = i / 4; // 0..1 for five steps
-          const progress = exportProgress || 0;
-          const done = progress >= stepPct + 0.22 || (!exporting && step.key === "done");
-          const active = progress >= stepPct && progress < stepPct + 0.22;
-          return (
-            <div key={step.key} style={{ display: "flex", gap: 10, alignItems: "center" }}>
+        <div
+          style={{
+            background: "#071018",
+            padding: 10,
+            borderRadius: 8,
+            maxHeight: 280,
+            overflowY: "auto",
+            border: "1px solid rgba(255,255,255,0.03)",
+          }}
+        >
+          {subtitles.length === 0 ? (
+            <div style={{ color: "#9ca3af" }}>No subtitles</div>
+          ) : (
+            subtitles.map((s, i) => (
               <div
+                key={i}
                 style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: 8,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: done ? "#10b981" : active ? "#06b6d4" : "rgba(255,255,255,0.04)",
-                  color: done ? "#042018" : "#fff",
-                  fontWeight: 700,
-                  boxShadow: active ? "0 6px 18px rgba(6,182,212,0.08)" : "none",
-                  fontSize: 13,
+                  padding: 8,
+                  borderBottom: "1px solid rgba(255,255,255,0.03)",
                 }}
               >
-                {done ? "✓" : i + 1}
-              </div>
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                <div style={{ fontSize: 13, fontWeight: active ? 700 : 600, color: active ? "#e6f7f7" : "#cbd5e1" }}>
-                  {step.label}
+                <div style={{ color: "#9fb0b0", fontSize: 12 }}>
+                  [{i + 1}] {fmtVttTime(s.start)} → {fmtVttTime(s.end)}
                 </div>
-                <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
-                  {/* show the exportMessage only for the active step to avoid flicker */}
-                  {active ? exportMessage || "Working…" : ""}
-                </div>
+                <div style={{ marginTop: 6, fontSize: 13 }}>{s.text}</div>
               </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* right: progress + actions */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 12 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div style={{ fontSize: 15, fontWeight: 700 }}>{exportMessage || "Exporting..."}</div>
-          <div style={{ fontSize: 13, color: "#94a3b8" }}>{Math.round((exportProgress || 0) * 100)}%</div>
-        </div>
-
-        <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 10, height: 12, overflow: "hidden" }}>
-          <div
-            style={{
-              width: `${Math.round((exportProgress || 0) * 100)}%`,
-              height: "100%",
-              background: "linear-gradient(90deg,#06b6d4,#34d399)",
-              transition: "width 220ms linear",
-            }}
-          />
-        </div>
-
-        <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 6 }}>
-          <button
-            onClick={() => {
-              // cancel: prefer your stopSpinner helper if in scope, else fallback to setting exporting false
-              try {
-                if (typeof stopSpinner === "function") stopSpinner("Cancelled");
-              } catch (e) {
-                // best-effort fallback:
-                // setExporting(false) // can't call setExporting here because it's inside component scope — we rely on stopSpinner
-                console.warn("stopSpinner not available in overlay scope; export cancelled (UI fallback).", e);
-              }
-            }}
-            style={{
-              padding: "8px 12px",
-              background: "#ff6b6b",
-              border: "none",
-              borderRadius: 8,
-              color: "#fff",
-              fontWeight: 700,
-              cursor: "pointer",
-            }}
-          >
-            Cancel
-          </button>
-
-          <button
-            onClick={() => {
-              alert("Tip: If export hangs, try downloading the raw WebM (no transcode) or check console for 'Final stream tracks' to verify audio capture.");
-            }}
-            style={{
-              padding: "8px 12px",
-              background: "#374151",
-              border: "none",
-              borderRadius: 8,
-              color: "#fff",
-              fontWeight: 700,
-              cursor: "pointer",
-            }}
-          >
-            Help
-          </button>
-        </div>
-
-        <div style={{ fontSize: 12, color: "#9fb0b0", marginTop: 6 }}>
-          Do not close the window while export is running. This overlay shows which stage is active and approximate progress.
+            ))
+          )}
         </div>
       </div>
-    </div>
-  </div>
-)}
-
-
-      <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-      `}</style>
     </div>
   );
 }
-
-// ============================================================
-// In the EditorView section, remove/comment the preview button:
-// Change this section (around line 2870):
-//
-// <button
-//   onClick={(e) => {
-//     e.stopPropagation();
-//     setPreviewOpen(true);
-//   }}
-//   disabled={!videoData?.videoUrl || subtitles.length === 0}
-//   className="px-3 py-2 rounded bg-sky-600 hover:bg-sky-500 text-white font-semibold"
-// >
-//   Preview
-// </button>
-//
-// TO: (commented out or deleted)
-// {/* <button ... Preview button removed ... */ }
-//
-// ============================================================
 
 /* ---------------------- MAIN COMPONENT ---------------------- */
 export default function AiSubtitlerPage() {
@@ -2035,24 +1690,61 @@ export default function AiSubtitlerPage() {
   const [transcriptId, setTranscriptId] = useState(null);
   const [selectedLanguage, setSelectedLanguage] = useState("auto");
 
-  const uploadFileToBackend = async (file) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("languageCode", selectedLanguage || "auto");
-    const res = await fetch(`${BACKEND_ORIGIN}/upload-audio`, {
+// robust upload with filename + debug logging
+const uploadFileToBackend = async (file) => {
+  if (!file) throw new Error("No file provided to uploadFileToBackend");
+  console.log("uploadFileToBackend() file:", {
+    name: file.name,
+    sizeBytes: file.size,
+    sizeMB: (file.size / 1024 / 1024).toFixed(2),
+    type: file.type,
+  });
+
+  const endpoint = `${BACKEND_ORIGIN}/api/subtitler/upload-audio`;
+  const formData = new FormData();
+
+  // ensure filename is included (some servers rely on it)
+  formData.append("file", file, file.name);
+  // keep language if backend expects it
+  formData.append("languageCode", selectedLanguage || "auto");
+
+  let res;
+  try {
+    res = await fetch(endpoint, {
       method: "POST",
       body: formData,
     });
-    if (!res.ok) {
-      const errText = await res.text();
-      throw new Error(`Upload failed: ${errText}`);
-    }
-    const result = await res.json();
-    return result;
-  };
+  } catch (networkErr) {
+    console.error("Network error while posting file:", networkErr);
+    throw networkErr;
+  }
+
+  // read response as text first so we can show raw body on 500s
+  const text = await res.text().catch(() => "");
+  let payload = null;
+  try {
+    payload = text ? JSON.parse(text) : null;
+  } catch (err) {
+    payload = text;
+  }
+
+  if (!res.ok) {
+    console.error("Upload failed:", {
+      status: res.status,
+      body: payload,
+    });
+    // surface server body for easier debugging
+    throw new Error(`Upload failed ${res.status}: ${JSON.stringify(payload)}`);
+  }
+
+  console.log("Upload success:", payload);
+  return payload;
+};
+
+
 
   async function uploadUrlToBackend(url) {
-    const endpoint = `${BACKEND_ORIGIN}/upload-from-url`;
+    const endpoint = `${BACKEND_ORIGIN}/api/subtitler/upload-from-url`;
 
     const parseBodySafely = async (res) => {
       const text = await res.text().catch(() => "");
@@ -2445,7 +2137,7 @@ export default function AiSubtitlerPage() {
             "Try to play the URL via backend proxy for testing? (OK = try)"
           );
           if (tryProxy) {
-            const prox = `${BACKEND_ORIGIN}/proxy/video?url=${encodeURIComponent(
+            const prox = `${BACKEND_ORIGIN}/api/subtitler/proxy/video?url=${encodeURIComponent(
               pasteToUse
             )}`;
             const meta = {
@@ -2659,16 +2351,14 @@ export default function AiSubtitlerPage() {
 
     try {
       const targetLang = normalizeTargetLang(targetLangRaw) || targetLangRaw;
-      if (!targetLang)
-        throw new Error("Unsupported or missing target language.");
+      if (!targetLang) throw new Error("Unsupported or missing target language.");
 
       const srcLang =
         (videoData && videoData.detectedLanguage) ||
         (transcriptId ? "auto" : "auto") ||
         "auto";
 
-      const segmentsToSend =
-        Array.isArray(subtitles) && subtitles.length > 0 ? subtitles : [];
+      const segmentsToSend = Array.isArray(subtitles) && subtitles.length > 0 ? subtitles : [];
 
       setGenerationProgress({
         stage: "request",
@@ -2676,15 +2366,9 @@ export default function AiSubtitlerPage() {
         progress: 35,
       });
 
-      const res = await translateSubtitlesToBackend(
-        segmentsToSend,
-        targetLang,
-        srcLang
-      );
+      const res = await translateSubtitlesToBackend(segmentsToSend, targetLang, srcLang);
 
-      const translatedSegments = Array.isArray(res.segments)
-        ? res.segments
-        : [];
+      const translatedSegments = Array.isArray(res.segments) ? res.segments : [];
       const backendVttUrl = res.vttUrl || res.vttUrlPath || null;
 
       setGenerationProgress({
@@ -2697,10 +2381,7 @@ export default function AiSubtitlerPage() {
       let createdBlob = false;
       if (backendVttUrl) {
         if (/^https?:\/\//i.test(backendVttUrl)) finalVttUrl = backendVttUrl;
-        else
-          finalVttUrl = `${BACKEND_ORIGIN}${
-            backendVttUrl.startsWith("/") ? "" : "/"
-          }${backendVttUrl}`;
+        else finalVttUrl = `${BACKEND_ORIGIN}${backendVttUrl.startsWith("/") ? "" : "/"}${backendVttUrl}`;
       } else {
         const vttText = segmentsToVtt(translatedSegments);
         const blob = new Blob([vttText], { type: "text/vtt" });
@@ -2711,21 +2392,13 @@ export default function AiSubtitlerPage() {
       setVideoData((prev) => {
         try {
           const prevVtt = prev?.vttUrl;
-          if (
-            prevVtt &&
-            typeof prevVtt === "string" &&
-            prevVtt.startsWith("blob:")
-          ) {
+          if (prevVtt && typeof prevVtt === "string" && prevVtt.startsWith("blob:")) {
             try {
               URL.revokeObjectURL(prevVtt);
             } catch (e) {}
           }
         } catch (e) {}
-        return {
-          ...(prev || {}),
-          subtitles: translatedSegments,
-          vttUrl: finalVttUrl,
-        };
+        return { ...(prev || {}), subtitles: translatedSegments, vttUrl: finalVttUrl };
       });
 
       setSubtitles(translatedSegments);
@@ -2733,12 +2406,11 @@ export default function AiSubtitlerPage() {
       const vid = videoRef.current;
       if (vid) {
         try {
-          const prevGenerated = vid.querySelector("track[data-generated-vtt]");
+          const prevGenerated = vid.querySelector('track[data-generated-vtt]');
           if (prevGenerated) {
             try {
               const prevSrc = prevGenerated.src;
-              if (prevSrc && prevSrc.startsWith("blob:"))
-                URL.revokeObjectURL(prevSrc);
+              if (prevSrc && prevSrc.startsWith("blob:")) URL.revokeObjectURL(prevSrc);
             } catch (e) {}
             prevGenerated.remove();
           }
@@ -3350,16 +3022,6 @@ export default function AiSubtitlerPage() {
             zIndex: 60,
           }}
         >
-          {/* <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setPreviewOpen(true);
-            }}
-            disabled={!videoData?.videoUrl || subtitles.length === 0}
-            className="px-3 py-2 rounded bg-sky-600 hover:bg-sky-500 text-white font-semibold"
-          >
-            Preview
-          </button> */}
 
           <button
             onClick={(e) => {
@@ -3369,7 +3031,7 @@ export default function AiSubtitlerPage() {
             disabled={subtitles.length === 0}
             className="px-3 py-2 rounded bg-cyan-700 hover:bg-cyan-600 text-white font-bold"
           >
-            EXPORT
+            EXPORT 
           </button>
         </div>
 
@@ -3413,20 +3075,13 @@ export default function AiSubtitlerPage() {
         subtitleStyle={subtitleStyle}
         videoMetadata={videoMetadata}
       />
-
-      <RemotionPreviewModal
-        open={previewOpen}
-        onClose={() => setPreviewOpen(false)}
-        videoUrl={videoData?.videoUrl}
-        duration={videoMetadata?.duration || 10}
-        subtitles={subtitles}
-        subtitleStyle={subtitleStyle}
-        width={videoMetadata?.width || 1280}
-        height={videoMetadata?.height || 720}
-        fps={30}
-      />
     </div>
   );
 
-  return view === "landing" ? LandingView : EditorView;
+  return (
+  <PageErrorBoundary>
+    {view === "landing" ? LandingView : EditorView}
+  </PageErrorBoundary>
+);
+
 }

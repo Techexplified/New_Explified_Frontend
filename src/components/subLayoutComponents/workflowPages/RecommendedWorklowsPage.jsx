@@ -19,7 +19,6 @@ import {
   Copy,
   Edit3,
   Clock,
-  Briefcase,
   Code,
   Megaphone,
   PenTool,
@@ -31,10 +30,14 @@ const RecommendedWorkflowsPage = () => {
   const [openAccordions, setOpenAccordions] = useState({});
   const [openMenuId, setOpenMenuId] = useState(null);
 
-  // Scroll to top when component mounts
+  // Scroll on mount
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  // --------------------------
+  // WORKFLOW CATEGORIES
+  // --------------------------
 
   const workflowCategories = [
     {
@@ -186,6 +189,10 @@ const RecommendedWorkflowsPage = () => {
     },
   ];
 
+  // --------------------------
+  // FILTER & MENU HELPERS
+  // --------------------------
+
   const toggleAccordion = (categoryId) => {
     setOpenAccordions((prev) => ({
       ...prev,
@@ -193,272 +200,206 @@ const RecommendedWorkflowsPage = () => {
     }));
   };
 
-  const handleMenuAction = (action, workflowTitle) => {
-    console.log(`${action} action triggered for: ${workflowTitle}`);
-    setOpenMenuId(null);
-  };
-
-  const toggleMenu = (workflowId, event) => {
-    event.stopPropagation();
+  const toggleMenu = (workflowId, e) => {
+    e.stopPropagation();
     setOpenMenuId(openMenuId === workflowId ? null : workflowId);
   };
 
   const filteredCategories = workflowCategories.filter(
-    (category) =>
-      category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      category.workflows.some(
-        (workflow) =>
-          workflow.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          workflow.description.toLowerCase().includes(searchQuery.toLowerCase())
+    (cat) =>
+      cat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      cat.workflows.some((wf) =>
+        wf.title.toLowerCase().includes(searchQuery.toLowerCase())
       )
   );
 
   const menuOptions = [
-    {
-      icon: Heart,
-      label: "Add to Favorites",
-      action: "favorite",
-      className: "text-minimal-primary hover:text-minimal-white",
-    },
-    {
-      icon: Copy,
-      label: "Duplicate",
-      action: "duplicate",
-      className: "text-minimal-primary hover:text-minimal-white",
-    },
-    {
-      icon: Edit3,
-      label: "Edit Workflow",
-      action: "edit",
-      className: "text-minimal-primary hover:text-minimal-white",
-    },
-    {
-      icon: Clock,
-      label: "View History",
-      action: "history",
-      className: "text-minimal-primary hover:text-minimal-white",
-    },
-    {
-      icon: Trash2,
-      label: "Delete",
-      action: "delete",
-      className: "text-minimal-primary hover:text-minimal-white",
-    },
+    { icon: Heart, label: "Add to Favorites", action: "fav" },
+    { icon: Copy, label: "Duplicate", action: "dup" },
+    { icon: Edit3, label: "Edit Workflow", action: "edit" },
+    { icon: Clock, label: "View History", action: "his" },
+    { icon: Trash2, label: "Delete", action: "del" },
   ];
 
-  return (
-    <div className="min-h-screen bg-minimal-background relative overflow-hidden">
-      <div className="relative z-10 p-6">
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-minimal-white mb-4">
-              Recommended Workflows
-            </h1>
-            <p className="text-minimal-muted text-lg">
-              Discover AI-powered workflows tailored to your needs
-            </p>
-          </div>
+  // --------------------------
+  // RESPONSIVE PAGE LAYOUT
+  // --------------------------
 
-          {/* Search Bar */}
-          <div className="relative mb-12 max-w-2xl mx-auto">
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-minimal-primary/20 to-minimal-gray-600/20 blur-sm"></div>
-            <div className="relative bg-minimal-card/80 backdrop-blur-xl rounded-xl border border-minimal-border p-1">
-              <div className="flex items-center">
-                <div className="pl-4">
-                  <Search className="w-5 h-5 text-minimal-muted" />
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search workflows, categories, or descriptions..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-transparent text-minimal-white placeholder-minimal-muted px-4 py-4 outline-none text-lg"
-                />
-              </div>
+  return (
+    <div className="min-h-screen bg-minimal-background overflow-x-hidden ml-16 md:ml-20">
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-10">
+        {/* ---- HEADER ---- */}
+        <div className="text-center mb-10">
+          <h1 className="text-3xl sm:text-4xl font-bold text-white">
+            Recommended Workflows
+          </h1>
+          <p className="text-minimal-muted text-sm sm:text-lg mt-2">
+            Discover AI-powered workflows tailored to your needs
+          </p>
+        </div>
+
+        {/* ---- SEARCH BAR ---- */}
+        <div className="max-w-3xl mx-auto mb-10">
+          <div className="bg-minimal-card/80 border border-minimal-border rounded-xl backdrop-blur-xl p-2">
+            <div className="flex items-center gap-3">
+              <Search className="w-5 h-5 text-minimal-muted ml-3" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search workflows, categories, or descriptions..."
+                className="w-full bg-transparent outline-none py-3 pr-4 text-base sm:text-lg text-white placeholder-minimal-muted"
+              />
             </div>
           </div>
+        </div>
 
-          {/* Category Accordions */}
-          <div className="space-y-6">
-            {filteredCategories.map((category) => {
-              const CategoryIcon = category.icon;
-              const isOpen = openAccordions[category.id];
+        {/* ---- ACCORDIONS ---- */}
+        <div className="space-y-6">
+          {filteredCategories.map((category) => {
+            const CategoryIcon = category.icon;
+            const isOpen = openAccordions[category.id];
 
-              return (
-                <div key={category.id} className="relative group">
-                  {/* Holographic border effect */}
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-all duration-500 blur-sm"></div>
-
-                  <div className="relative bg-minimal-card/80 backdrop-blur-xl rounded-xl border border-minimal-border group-hover:border-minimal-primary/30 transition-all duration-500 overflow-hidden">
-                    {/* Category Header */}
-                    <button
-                      onClick={() => toggleAccordion(category.id)}
-                      className="w-full p-6 flex items-center justify-between hover:bg-minimal-cardHover/50 transition-all duration-300"
+            return (
+              <div
+                key={category.id}
+                className="bg-minimal-card/70 border border-minimal-border rounded-xl backdrop-blur-xl overflow-hidden"
+              >
+                {/* ---- ACCORDION HEADER ---- */}
+                <button
+                  onClick={() => toggleAccordion(category.id)}
+                  className="w-full p-5 flex items-center justify-between hover:bg-minimal-cardHover transition"
+                >
+                  {/* LEFT SIDE */}
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`p-3 rounded-xl bg-gradient-to-r ${category.color}`}
                     >
-                      <div className="flex items-center space-x-4">
-                        <div
-                          className={`p-3 rounded-xl bg-gradient-to-r ${category.color} shadow-lg`}
-                        >
-                          <CategoryIcon className="w-6 h-6 text-minimal-white" />
-                        </div>
-                        <div className="text-left">
-                          <h3 className="text-xl font-semibold text-minimal-white mb-1">
-                            {category.name}
-                          </h3>
-                          <p className="text-minimal-muted text-sm">
-                            {category.description}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-4">
-                        <div className="text-right">
-                          <div className="text-minimal-primary text-sm font-medium">
-                            {category.workflows.length} Workflows
-                          </div>
-                          <div className="text-xs text-minimal-muted">
-                            {isOpen ? "Click to collapse" : "Click to expand"}
-                          </div>
-                        </div>
-                        <div
-                          className={`p-2 rounded-lg bg-minimal-cardHover text-minimal-primary transition-transform duration-300 ${
-                            isOpen ? "rotate-180" : "rotate-0"
-                          }`}
-                        >
-                          <ChevronDown className="w-5 h-5" />
-                        </div>
-                      </div>
-                    </button>
+                      <CategoryIcon className="w-6 h-6 text-white" />
+                    </div>
 
-                    {/* Category Content */}
-                    {isOpen && (
-                      <div className="border-t border-minimal-border/50 p-6">
-                        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                          {/* Create New Workflow Button */}
-                          <div className="lg:col-span-1">
-                            <div className="group/create relative cursor-pointer h-full min-h-[200px]">
-                              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/20 to-minimal-gray-600/20 opacity-0 group-hover/create:opacity-100 transition-all duration-500 blur-sm"></div>
-                              <div className="relative bg-minimal-dark-100/60 rounded-xl border-2 border-dashed border-minimal-border group-hover/create:border-minimal-primary/50 p-6 flex flex-col items-center justify-center text-center h-full transition-all duration-300">
-                                <div className="w-16 h-16 bg-gradient-to-br from-minimal-cardHover to-minimal-dark-100 rounded-xl flex items-center justify-center mb-4 group-hover/create:from-minimal-primary/50 group-hover/create:to-minimal-gray-600/50 transition-all duration-500">
-                                  <Plus className="w-8 h-8 text-minimal-muted group-hover/create:text-minimal-primary transition-colors duration-300" />
+                    <div className="text-left">
+                      <h3 className="text-lg sm:text-xl text-white font-semibold">
+                        {category.name}
+                      </h3>
+                      <p className="text-minimal-muted text-xs sm:text-sm">
+                        {category.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* RIGHT SIDE (RESTORED UI BLOCK) */}
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <div className="text-minimal-primary text-sm font-medium">
+                        {category.workflows.length} Workflows
+                      </div>
+                      <div className="text-xs text-minimal-muted">
+                        {isOpen ? "Click to collapse" : "Click to expand"}
+                      </div>
+                    </div>
+
+                    <div
+                      className={`p-2 rounded-lg bg-minimal-cardHover text-minimal-primary transition-transform duration-300 ${
+                        isOpen ? "rotate-180" : "rotate-0"
+                      }`}
+                    >
+                      <ChevronDown className="w-5 h-5" />
+                    </div>
+                  </div>
+                </button>
+
+                {/* ---- ACCORDION CONTENT ---- */}
+                {isOpen && (
+                  <div className="border-t border-minimal-border/40 p-5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                      {/* ---- CREATE NEW ---- */}
+                      <div className="lg:col-span-1">
+                        <div className="group/create relative cursor-pointer h-full min-h-[200px]">
+                          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/20 to-minimal-gray-600/20 opacity-0 group-hover/create:opacity-100 transition-all duration-500 blur-sm"></div>
+                          <div className="relative bg-minimal-dark-100/60 rounded-xl border-2 border-dashed border-minimal-border group-hover/create:border-minimal-primary/50 p-6 flex flex-col items-center justify-center text-center h-full transition-all duration-300">
+                            <div className="w-16 h-16 bg-gradient-to-br from-minimal-cardHover to-minimal-dark-100 rounded-xl flex items-center justify-center mb-4 group-hover/create:from-minimal-primary/50 group-hover/create:to-minimal-gray-600/50 transition-all duration-500">
+                              <Plus className="w-8 h-8 text-minimal-muted group-hover/create:text-minimal-primary transition-colors duration-300" />
+                            </div>
+                            <h4 className="text-minimal-white font-semibold mb-2 group-hover/create:text-minimal-primary transition-colors duration-300">
+                              Create New
+                            </h4>
+                            <p className="text-minimal-muted text-sm group-hover/create:text-minimal-white transition-colors duration-300">
+                              Build a custom {category.name.toLowerCase()}{" "}
+                              workflow
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* ---- WORKFLOW CARDS ---- */}
+                      <div className="lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                        {category.workflows.map((workflow, i) => {
+                          const IconComponent = workflow.icon;
+                          const wid = `${category.id}-${i}`;
+                          const isMenuOpen = openMenuId === wid;
+
+                          return (
+                            <div key={i} className="relative">
+                              {/* Card */}
+                              <div className="bg-minimal-card/80 backdrop-blur-xl border border-minimal-border rounded-xl p-4 hover:border-minimal-primary transition h-full">
+                                <div className="flex justify-between items-start">
+                                  <div
+                                    className={`p-2 rounded-lg bg-gradient-to-r ${workflow.color}`}
+                                  >
+                                    <IconComponent className="w-4 h-4 text-white" />
+                                  </div>
+
+                                  {/* Menu Button */}
+                                  <button
+                                    onClick={(e) => toggleMenu(wid, e)}
+                                    className="p-1 rounded-md hover:bg-minimal-cardHover"
+                                  >
+                                    <MoreHorizontal className="w-4 h-4 text-minimal-muted" />
+                                  </button>
+
+                                  {/* Dropdown */}
+                                  {isMenuOpen && (
+                                    <div className="absolute right-0 top-8 w-40 bg-minimal-card border border-minimal-border rounded-lg shadow-xl z-50 p-1">
+                                      {menuOptions.map((opt, idx) => {
+                                        const OptIcon = opt.icon;
+                                        return (
+                                          <button
+                                            key={idx}
+                                            className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-minimal-cardHover text-white"
+                                          >
+                                            <OptIcon className="w-4 h-4" />
+                                            {opt.label}
+                                          </button>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
                                 </div>
-                                <h4 className="text-minimal-white font-semibold mb-2 group-hover/create:text-minimal-primary transition-colors duration-300">
-                                  Create New
+
+                                <h4 className="text-white text-sm font-semibold mt-3">
+                                  {workflow.title}
                                 </h4>
-                                <p className="text-minimal-muted text-sm group-hover/create:text-minimal-white transition-colors duration-300">
-                                  Build a custom {category.name.toLowerCase()}{" "}
-                                  workflow
+                                <p className="text-minimal-muted text-xs mt-1">
+                                  {workflow.description}
+                                </p>
+
+                                <p className="text-minimal-muted text-xs mt-3">
+                                  {workflow.users} users
                                 </p>
                               </div>
                             </div>
-                          </div>
-
-                          {/* Workflow Cards */}
-                          <div className="lg:col-span-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            {category.workflows.map((workflow, index) => {
-                              const IconComponent = workflow.icon;
-                              const workflowId = `${category.id}-${index}`;
-                              const isMenuOpen = openMenuId === workflowId;
-
-                              return (
-                                <div
-                                  key={index}
-                                  className="group/card relative cursor-pointer transform transition-all duration-300 hover:scale-105 hover:-translate-y-2"
-                                >
-                                  {/* Card glow effect */}
-                                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/20 to-minimal-gray-600/20 opacity-0 group-hover/card:opacity-100 transition-all duration-500 blur-sm"></div>
-
-                                  <div className="relative bg-minimal-card/80 backdrop-blur-xl rounded-xl border border-minimal-border p-4 group-hover/card:border-minimal-primary/50 transition-all duration-500 h-full">
-                                    <div className="flex items-start justify-between mb-3">
-                                      <div
-                                        className={`p-2 rounded-lg bg-gradient-to-r ${workflow.color} group-hover/card:scale-110 transition-transform duration-300`}
-                                      >
-                                        <IconComponent className="w-4 h-4 text-minimal-white" />
-                                      </div>
-
-                                      {/* Menu Button */}
-                                      <div className="relative">
-                                        <button
-                                          onClick={(e) =>
-                                            toggleMenu(workflowId, e)
-                                          }
-                                          className="p-1 rounded-lg hover:bg-minimal-cardHover transition-colors duration-200 opacity-0 group-hover/card:opacity-100"
-                                        >
-                                          <MoreHorizontal className="w-4 h-4 text-minimal-muted hover:text-minimal-primary" />
-                                        </button>
-
-                                        {/* Dropdown Menu */}
-                                        {isMenuOpen && (
-                                          <div className="absolute right-0 top-8 w-48 bg-minimal-card/95 backdrop-blur-sm rounded-lg border border-minimal-border shadow-2xl z-50 overflow-hidden">
-                                            <div className="py-2">
-                                              {menuOptions.map(
-                                                (option, optionIndex) => {
-                                                  const OptionIcon =
-                                                    option.icon;
-                                                  return (
-                                                    <button
-                                                      key={optionIndex}
-                                                      onClick={() =>
-                                                        handleMenuAction(
-                                                          option.action,
-                                                          workflow.title
-                                                        )
-                                                      }
-                                                      className={`w-full flex items-center px-4 py-2 text-sm hover:bg-minimal-cardHover/50 transition-all duration-200 ${option.className}`}
-                                                    >
-                                                      <OptionIcon className="w-4 h-4 mr-3" />
-                                                      <span>
-                                                        {option.label}
-                                                      </span>
-                                                    </button>
-                                                  );
-                                                }
-                                              )}
-                                            </div>
-                                          </div>
-                                        )}
-                                      </div>
-                                    </div>
-
-                                    <h4 className="text-minimal-white font-semibold text-sm mb-2 group-hover/card:text-minimal-primary transition-colors duration-300">
-                                      {workflow.title}
-                                    </h4>
-                                    <p className="text-minimal-muted text-xs leading-relaxed mb-4 group-hover/card:text-minimal-white transition-colors duration-300">
-                                      {workflow.description}
-                                    </p>
-
-                                    <div className="space-y-2">
-                                      <div className="flex items-center justify-between text-xs"></div>
-                                      <div className="text-xs text-minimal-muted">
-                                        {workflow.users} users
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
+                          );
+                        })}
                       </div>
-                    )}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes gridMove {
-          0% {
-            transform: translate(0, 0);
-          }
-          100% {
-            transform: translate(50px, 50px);
-          }
-        }
-      `}</style>
     </div>
   );
 };

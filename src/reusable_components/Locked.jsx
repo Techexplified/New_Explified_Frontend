@@ -1,8 +1,8 @@
-import React from 'react'
-import { Lock, Crown, Star, Zap } from 'lucide-react'
+import React from "react";
+import { Lock, Crown, Star, Zap } from "lucide-react";
 const Locked = () => {
   return (
-    <div className="min-h-screen bg-minimal-dark-100 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-black flex items-center justify-center p-6">
       <div className="max-w-md w-full text-center">
         {/* Card */}
         <div className="bg-minimal-dark-100 rounded-2xl p-6 border border-gray-800 shadow-xl">
@@ -18,11 +18,10 @@ const Locked = () => {
           </div> */}
 
           {/* Message */}
-          <h1 className="text-xl font-bold text-white mb-2">
-            Feature Locked
-          </h1>
+          <h1 className="text-xl font-bold text-white mb-2">Feature Locked</h1>
           <p className="text-gray-400 mb-6 text-sm">
-            Unlock premium features to access advanced tools and priority support.
+            Unlock premium features to access advanced tools and priority
+            support.
           </p>
 
           {/* Features */}
@@ -37,7 +36,9 @@ const Locked = () => {
               <div className="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-400 to-teal-500 flex items-center justify-center">
                 <Zap className="w-3 h-3 text-black" />
               </div>
-              <span className="text-gray-300 text-sm">Enhanced performance</span>
+              <span className="text-gray-300 text-sm">
+                Enhanced performance
+              </span>
             </div>
             <div className="flex items-center gap-2 text-left">
               <div className="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-400 to-teal-500 flex items-center justify-center">
@@ -57,7 +58,7 @@ const Locked = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Locked
+export default Locked;

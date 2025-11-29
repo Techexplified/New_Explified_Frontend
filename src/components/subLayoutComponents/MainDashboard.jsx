@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   FileText,
   Projector,
-  Images,
   Plus,
   Play,
   Zap,
@@ -14,11 +13,11 @@ import {
   PlugZap,
   ChevronRight,
   ChevronLeft,
-  CircleUserRound,
-  Grip,
   Star,
+  Clipboard,
+  ClipboardPen,
 } from "lucide-react";
-import { useNavigate, useLocation, NavLink } from "react-router-dom";
+import { useNavigate, NavLink } from "react-router-dom";
 import { MdElderlyWoman, MdOutlineGifBox } from "react-icons/md";
 import { SiGmail, SiGooglesheets } from "react-icons/si";
 import {
@@ -52,31 +51,6 @@ import {
 } from "react-icons/fa";
 import { AiOutlineFileImage } from "react-icons/ai";
 import { MdEdit } from "react-icons/md";
-import MainSidebar from "../MainSidebar";
-
-// Sidebar menu config
-const menuItems = [
-  {
-    path: "/",
-    label: "Dashboard",
-    icon: <LayoutDashboard className="w-5 h-5" />,
-  },
-  {
-    path: "/all-apps",
-    label: "All Apps",
-    icon: <Layers className="w-5 h-5" />,
-  },
-  {
-    path: "/workflows",
-    label: "Workflows",
-    icon: <Workflow className="w-5 h-5" />,
-  },
-  {
-    path: "/integrations",
-    label: "Integrations",
-    icon: <PlugZap className="w-5 h-5" />,
-  },
-];
 
 const sampleWorkflows = [
   {
@@ -310,12 +284,19 @@ const allTools = [
     color: "from-teal-500 to-teal-700",
   },
   {
-    title: "Video Meme Generator AI",
+    title: "Text To Meme Generator AI",
     description: "Turn any clip into a share-worthy meme in seconds with AI.",
     icon: <FaLaughSquint />,
-    route: "/video-meme-generator",
+    route: "/text-to-meme",
     color: "from-teal-500 to-teal-700",
   },
+  // {
+  //   title: "Video Meme Generator AI",
+  //   description: "Turn any clip into a share-worthy meme in seconds with AI.",
+  //   icon: <FaLaughSquint />,
+  //   route: "/video-meme-generator",
+  //   color: "from-teal-500 to-teal-700",
+  // },
   {
     title: "Integrations",
     description: "Instantly share across your socials.",
@@ -376,23 +357,9 @@ const allTools = [
 
 const MainDashboard = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-
-  // Sidebar states
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [closeSidebar, setCloseSidebar] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
-  const [showAllApps, setShowAllApps] = useState(false);
-  const [showAllWorkflows, setShowAllWorkflows] = useState(false);
-
-  // Carousel states
   const [currentSlide, setCurrentSlide] = useState(0);
-
-  // Search/filter state
   const [searchText, setSearchText] = useState("");
 
-  // Use your own or generated HD images URLs here
   const expliImageUrl = expli;
   const notesImageUrl = notes;
 
@@ -416,30 +383,30 @@ const MainDashboard = () => {
   const popularApps = [
     {
       id: 1,
-      name: "Image Styler",
-      icon: <Images className="w-8 h-8" />,
-      color: "from-purple-500 to-pink-600",
-      route: "/image-styler",
+      name: "Expli",
+      icon: <Plus />,
+      color: "from-teal-500 to-teal-700",
+      route: "/expli",
     },
     {
       id: 2,
-      name: "Image To Video AI",
-      icon: <FaImage className="w-8 h-8" />,
-      color: "from-blue-500 to-cyan-600",
-      route: "/image-to-video-ai",
+      name: "Notes",
+      icon: <ClipboardPen />,
+      color: "from-teal-500 to-teal-700",
+      route: "/tasks",
     },
     {
       id: 3,
       name: "Slideshow Maker",
-      icon: <Projector className="w-8 h-8" />,
-      color: "from-orange-500 to-red-600",
+      icon: <Projector />,
+      color: "from-teal-500 to-teal-700",
       route: "/presentation",
     },
     {
       id: 4,
       name: "AI GIF Generator",
-      icon: <MdOutlineGifBox className="w-8 h-8" />,
-      color: "from-green-500 to-teal-600",
+      icon: <MdOutlineGifBox />,
+      color: "from-teal-500 to-teal-700",
       route: "/ai-gif-generator",
     },
   ].filter((app) =>
@@ -451,19 +418,9 @@ const MainDashboard = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % carouselItems.length);
-    }, 2300);
+    }, 6000);
     return () => clearInterval(interval);
   }, [carouselItems.length]);
-
-  // Profile dropdown handlers
-  let profileTimeoutId;
-  const handleProfileEnter = () => {
-    clearTimeout(profileTimeoutId);
-    setIsProfileOpen(true);
-  };
-  const handleProfileLeave = () => {
-    profileTimeoutId = setTimeout(() => setIsProfileOpen(false), 200);
-  };
 
   // Carousel controls
   const goToSlide = (index) => setCurrentSlide(index);
@@ -475,10 +432,8 @@ const MainDashboard = () => {
     );
 
   // Limit items when not expanded
-  const displayedApps = showAllApps ? allTools : allTools.slice(0, 8);
-  const displayedWorkflows = showAllWorkflows
-    ? sampleWorkflows
-    : sampleWorkflows.slice(0, 6);
+  const displayedApps = allTools.slice(0, 8);
+  const displayedWorkflows = sampleWorkflows.slice(0, 6);
 
   return (
     <>
@@ -489,7 +444,6 @@ const MainDashboard = () => {
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-teal-500/5 rounded-full blur-3xl animate-pulse delay-500" />
         </div>
-        {/* <MainSidebar /> */}
 
         {/* Main Content */}
         <div className="flex-1 ml-20 relative z-10">
@@ -498,22 +452,6 @@ const MainDashboard = () => {
               <div className="mx-auto">
                 {/* Top Title, Subtitle, Filter Bar */}
                 <div className="mb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-                  {/* <div>
-                    <h1
-                      className="text-5xl font-extrabold leading-tight bg-gradient-to-r from-teal-400 via-cyan-300 to-blue-400 text-transparent bg-clip-text animate-gradientText"
-                      style={{
-                        backgroundSize: "200% 200%",
-                        backgroundPosition: "left center",
-                        WebkitTextStroke: "1px #0ff6ef22",
-                      }}
-                    >
-                      Explified
-                    </h1>
-                    <p className="text-lg text-gray-400 mt-3 font-medium">
-                      Transform your workflow with AI-powered tools and seamless
-                      automation
-                    </p>
-                  </div> */}
                   <div className="flex-1 flex items-end justify-end">
                     <div className="relative w-full max-w-md">
                       {/* Search Icon */}
@@ -596,7 +534,6 @@ const MainDashboard = () => {
                             style={{ backgroundImage: `url(${item.image})` }}
                           >
                             {/* Gradient overlay for depth */}
-                            {/* Gradient overlay with teal accent */}
                             <div className="absolute inset-0 bg-gradient-to-tr from-[#0f2027]/90 via-[#23b5b5]/40 to-transparent z-0"></div>
 
                             {/* Glow effects */}
@@ -671,15 +608,19 @@ const MainDashboard = () => {
                             className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300 bg-gradient-to-br ${app.color}`}
                           />
                           <div className="relative z-10">
-                            <div className="text-3xl sm:text-4xl mb-2 flex items-center justify-center">
+                            <span
+                              className={`w-9 h-9 mx-auto flex items-center justify-center rounded-md text-xl bg-gradient-to-br ${
+                                app.color ?? "from-[#23b5b5] to-cyan-600"
+                              }`}
+                            >
                               {typeof app.icon === "string"
                                 ? app.icon
                                 : app.icon}
-                            </div>
-                            <h3 className="text-white font-semibold text-sm sm:text-base line-clamp-1 text-center">
+                            </span>
+                            <h3 className="text-white font-semibold text-sm sm:text-base line-clamp-1 py-2 text-center">
                               {app.name}
                             </h3>
-                            <div className="flex items-center gap-1 mt-2 justify-center">
+                            <div className="flex items-center gap-1 justify-center">
                               <Star
                                 size={12}
                                 className="text-yellow-400 fill-yellow-400 flex-shrink-0"
@@ -698,7 +639,7 @@ const MainDashboard = () => {
                   </div>
                 </div>
                 {/* Bottom Section: All Apps & Workflows statistic cards */}
-                <div className="flex flex-col md:flex-row gap-6 min-h-[320px]">
+                <div className="flex flex-col lg:flex-row gap-6 min-h-[320px]">
                   {/* All Apps Card */}
                   <div className="flex-1 flex flex-col group overflow-hidden rounded-2xl border border-gray-700 hover:border-[#23b5b5]/50 bg-gradient-to-br from-gray-900/30 to-black/30 p-6 sm:p-8 backdrop-blur-sm transition-shadow duration-300 hover:shadow-lg cursor-pointer">
                     <div className="flex items-center justify-between mb-3">
@@ -722,13 +663,14 @@ const MainDashboard = () => {
                         <div
                           key={app.title}
                           onClick={() => navigate(app.route)}
-                          className="relative bg-[#13161a] rounded-xl p-5 cursor-pointer hover:shadow-xl hover:border-[#23b5b5] border border-transparent transition-all group flex flex-col"
+                          className="relative bg-[#13161a] rounded-xl p-4 cursor-pointer hover:shadow-xl hover:border-[#23b5b5] border border-transparent transition-all group flex flex-col"
                         >
                           {/* Header: Icon + Title side by side */}
                           <div className="flex items-center gap-3 mb-2">
                             {app.icon && (
                               <span
-                                className={`w-9 h-9 flex items-center justify-center rounded-md text-xl bg-gradient-to-br ${
+                                // ADDED 'shrink-0' HERE
+                                className={`w-9 h-9 shrink-0 flex items-center justify-center rounded-md text-xl bg-gradient-to-br ${
                                   app.color ?? "from-[#23b5b5] to-cyan-600"
                                 }`}
                               >
@@ -801,7 +743,8 @@ const MainDashboard = () => {
                           className="relative bg-[#13161a] rounded-xl p-5 cursor-pointer hover:shadow-xl hover:border-[#23b5b5] border border-transparent transition-all group flex flex-col"
                         >
                           {/* Integrations/Icons Top Row */}
-                          <div className="flex items-center gap-2 mb-3">
+                          {/* CHANGED: Added 'flex-wrap' to allow items to stack if space runs out */}
+                          <div className="flex flex-wrap items-center gap-2 mb-3">
                             {wf.tools &&
                               wf.tools.map((tool, idx) => (
                                 <span
@@ -812,19 +755,23 @@ const MainDashboard = () => {
                                 </span>
                               ))}
                             {wf.category && (
-                              <span className="text-[11px] px-2 py-1 rounded bg-[#24282c] text-teal-400 font-bold ml-2 uppercase">
+                              // CHANGED: Removed 'ml-2' because 'gap-2' on parent handles the spacing now
+                              <span className="text-[11px] px-2 py-1 rounded bg-[#24282c] text-teal-400 font-bold uppercase">
                                 {wf.category}
                               </span>
                             )}
                           </div>
+
                           {/* Title */}
                           <h3 className="font-semibold text-lg text-white mb-0.5">
                             {wf.title}
                           </h3>
+
                           {/* Description */}
                           <p className="text-gray-400 text-[13px] mb-5 flex-1">
                             {wf.description}
                           </p>
+
                           {/* Recommendation/CTA */}
                           <div className="text-[#23b5b5] text-xs font-medium flex items-center">
                             <span className="mr-1">Recommended for you</span>
@@ -840,7 +787,7 @@ const MainDashboard = () => {
                         onClick={() => navigate("/workflows")}
                         className="mt-4 py-2 rounded-lg bg-gradient-to-r from-cyan-600 to-[#23b5b5] text-white font-semibold hover:from-[#23b5b5] hover:to-cyan-600 transition-colors"
                       >
-                        {showAllWorkflows ? "Show Less" : "Explore Workflows"}
+                        Explore Workflows
                       </button>
                     )}
                   </div>

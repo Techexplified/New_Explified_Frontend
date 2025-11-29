@@ -20,6 +20,14 @@ function IntegrationModal({
   const [selectedProviderKey, setSelectedProviderKey] = useState("");
   const [showProviderHelp, setShowProviderHelp] = useState(false);
 
+  // ✅ New: state for Coming Soon popup
+  const [showComingSoon, setShowComingSoon] = useState(false);
+  // ✅ Function to handle Update Preferences button
+  const handleUpdatePreferences = () => {
+    setShowComingSoon(true);
+    // Auto close popup after 2.5s
+    setTimeout(() => setShowComingSoon(false), 2500);
+  };
   async function verifyProviderKey(providerId, apiKey) {
     try {
       switch (providerId) {
@@ -192,7 +200,6 @@ function IntegrationModal({
               }).map((p) => {
                 const Icon = p.icon;
                 const hasKey = Boolean(providerKeys[p.id]);
-                console.log(p.id);
 
                 return (
                   <div
@@ -232,7 +239,7 @@ function IntegrationModal({
                         <FiChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none text-sm" />
                       </div>
 
-                      {!hasKey && (
+                      {!(p.id === "openai" || p.id === "gemini") && (
                         <button
                           type="button"
                           onClick={(e) => e.stopPropagation()}
@@ -306,10 +313,13 @@ function IntegrationModal({
               })}
             </div>
 
-            <button className="w-full mt-5 py-2 bg-white text-black rounded-xl font-semibold hover:bg-gray-100 transition shadow">
+            <button
+              onClick={handleUpdatePreferences}
+              className="w-full mt-5 py-2 bg-white text-black rounded-xl font-semibold hover:bg-gray-100 transition shadow"
+            >
               Update preferences
             </button>
-            <div className="w-full mt-3 flex flex-col items-center bg-gray-800 rounded-xl pt-3 border border-gray-700">
+            <div className="w-full mt-3 flex flex-col items-center cursor-default  pt-3 ">
               <div className="font-semibold mb-1 text-white">
                 Upgrade and Unlock Premium AI Models
               </div>
@@ -447,6 +457,23 @@ function IntegrationModal({
           </div>
         )}
       </div>
+
+      {showComingSoon && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-gray-900 border border-gray-700 rounded-xl shadow-2xl p-6 w-80 text-center animate-fade-in">
+            <h3 className="text-xl font-bold text-white mb-2">Coming Soon</h3>
+            <p className="text-gray-400 text-sm mb-4">
+              This feature will be available in an upcoming release.
+            </p>
+            <button
+              onClick={() => setShowComingSoon(false)}
+              className="px-4 py-2 bg-[#23b5b5] text-black rounded-lg font-medium hover:bg-[#1ca0a0] transition"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

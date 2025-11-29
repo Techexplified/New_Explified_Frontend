@@ -1335,3 +1335,26 @@ export default function AiSubtitlerApp() {
 
   return <AISubtitler />;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// const backendOrigin = (
+//   import.meta.env.REACT_APP_API_ORIGIN || "http://localhost:4000"
+// ).replace(/\/$/, "");

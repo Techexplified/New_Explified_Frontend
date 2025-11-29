@@ -2,12 +2,43 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 // React Icons
-import { MdOutlineGifBox, MdElderlyWoman,  MdEdit, MdFaceRetouchingNatural, MdBusiness } from "react-icons/md";
-import { SiGoogledrive, SiGooglecalendar, SiZoom, SiSlack, SiTrello, SiNotion, SiDropbox, SiWhatsapp, SiGoogleanalytics, SiGmail, SiGooglesheets } from "react-icons/si";
+import {
+  MdOutlineGifBox,
+  MdElderlyWoman,
+  MdEdit,
+  MdFaceRetouchingNatural,
+  MdBusiness,
+} from "react-icons/md";
+import {
+  SiGoogledrive,
+  SiGooglecalendar,
+  SiZoom,
+  SiSlack,
+  SiTrello,
+  SiNotion,
+  SiDropbox,
+  SiWhatsapp,
+  SiGoogleanalytics,
+  SiGmail,
+  SiGooglesheets,
+} from "react-icons/si";
 import { PiSubtitles } from "react-icons/pi";
 import { BsFillPlayCircleFill } from "react-icons/bs";
-import { FaYoutube, FaFileAlt, FaVideo, FaProjectDiagram, FaImages, FaLaughSquint, FaPlug, FaBolt, FaPlay, FaImage, FaLink } from "react-icons/fa";
+import {
+  FaYoutube,
+  FaFileAlt,
+  FaVideo,
+  FaProjectDiagram,
+  FaImages,
+  FaLaughSquint,
+  FaPlug,
+  FaBolt,
+  FaPlay,
+  FaImage,
+  FaLink,
+} from "react-icons/fa";
 import { AiOutlineLink, AiOutlineFileImage } from "react-icons/ai";
+import { ArrowLeft } from "lucide-react";
 
 // All Tools Array
 const allTools = [
@@ -122,9 +153,19 @@ const AllApps = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-10">
-      <h1 className="text-3xl font-bold text-white mb-6">All Apps</h1>
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div className="w-full relative bg-black mx-auto px-6 py-10">
+      <div className="absolute top-6 left-20 z-20">
+        <button
+          onClick={() => navigate("/")}
+          className="flex items-center gap-2 p-4 rounded-full bg-black text-gray-300 hover:text-[#23b5b5] border border-gray-800 hover:border-[#23b5b5]/40 transition-all duration-200 shadow-md"
+        >
+          <ArrowLeft size={20} />
+        </button>
+      </div>
+      <h1 className="text-3xl font-bold text-center text-white my-10">
+        All Apps
+      </h1>
+      <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 pl-16">
         {allTools.map((app) => (
           <div
             key={app.title}

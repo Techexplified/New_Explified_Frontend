@@ -23,10 +23,10 @@ export default function ToolsPopover({ visible }) {
           animate={{ opacity: 1, x: 0, scale: 1 }}
           exit={{ opacity: 0, x: -12, scale: 0.95 }}
           transition={{ duration: 0.25, ease: "easeOut" }}
-          className="absolute  left-14 top-0 z-50 bg-gradient-to-br from-[#101010] to-[#1b1b1b]
+          className="absolute  left-14 -top-10 z-50 bg-gradient-to-br from-[#101010] to-[#1b1b1b]
           border border-[#23b5b5]/40 rounded-2xl p-3 w-48 shadow-[0_0_20px_#23b5b530] backdrop-blur-xl"
         >
-          <div className="absolute -left-2 top-5 w-3 h-3 bg-[#101010] border-l border-t border-[#23b5b5]/40 rotate-45"></div>
+          <div className="absolute -left-2 top-14 w-3 h-3 bg-[#101010] border-l border-t border-[#23b5b5]/40 rotate-45"></div>
 
           <p className="text-gray-400 cursor-default text-xs mb-2 ml-1 tracking-wide">
             Quick Tools

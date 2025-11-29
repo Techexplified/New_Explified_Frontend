@@ -1,30 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Heart,
-  MessageCircle,
-  MoreHorizontal,
-  X,
-  Cloud,
-  TrendingUp,
-  TrendingDown,
-  Loader,
-} from "lucide-react";
-import { Pin, PinOff } from "lucide-react";
-import { Link } from "react-router-dom";
+import { X, Cloud, Loader } from "lucide-react";
+import MarketOutlook from "./MarketOutlook";
 
 const DiscoverPage = () => {
-  const [selectedInterests, setSelectedInterests] = useState([
-    "Tech & Science",
-  ]);
+  const [selectedInterest, setSelectedInterest] = useState("tech"); // ✅ single topic
   const [showInterestModal, setShowInterestModal] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarPinned, setSidebarPinned] = useState(false);
-  const navigate = useNavigate();
-  const link = "/";
-  const toolName = "Discover";
-
-  // State for API data
   const [newsData, setNewsData] = useState({
     featured: null,
     articles: [],
@@ -32,36 +13,46 @@ const DiscoverPage = () => {
     error: null,
   });
   const [weatherData, setWeatherData] = useState(null);
-  const [marketData, setMarketData] = useState([]);
   const fetchedRef = useRef(false);
-  // API Configuration - Add your API keys here
-  const API_KEYS = {
-    // Get free API key from https://newsapi.org/
-    news: "2bc51ce017dc42069fbe9574f32c0e75",
-    // Get free API key from https://openweathermap.org/api
-    weather: "YOUR_WEATHER_API_KEY",
-    // No API key needed for Open-Meteo
-    // Get free API key from https://www.alphavantage.co/
-    finance: "YOUR_ALPHA_VANTAGE_KEY",
+  const navigate = useNavigate();
+
+  const interests = [
+    "business",
+    "science",
+    "tech",
+    "finance",
+    "arts",
+    "sports",
+    "entertainment",
+    "politics",
+    "health",
+    "travel",
+  ];
+
+  // ✅ Toggle single interest
+  const toggleInterest = (interest) => {
+    setSelectedInterest((prev) => (prev === interest ? null : interest));
   };
 
-  const NEWS_API_KEY = "2bc51ce017dc42069fbe9574f32c0e75";
-
-  // Fetch News Data
+  // ✅ Fetch news based on selectedInterest
   const fetchNews = async () => {
     try {
-      setNewsData((prev) => ({ ...prev, loading: true }));
+      setNewsData((prev) => ({ ...prev, loading: true, error: null }));
+
+      // Use selected interest or fallback
+      const topic = selectedInterest || "world";
+
       const response = await fetch(
-        ` https://newsdata.io/api/1/latest?apikey=${
+        `https://newsdata.io/api/1/latest?apikey=${
           import.meta.env.VITE_NEWS_API_KEY_SARITA
-        }&language=en`
+        }&q=${encodeURIComponent(topic)}&language=en`
       );
+
       const data = await response.json();
 
-      console.log(data);
-
       if (data.results && data.results.length > 0) {
-        let articles = data.results;
+        const articles = data.results;
+
         setNewsData({
           featured: {
             title: articles[0].title,
@@ -76,72 +67,34 @@ const DiscoverPage = () => {
             title: a.title,
             sources: Math.floor(Math.random() * 50) + 10,
             image: a.image_url,
-            category: "tech",
+            category: topic,
             url: a.source_url,
-            // content: a.content,
             publishedTime: new Date(a.pubDate).toLocaleString(),
           })),
           loading: false,
           error: null,
         });
+      } else {
+        setNewsData({
+          featured: null,
+          articles: [],
+          loading: false,
+          error: "No articles found for this topic.",
+        });
       }
     } catch (err) {
-      // setNewsData((prev) => ({
-      //   ...prev,
-      //   loading: false,
-      //   error: err.message,
-      // }));
-      console.log(err);
+      console.error("Error fetching news:", err);
+      setNewsData((prev) => ({
+        ...prev,
+        loading: false,
+        error: "Failed to fetch news.",
+      }));
     }
   };
-  // const fetchNews = async () => {
-  //   try {
-  //     setNewsData((prev) => ({ ...prev, loading: true }));
-  //     const response = await fetch(
-  //       `https://newsapi.org/v2/top-headlines?country=us&apiKey=${NEWS_API_KEY}`
-  //     );
-  //     const data = await response.json();
 
-  //     console.log(data);
-
-  //     if (data.articles && data.articles.length > 0) {
-  //       let articles = data.articles;
-  //       setNewsData({
-  //         featured: {
-  //           title: articles[0].title,
-  //           publishedTime: new Date(articles[0].publishedAt).toLocaleString(),
-  //           summary: articles[0].description,
-  //           url: articles[0].url,
-  //           image: articles[0].urlToImage,
-  //           sources: Math.floor(Math.random() * 50) + 10,
-  //         },
-  //         articles: articles.map((a, i) => ({
-  //           id: i + 1,
-  //           title: a.title,
-  //           sources: Math.floor(Math.random() * 50) + 10,
-  //           image: a.urlToImage,
-  //           category: "tech",
-  //           url: a.url,
-  //           content: a.content,
-  //           publishedTime: new Date(a.publishedAt).toLocaleString(),
-  //         })),
-  //         loading: false,
-  //         error: null,
-  //       });
-  //     }
-  //   } catch (err) {
-  //     setNewsData((prev) => ({
-  //       ...prev,
-  //       loading: false,
-  //       error: err.message,
-  //     }));
-  //   }
-  // };
-
-  // Fetch Weather Data
+  // ✅ Fetch Weather (unchanged)
   const fetchWeather = async () => {
     try {
-      // Using Open-Meteo (free, no API key required)
       const response = await fetch(
         "https://api.open-meteo.com/v1/forecast?latitude=22.5726&longitude=88.3639&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto"
       );
@@ -170,7 +123,6 @@ const DiscoverPage = () => {
       }
     } catch (error) {
       console.error("Error fetching weather:", error);
-      // Fallback to mock data
       setWeatherData({
         current: "30°C",
         condition: "Mostly cloudy",
@@ -186,133 +138,16 @@ const DiscoverPage = () => {
     }
   };
 
-  // Fetch Market Data
-  const fetchMarketData = async () => {
-    try {
-      // Fetch crypto data from CoinGecko (free)
-      const cryptoResponse = await fetch(
-        "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true"
-      );
-      const cryptoData = await cryptoResponse.json();
-
-      const marketInfo = [
-        {
-          name: "S&P 500",
-          symbol: "SPX",
-          price: "5,850.25",
-          change: "+0.45%",
-          changeValue: "+25.8",
-          isPositive: true,
-        },
-        {
-          name: "NASDAQ",
-          symbol: "IXIC",
-          price: "18,574.25",
-          change: "+0.32%",
-          changeValue: "+58.7",
-          isPositive: true,
-        },
-      ];
-
-      if (cryptoData.bitcoin) {
-        marketInfo.push({
-          name: "Bitcoin",
-          symbol: "BTC",
-          price: `${cryptoData.bitcoin.usd.toLocaleString()}`,
-          change: `${
-            cryptoData.bitcoin.usd_24h_change > 0 ? "+" : ""
-          }${cryptoData.bitcoin.usd_24h_change.toFixed(2)}%`,
-          changeValue: `${cryptoData.bitcoin.usd_24h_change > 0 ? "+" : ""}${(
-            (cryptoData.bitcoin.usd * cryptoData.bitcoin.usd_24h_change) /
-            100
-          ).toFixed(0)}`,
-          isPositive: cryptoData.bitcoin.usd_24h_change > 0,
-        });
-      }
-
-      if (cryptoData.ethereum) {
-        marketInfo.push({
-          name: "Ethereum",
-          symbol: "ETH",
-          price: `${cryptoData.ethereum.usd.toLocaleString()}`,
-          change: `${
-            cryptoData.ethereum.usd_24h_change > 0 ? "+" : ""
-          }${cryptoData.ethereum.usd_24h_change.toFixed(2)}%`,
-          changeValue: `${cryptoData.ethereum.usd_24h_change > 0 ? "+" : ""}${(
-            (cryptoData.ethereum.usd * cryptoData.ethereum.usd_24h_change) /
-            100
-          ).toFixed(0)}`,
-          isPositive: cryptoData.ethereum.usd_24h_change > 0,
-        });
-      }
-
-      setMarketData(marketInfo);
-    } catch (error) {
-      console.error("Error fetching market data:", error);
-      // Fallback to mock data
-      setMarketData([
-        {
-          name: "S&P Future",
-          symbol: "E$USD",
-          price: "6,400.25",
-          change: "+0.01%",
-          changeValue: "+0.5",
-          isPositive: true,
-        },
-        {
-          name: "NASDAQ",
-          symbol: "NQUSD",
-          price: "23,641.25",
-          change: "+0.02%",
-          changeValue: "+1.75",
-          isPositive: true,
-        },
-        {
-          name: "Bitcoin",
-          symbol: "BTCUSD",
-          price: "96,789.45",
-          change: "-0.13%",
-          changeValue: "-$150.83",
-          isPositive: false,
-        },
-        {
-          name: "VIX",
-          symbol: "^VIX",
-          price: "18.42",
-          change: "+0.12%",
-          changeValue: "+0.02",
-          isPositive: true,
-        },
-      ]);
-    }
-  };
-
-  // Load data on component mount
+  // ✅ Fetch on mount and whenever selectedInterest changes
   useEffect(() => {
-    if (fetchedRef.current) return; // 👈 Skip fetching if already fetched
-    fetchedRef.current = true;
-
-    fetchNews();
-    fetchWeather();
-    fetchMarketData();
-
-    const interval = setInterval(() => {
+    if (!fetchedRef.current) {
+      fetchedRef.current = true;
       fetchNews();
       fetchWeather();
-      fetchMarketData();
-    }, 300000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  // const handleArticleClick = (url) => {
-  //   if (url) {
-  //     // Open in new tab to keep user on your site
-  //     window.open(url, "_blank", "noopener,noreferrer");
-  //   } else {
-  //     console.log("No URL available for this article");
-  //   }
-  // };
+    } else {
+      fetchNews();
+    }
+  }, [selectedInterest]);
 
   const handleArticleClick = (article) => {
     if (article) {
@@ -322,112 +157,60 @@ const DiscoverPage = () => {
       navigate(`/expli/discover/${slug}`, {
         state: { article: { title: article.title, url: article.url } },
       });
-    } else {
-      console.log("No article data available");
     }
   };
 
-  const interests = [
-    "Tech & Science",
-    "Finance",
-    "Arts & Culture",
-    "Sports",
-    "Entertainment",
-    "Politics",
-    "Health",
-    "Travel",
-  ];
-
-  const toggleInterest = (interest) => {
-    if (selectedInterests.includes(interest)) {
-      setSelectedInterests((prev) => prev.filter((i) => i !== interest));
-    } else {
-      setSelectedInterests((prev) => [...prev, interest]);
-    }
-  };
-
+  // --- UI Section
   return (
-    <div className="w-full flex-1 overflow-scroll border border-cyan-500/20 shadow-[...] bg-black flex flex-col gap-4 relative backdrop-blur-xl">
+    <div className="w-full flex-1 overflow-scroll border border-cyan-500/20 bg-black flex flex-col gap-4 relative backdrop-blur-xl">
       <div className="flex">
-        {/* Main Content */}
-
+        {/* MAIN CONTENT */}
         <main className="flex-1 p-6">
-          {/* Loading State */}
           {newsData.loading && (
             <div className="flex items-center justify-center py-12">
               <Loader className="animate-spin text-[#23b5b5]" size={32} />
-              <span className="ml-3 text-gray-400">Loading latest news...</span>
+              <span className="ml-3 text-gray-400">
+                Loading {selectedInterest || "world"} news...
+              </span>
             </div>
           )}
 
-          {/* Error State */}
           {newsData.error && (
             <div className="bg-red-900/20 border border-red-500/50 rounded-xl p-4 mb-8">
-              <p className="text-red-400">
-                Error loading news: {newsData.error}
-              </p>
-              <button
-                onClick={fetchNews}
-                className="mt-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm"
-              >
-                Retry
-              </button>
+              <p className="text-red-400">{newsData.error}</p>
             </div>
           )}
 
-          {/* Featured Article */}
-          {newsData.featured && !newsData.loading && (
+          {!newsData.loading && newsData.featured && (
             <div
-              className="bg-[#121212] rounded-2xl p-6 mb-8 flex"
+              className="bg-[#121212] rounded-2xl cursor-pointer p-6 mb-8 flex"
               onClick={() => handleArticleClick(newsData.featured)}
             >
               <div className="flex-1 pr-6">
                 <h2 className="text-4xl font-bold text-[#23b5b5] mb-4 leading-tight">
                   {newsData.featured.title}
                 </h2>
-                <div className="flex items-center text-gray-400 text-sm mb-4">
-                  <span>📅 Published {newsData.featured.publishedTime}</span>
-                </div>
                 <p className="text-gray-300 text-lg mb-6 leading-relaxed">
                   {newsData.featured.summary}
                 </p>
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <div className="flex -space-x-2">
-                      <div className="w-6 h-6 bg-[#23b5b5] rounded-full border-2 border-black"></div>
-                      <div className="w-6 h-6 bg-gray-500 rounded-full border-2 border-black"></div>
-                      <div className="w-6 h-6 bg-gray-700 rounded-full border-2 border-black"></div>
-                    </div>
-                    <span className="text-gray-400 text-sm">
-                      {newsData.featured.sources} sources
-                    </span>
-                  </div>
-                  <button className="text-gray-400 hover:text-[#23b5b5]">
-                    <Heart size={20} />
-                  </button>
-                  <button className="text-gray-400 hover:text-[#23b5b5]">
-                    <MoreHorizontal size={20} />
-                  </button>
-                </div>
               </div>
-              <div className="w-96">
+              {newsData.featured.image && (
                 <img
                   src={newsData.featured.image}
-                  alt="Featured article"
-                  className="w-full h-64 object-cover rounded-lg"
+                  alt="Featured"
+                  className="w-96 h-64 object-cover rounded-lg"
                 />
-              </div>
+              )}
             </div>
           )}
 
-          {/* News Grid */}
           {!newsData.loading && newsData.articles.length > 0 && (
             <div className="grid grid-cols-3 gap-6">
               {newsData.articles.map((article) => (
                 <div
                   key={article.id}
-                  className="bg-[#121212] rounded-xl overflow-hidden hover:bg-[#1a1a1a] transition-colors cursor-pointer"
                   onClick={() => handleArticleClick(article)}
+                  className="bg-[#121212] rounded-xl overflow-hidden hover:bg-[#1a1a1a] transition-colors cursor-pointer"
                 >
                   <img
                     src={article.image}
@@ -438,64 +221,31 @@ const DiscoverPage = () => {
                     <h3 className="font-semibold text-lg mb-3 leading-tight">
                       {article.title}
                     </h3>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <div className="flex -space-x-1">
-                          <div className="w-4 h-4 bg-[#23b5b5] rounded-full border border-black"></div>
-                          <div className="w-4 h-4 bg-gray-500 rounded-full border border-black"></div>
-                        </div>
-                        <span className="text-gray-400 text-sm">
-                          {article.sources} sources
-                        </span>
-                      </div>
-                      <div className="flex items-center space-x-2 text-gray-400">
-                        <button className="hover:text-[#23b5b5]">
-                          <Heart size={16} />
-                        </button>
-                        <button className="hover:text-[#23b5b5]">
-                          <MoreHorizontal size={16} />
-                        </button>
-                      </div>
-                    </div>
+                    <span className="text-gray-400 text-sm">
+                      {article.sources} sources
+                    </span>
                   </div>
                 </div>
               ))}
             </div>
           )}
-
-          {/* Refresh Button */}
-          <div className="mt-8 text-center">
-            <button
-              onClick={fetchNews}
-              className="px-6 py-2 bg-[#23b5b5] hover:bg-[#1ca0a0] text-black rounded-lg text-sm font-medium"
-              disabled={newsData.loading}
-            >
-              {newsData.loading ? "Loading..." : "Refresh News"}
-            </button>
-          </div>
         </main>
 
-        {/* Right Sidebar */}
+        {/* RIGHT SIDEBAR */}
         <aside className="w-80 p-6 border-l border-[#23b5b5]/30">
-          {/* Interests Card */}
+          {/* INTERESTS CARD */}
           <div className="bg-[#1a1a1a] rounded-xl p-4 mb-6 relative">
-            <button
-              className="absolute top-2 right-2 text-white hover:text-[#23b5b5]"
-              onClick={() => setShowInterestModal(false)}
-            >
-              <X size={20} />
-            </button>
-            <h3 className="font-bold text-lg mb-2">Make it yours</h3>
+            <h3 className="font-bold text-lg mb-2">Choose Your Interest</h3>
             <p className="text-sm text-gray-400 mb-4">
-              Select topics and interests to customize your Discover experience
+              Select one topic to customize your Discover experience
             </p>
             <div className="flex flex-wrap gap-2 mb-4">
-              {interests.slice(0, 4).map((interest) => (
+              {interests.slice(0, 8).map((interest) => (
                 <button
                   key={interest}
                   onClick={() => toggleInterest(interest)}
                   className={`px-3 py-1 rounded-full text-sm border ${
-                    selectedInterests.includes(interest)
+                    selectedInterest === interest
                       ? "bg-[#23b5b5] text-black border-[#23b5b5]"
                       : "bg-transparent text-white border-[#23b5b5]/50 hover:bg-[#23b5b5]/20"
                   }`}
@@ -504,15 +254,9 @@ const DiscoverPage = () => {
                 </button>
               ))}
             </div>
-            <button
-              className="w-full bg-[#23b5b5] hover:bg-[#1ca0a0] text-black py-2 px-4 rounded-lg font-medium"
-              onClick={() => setShowInterestModal(true)}
-            >
-              Save Interests
-            </button>
           </div>
 
-          {/* Weather Card */}
+          {/* WEATHER CARD */}
           {weatherData && (
             <div className="bg-[#121212] rounded-xl p-4 mb-6">
               <div className="flex items-center justify-between mb-4">
@@ -529,59 +273,11 @@ const DiscoverPage = () => {
                 </div>
                 <Cloud size={32} className="text-gray-400" />
               </div>
-              <div className="flex justify-between">
-                {weatherData.forecast.map((day, index) => (
-                  <div key={index} className="text-center">
-                    <div className="text-xs text-gray-400 mb-1">{day.day}</div>
-                    <div className="text-sm font-medium">{day.temp}</div>
-                    <div className="text-xs mt-1">
-                      {day.condition === "sunny" && "☀️"}
-                      {day.condition === "cloudy" && "☁️"}
-                      {day.condition === "rainy" && "🌧️"}
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
           )}
 
-          {/* Market Outlook */}
-          <div className="bg-[#121212] rounded-xl p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-lg">Market Outlook</h3>
-              <button
-                onClick={fetchMarketData}
-                className="text-xs text-[#23b5b5] hover:text-[#1ca0a0]"
-              >
-                Refresh
-              </button>
-            </div>
-            <div className="space-y-4">
-              {marketData.map((item, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium text-sm">{item.name}</div>
-                    <div className="text-xs text-gray-400">{item.symbol}</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-medium">{item.price}</div>
-                    <div
-                      className={`text-xs flex items-center ${
-                        item.isPositive ? "text-green-400" : "text-red-400"
-                      }`}
-                    >
-                      {item.isPositive ? (
-                        <TrendingUp size={12} className="mr-1" />
-                      ) : (
-                        <TrendingDown size={12} className="mr-1" />
-                      )}
-                      {item.change}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          {/* MARKET OUTLOOK */}
+          <MarketOutlook />
         </aside>
       </div>
 

@@ -32,8 +32,15 @@ import { Player } from "@remotion/player";
 import { Video, AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
 
 // Backend origin
+
+// const BACKEND_ORIGIN = (
+//   import.meta.env.VITE_API_ORIGIN ||
+//   import.meta.env.REACT_APP_API_ORIGIN ||
+//   "https://api-pf6diz22ka-uc.a.run.app"
+// ).replace(/\/$/, "");
+
 const BACKEND_ORIGIN = (
-  import.meta.env.VITE_API_ORIGIN || "http://localhost:4000"
+  import.meta.env.REACT_APP_API_ORIGIN || "http://localhost:4000"
 ).replace(/\/$/, "");
 
 // Optional Cloudinary env (unsigned upload preset)
@@ -162,7 +169,7 @@ async function translateSubtitlesToBackend(
   const detectedLanguage =
     srcLangCode || (videoData && videoData.detectedLanguage) || "auto";
 
-  const endpoint = `${BACKEND_ORIGIN}/translate-subtitles`;
+  const endpoint = `${BACKEND_ORIGIN}/upload-audio/translate-subtitles`;
   const payload = { segments, targetLang: target, detectedLanguage };
 
   const res = await fetch(endpoint, {
@@ -1022,7 +1029,9 @@ function removeNativeTracks(video) {
 
     // 2) remove any <track> elements from the video element DOM
     try {
-      const tracks = video.querySelectorAll ? video.querySelectorAll("track") : [];
+      const tracks = video.querySelectorAll
+        ? video.querySelectorAll("track")
+        : [];
       tracks.forEach((t) => {
         try {
           const src = t.src || t.getAttribute("src");
@@ -1059,7 +1068,6 @@ function disableNativeTracks(video) {
   removeNativeTracks(video);
 }
 // -------------------- end native-track helper --------------------
-
 
 /* ---------------------- ModernTimelineEditor ---------------------- */
 function ModernTimelineEditor({
@@ -1123,13 +1131,22 @@ function ModernTimelineEditor({
       const isMajor = t % majorInterval === 0;
       ticks.push({
         time: t,
-        label: isMajor ? `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}` : null,
+        label: isMajor
+          ? `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`
+          : null,
         isMajor,
       });
     }
 
     if (!ticks.some((x) => x.time === ceilDur)) {
-      ticks.push({ time: ceilDur, label: `${Math.floor(ceilDur / 60)}:${String(ceilDur % 60).padStart(2, "0")}`, isMajor: true });
+      ticks.push({
+        time: ceilDur,
+        label: `${Math.floor(ceilDur / 60)}:${String(ceilDur % 60).padStart(
+          2,
+          "0"
+        )}`,
+        isMajor: true,
+      });
     }
 
     return ticks.filter((t) => t.time <= sd);
@@ -1209,7 +1226,10 @@ function ModernTimelineEditor({
           {safeDuration > 0 &&
             subtitles.map((s, i) => {
               const left = (s.start / (safeDuration || 1)) * 100;
-              const width = Math.max(0.5, ((s.end - s.start) / (safeDuration || 1)) * 100);
+              const width = Math.max(
+                0.5,
+                ((s.end - s.start) / (safeDuration || 1)) * 100
+              );
               const isActive = currentTime >= s.start && currentTime < s.end;
 
               return (
@@ -2431,14 +2451,16 @@ export default function AiSubtitlerPage() {
 
     try {
       const targetLang = normalizeTargetLang(targetLangRaw) || targetLangRaw;
-      if (!targetLang) throw new Error("Unsupported or missing target language.");
+      if (!targetLang)
+        throw new Error("Unsupported or missing target language.");
 
       const srcLang =
         (videoData && videoData.detectedLanguage) ||
         (transcriptId ? "auto" : "auto") ||
         "auto";
 
-      const segmentsToSend = Array.isArray(subtitles) && subtitles.length > 0 ? subtitles : [];
+      const segmentsToSend =
+        Array.isArray(subtitles) && subtitles.length > 0 ? subtitles : [];
 
       setGenerationProgress({
         stage: "request",
@@ -2446,9 +2468,15 @@ export default function AiSubtitlerPage() {
         progress: 35,
       });
 
-      const res = await translateSubtitlesToBackend(segmentsToSend, targetLang, srcLang);
+      const res = await translateSubtitlesToBackend(
+        segmentsToSend,
+        targetLang,
+        srcLang
+      );
 
-      const translatedSegments = Array.isArray(res.segments) ? res.segments : [];
+      const translatedSegments = Array.isArray(res.segments)
+        ? res.segments
+        : [];
       const backendVttUrl = res.vttUrl || res.vttUrlPath || null;
 
       setGenerationProgress({
@@ -2461,7 +2489,10 @@ export default function AiSubtitlerPage() {
       let createdBlob = false;
       if (backendVttUrl) {
         if (/^https?:\/\//i.test(backendVttUrl)) finalVttUrl = backendVttUrl;
-        else finalVttUrl = `${BACKEND_ORIGIN}${backendVttUrl.startsWith("/") ? "" : "/"}${backendVttUrl}`;
+        else
+          finalVttUrl = `${BACKEND_ORIGIN}${
+            backendVttUrl.startsWith("/") ? "" : "/"
+          }${backendVttUrl}`;
       } else {
         const vttText = segmentsToVtt(translatedSegments);
         const blob = new Blob([vttText], { type: "text/vtt" });
@@ -2472,13 +2503,21 @@ export default function AiSubtitlerPage() {
       setVideoData((prev) => {
         try {
           const prevVtt = prev?.vttUrl;
-          if (prevVtt && typeof prevVtt === "string" && prevVtt.startsWith("blob:")) {
+          if (
+            prevVtt &&
+            typeof prevVtt === "string" &&
+            prevVtt.startsWith("blob:")
+          ) {
             try {
               URL.revokeObjectURL(prevVtt);
             } catch (e) {}
           }
         } catch (e) {}
-        return { ...(prev || {}), subtitles: translatedSegments, vttUrl: finalVttUrl };
+        return {
+          ...(prev || {}),
+          subtitles: translatedSegments,
+          vttUrl: finalVttUrl,
+        };
       });
 
       setSubtitles(translatedSegments);
@@ -2486,11 +2525,12 @@ export default function AiSubtitlerPage() {
       const vid = videoRef.current;
       if (vid) {
         try {
-          const prevGenerated = vid.querySelector('track[data-generated-vtt]');
+          const prevGenerated = vid.querySelector("track[data-generated-vtt]");
           if (prevGenerated) {
             try {
               const prevSrc = prevGenerated.src;
-              if (prevSrc && prevSrc.startsWith("blob:")) URL.revokeObjectURL(prevSrc);
+              if (prevSrc && prevSrc.startsWith("blob:"))
+                URL.revokeObjectURL(prevSrc);
             } catch (e) {}
             prevGenerated.remove();
           }
