@@ -221,7 +221,7 @@ const UnfinishedWorkflowsPage = () => {
                       {workflow.tools.map((tool, index) => (
                         <div key={tool} className="flex items-center relative">
                           <div
-                            className={`w-8 h-8 rounded-lg bg-gradient-to-r ${toolIcons[tool].color} flex items-center justify-center shadow-lg text-sm`}
+                            className={`w-8 h-8 rounded-lg bg-minimal-primary flex items-center justify-center shadow-lg text-sm`}
                           >
                             {toolIcons[tool].icon}
                           </div>

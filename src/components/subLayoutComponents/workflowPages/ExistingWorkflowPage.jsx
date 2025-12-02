@@ -45,7 +45,7 @@ const ExistingWorkflowsPage = () => {
       title: "Neural Email Sequences",
       description: "AI-powered email automation with behavioral triggers",
       icon: Mail,
-      color: "from-minimal-primary to-minimal-gray-600",
+      color: "from-[#23b5b5] to-cyan-600",
       status: "active",
       lastRun: "2 hours ago",
       nextRun: "in 4 hours",
@@ -66,7 +66,7 @@ const ExistingWorkflowsPage = () => {
       title: "Quantum CI/CD Pipeline",
       description: "Next-gen build, test, and deployment automation",
       icon: GitBranch,
-      color: "from-minimal-primary to-minimal-gray-600",
+      color: "from-[#23b5b5] to-cyan-600",
       status: "active",
       lastRun: "15 minutes ago",
       nextRun: "in 45 minutes",
@@ -80,7 +80,7 @@ const ExistingWorkflowsPage = () => {
       title: "Invoice Processing Bot",
       description: "Automated invoice generation and payment tracking",
       icon: DollarSign,
-      color: "from-minimal-primary to-minimal-gray-600",
+      color: "from-[#23b5b5] to-cyan-600",
       status: "paused",
       lastRun: "1 day ago",
       nextRun: "paused",
@@ -94,7 +94,7 @@ const ExistingWorkflowsPage = () => {
       title: "Data Lake Constructor",
       description: "Automated data ingestion and lake management",
       icon: Database,
-      color: "from-minimal-primary to-minimal-gray-600",
+      color: "from-[#23b5b5] to-cyan-600",
       status: "active",
       lastRun: "30 minutes ago",
       nextRun: "in 30 minutes",
@@ -108,7 +108,7 @@ const ExistingWorkflowsPage = () => {
       title: "AI Chatbot Assistant",
       description: "Intelligent customer query resolution",
       icon: Users,
-      color: "from-minimal-primary to-minimal-gray-600",
+      color: "from-[#23b5b5] to-cyan-600",
       status: "active",
       lastRun: "5 minutes ago",
       nextRun: "continuous",
@@ -122,7 +122,7 @@ const ExistingWorkflowsPage = () => {
       title: "AI Content Generator",
       description: "Automated blog posts and article creation",
       icon: FileText,
-      color: "from-minimal-primary to-minimal-gray-600",
+      color: "from-[#23b5b5] to-cyan-600",
       status: "error",
       lastRun: "3 hours ago",
       nextRun: "retry in 1 hour",
@@ -143,7 +143,7 @@ const ExistingWorkflowsPage = () => {
         id: "tw-1",
         title: "Social Media Orchestrator",
         icon: Activity,
-        color: "from-minimal-primary to-minimal-gray-600",
+        color: "from-[#23b5b5] to-cyan-600",
         triggers: 1247,
         trend: 12.5,
         category: "Marketing",
@@ -152,7 +152,7 @@ const ExistingWorkflowsPage = () => {
         id: "tw-2",
         title: "Security Audit Scanner",
         icon: Activity,
-        color: "from-minimal-primary to-minimal-gray-600",
+        color: "from-[#23b5b5] to-cyan-600",
         triggers: 89,
         trend: -5.2,
         category: "Development",
@@ -164,7 +164,7 @@ const ExistingWorkflowsPage = () => {
         id: "lm-1",
         title: "Lead Qualification Matrix",
         icon: Activity,
-        color: "from-minimal-primary to-minimal-gray-600",
+        color: "from-[#23b5b5] to-cyan-600",
         triggers: 3421,
         trend: 18.3,
         category: "Marketing",
@@ -173,7 +173,7 @@ const ExistingWorkflowsPage = () => {
         id: "lm-2",
         title: "Cloud Infra Manager",
         icon: Activity,
-        color: "from-minimal-primary to-minimal-gray-600",
+        color: "from-[#23b5b5] to-cyan-600",
         triggers: 234,
         trend: -12.1,
         category: "Development",
@@ -297,7 +297,7 @@ const ExistingWorkflowsPage = () => {
                         <div className="flex justify-between flex-wrap gap-4">
                           <div className="flex items-start space-x-4 flex-1 min-w-0">
                             <div
-                              className={`p-2 rounded-lg bg-gradient-to-r ${workflow.color}`}
+                              className={`p-2 rounded-lg bg-minimal-primary`}
                             >
                               <IconComponent className="w-5 h-5 text-white" />
                             </div>
@@ -438,9 +438,7 @@ const ExistingWorkflowsPage = () => {
                     >
                       <div className="flex justify-between items-center flex-wrap gap-3">
                         <div className="flex items-center space-x-3">
-                          <div
-                            className={`p-2 rounded-lg bg-gradient-to-r ${wf.color}`}
-                          >
+                          <div className={`p-2 rounded-lg bg-minimal-primary`}>
                             <IconComponent className="w-4 h-4 text-white" />
                           </div>
                           <div>
