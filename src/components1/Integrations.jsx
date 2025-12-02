@@ -336,7 +336,7 @@ export default function IntegrationsPage() {
           <div
             key={index}
             onClick={() => navigate("/locked")}
-            className="px-6 py-4 rounded-2xl bg-gradient-to-br from-gray-950/80 to-gray-900/60 bg-opacity-70 border border-gray-800/40 backdrop-blur-md shadow-lg transition-all duration-200 hover:bg-gray-900/80 hover:shadow-cyan-700/20 hover:scale-[1.02] cursor-pointer"
+            className="px-6 py-4 rounded-2xl bg-[#13161a] hover:shadow-xl hover:border-[#23b5b5] border border-transparent transition-all duration-200  cursor-pointer"
           >
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-700 rounded-lg flex items-center justify-center text-white text-xl shadow-lg group-hover:scale-110 transition-transform duration-200">
@@ -407,7 +407,7 @@ export default function IntegrationsPage() {
           <div
             key={index}
             onClick={() => navigate("/locked")}
-            className="px-6 py-4 rounded-2xl bg-gradient-to-br from-gray-950/80 to-gray-900/60 bg-opacity-70 border border-gray-800/40 backdrop-blur-md shadow-lg transition-all duration-200 hover:bg-gray-900/80 hover:shadow-cyan-700/20 hover:scale-[1.02] cursor-pointer"
+            className="px-6 py-4 rounded-2xl bg-[#13161a] hover:shadow-xl hover:border-[#23b5b5] border border-transparent transition-all duration-200 cursor-pointer"
           >
             {/* Connected status indicator */}
             <div className="absolute top-3 right-3 flex items-center gap-1">
@@ -518,7 +518,7 @@ export default function IntegrationsPage() {
       {/* Header */}
       <div className="relative px-12 pl-24 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-teal-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent mb-2 pb-2">
+          <h1 className="text-4xl font-bold bg-minimal-primary bg-clip-text text-transparent mb-2 pb-2">
             Integrations
           </h1>
           <p className="text-gray-400 text-lg">
@@ -529,7 +529,7 @@ export default function IntegrationsPage() {
         {/* Enhanced Search Bar */}
         <div className="relative max-w-2xl mx-auto mb-8">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-cyan-400" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-minimal-primary " />
             <input
               type="text"
               placeholder={placeholderText}
@@ -537,7 +537,7 @@ export default function IntegrationsPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-[#0A0F0F] border border-gray-700/60 rounded-2xl 
       pl-12 pr-4 py-4 text-white placeholder-gray-500
-      focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-700/20 
+      focus:outline-none focus:border-minimal-primary focus:ring-2 focus:ring-cyan-700/20 
       transition-all duration-200 shadow-md"
             />
           </div>
@@ -551,8 +551,8 @@ export default function IntegrationsPage() {
               onClick={() => setSelectedCategory("All")}
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                 selectedCategory === "All"
-                  ? "bg-gradient-to-r from-gray-800 to-gray-900 text-cyan-200 shadow-lg transform scale-105"
-                  : "text-white hover:bg-gray-800/80 hover:text-cyan-500"
+                  ? "bg-gradient-to-r from-gray-800 to-gray-900 text-minimal-primary shadow-lg transform scale-105"
+                  : "text-white hover:bg-gray-800/80 hover:text-minimal-primary"
               }`}
             >
               All
@@ -561,8 +561,8 @@ export default function IntegrationsPage() {
               onClick={() => setSelectedCategory("BYOK")}
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                 selectedCategory === "BYOK"
-                  ? "bg-gradient-to-r from-gray-800 to-gray-900 text-cyan-200 shadow-lg transform scale-105"
-                  : "text-white hover:bg-gray-800/80 hover:text-cyan-500"
+                  ? "bg-gradient-to-r from-gray-800 to-gray-900 text-minimal-primary shadow-lg transform scale-105"
+                  : "text-white hover:bg-gray-800/80 hover:text-minimal-primary"
               }`}
             >
               BYOK
@@ -573,8 +573,8 @@ export default function IntegrationsPage() {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                   selectedCategory === cat
-                    ? "bg-gradient-to-r from-gray-800 to-gray-900 text-cyan-200 shadow-lg transform scale-105"
-                    : "text-white hover:bg-gray-800/80 hover:text-cyan-500"
+                    ? "bg-gradient-to-r from-gray-800 to-gray-900 text-minimal-primary shadow-lg transform scale-105"
+                    : "text-white hover:bg-gray-800/80 hover:text-minimal-primary"
                 }`}
               >
                 {cat}
@@ -589,8 +589,8 @@ export default function IntegrationsPage() {
             onClick={() => setActiveTab("New Integrations")}
             className={`px-6 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
               activeTab === "New Integrations"
-                ? "bg-gradient-to-r from-gray-800 to-gray-900 text-cyan-200 shadow-lg"
-                : "text-cyan-300 hover:bg-gray-800/80 hover:text-white"
+                ? "bg-gradient-to-r from-gray-800 to-gray-900 text-minimal-primary shadow-lg"
+                : "text-white hover:bg-gray-800/80 hover:text-white"
             }`}
           >
             New Integrations
@@ -599,8 +599,8 @@ export default function IntegrationsPage() {
             onClick={() => setActiveTab("My Integrations")}
             className={`px-6 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
               activeTab === "My Integrations"
-                ? "bg-gradient-to-r from-gray-800 to-gray-900 text-cyan-200 shadow-lg"
-                : "text-cyan-300 hover:bg-gray-800/80 hover:text-white"
+                ? "bg-gradient-to-r from-gray-800 to-gray-900 text-minimal-primary shadow-lg"
+                : "text-white hover:bg-gray-800/80 hover:text-white"
             }`}
           >
             My Integrations

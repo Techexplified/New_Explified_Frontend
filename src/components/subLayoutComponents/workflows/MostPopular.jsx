@@ -120,10 +120,10 @@ const MostPopular = () => {
               <div
                 key={workflow.id}
                 onClick={() => navigate("/locked")}
-                className="group relative w-full min-h-64 bg-gradient-to-br from-black via-cyan-950 to-cyan-900/80  border border-cyan-700 rounded-xl p-5 hover:bg-[#23b5b5]/40 transition-all duration-300 transform hover:-translate-y-2  hover:shadow-xl hover:shadow-teal-500/30 cursor-pointer flex flex-col"
+                className="group relative w-full min-h-64 bg-[#13161a]  hover:border hover:border-[#23b5b5]/50 rounded-xl p-5 cursor-pointer flex flex-col"
               >
                 {/* Gradient overlay on hover */}
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-700/10 to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                {/* <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-700/10 to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div> */}
 
                 <div className="relative z-10 flex flex-col h-full">
                   {/* Header */}
@@ -147,7 +147,7 @@ const MostPopular = () => {
 
                       {/* Arrow connector */}
                       <svg
-                        className="w-6 h-6 text-gray-300 group-hover:text-teal-400 transition-colors duration-300"
+                        className="w-6 h-6 text-gray-300 group-hover:text-minimal-primary transition-colors duration-300"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -167,7 +167,7 @@ const MostPopular = () => {
                         onClick={(e) => toggleMenu(workflow.id, e)}
                         className="p-2 rounded-lg hover:bg-black/20 transition-colors duration-200 z-20 relative"
                       >
-                        <MoreHorizontal className="w-5 h-5 text-gray-300 hover:text-teal-400 transition-colors duration-200" />
+                        <MoreHorizontal className="w-5 h-5 text-gray-300 hover:text-minimal-primary transition-colors duration-200" />
                       </button>
 
                       {isMenuOpen && (
@@ -199,18 +199,18 @@ const MostPopular = () => {
 
                   {/* Content */}
                   <div className="flex-1">
-                    <div className="inline-block px-2 py-1 bg-black/40 rounded-md text-xs text-teal-400 mb-3">
+                    <div className="inline-block px-2 py-1 bg-black/40 rounded-md text-xs text-minimal-primary mb-3">
                       {workflow.category}
                     </div>
 
-                    <h3 className="text-white font-semibold text-base line-clamp-3 group-hover:text-teal-300 transition-colors duration-300 leading-tight">
+                    <h3 className="text-white font-semibold text-base line-clamp-3 group-hover:text-minimal-primary transition-colors duration-300 leading-tight">
                       {workflow.title}
                     </h3>
                   </div>
 
                   {/* Footer */}
                   <div className="flex items-center justify-between pt-2 border-t border-gray-700">
-                    <div className="flex items-center text-teal-400 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-0 group-hover:translate-x-1 ml-auto">
+                    <div className="flex items-center text-minimal-primary opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-0 group-hover:translate-x-1 ml-auto">
                       <span className="text-xs font-medium">Use Workflow</span>
                       <svg
                         className="w-4 h-4 ml-1"

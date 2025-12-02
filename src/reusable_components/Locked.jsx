@@ -7,7 +7,7 @@ const Locked = () => {
         {/* Card */}
         <div className="bg-minimal-dark-100 rounded-2xl p-6 border border-gray-800 shadow-xl">
           {/* Lock Icon */}
-          <div className="w-20 h-20 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-xl mx-auto flex items-center justify-center mb-4 shadow-lg">
+          <div className="w-20 h-20 bg-minimal-primary rounded-xl mx-auto flex items-center justify-center mb-4 shadow-lg">
             <Lock className="w-10 h-10 text-black" strokeWidth={2.5} />
           </div>
 
@@ -27,13 +27,13 @@ const Locked = () => {
           {/* Features */}
           <div className="space-y-2 flex  mb-6">
             <div className="flex items-center gap-2 text-left">
-              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-400 to-teal-500 flex items-center justify-center">
+              <div className="w-6 h-6 rounded-full bg-minimal-primary flex items-center justify-center">
                 <Star className="w-3 h-3 text-black" />
               </div>
               <span className="text-gray-300 text-sm">Advanced analytics</span>
             </div>
             <div className="flex items-center gap-2 text-left">
-              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-400 to-teal-500 flex items-center justify-center">
+              <div className="w-6 h-6 rounded-full bg-minimal-primary flex items-center justify-center">
                 <Zap className="w-3 h-3 text-black" />
               </div>
               <span className="text-gray-300 text-sm">
@@ -41,7 +41,7 @@ const Locked = () => {
               </span>
             </div>
             <div className="flex items-center gap-2 text-left">
-              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-400 to-teal-500 flex items-center justify-center">
+              <div className="w-6 h-6 rounded-full bg-minimal-primary flex items-center justify-center">
                 <Crown className="w-3 h-3 text-black" />
               </div>
               <span className="text-gray-300 text-sm">Priority support</span>
