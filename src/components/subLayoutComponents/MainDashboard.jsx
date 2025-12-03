@@ -692,7 +692,7 @@ const MainDashboard = () => {
                           )}
 
                           {/* Description */}
-                          <p className="text-gray-400 text-[13px] mb-5 flex-1">
+                          <p className="text-gray-400 text-[14px] mb-5 flex-1">
                             {app.description}
                           </p>
 

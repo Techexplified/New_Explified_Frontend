@@ -27,14 +27,13 @@ const MainWorkflowPage = () => {
       </div>
 
       {/* Page content */}
-      <div className="relative z-10 w-full max-w-6xl px-4 sm:px-6 md:px-10 ">
+      <div className="relative z-10 w-full max-w-6xl px-4 sm:px-6 md:px-10">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-6xl font-bold text-minimal-white mb-4">
+        <div className="text-center mb-0">
+          <h1 className="text-5xl font-bold bg-minimal-primary bg-clip-text text-transparent mb-2 pb-2">
             Workflows
           </h1>
-
-          <p className="text-minimal-muted text-sm sm:text-base md:text-lg leading-relaxed px-2">
+          <p className="text-gray-400 text-lg">
             Create, manage, and automate your processes with ease. Workflows
             help you streamline tasks, improve efficiency, and keep your team
             aligned—every step of the way.

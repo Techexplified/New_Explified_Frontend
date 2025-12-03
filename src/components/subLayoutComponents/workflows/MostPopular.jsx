@@ -102,7 +102,7 @@ const MostPopular = () => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-cyan-1000 via-black to-cyan-950 ">
+    <div className="">
       <div className="w-full pt-5 ">
         {/* heading */}
         <div className="flex items-center justify-between mb-6">

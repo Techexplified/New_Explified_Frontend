@@ -153,7 +153,7 @@ const AllApps = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="w-full relative bg-black mx-auto px-6 py-10">
+    <div className="w-full relative bg-black mx-auto px-8 py-10">
       <div className="absolute top-6 left-20 z-20">
         <button
           onClick={() => navigate("/")}
@@ -162,9 +162,12 @@ const AllApps = () => {
           <ArrowLeft size={20} />
         </button>
       </div>
-      <h1 className="text-3xl font-bold text-center text-white my-10">
-        All Apps
-      </h1>
+      <div className="text-center mb-8">
+        <h1 className="text-5xl font-bold bg-minimal-primary bg-clip-text text-transparent mb-2 pb-2">
+          All Apps
+        </h1>
+        <p className="text-gray-400 text-lg">Explore our complete collection</p>
+      </div>
       <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 pl-16">
         {allTools.map((app) => (
           <div
@@ -185,6 +188,10 @@ const AllApps = () => {
               <h3 className="font-semibold text-lg text-white">{app.title}</h3>
             </div>
             <p className="text-gray-400 text-sm flex-1">{app.description}</p>
+            <div className="flex items-center text-[#23b5b5] text-xs font-medium">
+              <span className="mr-1">Launch Tool</span>
+              <span className="inline-block">&rarr;</span>
+            </div>
           </div>
         ))}
       </div>
