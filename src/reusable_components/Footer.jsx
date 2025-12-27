@@ -15,7 +15,11 @@ const Footer = () => {
             className="flex flex-row"
           >
             <div className="flex flex-row items-center gap-3">
-              <img src={images.ExplifiedLogo} className="h-16" alt="Explified Logo" />
+              <img
+                src={images.ExplifiedLogo}
+                className="h-16"
+                alt="Explified Logo"
+              />
               <h1 className="text-2xl md:text-4xl font-semibold text-white">
                 Explified
               </h1>
@@ -35,13 +39,28 @@ const Footer = () => {
           </div>
           <ul className="mt-5 space-y-2">
             <li className="hover:text-[#23b5b5] cursor-pointer">
-              <Link onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} to="/blaze">Blaze</Link>
+              <Link
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                to="/blaze"
+              >
+                Blaze
+              </Link>
             </li>
             <li className="hover:text-[#23b5b5] cursor-pointer">
-              <Link onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} to="/bridge">Bridge</Link>
+              <Link
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                to="/bridge"
+              >
+                Bridge
+              </Link>
             </li>
             <li className="hover:text-[#23b5b5] cursor-pointer">
-              <Link onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} to="/motion">Motion</Link>
+              <Link
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                to="/motion"
+              >
+                Motion
+              </Link>
             </li>
           </ul>
         </div>
@@ -64,16 +83,22 @@ const Footer = () => {
               <Link to="/video-editing-service">Video Editing</Link>
             </li>
             <li className="hover:text-[#23b5b5] cursor-pointer">
-              <Link to="/market-research-analysis-service">Market Research & Analysis</Link>
+              <Link to="/market-research-analysis-service">
+                Market Research & Analysis
+              </Link>
             </li>
             <li className="hover:text-[#23b5b5] cursor-pointer">
-              <Link to="/seo-and-smo-service">SEO & Social Media Optimization</Link>
+              <Link to="/seo-and-smo-service">
+                SEO & Social Media Optimization
+              </Link>
             </li>
             <li className="hover:text-[#23b5b5] cursor-pointer">
               <Link to="/solutions">Custom Solutions</Link>
             </li>
             <li className="hover:text-[#23b5b5] cursor-pointer">
-              <Link to="/youtube-management-service">YouTube Channel Management</Link>
+              <Link to="/youtube-management-service">
+                YouTube Channel Management
+              </Link>
             </li>
           </ul>
         </div>
@@ -87,11 +112,8 @@ const Footer = () => {
 
           <ul className="mt-5 space-y-2">
             <li className="hover:text-teal-500 cursor-pointer">
-              <Link to="/blog">
-                Blogs
-              </Link>
+              <Link to="/blog">Blogs</Link>
             </li>
-
           </ul>
         </div>
 
@@ -167,4 +189,3 @@ const Footer = () => {
 };
 
 export default Footer;
-

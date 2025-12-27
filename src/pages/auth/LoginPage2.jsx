@@ -1,0 +1,272 @@
+import React, { useEffect, useState } from "react";
+import { GoogleLogin, useGoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
+import { Link, useNavigate } from "react-router-dom";
+import { loginUser } from "../../utils/auth_slice/UserSlice";
+import { useDispatch, useSelector } from "react-redux";
+// import axiosInstance from "../../network/axiosInstance";
+import Logo from "../../reusable_components/Logo";
+import axios from "axios";
+const initialState = {
+  email: "",
+  password: "",
+};
+
+export default function LoginPage() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user);
+
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
+
+  const [formData, setFormData] = useState(initialState);
+
+  function handleChange(e) {
+    setFormData((prev) => {
+      return { ...prev, [e.target.name]: e.target.value };
+    });
+  }
+
+  const handleSubmit = async () => {
+    // try {
+    //   const res = await axiosInstance.post("/api/users/login", formData, {
+    //     withCredentials: true,
+    //   });
+    //   console.log("Success Login:", res.data.user);
+    //   localStorage.setItem("explified", JSON.stringify(res.data.user));
+    //   setFormData(initialState);
+    //   dispatch(loginUser(res.data.user));
+    //   navigate("/");
+    // } catch (error) {
+    //   console.error("Error during login:", error);
+    // }
+    // console.log("clicked");
+    // window.postMessage(
+    //   {
+    //     source: "explified-auth",
+    //     type: "store_token",
+    //     token: "jwt_token_from_explified",
+    //   },
+    //   "*"
+    // );
+    // console.log("Token postMessage sent");
+  };
+
+  const login = useGoogleLogin({
+    scope: `https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email`,
+    onSuccess: async (tokenResponse) => {
+      const accessToken = tokenResponse.access_token;
+      console.log("Access:", accessToken);
+      try {
+        const profileRes = await axios.get(
+          "https://www.googleapis.com/oauth2/v3/userinfo",
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+        const profile = profileRes.data;
+        console.log("User Info:", profile);
+        window.postMessage(
+          {
+            source: "explified-auth",
+            type: "store_token",
+            token: accessToken,
+          },
+          "*"
+        );
+        window.postMessage(
+          {
+            source: "explified-auth-awesome-screenshot",
+            type: "store_token_awesome_screenshot",
+            token: accessToken,
+          },
+          "*"
+        );
+        localStorage.setItem(
+          "explified",
+          JSON.stringify({
+            isLoggedIn: "true",
+            given_name: profile.given_name,
+            accessToken,
+          })
+        );
+
+        dispatch(
+          loginUser({
+            isLoggedIn: "true",
+            given_name: profile.given_name,
+            accessToken,
+          })
+        );
+        navigate("/youtube-summarizer");
+      } catch (err) {
+        console.error("Error fetching history:", err);
+      }
+    },
+    onError: () => {
+      console.log("Login Failed");
+    },
+  });
+
+  return (
+    <div className="min-h-screen bg-black text-white flex flex-col px-4">
+      <div className="p-4">
+        <Logo />
+      </div>
+      <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        {/* Left Section */}
+        <div className="space-y-6 p-6 flex flex-col items-center justify-center">
+          <div>
+            <h2 className="text-4xl text-center font-bold">
+              Welcome back to <span className="text-white">Explified</span> ,
+            </h2>
+            <p className="mt-2 text-gray-300">
+              Where creative video editing meets the efficiency of AI. We
+              deliver polished results and provide the intelligent tools to
+              enhance your own projects.
+            </p>
+          </div>
+
+          {/* Login Box */}
+          <div className="border border-gray-700 rounded-md p-6 max-w-md w-full space-y-4">
+            <h3 className="text-xl font-semibold text-center mb-4">Login</h3>
+
+            <div className="space-y-3">
+              <div>
+                <label htmlFor="email" className="block text-sm mb-1">
+                  Email Id
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 rounded bg-gray-900 border border-gray-700 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="password" className="block text-sm mb-1">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  id="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 rounded bg-gray-900 border border-gray-700 focus:outline-none"
+                />
+              </div>
+
+              <button
+                type="submit"
+                onClick={handleSubmit}
+                className="w-full bg-[#23b5b5] text-white py-2 rounded hover:bg-teal-600"
+              >
+                Login
+              </button>
+
+              {/* <GoogleLogin
+                onSuccess={(resp) => {
+                  try {
+                    const decoded = jwtDecode(resp.credential);
+                    console.log("Login Success: currentUser:", decoded);
+
+                    window.postMessage(
+                      {
+                        source: "explified-auth",
+                        type: "store_token",
+                        token: decoded?.email,
+                      },
+                      "*"
+                    );
+                    window.postMessage(
+                      {
+                        source: "explified-auth-awesome-screenshot",
+                        type: "store_token_awesome_screenshot",
+                        token: decoded?.email,
+                      },
+                      "*"
+                    );
+
+                    localStorage.setItem(
+                      "explified",
+                      JSON.stringify({
+                        isLoggedIn: "true",
+                        given_name: decoded?.given_name,
+                      })
+                    );
+                    dispatch(loginUser(decoded));
+                    navigate("/youtube-summarizer");
+                  } catch (error) {
+                    console.error("Error decoding JWT:", error);
+                  }
+                }}
+                onError={() => {
+                  console.log("Login Failed");
+                }}
+              /> */}
+
+              <div>
+                <button
+                  onClick={() => login()}
+                  className="bg-blue-600 text-white px-4 py-2 rounded"
+                >
+                  Sign in with Google
+                </button>
+              </div>
+
+              <p className="text-center text-sm text-gray-400">
+                Create an account?{" "}
+                <Link to="/signup">
+                  <span className="text-[#23b5b5] cursor-pointer hover:underline">
+                    SignUp
+                  </span>
+                </Link>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="hidden md:flex items-center justify-center">
+          <img
+            src="/images/login.png"
+            alt="Login Illustration"
+            className="w-full h-full object-cover"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// if (
+//   typeof chrome !== "undefined" &&
+//   chrome.runtime &&
+//   chrome.runtime.sendMessage
+// ) {
+//   chrome.runtime.sendMessage(
+//     "fipoiejdeaheomgnibfhpkhjkemfjcdk", // your extension ID
+//     {
+//       type: "store-login",
+//       token: decoded,
+//     },
+//     (response) => {
+//       if (chrome.runtime.lastError) {
+//         console.error("Runtime error:", chrome.runtime.lastError.message);
+//       } else {
+//         console.log("Message sent to extension:", response);
+//       }
+//     }
+//   );
+// } else {
+//   console.warn("Chrome extension API not available");
+// }

@@ -1,5 +1,6 @@
 /// Logos
 import ExplifiedLogo from "../assets/logos/explified_logo.png";
+import ExpliLogo from "../assets/logos/expli1.png";
 import BridgeLogo from "../assets/logos/bridge_logo.png";
 import BlazeLogo from "../assets/logos/blaze_logo.png";
 import MotionLogo from "../assets/logos/motion_logo.png";
@@ -9,13 +10,13 @@ import Logo3 from "../assets/logos/logo3.png";
 import Logo4 from "../assets/logos/logo4.png";
 import Logo5 from "../assets/logos/logo5.png";
 
-
 /// Icons
 import ProductIcon from "../assets/icons/product_icon.png";
 import ServiceIcon from "../assets/icons/service_icon.png";
 import AuthorityIcon from "../assets/icons/authority_icon.png";
 import ContentCreationIcon from "../assets/icons/content_creation_icon.png";
 import DataDrivenIcon from "../assets/icons/data_driven_icon.png";
+import chromeIcon from "../assets/icons/chrome_icon.png";
 
 /// Company Images
 import KushalImgWithBg from "../assets/company_images/kushal_sir_img.jpg";
@@ -51,48 +52,49 @@ import QualityTrafficImg from "../assets/images/quality_of_traffic.png";
 import QuantityTrafficImg from "../assets/images/quantity_of_traffic.png";
 import VisibilityImg from "../assets/images/visibility.png";
 
-
 export {
-    ExplifiedLogo,
-    BridgeLogo,
-    BlazeLogo,
-    MotionLogo,
-    Logo1,
-    Logo2,
-    Logo3,
-    Logo4,
-    Logo5,
-    ProductIcon,
-    ServiceIcon,
-    AuthorityIcon,
-    ContentCreationIcon,
-    DataDrivenIcon,
-    KushalImgWithBg,
-    KushalImgWithFrame,
-    Background1,
-    BrandDesignImg,
-    HeroImage,
-    VideoEditorImg,
-    AnalyticsReportingImg,
-    ContentCreationImg,
-    ContentDistributionImg,
-    ContentMarketingPageDiscoveryImg,
-    ContentMarketingServiceImg,
-    ContentOptimizationImg,
-    ContentStrategyImg,
-    YoutubeManagementServiceImg,
-    MarketResearchAnalysisImg1,
-    MarketResearchStepImg1,
-    MarketResearchStepImg2,
-    MarketResearchStepImg3,
-    MarketResearchStepImg4,
-    MarketResearchStepImg5,
-    SeoServiceImg1,
-    SeoWorkImg,
-    ConversionImg,
-    DomainAuthorityImg,
-    FreeTrafficImg,
-    QualityTrafficImg,
-    QuantityTrafficImg,
-    VisibilityImg,
+  ExplifiedLogo,
+  ExpliLogo,
+  BridgeLogo,
+  BlazeLogo,
+  MotionLogo,
+  Logo1,
+  Logo2,
+  Logo3,
+  Logo4,
+  Logo5,
+  ProductIcon,
+  ServiceIcon,
+  AuthorityIcon,
+  ContentCreationIcon,
+  DataDrivenIcon,
+  chromeIcon,
+  KushalImgWithBg,
+  KushalImgWithFrame,
+  Background1,
+  BrandDesignImg,
+  HeroImage,
+  VideoEditorImg,
+  AnalyticsReportingImg,
+  ContentCreationImg,
+  ContentDistributionImg,
+  ContentMarketingPageDiscoveryImg,
+  ContentMarketingServiceImg,
+  ContentOptimizationImg,
+  ContentStrategyImg,
+  YoutubeManagementServiceImg,
+  MarketResearchAnalysisImg1,
+  MarketResearchStepImg1,
+  MarketResearchStepImg2,
+  MarketResearchStepImg3,
+  MarketResearchStepImg4,
+  MarketResearchStepImg5,
+  SeoServiceImg1,
+  SeoWorkImg,
+  ConversionImg,
+  DomainAuthorityImg,
+  FreeTrafficImg,
+  QualityTrafficImg,
+  QuantityTrafficImg,
+  VisibilityImg,
 };

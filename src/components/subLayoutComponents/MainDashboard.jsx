@@ -1,0 +1,1679 @@
+import { useState, useRef, useEffect } from "react";
+import {
+  Youtube,
+  FileText,
+  Projector,
+  ImagePlay,
+  Images,
+  FileVideo2,
+  Plus,
+  Play,
+  ScreenShare,
+  Image,
+  Laugh,
+  PenOff,
+  BoomBox,
+  Zap,
+  Database,
+  Search,
+  MessageCircleMore,
+  Users,
+  Pin,
+  PinOff,
+  Check,
+  ExternalLink,
+  Copy,
+  Edit3,
+  Settings,
+  Trash2,
+  MoreHorizontal,
+  Sparkles,
+} from "lucide-react";
+import { PiSubtitles } from "react-icons/pi";
+import {
+  MdOutlineGifBox,
+  MdFaceRetouchingNatural,
+  MdElderlyWoman,
+} from "react-icons/md";
+import MostPopular from "./workflows/MostPopular";
+import InstagramAnalytics from "./InstagramAnalytics";
+import { useNavigate, Link, useLocation } from "react-router-dom";
+import MainWorkflowPage from "./workflowPages/MainWorkflowPage";
+import IntegrationsPage from "../../components1/Integrations";
+import {
+  addRecentTool,
+  getRecentTools,
+  removeRecentTool,
+} from "../../utils/recentTools.js";
+import {
+  SiGmail,
+  SiGooglesheets,
+  SiGoogledrive,
+  SiGooglecalendar,
+  SiZoom,
+  SiSlack,
+  SiTrello,
+  SiNotion,
+  SiDropbox,
+  SiWhatsapp,
+  SiGoogleanalytics,
+} from "react-icons/si";
+import { MdBusiness } from "react-icons/md";
+import { useSelector } from "react-redux";
+const navItems = [
+  { name: "Recent", icon: FileText, active: false, badge: null },
+  { name: "Start", icon: Play, active: false, badge: null },
+  { name: "All Apps", icon: Database, active: false, badge: null },
+  { name: "Workflows", icon: Zap, active: false, badge: null },
+  { name: "Integrations", icon: Plus, active: false, badge: null },
+  { name: "Search", icon: Search, active: true, badge: null },
+];
+
+const sampleWorkflows = [
+  {
+    id: "GoogleSheets-Gmail",
+    title: "Email Drip Campaigns",
+    description:
+      "Send personalized and automated follow-up emails directly from Google Sheets using Gmail to manage outreach campaigns efficiently.",
+    tools: [
+      {
+        name: "Google Sheets",
+        icon: <SiGooglesheets />,
+        bgColor: "bg-green-500/30",
+      },
+      { name: "Gmail", icon: <SiGmail />, bgColor: "bg-red-500/30" },
+    ],
+    category: "Marketing",
+    recommended: true,
+  },
+  {
+    id: "Zoom-GoogleDrive",
+    title: "Data Cleaning Pipelines",
+    description:
+      "Automatically store Zoom recordings in Google Drive, where files can be cleaned, processed, and organized for analytics.",
+    tools: [
+      { name: "Zoom", icon: <SiZoom />, bgColor: "bg-blue-500/30" },
+      {
+        name: "Google Drive",
+        icon: <SiGoogledrive />,
+        bgColor: "bg-yellow-500/30",
+      },
+    ],
+    category: "Productivity",
+    recommended: true,
+  },
+  {
+    id: "Slack-GoogleCalendar",
+    title: "Google Ads Spend Monitor",
+    description:
+      "Monitor Google Ads spending and instantly notify your team on Slack while scheduling reviews in Google Calendar.",
+    tools: [
+      { name: "Slack", icon: <SiSlack />, bgColor: "bg-purple-500/30" },
+      {
+        name: "Google Calendar",
+        icon: <SiGooglecalendar />,
+        bgColor: "bg-blue-400/30",
+      },
+    ],
+    category: "Marketing",
+    recommended: true,
+  },
+  {
+    id: "Trello-WhatsApp",
+    title: "Daily/Weekly Summary Emails on WhatsApp",
+    description:
+      "Generate automated task summaries from Trello and send them as digest messages via WhatsApp for quick team updates.",
+    tools: [
+      { name: "Trello", icon: <SiTrello />, bgColor: "bg-cyan-600/30" },
+      { name: "WhatsApp", icon: <SiWhatsapp />, bgColor: "bg-green-600/30" },
+    ],
+    category: "Project Management",
+    recommended: false,
+  },
+  {
+    id: "Notion-Slack",
+    title: "Customer Onboarding",
+    description:
+      "Track and document customer onboarding steps in Notion while sending real-time Slack updates to the team.",
+    tools: [
+      { name: "Notion", icon: <SiNotion />, bgColor: "bg-black" },
+      { name: "Slack", icon: <SiSlack />, bgColor: "bg-purple-500/30" },
+    ],
+    category: "Collaboration",
+    recommended: true,
+  },
+  {
+    id: "GoogleAnalytics-WhatsApp",
+    title: "Google Analytics (GA4) report on WhatsApp and Gmail",
+    description:
+      "Automate Google Analytics GA4 reports and deliver them via Gmail and WhatsApp for accessible, real-time insights.",
+    tools: [
+      {
+        name: "Google Analytics",
+        icon: <SiGoogleanalytics />,
+        bgColor: "bg-orange-500/30",
+      },
+      { name: "WhatsApp", icon: <SiWhatsapp />, bgColor: "bg-green-600/30" },
+      { name: "Gmail", icon: <SiGmail />, bgColor: "bg-red-500/30" },
+    ],
+    category: "Analytics",
+    recommended: true,
+  },
+  {
+    id: "GoogleAnalytics-Slack",
+    title: "Google Ads Spend",
+    description:
+      "Track Google Ads spending using Google Analytics and push instant notifications to Slack channels for budget awareness.",
+    tools: [
+      {
+        name: "Google Analytics",
+        icon: <SiGoogleanalytics />,
+        bgColor: "bg-orange-500/30",
+      },
+      { name: "Slack", icon: <SiSlack />, bgColor: "bg-purple-500/30" },
+    ],
+    category: "Marketing",
+    recommended: false,
+  },
+  {
+    id: "Dropbox-PowerBI",
+    title: "Power BI Dashboard Auto-Refresh",
+    description:
+      "Sync Dropbox files with Power BI to ensure dashboards are refreshed automatically with the latest data.",
+    tools: [
+      { name: "Dropbox", icon: <SiDropbox />, bgColor: "bg-blue-700/30" },
+      { name: "Power BI", icon: <MdBusiness />, bgColor: "bg-yellow-600/30" },
+    ],
+    category: "Analytics",
+    recommended: true,
+  },
+  {
+    id: "Dropbox-Trello",
+    title: "Doc to Task Manager",
+    description:
+      "Convert documents uploaded to Dropbox into actionable Trello tasks automatically.",
+    tools: [
+      { name: "Dropbox", icon: <SiDropbox />, bgColor: "bg-blue-700/30" },
+      { name: "Trello", icon: <SiTrello />, bgColor: "bg-cyan-600/30" },
+    ],
+    category: "Productivity",
+    recommended: true,
+  },
+  {
+    id: "GoogleSheets-Gmail",
+    title: "CRM Automation",
+    description:
+      "Use Google Sheets as a lightweight CRM and automate customer communication through Gmail.",
+    tools: [
+      {
+        name: "Google Sheets",
+        icon: <SiGooglesheets />,
+        bgColor: "bg-green-500/30",
+      },
+      { name: "Gmail", icon: <SiGmail />, bgColor: "bg-red-500/30" },
+    ],
+    category: "Sales",
+    recommended: true,
+  },
+  {
+    id: "Dropbox-Gmail",
+    title: "Marketing Automation",
+    description:
+      "Automate the flow of marketing content by connecting Dropbox storage with Gmail campaigns.",
+    tools: [
+      { name: "Dropbox", icon: <SiDropbox />, bgColor: "bg-blue-700/30" },
+      { name: "Gmail", icon: <SiGmail />, bgColor: "bg-red-500/30" },
+    ],
+    category: "Marketing",
+    recommended: true,
+  },
+  {
+    id: "Slack-Dropbox",
+    title: "Customer Support Automation",
+    description:
+      "Forward Dropbox support files and documents directly to Slack to notify your support team instantly.",
+    tools: [
+      { name: "Slack", icon: <SiSlack />, bgColor: "bg-purple-500/30" },
+      { name: "Dropbox", icon: <SiDropbox />, bgColor: "bg-blue-700/30" },
+    ],
+    category: "Support",
+    recommended: true,
+  },
+  {
+    id: "Slack-GoogleDrive",
+    title: "Internal Team Workflows",
+    description:
+      "Simplify internal collaboration by syncing Google Drive files and sending updates to Slack channels.",
+    tools: [
+      { name: "Slack", icon: <SiSlack />, bgColor: "bg-purple-500/30" },
+      {
+        name: "Google Drive",
+        icon: <SiGoogledrive />,
+        bgColor: "bg-yellow-500/30",
+      },
+    ],
+    category: "Collaboration",
+    recommended: true,
+  },
+];
+
+const menuOptions = [
+  {
+    icon: ExternalLink,
+    label: "View Details",
+    action: "view",
+    className: "text-minimal-muted hover:text-minimal-primary",
+  },
+  {
+    icon: Copy,
+    label: "Duplicate",
+    action: "duplicate",
+    className: "text-minimal-muted hover:text-minimal-primary",
+  },
+  {
+    icon: Edit3,
+    label: "Edit",
+    action: "edit",
+    className: "text-minimal-muted hover:text-minimal-primary",
+  },
+  {
+    icon: Settings,
+    label: "Settings",
+    action: "settings",
+    className: "text-minimal-muted hover:text-minimal-primary",
+  },
+  {
+    icon: Trash2,
+    label: "Remove",
+    action: "remove",
+    className: "text-minimal-gray-500 hover:text-minimal-gray-400",
+  },
+];
+
+const RenderMyIntegrations = () => {
+  const myIntegrations = [
+    {
+      name: "Explified Engine",
+      icon: <Youtube />,
+      description: "A platform to share videos",
+      connected: true,
+      lastSync: "2 hours ago",
+    },
+  ];
+
+  return (
+    <>
+      <p className="p-4 w-full md:text-3xl font-bold bg-gradient-to-tr from-teal-300 to-cyan-900 bg-clip-text text-transparent text-minimal-white tracking-tighter">
+        Integrations
+      </p>
+
+      <div className="relative">
+        <div className="flex items-center justify-center w-full mb-6">
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent to-emerald-400"></div>
+
+          <div className="flex-1 h-px bg-gradient-to-l from-transparent to-emerald-400"></div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+        {myIntegrations.map((tool, index) => (
+          <div
+            key={index}
+            className="bg-teal-800 bg-opacity-30 border border-teal-600 rounded-xl p-5 hover:bg-opacity-50 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg hover:shadow-teal-500/20 relative group"
+          >
+            {/* Connected status indicator */}
+            <div className="absolute top-3 right-3 flex items-center gap-1">
+              <div
+                className={`w-2 h-2 rounded-full ${
+                  tool.connected ? "bg-green-400" : "bg-red-400"
+                } animate-pulse`}
+              ></div>
+              <span className="text-xs text-gray-400">
+                {tool.connected ? "Connected" : "Disconnected"}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-teal-600 to-teal-800 rounded-lg flex items-center justify-center text-white">
+                {tool.icon}
+              </div>
+              <h3 className="text-white font-semibold text-sm">{tool.name}</h3>
+            </div>
+            <p className="text-gray-300 text-xs leading-relaxed mb-3">
+              {tool.description}
+            </p>
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-gray-400">Last sync: {tool.lastSync}</span>
+              <div
+                className={`flex items-center gap-1 ${
+                  tool.connected ? "text-green-400" : "text-gray-400"
+                } `}
+              >
+                <Check className="w-3 h-3" />
+                <span>{tool.connected ? "Active" : "Inctive"}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+};
+
+const NavBarSection = ({
+  selectedTool,
+  onNavClick,
+  searchQuery,
+  setSearchQuery,
+  searchResults,
+  setSearchResults,
+  handleSearch,
+  iconMap,
+  setRecentTools,
+  navigate,
+  highlightMatch,
+}) => (
+  <>
+    <div className="w-full pt-[30px] px-6 sm:px-12 lg:px-24 flex flex-col items-center gap-6 animate-fadeIn">
+      <div className="w-full max-w-screen-lg mx-auto flex flex-col items-center gap-6">
+        {/* Heading */}
+        <div className="relative text-center mb-12">
+          {/* Professional animated background elements */}
+
+          <div className="absolute top-1/4 left-1/4 w-66 h-66 bg-teal-500/10 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-teal-500/5 rounded-full blur-3xl animate-pulse delay-500" />
+
+          <h1 className="text-6xl font-bold bg-gradient-to-r from-cyan-400 via-teal-300 to-purple-600 bg-clip-text text-transparent mb-4 animate-slideDown">
+            Explified
+          </h1>
+          <p className="text-gray-400 text-lg max-w-2xl mx-auto animate-fadeInUp delay-200">
+            Transform your workflow with AI-powered tools and seamless
+            automation
+          </p>
+        </div>
+
+        {/* Search Bar */}
+        <div className="relative w-[80%] mx-auto mb-8 animate-fadeInUp delay-300">
+          <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search tools, workflows, and integrations..."
+            value={searchQuery}
+            onChange={handleSearch}
+            className="w-full bg-gray-900/60 backdrop-blur-sm border border-gray-800/60 rounded-2xl pl-16 pr-6 py-4 text-white placeholder-gray-400 focus:outline-none focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-300 hover:border-gray-700/80"
+          />
+        </div>
+
+        {/* Bottom Row - Nav buttons */}
+        {/* <div className="flex gap-3 sm:gap-4 overflow-x-auto flex-nowrap animate-fadeInUp delay-200 w-full px-2 sm:px-4 justify-center">
+          {navItems
+            .filter((item) => item.name !== "Search")
+            .map((item) => (
+              <button
+                key={item.name}
+                type="button"
+                onClick={() => onNavClick(item.name)}
+                className={`px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm md:text-base font-medium transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95 whitespace-nowrap ${
+                  selectedTool === item.name
+                    ? "bg-gradient-to-r from-teal-600 to-teal-700 text-white shadow-lg shadow-teal-500/20 border border-teal-500"
+                    : "bg-black/20 border border-gray-600 text-gray-300 hover:bg-gray-700/60 hover:border-gray-500"
+                }`}
+              >
+                <span>{item.name}</span>
+              </button>
+            ))}
+        </div> */}
+
+        {/* Navigation */}
+        <div className="flex justify-center mb-8 animate-fadeInUp delay-400">
+          <div className="flex gap-2 bg-gray-900/40 backdrop-blur-sm border border-gray-800/60 rounded-2xl p-2">
+            {navItems
+              .filter((item) => item.name !== "Search")
+              .map((item) => (
+                <button
+                  key={item.name}
+                  onClick={() => onNavClick(item.name)}
+                  className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
+                    selectedTool === item.name
+                      ? "bg-gradient-to-r from-cyan-500 to-teal-800 text-white shadow-lg"
+                      : "text-gray-400 hover:text-white hover:bg-gray-800/60"
+                  }`}
+                >
+                  {item.icon && <item.icon className="w-4 h-4" />}
+                  {item.name}
+                </button>
+              ))}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <style jsx>{`
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px) scale(0.98);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(15px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fadeIn {
+        animation: fadeIn 0.5s ease-out forwards;
+      }
+      .animate-fadeInUp {
+        animation: fadeInUp 0.4s ease-out forwards;
+      }
+      .animate-slideDown {
+        animation: slideDown 0.4s ease-out forwards;
+      }
+    `}</style>
+  </>
+);
+
+const MainDashboard = () => {
+  const [isOpenTools, setIsOpenTools] = useState(false);
+  const [isOpenAllTools, setIsOpenAllTools] = useState(false);
+  // Holds all selected filters; 'Recent' always included internally
+  const [selectedTools, setSelectedTools] = useState("Recent");
+  const [openMenuId, setOpenMenuId] = useState(null);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+
+  // Define start section items for search
+  const startItems = [
+    {
+      title: "Expli",
+      description: "Advanced AI assistant for complex tasks and analysis",
+      route: "/expli",
+      category: "Start",
+      icon: "Sparkles",
+      type: "start",
+    },
+    {
+      title: "Notes",
+      description: "Create and manage your personal notes and documentation",
+      route: "/tasks",
+      category: "Start",
+      icon: "FileText",
+      type: "start",
+    },
+    {
+      title: "Memory",
+      description: "Store and retrieve important information using AI memory",
+      route: "/memory",
+      category: "Start",
+      icon: "Database",
+      type: "start",
+    },
+    {
+      title: "Search",
+      description: "Search across all your tools, workflows, and integrations",
+      route: "/search",
+      category: "Start",
+      icon: "Search",
+      type: "start",
+    },
+  ];
+
+  // Define integration items for search
+  const integrationItems = [
+    {
+      title: "Explified Engine",
+      description: "A platform to share videos and content",
+      route: "/integrations",
+      category: "Integrations",
+      icon: "Youtube",
+      type: "integration",
+    },
+  ];
+
+  const handleSearch = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+
+    if (query.trim() === "") {
+      setSearchResults([]);
+      return;
+    }
+
+    // Add type property to existing arrays for identification
+    const toolsWithType = allTools.map((tool) => ({ ...tool, type: "tool" }));
+    const workflowsWithType = sampleWorkflows.map((workflow) => ({
+      ...workflow,
+      type: "workflow",
+      route: "/locked", // workflows go to locked page
+    }));
+
+    // Combine all searchable items
+    const allSearchableItems = [
+      ...toolsWithType,
+      ...workflowsWithType,
+      ...startItems,
+      ...integrationItems,
+    ];
+
+    // Search in title first
+    const titleMatches = allSearchableItems.filter((item) =>
+      item.title.toLowerCase().includes(query)
+    );
+
+    // Search in description but not already in titleMatches
+    const descriptionMatches = allSearchableItems.filter(
+      (item) =>
+        item.description.toLowerCase().includes(query) &&
+        !titleMatches.find(
+          (match) => match.title === item.title && match.type === item.type
+        )
+    );
+
+    // Search in category but not already in previous matches
+    const categoryMatches = allSearchableItems.filter(
+      (item) =>
+        item.category &&
+        item.category.toLowerCase().includes(query) &&
+        !titleMatches.find(
+          (match) => match.title === item.title && match.type === item.type
+        ) &&
+        !descriptionMatches.find(
+          (match) => match.title === item.title && match.type === item.type
+        )
+    );
+
+    // Combine results with title matches first, then description, then category
+    const results = [
+      ...titleMatches,
+      ...descriptionMatches,
+      ...categoryMatches,
+    ];
+
+    setSearchResults(results);
+  };
+
+  const highlightMatch = (text, query) => {
+    if (!query) return text;
+
+    const regex = new RegExp(`(${query})`, "gi");
+    const parts = text.split(regex);
+
+    return parts.map((part, i) =>
+      part.toLowerCase() === query.toLowerCase() ? (
+        <span key={i} className="text-yellow-500 font-semibold">
+          {part}
+        </span>
+      ) : (
+        part
+      )
+    );
+  };
+
+  // recent tools feature
+  const [recentTools, setRecentTools] = useState([]);
+
+  useEffect(() => {
+    setRecentTools(getRecentTools());
+  }, []);
+  const handleRemove = (title) => {
+    removeRecentTool(title);
+    setRecentTools(getRecentTools()); // refresh list
+  };
+
+  const iconMap = {
+    Youtube,
+    FileText,
+    Projector,
+    ImagePlay,
+    Images,
+    FileVideo2,
+    Laugh,
+    Zap,
+    BoomBox,
+    MdOutlineGifBox,
+    ScreenShare,
+    MdElderlyWoman,
+    PenOff,
+    Image,
+    Link,
+  };
+
+  const menuRef = useRef(null);
+
+  const onToggleTool = (toolName) => {
+    setSelectedTool(toolName);
+    if (selectedTool === toolName) {
+      setSelectedTools("Recent");
+    } else {
+      setSelectedTools(toolName);
+    }
+  };
+
+  const toggleMenu = (workflowId, e) => {
+    e.stopPropagation();
+    setOpenMenuId(openMenuId === workflowId ? null : workflowId);
+  };
+
+  const handleMenuAction = (action, workflowTitle) => {
+    console.log(`${action} action for: ${workflowTitle}`);
+    setOpenMenuId(null);
+  };
+
+  // Separate refs for measuring height of different grids
+  const toolsGridRef = useRef(null);
+  const allToolsGridRef = useRef(null);
+
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarPinned, setSidebarPinned] = useState(false);
+
+  const toolName = "Dashboard";
+  const link = "https://explified.com/";
+
+  const [selectedTool, setSelectedTool] = useState("Recent");
+
+  // Refs for sections to scroll to
+  const startRef = useRef(null);
+  const recentRef = useRef(null);
+  const allToolsRef = useRef(null);
+  const workflowsRef = useRef(null);
+  const integrationsRef = useRef(null);
+
+  const handleNavBarClick = (navName) => {
+    setSelectedTool(navName);
+    switch (navName) {
+      case "Start":
+        startRef.current?.scrollIntoView({ behavior: "smooth" });
+        break;
+      case "Recent":
+        recentRef.current?.scrollIntoView({ behavior: "smooth" });
+        break;
+      case "All Apps":
+        allToolsRef.current?.scrollIntoView({ behavior: "smooth" });
+        break;
+      case "Workflows":
+        workflowsRef.current?.scrollIntoView({ behavior: "smooth" });
+        break;
+      case "Integrations":
+        integrationsRef.current?.scrollIntoView({ behavior: "smooth" });
+        break;
+      case "Search":
+        allToolsRef.current?.scrollIntoView({ behavior: "smooth" }); // or wherever Search should go
+        break;
+      default:
+        break;
+    }
+  };
+
+  const allTools = [
+    {
+      title: "Youtube Summarizer",
+      description: "A YouTube Summarizer quickly turns long videos into short.",
+      icon: "Youtube",
+      color: "from-teal-500 to-teal-700",
+      route: "/youtube-summarizer",
+    },
+    {
+      title: "AI Subtitler",
+      description: "Centralized AI Subtitler for your videos",
+      icon: "FileText",
+      color: "from-teal-500 to-teal-700",
+      route: "/ai-subtitler",
+    },
+    {
+      title: "Text To Video Generator",
+      description: "Generate videos using prompts.",
+      icon: "FileVideo2",
+      route: "/text-to-video",
+      color: "from-teal-500 to-teal-700",
+    },
+    {
+      title: "Slideshow Maker",
+      description: "Create stunning slideshows.",
+      icon: "Projector",
+      route: "/presentation",
+      color: "from-teal-500 to-teal-700",
+    },
+    {
+      title: "Bg Remover",
+      description: "Remove background from images.",
+      icon: "ImagePlay",
+      route: "/bg-remover",
+      color: "from-teal-500 to-teal-700",
+    },
+    {
+      title: "Image Styler",
+      description: "Style your images.",
+      icon: "Images",
+      route: "/image-styler",
+      color: "from-teal-500 to-teal-700",
+    },
+    {
+      title: "Video Meme Generator AI",
+      description: "Turn any clip into a share-worthy meme in seconds with AI.",
+      icon: "Laugh",
+      route: "/video-meme-generator",
+      color: "from-teal-500 to-teal-700",
+    },
+    {
+      title: "Integrations",
+      description: "Instantly share across your socials.",
+      icon: "Zap",
+      route: "/integrations",
+      color: "from-teal-500 to-teal-700",
+    },
+    {
+      title: "Socials",
+      description: "One click, everywhere.",
+      icon: "BoomBox",
+      route: "/socials",
+      color: "from-teal-500 to-teal-700",
+    },
+    {
+      title: "AI GIF Generator",
+      description: "Viral GIFs, AI-powered in seconds.",
+      icon: "MdOutlineGifBox",
+      route: "/ai-gif-generator",
+      color: "from-teal-500 to-teal-700",
+    },
+    {
+      title: "AI Hugging Video Maker",
+      description: "Bring warm hugs to life with AI-powered videos.",
+      icon: "ScreenShare",
+      route: "/ai-hugging-video-maker",
+      color: "from-teal-500 to-teal-700",
+    },
+    {
+      title: "Ageing Video Maker AI",
+      description: "See yourself age in seconds with AI-powered videos.",
+      icon: "MdElderlyWoman",
+      route: "/ageing-video-maker-ai",
+      color: "from-teal-500 to-teal-700",
+    },
+    {
+      title: "AI Tattoo Art Generator",
+      description: "Design unique tattoo art instantly with AI.",
+      icon: "PenOff",
+      route: "/ai-tattoo-art-generator",
+      color: "from-teal-500 to-teal-700",
+    },
+    {
+      title: "Image To Video AI",
+      description: "Transform any image into a stunning video with AI.",
+      icon: "Image",
+      route: "/image-to-video-ai",
+      color: "from-teal-500 to-teal-700",
+    },
+    {
+      title: "Link To Video AI",
+      description: "Turn any link into an engaging video with AI.",
+      icon: "Link",
+      route: "/link-to-video-ai",
+      color: "from-teal-500 to-teal-700",
+    },
+  ];
+
+  const tools = [
+    {
+      title: "Youtube Summarizer",
+      description: "A YouTube Summarizer quickly turns long videos into short.",
+      icon: Youtube,
+      color: "from-minimal-primary to-minimal-gray-400",
+      route: "/youtube-summarizer",
+    },
+    {
+      title: "AI Subtitler",
+      description: "Centralized AI Subtitler for your videos",
+      icon: FileText,
+      color: "from-minimal-primary to-minimal-gray-500",
+      route: "/ai-subtitler",
+    },
+  ];
+
+  return (
+    <>
+      <div className="w-full relative px-5 min-h-screen flex flex-col items-center bg-black pb-10">
+        {/* Animated Background Elements */}
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-teal-500/5 rounded-full blur-3xl animate-pulse delay-500" />
+        </div>
+        <div>
+          <div
+            className="absolute left-0 top-0 h-full w-6 z-30"
+            onMouseEnter={() => setSidebarOpen(true)}
+            onMouseLeave={() => setSidebarOpen(false)}
+          />
+          {/* Sidebar */}
+          <div
+            className={`fixed top-0 left-0 h-full bg-minimal-dark-200 backdrop-blur-xl border-r border-minimal-primary/20 flex flex-col justify-between transition-transform duration-500 ease-in-out z-50 ${
+              sidebarOpen
+                ? "translate-x-0 opacity-100 w-64 px-6"
+                : "-translate-x-full opacity-0 w-56 px-6"
+            }`}
+            onMouseEnter={() => !sidebarPinned && setSidebarOpen(true)}
+            onMouseLeave={() => !sidebarPinned && setSidebarOpen(false)}
+          >
+            {/* Top section */}
+            <div className="mt-8 animate-fadeUp will-change-[opacity,transform]">
+              <div className="flex items-center gap-3 mb-2">
+                <h2 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-white to-minimal-primary bg-clip-text text-transparent animate-gradientText will-change-[background-position]">
+                  {toolName}
+                </h2>
+                <button
+                  onClick={() => {
+                    setSidebarPinned(!sidebarPinned);
+                    setSidebarOpen(true); // Ensure open when pinned
+                  }}
+                  className="p-2 rounded-lg hover:bg-minimal-cardHover transition-colors duration-200"
+                >
+                  {sidebarPinned ? <PinOff size={20} /> : <Pin size={20} />}
+                </button>
+              </div>
+            </div>
+            {/* Bottom section */}
+            <div className="mb-8">
+              <Link to={"https://explified.com/explified-labs"}>
+                <button className="w-full bg-gradient-to-r from-minimal-primary to-minimal-primary/80 hover:from-minimal-primary/80 hover:to-minimal-primary text-white font-semibold py-3 px-6 rounded-xl transition-transform duration-300 hover:scale-[1.04] hover:shadow-lg hover:shadow-minimal-primary/25 will-change-transform">
+                  Learn More
+                </button>
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* FILTER BAR */}
+        <div className="bg-transparent pt-[30px] max-w-[1480px] w-full animate-fadeUp will-change-[opacity,transform]">
+          <NavBarSection
+            selectedTools={selectedTools}
+            selectedTool={selectedTool}
+            onNavClick={onToggleTool}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            searchResults={searchResults}
+            setSearchResults={setSearchResults}
+            handleSearch={handleSearch}
+            iconMap={iconMap}
+            setRecentTools={setRecentTools}
+            navigate={navigate}
+            highlightMatch={highlightMatch}
+          />
+        </div>
+
+        {/* Search Results Section */}
+        {searchQuery && searchResults.length > 0 && (
+          <div className="max-w-[1480px] w-full animate-fadeUp will-change-[opacity,transform] mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-cyan-800 via-teal-700 to-emerald-900 bg-clip-text text-transparent">
+                Search Results for "{searchQuery}"
+              </h2>
+              <span className="text-gray-400 text-sm">
+                {searchResults.length} result
+                {searchResults.length !== 1 ? "s" : ""} found
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {searchResults.map((item, index) => {
+                const IconComponent = iconMap[item.icon];
+
+                // Render different card types based on item type
+                const renderCard = () => {
+                  switch (item.type) {
+                    case "start":
+                      return (
+                        <div
+                          key={`${item.type}-${index}`}
+                          onClick={() => navigate(item.route)}
+                          className="tool-card justify-center text-2xl font-bold text-minimal-white transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-emerald-500/20 will-change-transform cursor-pointer"
+                        >
+                          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          <div className="relative z-10 flex flex-col items-center gap-2">
+                            {IconComponent && (
+                              <div className="w-12 h-12 bg-gradient-to-br from-emerald-500/20 to-emerald-600/30 rounded-xl flex items-center justify-center text-emerald-400 mb-2">
+                                <IconComponent className="w-6 h-6" />
+                              </div>
+                            )}
+                            <span className="text-lg font-bold group-hover:text-emerald-300 transition-colors">
+                              {highlightMatch(item.title, searchQuery)}
+                            </span>
+                            <span className="text-xs px-2 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                              Start
+                            </span>
+                          </div>
+                        </div>
+                      );
+
+                    case "tool":
+                      return (
+                        <div
+                          key={`${item.type}-${index}`}
+                          onClick={() => {
+                            addRecentTool(item);
+                            setRecentTools(getRecentTools());
+                            navigate(item.route);
+                          }}
+                          className="tool-card transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-cyan-500/20 will-change-transform cursor-pointer"
+                        >
+                          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-500/10 to-teal-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          <div className="relative z-10 flex flex-col justify-between h-full">
+                            <div className="tool_description flex gap-3 items-start">
+                              <div
+                                className={`h-8 w-8 flex items-center p-2 rounded-lg bg-gradient-to-br from-cyan-500/20 to-teal-600/30 mb-2 transition-transform duration-300`}
+                              >
+                                {IconComponent && (
+                                  <IconComponent className="w-5 h-5 text-cyan-400" />
+                                )}
+                              </div>
+                              <div>
+                                <h3 className="text-base font-semibold text-minimal-white mb-1 transition-colors duration-300">
+                                  {highlightMatch(item.title, searchQuery)}
+                                </h3>
+                                <p className="text-minimal-muted text-xs leading-snug transition-colors duration-300">
+                                  {highlightMatch(
+                                    item.description,
+                                    searchQuery
+                                  )}
+                                </p>
+                                {item.category && (
+                                  <span className="text-xs text-gray-500 mt-1 block">
+                                    {item.category}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="mt-1 flex items-center justify-between">
+                              <div className="flex items-center text-cyan-400 opacity-100 transition-all duration-300">
+                                <span className="text-xs font-medium">
+                                  Launch Tool
+                                </span>
+                                <svg
+                                  className="w-3 h-3 ml-1"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 5l7 7-7 7"
+                                  />
+                                </svg>
+                              </div>
+                              <span className="text-xs px-2 py-1 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/40">
+                                Tool
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+
+                    case "workflow":
+                      return (
+                        <div
+                          key={`${item.type}-${index}`}
+                          onClick={() => navigate(item.route)}
+                          className="group relative px-6 py-4 rounded-2xl bg-gradient-to-br from-gray-950/80 to-gray-900/60 bg-opacity-70 border border-gray-800/40 backdrop-blur-md shadow-lg transition-all duration-200 hover:bg-gray-900/80 hover:shadow-cyan-700/20 hover:scale-[1.02] cursor-pointer flex flex-col h-[210px] w-full will-change-transform"
+                        >
+                          {/* Hover gradient overlay to match workflow cards */}
+                          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          <div className="relative z-10 flex flex-col h-full">
+                            {/* Header - Tools Icons */}
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="flex items-center space-x-3">
+                                <div className="flex -space-x-2">
+                                  {item.tools?.map((tool, toolIndex) => (
+                                    <div
+                                      key={toolIndex}
+                                      className={`w-10 h-10 ${tool.bgColor} rounded-lg flex items-center justify-center text-minimal-white text-lg shadow-lg border-2 border-minimal-border transition-transform duration-300`}
+                                      title={tool.name}
+                                      style={{
+                                        zIndex:
+                                          (item.tools?.length || 0) - toolIndex,
+                                      }}
+                                    >
+                                      {tool.icon}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                              <span className="text-xs px-2 py-1 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/40">
+                                Workflow
+                              </span>
+                            </div>
+
+                            {/* Content - Category, Title, Description */}
+                            <div className="flex-1">
+                              {item.category && (
+                                <div className="inline-block px-2 py-1 bg-minimal-gray-800 rounded-md text-xs text-minimal-primary mb-3">
+                                  {item.category}
+                                </div>
+                              )}
+                              <h3 className="text-base font-semibold line-clamp-3 text-minimal-white transition-colors duration-300 leading-tight">
+                                {highlightMatch(item.title, searchQuery)}
+                              </h3>
+                              <p className="text-gray-300 text-sm leading-relaxed mt-2 line-clamp-2">
+                                {highlightMatch(item.description, searchQuery)}
+                              </p>
+                            </div>
+
+                            {/* Footer - Recommended/CTA */}
+                            <div className="flex items-center justify-between pt-2">
+                              {item.recommended ? (
+                                <div className="flex items-center text-minimal-primary">
+                                  <Sparkles className="w-4 h-4 mr-2" />
+                                  <span className="text-xs font-medium">
+                                    Recommended for you
+                                  </span>
+                                </div>
+                              ) : (
+                                <span />
+                              )}
+                              <div className="flex items-center text-minimal-primary opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-0 group-hover:translate-x-1 ml-auto">
+                                <span className="text-xs font-medium">
+                                  Use Workflow
+                                </span>
+                                <svg
+                                  className="w-4 h-4 ml-1"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 5l7 7-7 7"
+                                  />
+                                </svg>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+
+                    case "integration":
+                      return (
+                        <div
+                          key={`${item.type}-${index}`}
+                          onClick={() => navigate(item.route)}
+                          className="bg-orange-800 bg-opacity-30 border border-orange-600 rounded-xl p-5 hover:bg-opacity-50 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg hover:shadow-orange-500/20 relative group cursor-pointer"
+                        >
+                          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-orange-500/10 to-orange-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          <div className="relative z-10">
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 bg-gradient-to-br from-orange-500/20 to-orange-600/30 rounded-lg flex items-center justify-center text-orange-400 shadow-lg group-hover:scale-110 transition-transform duration-200">
+                                  {IconComponent && (
+                                    <IconComponent className="w-6 h-6" />
+                                  )}
+                                </div>
+                              </div>
+                              <span className="text-xs px-2 py-1 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/40">
+                                Integration
+                              </span>
+                            </div>
+                            <h3 className="text-white font-semibold text-sm mb-2 group-hover:text-orange-300 transition-colors">
+                              {highlightMatch(item.title, searchQuery)}
+                            </h3>
+                            <p className="text-gray-300 text-xs leading-relaxed mb-3">
+                              {highlightMatch(item.description, searchQuery)}
+                            </p>
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-gray-500">
+                                {item.category}
+                              </span>
+                              <div className="flex items-center gap-2">
+                                {item.trending && (
+                                  <span className="text-orange-400 flex items-center gap-1">
+                                    <Sparkles className="w-3 h-3" />
+                                    Trending
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+
+                    default:
+                      return (
+                        <div
+                          key={`${item.type}-${index}`}
+                          onClick={() => navigate(item.route)}
+                          className="group relative bg-gradient-to-br from-gray-900/60 to-gray-800/40 backdrop-blur-sm border border-gray-700/50 hover:border-gray-500/70 rounded-2xl p-4 hover:shadow-lg hover:shadow-gray-500/10 transition-all duration-300 cursor-pointer hover:scale-[1.02]"
+                        >
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 bg-gradient-to-br from-gray-500/20 to-gray-600/30 rounded-xl flex items-center justify-center text-gray-400">
+                                {IconComponent && (
+                                  <IconComponent className="w-5 h-5" />
+                                )}
+                              </div>
+                              <div>
+                                <h3 className="text-white font-semibold text-sm group-hover:text-gray-300 transition-colors">
+                                  {highlightMatch(item.title, searchQuery)}
+                                </h3>
+                                <div className="flex items-center gap-2">
+                                  {item.category && (
+                                    <span className="text-xs text-gray-500">
+                                      {item.category}
+                                    </span>
+                                  )}
+                                  <span className="text-xs px-2 py-1 rounded-full bg-gray-800/60 text-gray-400">
+                                    {item.type}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <p
+                            className="text-gray-300 text-xs leading-relaxed mb-3 overflow-hidden"
+                            style={{
+                              display: "-webkit-box",
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: "vertical",
+                            }}
+                          >
+                            {highlightMatch(item.description, searchQuery)}
+                          </p>
+                        </div>
+                      );
+                  }
+                };
+
+                return renderCard();
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Empty Search State */}
+        {searchQuery && searchResults.length === 0 && (
+          <div className="max-w-[1480px] w-full animate-fadeUp will-change-[opacity,transform] mb-8">
+            <div className="text-center py-12 border-2 border-dashed border-gray-700 rounded-xl">
+              <Search className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+              <p className="text-gray-400 mb-2">
+                No results found for "{searchQuery}"
+              </p>
+              <p className="text-gray-500 text-sm">
+                Try searching with different keywords or browse our tools below
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Start Section */}
+        {selectedTools === "Start" && (
+          <div
+            className="max-w-[1480px] w-full animate-fadeUp will-change-[opacity,transform]"
+            ref={startRef}
+          >
+            <p className="p-4 w-full md:text-3xl font-bold bg-gradient-to-tr from-teal-300 to-emerald-900 bg-clip-text text-transparent text-minimal-white tracking-tighter">
+              Start
+            </p>
+
+            <div className="relative">
+              <div className="flex items-center justify-center w-full mb-6">
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent to-emerald-400"></div>
+
+                <div className="flex-1 h-px bg-gradient-to-l from-transparent to-emerald-400"></div>
+              </div>
+            </div>
+            {/* main dashboard */}
+            <div
+              className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6"
+              ref={toolsGridRef}
+            >
+              <div
+                className="tool-card justify-center text-2xl font-bold text-minimal-white transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-minimal-primary/20 will-change-transform"
+                onClick={() => navigate("/expli")}
+              >
+                Expli
+              </div>
+              <div
+                className="tool-card justify-center transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-minimal-primary/20 will-change-transform"
+                onClick={() => navigate("/tasks")}
+              >
+                <h1 className="text-2xl font-bold text-minimal-white group-hover:text-minimal-primary transition-colors duration-300">
+                  Notes
+                </h1>
+              </div>
+              <div
+                className="tool-card justify-center transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-minimal-primary/20 will-change-transform"
+                onClick={() => navigate("/memory")}
+              >
+                <h1 className="text-2xl font-bold text-minimal-white group-hover:text-minimal-primary transition-colors duration-300">
+                  Memory
+                </h1>
+              </div>
+              <div
+                className="tool-card justify-center transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-minimal-primary/20 will-change-transform"
+                onClick={() => navigate("/search")}
+              >
+                <h1 className="text-2xl font-bold text-minimal-white group-hover:text-minimal-primary transition-colors duration-300">
+                  Search
+                </h1>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {selectedTool === "Recent" && (
+          <div
+            className="max-w-[1480px] w-full animate-fadeUp will-change-[opacity,transform]"
+            ref={recentRef}
+          >
+            {/* Section Header */}
+            <p className="p-4 w-full md:text-3xl font-bold bg-gradient-to-tr from-teal-300 to-emerald-900 bg-clip-text text-transparent text-minimal-white tracking-tighter">
+              Recent
+            </p>
+
+            <div className="relative">
+              <div className="flex items-center justify-center w-full mb-6">
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent to-cyan-400"></div>
+
+                <div className="flex-1 h-px bg-gradient-to-l from-transparent to-emerald-400"></div>
+              </div>
+            </div>
+            {/* Grid of Recent Tools */}
+            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+              {/* Special Cards */}
+              <div
+                className="tool-card  justify-center text-2xl font-bold text-minimal-white transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-minimal-primary/20 will-change-transform"
+                onClick={() => navigate("/expli")}
+              >
+                {/* Background overlay */}
+                {/* <div className="absolute inset-0 rounded-xl pointer-events-none bg-gradient-to-br from-black/50 to-black/50"></div> */}
+                <span className="relative z-10">Expli</span>
+              </div>
+
+              <div
+                className="tool-card justify-center text-2xl font-bold text-minimal-white transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-minimal-primary/20 will-change-transform"
+                onClick={() => navigate("/tasks")}
+              >
+                {/* <div className="absolute inset-0 rounded-xl pointer-events-none bg-gradient-to-br from-black/50 to-black/50"></div> */}
+                <span className="relative z-10">Notes</span>
+              </div>
+
+              {/* Dynamic Recent Tools */}
+              {recentTools.length === 0 ? (
+                <p className="text-gray-400 col-span-full text-center">
+                  No recent tools yet.
+                </p>
+              ) : (
+                recentTools
+                  .slice()
+                  .reverse()
+                  .map((tool, i) => {
+                    const IconComponent = iconMap[tool.icon] || FileText;
+                    return (
+                      <div
+                        key={i}
+                        className="tool-card cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-minimal-primary/20 will-change-transform"
+                        style={{ animationDelay: `${i * 50}ms` }}
+                        onClick={() => {
+                          addRecentTool(tool);
+                          setRecentTools(getRecentTools());
+                          navigate(tool.route);
+                        }}
+                      >
+                        {/* Cross Button */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemove(tool.title);
+                          }}
+                          className="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors"
+                        >
+                          ✕
+                        </button>
+                        <div className="flex flex-col items-start justify-between h-full">
+                          {/* Icon */}
+                          <div
+                            className={`h-10 w-10 flex items-center justify-center rounded-lg bg-gradient-to-r ${tool.color} mb-3 transition-transform duration-300`}
+                          >
+                            <IconComponent className="w-6 h-6 text-minimal-white" />
+                          </div>
+
+                          {/* Title + Description */}
+                          <div className="flex-1">
+                            <h3 className="text-sm font-semibold text-minimal-white mb-1">
+                              {tool.title}
+                            </h3>
+                            <p className="text-minimal-muted text-xs leading-snug">
+                              {tool.description}
+                            </p>
+                          </div>
+
+                          {/* CTA */}
+                          <div className="mt-2 flex items-center text-minimal-primary">
+                            <span className="text-xs font-medium">
+                              Launch Tool
+                            </span>
+                            <svg
+                              className="w-3 h-3 ml-1"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 5l7 7-7 7"
+                              />
+                            </svg>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* All Tools Section */}
+        {selectedTools === "All Apps" && (
+          <div
+            className="max-w-[1480px] w-full animate-fadeUp will-change-[opacity,transform]"
+            ref={allToolsRef}
+          >
+            <p className="p-4 w-full md:text-3xl font-bold bg-gradient-to-tr from-teal-300 to-emerald-900 bg-clip-text text-transparent text-minimal-white tracking-tighter">
+              Workflows
+            </p>
+
+            <div className="relative">
+              <div className="flex items-center justify-center w-full mb-6">
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent to-emerald-400"></div>
+                {/* <div className="px-4">
+                  <div className="w-4 h-4 border-2 border-emerald-400 rotate-45 bg-gray-900"></div>
+                </div> */}
+                <div className="flex-1 h-px bg-gradient-to-l from-transparent to-emerald-400"></div>
+              </div>
+            </div>
+            <div className="flex gap-4 w-full">
+              <div className="h-fit w-full">
+                <div
+                  style={{
+                    transition: "max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    ref={allToolsGridRef}
+                    className="grid grid-cols-1  sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full"
+                  >
+                    {allTools.map((tool, index) => {
+                      const IconComponent = iconMap[tool.icon] || FileText;
+                      return (
+                        <div
+                          key={index}
+                          className="tool-card transition-all duration-300 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-xl hover:shadow-minimal-primary/20 will-change-transform"
+                          onClick={() => {
+                            addRecentTool({ ...tool, icon: tool.icon });
+                            setRecentTools(getRecentTools());
+                            navigate(tool.route);
+                          }}
+                          style={{ animationDelay: `${index * 50}ms` }}
+                        >
+                          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          <div className="relative z-10 flex flex-col justify-between h-full">
+                            <div className="tool_description flex gap-3 items-start">
+                              <div
+                                className={`h-8 w-8 flex items-center p-2 rounded-lg bg-gradient-to-br ${tool.color} mb-2 transition-transform duration-300`}
+                              >
+                                <IconComponent className="w-5 h-5 text-minimal-white" />
+                              </div>
+                              <div>
+                                <h3 className="text-base font-semibold text-minimal-white mb-1 transition-colors duration-300">
+                                  {tool.title}
+                                </h3>
+                                <p className="text-minimal-muted text-xs leading-snug transition-colors duration-300">
+                                  {tool.description}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="mt-1 flex items-center text-minimal-primary opacity-100 transition-all duration-300 transform translate-x-2">
+                              <span className="text-xs font-medium">
+                                Launch Tool
+                              </span>
+                              <svg
+                                className="w-3 h-3 ml-1"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M9 5l7 7-7 7"
+                                />
+                              </svg>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Workflows Section */}
+        {selectedTools === "Workflows" && (
+          <div
+            className="max-w-[1480px] w-full animate-fadeUp will-change-[opacity,transform]"
+            ref={workflowsRef}
+          >
+            <p className="p-4 w-full md:text-3xl font-bold bg-gradient-to-tr from-teal-300 to-emerald-900 bg-clip-text text-transparent text-minimal-white tracking-tighter">
+              Workflows
+            </p>
+
+            <div className="relative">
+              <div className="flex items-center justify-center w-full mb-6">
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent to-emerald-400"></div>
+                {/* <div className="px-4">
+                  <div className="w-4 h-4 border-2 border-emerald-400 rotate-45 bg-gray-900"></div>
+                </div> */}
+                <div className="flex-1 h-px bg-gradient-to-l from-transparent to-emerald-400"></div>
+              </div>
+            </div>
+            <div className="grid md:grid-cols-[repeat(auto-fit,minmax(0,330px))] gap-6">
+              {sampleWorkflows.map((workflow) => {
+                const isMenuOpen = openMenuId === workflow.id;
+
+                return (
+                  <div
+                    key={workflow.id}
+                    className="group relative px-6 py-4 rounded-2xl bg-gradient-to-br from-gray-950/80 to-gray-900/60 bg-opacity-70 border border-gray-800/40 backdrop-blur-md shadow-lg transition-all duration-200 hover:bg-gray-900/80 hover:shadow-cyan-700/20 hover:scale-[1.02] cursor-pointer flex flex-col h-[210px] w-[330px] will-change-transform"
+                    onClick={() => navigate("/locked")}
+                  >
+                    {/* Hover gradient overlay */}
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-minimal-primary/10 to-minimal-gray-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                    <div className="relative z-10 flex flex-col h-full">
+                      {/* Header - Tools Icons and Menu */}
+                      <div className="flex items-center justify-between mb-4 border-minimal-border/50">
+                        <div className="flex items-center space-x-3">
+                          {/* Tool Icons */}
+                          <div className="flex -space-x-2">
+                            {workflow.tools.map((tool, index) => (
+                              <div
+                                key={index}
+                                className={`w-10 h-10 ${tool.bgColor} rounded-lg flex items-center justify-center text-minimal-white text-lg shadow-lg border-2 border-minimal-border transition-transform duration-300`}
+                                title={tool.name}
+                                style={{
+                                  zIndex: workflow.tools.length - index,
+                                }}
+                              >
+                                {tool.icon}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Menu Button */}
+                        <div className="relative" ref={menuRef}>
+                          <button
+                            onClick={(e) => toggleMenu(workflow.id, e)}
+                            className="p-2 rounded-lg hover:bg-minimal-cardHover transition-colors duration-200 z-20 relative"
+                          >
+                            <MoreHorizontal className="w-5 h-5 text-minimal-muted hover:text-minimal-primary transition-colors duration-200" />
+                          </button>
+
+                          {/* Dropdown Menu */}
+                          {isMenuOpen && (
+                            <div className="absolute right-0 top-10 w-48 bg-minimal-dark-100 rounded-lg border border-minimal-border shadow-2xl z-30 overflow-hidden animate-fadeIn will-change-[opacity,transform]">
+                              <div className="absolute inset-0 bg-minimal-dark-100/95 backdrop-blur-sm"></div>
+                              <div className="relative z-10 py-2">
+                                {menuOptions.map((option, optionIndex) => {
+                                  const OptionIcon = option.icon;
+                                  return (
+                                    <button
+                                      key={optionIndex}
+                                      onClick={() =>
+                                        handleMenuAction(
+                                          option.action,
+                                          workflow.title
+                                        )
+                                      }
+                                      className={`w-full flex items-center px-4 py-2 text-sm hover:bg-minimal-cardHover/50 transition-all duration-200 ${option.className}`}
+                                    >
+                                      <OptionIcon className="w-4 h-4 mr-3" />
+                                      <span>{option.label}</span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                              <div className="absolute inset-0 rounded-lg border border-minimal-primary/20 pointer-events-none"></div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Content - Workflow Description */}
+                      <div className="flex-1 ">
+                        <div className="inline-block px-2 py-1 bg-minimal-gray-800 rounded-md text-xs text-minimal-primary mb-3">
+                          {workflow.category}
+                        </div>
+
+                        <h3 className="text-base font-semibold line-clamp-3 text-minimal-white transition-colors duration-300 leading-tight">
+                          {workflow.title}
+                        </h3>
+                      </div>
+
+                      {/* Footer - Recommended Badge */}
+                      <div className="flex items-center justify-between pt-2 border-t border-minimal-border/50">
+                        {workflow.recommended && (
+                          <div className="flex items-center text-minimal-primary">
+                            <Sparkles className="w-4 h-4 mr-2" />
+                            <span className="text-xs font-medium">
+                              Recommended for you
+                            </span>
+                          </div>
+                        )}
+
+                        <div className="flex items-center text-minimal-primary opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-0 group-hover:translate-x-1 ml-auto">
+                          <span className="text-xs font-medium">
+                            Use Workflow
+                          </span>
+                          <svg
+                            className="w-4 h-4 ml-1"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 5l7 7-7 7"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Integrations Section */}
+        {selectedTools === "Integrations" && (
+          <div
+            className="max-w-[1480px] w-full animate-fadeUp will-change-[opacity,transform]"
+            ref={integrationsRef}
+          >
+            <RenderMyIntegrations />
+          </div>
+        )}
+      </div>
+
+      {/* Only animation helpers; no content changed */}
+      <style jsx>{`
+        @keyframes fadeUp {
+          from {
+            opacity: 0;
+            transform: translateY(12px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeUp {
+          animation: fadeUp 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes gradientText {
+          0%,
+          100% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+        }
+        .animate-gradientText {
+          background-size: 200% 200%;
+          animation: gradientText 6s linear infinite;
+        }
+        .animate-fadeIn {
+          animation: fadeUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+      `}</style>
+    </>
+  );
+};
+
+export default MainDashboard;

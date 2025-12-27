@@ -1,22 +1,59 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode";
-import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode"; // fixed import (jwtDecode is default export)
+import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../../utils/auth_slice/UserSlice";
-import { useDispatch } from "react-redux";
-import axiosInstance from "../../network/axiosInstance";
+import { useDispatch, useSelector } from "react-redux";
+import Logo from "../../reusable_components/Logo";
+import axios from "axios";
 
 const initialState = {
   email: "",
   password: "",
 };
 
-const LoginPage = () => {
+export default function LoginPage() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const user = useSelector((state) => state.user);
 
   const [formData, setFormData] = useState(initialState);
-  const [isSignInLoading, setIsSignInLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // loader state
+
+  useEffect(() => {
+    if (user) {
+      let attempts = 0;
+      const interval = setInterval(() => {
+        attempts++;
+        window.postMessage(
+          {
+            source: "explified-auth",
+            type: "store_token",
+            token: user?.email,
+          },
+          "*"
+        );
+        window.postMessage(
+          {
+            source: "explified-auth-awesome-screenshot",
+            type: "store_token_awesome_screenshot",
+            token: user?.email,
+          },
+          "*"
+        );
+        if (attempts > 5) clearInterval(interval);
+      }, 1000);
+
+      if (localStorage.getItem("notesShareId")) {
+        const id = localStorage.getItem("notesShareId");
+
+        navigate(`/notes?shareId=${id}`);
+      } else {
+        navigate("/expli");
+      }
+      navigate("/expli");
+    }
+  }, [user, navigate]);
 
   function handleChange(e) {
     setFormData((prev) => {
@@ -25,123 +62,161 @@ const LoginPage = () => {
   }
 
   const handleSubmit = async () => {
+    setLoading(true);
     try {
-      const res = await axiosInstance.post("/api/users/login", formData, {
-        withCredentials: true,
-      });
-      console.log("Success Login:", res.data.user);
+      const res = await axios.post(
+        "http://localhost:8000/api/users/login",
+        formData,
+        { withCredentials: true }
+      );
 
       localStorage.setItem("explified", JSON.stringify(res.data.user));
-      setFormData(initialState);
-      // dispatch(
-      //   loginSuccess({
-      //     user: res.data.user,
-      //   })
-      // );
-
       dispatch(loginUser(res.data.user));
+
       navigate("/");
     } catch (error) {
-      console.error("Error during login:", error);
+      console.error(
+        "Error during login:",
+        error.response?.data || error.message
+      );
+      alert(error.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex h-screen flex-col justify-center px-6 py-12 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-        <h2 className="mt-10 text-center text-2xl font-bold tracking-tight text-white">
-          Sign in to your account
-        </h2>
+    <div className="min-h-screen bg-black text-white flex flex-col px-4">
+      <div className="p-4">
+        <Logo />
       </div>
-      <div className="flex flex-col justify-center mt-10 sm:mx-auto sm:w-full sm:max-w-sm space-y-6">
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-white"
-          >
-            Email address
-          </label>
-          <div className="mt-2">
-            <input
-              type="email"
-              name="email"
-              id="email"
-              autoComplete="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-black outline-1 outline-gray-300 placeholder:text-black focus:outline-2 focus:outline-indigo-600"
-            />
+      <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        {/* Left Section */}
+        <div className="space-y-6 p-6 flex flex-col items-center justify-center">
+          <div>
+            <h2 className="text-4xl text-center font-bold">
+              Welcome back to <span className="text-white">Explified</span> ,
+            </h2>
+            <p className="mt-2 text-gray-300">
+              Where creative video editing meets the efficiency of AI. We
+              deliver polished results and provide the intelligent tools to
+              enhance your own projects.
+            </p>
           </div>
-        </div>
 
-        <div>
-          <div className="flex items-center justify-between">
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-white"
-            >
-              Password
-            </label>
-            <div className="text-sm">
-              <a
-                href="#"
-                className="font-semibold text-indigo-600 hover:text-indigo-500"
+          {/* Login Box */}
+          <div className="border border-gray-700 rounded-md p-6 max-w-md w-full space-y-4">
+            <h3 className="text-xl font-semibold text-center mb-4">Login</h3>
+
+            <div className="space-y-3">
+              <div>
+                <label htmlFor="email" className="block text-sm mb-1">
+                  Email Id
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 rounded bg-gray-900 border border-gray-700 focus:outline-none"
+                  disabled={loading}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="password" className="block text-sm mb-1">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  id="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 rounded bg-gray-900 border border-gray-700 focus:outline-none"
+                  disabled={loading}
+                />
+              </div>
+
+              <button
+                type="submit"
+                onClick={handleSubmit}
+                className={`w-full py-2 rounded text-white ${
+                  loading
+                    ? "bg-gray-600 cursor-not-allowed"
+                    : "bg-[#23b5b5] hover:bg-teal-600"
+                }`}
+                disabled={loading}
               >
-                Forgot password?
-              </a>
+                {loading ? "Logging in..." : "Login"}
+              </button>
+
+              <GoogleLogin
+                onSuccess={(resp) => {
+                  try {
+                    const decoded = jwtDecode(resp.credential);
+                    console.log("Login Success: currentUser:", decoded);
+
+                    window.postMessage(
+                      {
+                        source: "explified-auth",
+                        type: "store_token",
+                        token: decoded?.email,
+                      },
+                      "*"
+                    );
+                    window.postMessage(
+                      {
+                        source: "explified-auth-awesome-screenshot",
+                        type: "store_token_awesome_screenshot",
+                        token: decoded?.email,
+                      },
+                      "*"
+                    );
+
+                    localStorage.setItem(
+                      "explified",
+                      JSON.stringify({
+                        isLoggedIn: "true",
+                        name: decoded?.name,
+                        email: decoded?.email,
+                      })
+                    );
+                    dispatch(loginUser(decoded));
+                    //navigate("/youtube-summarizer");
+                    console.log("dfgd");
+
+                    navigate("/expli");
+                  } catch (error) {
+                    console.error("Error decoding JWT:", error);
+                  }
+                }}
+                onError={() => {
+                  console.log("Login Failed");
+                }}
+              />
+
+              <p className="text-center text-sm text-gray-400">
+                Create an account?{" "}
+                <Link to="/signup">
+                  <span className="text-[#23b5b5] cursor-pointer hover:underline">
+                    SignUp
+                  </span>
+                </Link>
+              </p>
             </div>
           </div>
-          <div className="mt-2">
-            <input
-              type="password"
-              name="password"
-              id="password"
-              value={formData.password}
-              onChange={handleChange}
-              autoComplete="current-password"
-              required
-              className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-black outline-1 outline-gray-300 placeholder:text-black focus:outline-2 focus:outline-indigo-600"
-            />
-          </div>
         </div>
 
-        <div>
-          <button
-            type="submit"
-            onClick={handleSubmit}
-            className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-indigo-600"
-          >
-            Sign in
-          </button>
+        <div className="hidden md:flex items-center justify-center">
+          <img
+            src="/images/login.png"
+            alt="Login Illustration"
+            className="w-full h-full object-cover"
+          />
         </div>
-        <GoogleLogin
-          onSuccess={(resp) => {
-            try {
-              const decoded = jwtDecode(resp.credential);
-              console.log("Login Success: currentUser:", decoded);
-              dispatch(loginUser(resp.credential.displayName));
-              navigate("/");
-            } catch (error) {
-              console.error("Error decoding JWT:", error);
-            }
-          }}
-          onError={() => {
-            console.log("Login Failed");
-          }}
-        />
-        <p className="mt-10 text-center text-sm text-white">
-          Not a member?{" "}
-          <a
-            href="#"
-            className="font-semibold text-indigo-600 hover:text-indigo-500"
-          >
-            Start a 14-day free trial
-          </a>
-        </p>
       </div>
     </div>
   );
-};
-
-export default LoginPage;
+}
