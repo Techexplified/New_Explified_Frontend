@@ -1169,7 +1169,7 @@ export default function Sidebar({
     <>
       {/* Sidebar Navigation */}
       <aside
-        className="fixed left-0 top-0 ml-[63px] bottom-0 bg-gray-900 flex flex-col items-center py-4 space-y-2 shadow-2xl w-20"
+        className="fixed left-0 top-0 ml-[48px] bottom-0 bg-gray-900 flex flex-col items-center py-4 space-y-2 shadow-2xl w-20"
         style={{ zIndex: 40 }}
       >
         <div className="p-2 rounded-xl bg-cyan-700 shadow-xl mb-2 flex items-center justify-center w-12 h-12 cursor-pointer hover:bg-cyan-600 transition">

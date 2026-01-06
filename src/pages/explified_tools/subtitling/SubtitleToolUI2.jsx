@@ -31,16 +31,41 @@ import Sidebar from "./Sidebar";
 import { Player } from "@remotion/player";
 import { Video, AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
 
+// Minimal Error Boundary for this page
+class PageErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, info) {
+    console.error("AiSubtitlerPage caught error:", error, info);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: 40, color: "white", background: "#0b1012", minHeight: "100vh" }}>
+          <h2>Something went wrong</h2>
+          <p>{this.state.error?.message || "An unexpected error occurred."}</p>
+          <p>
+            Try reloading the page or returning to the landing screen to try again.
+          </p>
+          <div style={{ marginTop: 20 }}>
+            <button onClick={() => window.location.reload()} style={{ padding: "8px 12px", borderRadius: 6 }}>Reload</button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+
 // Backend origin
-
-// const BACKEND_ORIGIN = (
-//   import.meta.env.VITE_API_ORIGIN ||
-//   import.meta.env.REACT_APP_API_ORIGIN ||
-//   "https://api-pf6diz22ka-uc.a.run.app"
-// ).replace(/\/$/, "");
-
 const BACKEND_ORIGIN = (
-  import.meta.env.REACT_APP_API_ORIGIN || "http://localhost:4000"
+  import.meta.env.VITE_API_ORIGIN || "http://localhost:4000"
 ).replace(/\/$/, "");
 
 // Optional Cloudinary env (unsigned upload preset)
@@ -169,7 +194,7 @@ async function translateSubtitlesToBackend(
   const detectedLanguage =
     srcLangCode || (videoData && videoData.detectedLanguage) || "auto";
 
-  const endpoint = `${BACKEND_ORIGIN}/upload-audio/translate-subtitles`;
+  const endpoint = `${BACKEND_ORIGIN}/api/subtitler/upload-audio/translate-subtitles`;
   const payload = { segments, targetLang: target, detectedLanguage };
 
   const res = await fetch(endpoint, {
@@ -417,158 +442,6 @@ const InlineSubtitleEditor = ({
   );
 };
 
-/* ---------------------- Subtitles Remotion Composition (for preview) ---------------------- */
-// const SubtitlesComposition = ({
-//   videoUrl,
-//   subtitles = [],
-//   subtitleStyle = {},
-// }) => {
-//   const { fps, width, height, durationInFrames } = useVideoConfig
-//     ? useVideoConfig()
-//     : { fps: 30, width: 1280, height: 720, durationInFrames: 1 };
-//   const frame = useCurrentFrame();
-//   const currentSec = frame / (fps || 30);
-//   const visible = subtitles.filter(
-//     (s) => currentSec >= s.start && currentSec <= s.end
-//   );
-
-//   const baseStyle = {
-//     pointerEvents: "none",
-//     display: "flex",
-//     alignItems: "flex-end",
-//     justifyContent: "center",
-//     height: "100%",
-//     width: "100%",
-//     paddingBottom: 80,
-//     boxSizing: "border-box",
-//   };
-
-//   const textStyle = {
-//     background: subtitleStyle.backgroundEnabled
-//       ? subtitleStyle.backgroundColor || "rgba(0,0,0,0.7)"
-//       : "transparent",
-//     color: subtitleStyle.color || "#fff",
-//     fontSize: subtitleStyle.fontSize || 18,
-//     fontFamily: subtitleStyle.fontFamily || "Inter, system-ui, sans-serif",
-//     fontWeight: subtitleStyle.fontWeight || 600,
-//     padding: "8px 16px",
-//     borderRadius: 8,
-//     maxWidth: "85%",
-//     textAlign: "center",
-//     lineHeight: 1.25,
-//     boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
-//   };
-
-//   return (
-//     <AbsoluteFill style={{ backgroundColor: "black" }}>
-//       <Video
-//         src={videoUrl}
-//         style={{ width: "100%", height: "100%", objectFit: "contain" }}
-//       />
-//       <div style={baseStyle}>
-//         {visible.length === 0 ? null : (
-//           <div style={textStyle}>
-//             {visible.map((v, i) => (
-//               <div key={i} style={{ margin: "6px 0" }}>
-//                 {v.text}
-//               </div>
-//             ))}
-//           </div>
-//         )}
-//       </div>
-//     </AbsoluteFill>
-//   );
-// };
-
-/* ---------------------- Remotion Preview Modal ---------------------- */
-// function RemotionPreviewModal({
-//   open,
-//   onClose,
-//   videoUrl,
-//   duration = 10,
-//   subtitles = [],
-//   subtitleStyle = {},
-//   width = 1280,
-//   height = 720,
-//   fps = 30,
-// }) {
-//   if (!open) return null;
-//   const durationInFrames = Math.max(1, Math.round((duration || 10) * fps));
-//   return (
-//     <div
-//       onClick={onClose}
-//       style={{
-//         position: "fixed",
-//         inset: 0,
-//         background: "rgba(0,0,0,0.75)",
-//         zIndex: 4000,
-//         display: "flex",
-//         alignItems: "center",
-//         justifyContent: "center",
-//         padding: 20,
-//       }}
-//     >
-//       <div
-//         onClick={(e) => e.stopPropagation()}
-//         style={{
-//           width: "95%",
-//           maxWidth: Math.min(1400, width + 40),
-//           background: "#071018",
-//           borderRadius: 10,
-//           padding: 12,
-//           boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
-//         }}
-//       >
-//         <div
-//           style={{
-//             display: "flex",
-//             justifyContent: "space-between",
-//             alignItems: "center",
-//             marginBottom: 8,
-//           }}
-//         >
-//           <h3 style={{ color: "#dff7f5", margin: 0 }}>
-//             Preview Burned-in Subtitles
-//           </h3>
-//           <button
-//             onClick={onClose}
-//             style={{
-//               background: "transparent",
-//               border: "none",
-//               color: "#ccc",
-//               fontSize: 20,
-//             }}
-//           >
-//             ✕
-//           </button>
-//         </div>
-
-//         <div
-//           style={{ background: "#000", borderRadius: 8, overflow: "hidden" }}
-//         >
-//           <Player
-//             component={SubtitlesComposition}
-//             durationInFrames={durationInFrames}
-//             compositionWidth={width}
-//             compositionHeight={height}
-//             fps={fps}
-//             controls
-//             style={{ width: "100%", height: "auto", background: "#000" }}
-//             inputProps={{
-//               videoUrl,
-//               subtitles,
-//               subtitleStyle,
-//             }}
-//           />
-//         </div>
-//         <div style={{ marginTop: 8, color: "#9fb0b0", fontSize: 13 }}>
-//           Tip: This preview uses Remotion's Player. For final export (MP4), use
-//           a Remotion render script on the server/CLI.
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
 
 /* ---------------------- PlayerContainer ---------------------- */
 const PlayerContainer = ({
@@ -1029,9 +902,7 @@ function removeNativeTracks(video) {
 
     // 2) remove any <track> elements from the video element DOM
     try {
-      const tracks = video.querySelectorAll
-        ? video.querySelectorAll("track")
-        : [];
+      const tracks = video.querySelectorAll ? video.querySelectorAll("track") : [];
       tracks.forEach((t) => {
         try {
           const src = t.src || t.getAttribute("src");
@@ -1068,6 +939,7 @@ function disableNativeTracks(video) {
   removeNativeTracks(video);
 }
 // -------------------- end native-track helper --------------------
+
 
 /* ---------------------- ModernTimelineEditor ---------------------- */
 function ModernTimelineEditor({
@@ -1131,22 +1003,13 @@ function ModernTimelineEditor({
       const isMajor = t % majorInterval === 0;
       ticks.push({
         time: t,
-        label: isMajor
-          ? `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`
-          : null,
+        label: isMajor ? `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}` : null,
         isMajor,
       });
     }
 
     if (!ticks.some((x) => x.time === ceilDur)) {
-      ticks.push({
-        time: ceilDur,
-        label: `${Math.floor(ceilDur / 60)}:${String(ceilDur % 60).padStart(
-          2,
-          "0"
-        )}`,
-        isMajor: true,
-      });
+      ticks.push({ time: ceilDur, label: `${Math.floor(ceilDur / 60)}:${String(ceilDur % 60).padStart(2, "0")}`, isMajor: true });
     }
 
     return ticks.filter((t) => t.time <= sd);
@@ -1226,10 +1089,7 @@ function ModernTimelineEditor({
           {safeDuration > 0 &&
             subtitles.map((s, i) => {
               const left = (s.start / (safeDuration || 1)) * 100;
-              const width = Math.max(
-                0.5,
-                ((s.end - s.start) / (safeDuration || 1)) * 100
-              );
+              const width = Math.max(0.5, ((s.end - s.start) / (safeDuration || 1)) * 100);
               const isActive = currentTime >= s.start && currentTime < s.end;
 
               return (
@@ -1827,24 +1687,61 @@ export default function AiSubtitlerPage() {
   const [transcriptId, setTranscriptId] = useState(null);
   const [selectedLanguage, setSelectedLanguage] = useState("auto");
 
-  const uploadFileToBackend = async (file) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("languageCode", selectedLanguage || "auto");
-    const res = await fetch(`${BACKEND_ORIGIN}/upload-audio`, {
+// robust upload with filename + debug logging
+const uploadFileToBackend = async (file) => {
+  if (!file) throw new Error("No file provided to uploadFileToBackend");
+  console.log("uploadFileToBackend() file:", {
+    name: file.name,
+    sizeBytes: file.size,
+    sizeMB: (file.size / 1024 / 1024).toFixed(2),
+    type: file.type,
+  });
+
+  const endpoint = `${BACKEND_ORIGIN}/api/subtitler/upload-audio`;
+  const formData = new FormData();
+
+  // ensure filename is included (some servers rely on it)
+  formData.append("file", file, file.name);
+  // keep language if backend expects it
+  formData.append("languageCode", selectedLanguage || "auto");
+
+  let res;
+  try {
+    res = await fetch(endpoint, {
       method: "POST",
       body: formData,
     });
-    if (!res.ok) {
-      const errText = await res.text();
-      throw new Error(`Upload failed: ${errText}`);
-    }
-    const result = await res.json();
-    return result;
-  };
+  } catch (networkErr) {
+    console.error("Network error while posting file:", networkErr);
+    throw networkErr;
+  }
+
+  // read response as text first so we can show raw body on 500s
+  const text = await res.text().catch(() => "");
+  let payload = null;
+  try {
+    payload = text ? JSON.parse(text) : null;
+  } catch (err) {
+    payload = text;
+  }
+
+  if (!res.ok) {
+    console.error("Upload failed:", {
+      status: res.status,
+      body: payload,
+    });
+    // surface server body for easier debugging
+    throw new Error(`Upload failed ${res.status}: ${JSON.stringify(payload)}`);
+  }
+
+  console.log("Upload success:", payload);
+  return payload;
+};
+
+
 
   async function uploadUrlToBackend(url) {
-    const endpoint = `${BACKEND_ORIGIN}/upload-from-url`;
+    const endpoint = `${BACKEND_ORIGIN}/api/subtitler/upload-from-url`;
 
     const parseBodySafely = async (res) => {
       const text = await res.text().catch(() => "");
@@ -2237,7 +2134,7 @@ export default function AiSubtitlerPage() {
             "Try to play the URL via backend proxy for testing? (OK = try)"
           );
           if (tryProxy) {
-            const prox = `${BACKEND_ORIGIN}/proxy/video?url=${encodeURIComponent(
+            const prox = `${BACKEND_ORIGIN}/api/subtitler/proxy/video?url=${encodeURIComponent(
               pasteToUse
             )}`;
             const meta = {
@@ -2451,16 +2348,14 @@ export default function AiSubtitlerPage() {
 
     try {
       const targetLang = normalizeTargetLang(targetLangRaw) || targetLangRaw;
-      if (!targetLang)
-        throw new Error("Unsupported or missing target language.");
+      if (!targetLang) throw new Error("Unsupported or missing target language.");
 
       const srcLang =
         (videoData && videoData.detectedLanguage) ||
         (transcriptId ? "auto" : "auto") ||
         "auto";
 
-      const segmentsToSend =
-        Array.isArray(subtitles) && subtitles.length > 0 ? subtitles : [];
+      const segmentsToSend = Array.isArray(subtitles) && subtitles.length > 0 ? subtitles : [];
 
       setGenerationProgress({
         stage: "request",
@@ -2468,15 +2363,9 @@ export default function AiSubtitlerPage() {
         progress: 35,
       });
 
-      const res = await translateSubtitlesToBackend(
-        segmentsToSend,
-        targetLang,
-        srcLang
-      );
+      const res = await translateSubtitlesToBackend(segmentsToSend, targetLang, srcLang);
 
-      const translatedSegments = Array.isArray(res.segments)
-        ? res.segments
-        : [];
+      const translatedSegments = Array.isArray(res.segments) ? res.segments : [];
       const backendVttUrl = res.vttUrl || res.vttUrlPath || null;
 
       setGenerationProgress({
@@ -2489,10 +2378,7 @@ export default function AiSubtitlerPage() {
       let createdBlob = false;
       if (backendVttUrl) {
         if (/^https?:\/\//i.test(backendVttUrl)) finalVttUrl = backendVttUrl;
-        else
-          finalVttUrl = `${BACKEND_ORIGIN}${
-            backendVttUrl.startsWith("/") ? "" : "/"
-          }${backendVttUrl}`;
+        else finalVttUrl = `${BACKEND_ORIGIN}${backendVttUrl.startsWith("/") ? "" : "/"}${backendVttUrl}`;
       } else {
         const vttText = segmentsToVtt(translatedSegments);
         const blob = new Blob([vttText], { type: "text/vtt" });
@@ -2503,21 +2389,13 @@ export default function AiSubtitlerPage() {
       setVideoData((prev) => {
         try {
           const prevVtt = prev?.vttUrl;
-          if (
-            prevVtt &&
-            typeof prevVtt === "string" &&
-            prevVtt.startsWith("blob:")
-          ) {
+          if (prevVtt && typeof prevVtt === "string" && prevVtt.startsWith("blob:")) {
             try {
               URL.revokeObjectURL(prevVtt);
             } catch (e) {}
           }
         } catch (e) {}
-        return {
-          ...(prev || {}),
-          subtitles: translatedSegments,
-          vttUrl: finalVttUrl,
-        };
+        return { ...(prev || {}), subtitles: translatedSegments, vttUrl: finalVttUrl };
       });
 
       setSubtitles(translatedSegments);
@@ -2525,12 +2403,11 @@ export default function AiSubtitlerPage() {
       const vid = videoRef.current;
       if (vid) {
         try {
-          const prevGenerated = vid.querySelector("track[data-generated-vtt]");
+          const prevGenerated = vid.querySelector('track[data-generated-vtt]');
           if (prevGenerated) {
             try {
               const prevSrc = prevGenerated.src;
-              if (prevSrc && prevSrc.startsWith("blob:"))
-                URL.revokeObjectURL(prevSrc);
+              if (prevSrc && prevSrc.startsWith("blob:")) URL.revokeObjectURL(prevSrc);
             } catch (e) {}
             prevGenerated.remove();
           }
@@ -3205,20 +3082,13 @@ export default function AiSubtitlerPage() {
         subtitleStyle={subtitleStyle}
         videoMetadata={videoMetadata}
       />
-
-      <RemotionPreviewModal
-        open={previewOpen}
-        onClose={() => setPreviewOpen(false)}
-        videoUrl={videoData?.videoUrl}
-        duration={videoMetadata?.duration || 10}
-        subtitles={subtitles}
-        subtitleStyle={subtitleStyle}
-        width={videoMetadata?.width || 1280}
-        height={videoMetadata?.height || 720}
-        fps={30}
-      />
     </div>
   );
 
-  return view === "landing" ? LandingView : EditorView;
+  return (
+  <PageErrorBoundary>
+    {view === "landing" ? LandingView : EditorView}
+  </PageErrorBoundary>
+);
+
 }

@@ -68,6 +68,7 @@ import ScheduleDraftPosts from "./components1/ScheduleDraftPosts";
 import NewPost from "./components1/NewPost";
 import AISubtitler from "./pages/explified_tools/subtitling/AISubtitler";
 import AiSubtitlerPage from "./pages/explified_tools/subtitling/SubtitleToolUI";
+// import SubtitleEditor from "./pages/explified_tools/subtitling/SubtitleToolUI";
 import AITools from "./components1/AITools";
 import History from "./components1/History";
 import WorkflowDashboard from "./components1/Workflows";
@@ -77,8 +78,6 @@ import CreatePresentation from "./components2/CreatePresentation";
 import Integrations from "./components1/Integrations";
 import InfluencerProfile from "./components1/InfluencerProfile";
 
-import ImageFilter from "./component3/ImageFilter";
-import AiImageStyler from "./component3/AiImageStyler";
 import BackgroundChanger from "./component3/BackgroundChanger";
 import ImageMerger from "./component3/ImageMerger";
 import ImageExpander from "./component3/ImageExpander";
@@ -246,7 +245,6 @@ function App() {
           <Route path="image-to-video" element={<ImageToVideoConvertor />} />
           <Route path="text-to-video" element={<TextToVideo />} />
           <Route path="text-to-image" element={<TextToImage />} />
-          <Route path="ai-image-styler" element={<AIImageStyler />} />
           <Route path="slideshow" element={<AISlideshow />} />
           <Route path="ageing_ai" element={<AgeingVideoMaker />} />
         </Route>
@@ -397,8 +395,7 @@ function App() {
               element={<CreatePresentation />} 
             /> */}
 
-          <Route path="/image-styler" element={<ImageFilter />} />
-          <Route path="/image-styler/filter" element={<AiImageStyler />} />
+          <Route path="/image-styler" element={<AIImageStyler />} />
           <Route
             path="/image-styler/backChanger"
             element={<BackgroundChanger />}
