@@ -26,10 +26,36 @@ import { HexColorPicker } from "react-colorful";
 import html2canvas from "html2canvas";
 
 const ACCENT_COLOR = "#23b5b5";
-const IMGUR_CLIENT_ID = null;
+// Cloudinary config (PUBLIC-safe)
+const CLOUDINARY_CLOUD_NAME = "dz5qcaurk";
+const CLOUDINARY_UPLOAD_PRESET = "public_canvas_upload";
 
 // ⚠️ REPLACE THESE WITH YOUR ACTUAL API KEYS
 const REMOVEBG_API_KEY = "Dn2MEutKyEyE394zWpQt8fPg";
+
+const uploadToCloudinary = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", "unsigned_upload"); // 👈 EXACT name
+  formData.append("cloud_name", "dz5qcaurk");
+
+  const res = await fetch(
+    "https://api.cloudinary.com/v1_1/dz5qcaurk/image/upload",
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
+
+  const data = await res.json();
+  console.log("Cloudinary response:", data);
+
+  if (!res.ok) {
+    throw new Error(data.error?.message || "Upload failed");
+  }
+
+  return data.secure_url;
+};
 
 const fileToBase64 = (file) =>
   new Promise((resolve, reject) => {
@@ -686,7 +712,7 @@ const BackgroundPanel = ({
               <div
                 onClick={() => onSetBackground({ type: "color", value: c })}
                 key={`c-${i}`}
-                className="aspect-square rounded-lg hover:opacity-90 cursor-pointer transition-all hover:scale-105 border-2 border-gray-700"
+                className="aspect-square hover:opacity-90 cursor-pointer transition-all hover:scale-105 border-2 border-gray-700"
                 style={{ background: c }}
               />
             ))}
@@ -1981,379 +2007,199 @@ export default function App() {
     showShareModal,
     setShowShareModal,
     selectedImage,
+    // handleDownload MUST be passed as a prop from the parent (App)
+    handleDownload,
   }) => {
+    // 1. STATE DEFINITIONS (Fixes state/scope errors)
     const [copied, setCopied] = useState(false);
+    const [shareLink, setShareLink] = useState(null);
+    const [isPreparingLink, setIsPreparingLink] = useState(true);
 
-    const shareUrl =
-      selectedImage?.processedUrl ||
-      selectedImage?.originalUrl ||
-      window.location.href;
+    // Fallback URL (if capture/upload fails or no image selected)
+    const baseShareUrl = useMemo(
+      () =>
+        selectedImage?.processedUrl ||
+        selectedImage?.originalUrl ||
+        window.location.href,
+      [selectedImage]
+    );
 
-    // src/App.jsx
-
-    const handleCopy = async () => {
-      if (!selectedImage) {
-        showStatusMessage("Nothing to copy", true);
-        return;
-      }
-
-      try {
-        // find the same DOM node you use for download
-        const cardEl = document.querySelector(
-          `[data-image-card-id="${selectedImage.id}"]`
-        );
-        if (!cardEl) {
-          showStatusMessage("Could not find the design on the page", true);
+    // A cleaner version of handleCopy that focuses on link generation and image copying
+    const handleCopy = useCallback(
+      async (copyType) => {
+        if (!selectedImage) {
+          showStatusMessage("Nothing to copy", true);
           return;
         }
 
+        // Use the pre-calculated link for URL copy
+        if (copyType === "link") {
+          if (!shareLink || isPreparingLink) {
+            showStatusMessage("Please wait, share link is preparing.", true);
+            return;
+          }
+          await navigator.clipboard.writeText(shareLink);
+          setCopied(true);
+          showStatusMessage("Shareable link copied to clipboard!");
+          setTimeout(() => setCopied(false), 2000);
+          return;
+        }
+
+        // Full image capture logic for image clipboard
         showStatusMessage("Preparing image to copy…");
 
-        // render the styled card with html2canvas
-        // render the styled card with html2canvas (hide UI controls before rendering)
-        // inside handleDownload:
-        const canvas = await html2canvas(cardEl, {
-          useCORS: true,
-          backgroundColor: null,
-          scale:
-            window.devicePixelRatio && window.devicePixelRatio > 1 ? 2 : 1.5,
-          onclone: (clonedDoc) => {
-            try {
-              // Hide elements marked with .no-export
+        try {
+          const exportEl = getExportElement(selectedImage.id);
+          if (!exportEl) throw new Error("Export target not found");
+
+          const canvas = await html2canvas(exportEl, {
+            useCORS: true,
+            backgroundColor: null,
+            scale:
+              window.devicePixelRatio && window.devicePixelRatio > 1 ? 2 : 1.5,
+            onclone: (clonedDoc) => {
+              // Cleanup logic from your original code
               clonedDoc.querySelectorAll(".no-export").forEach((el) => {
                 el.style.display = "none";
               });
-
-              // Hide known UI overlays if present (safety)
               clonedDoc
                 .querySelectorAll(".slide-panel, .right-panel, .share-modal")
                 .forEach((el) => {
                   el.style.display = "none";
                 });
-
-              // Find the cloned card and remove outlines/borders/rings
               const clonedCard = clonedDoc.querySelector(
                 `[data-image-card-id="${selectedImage.id}"]`
               );
               if (clonedCard) {
-                // remove visible border/ring/outline (inline style override)
                 clonedCard.style.boxShadow = "none";
                 clonedCard.style.outline = "none";
                 clonedCard.style.border = "none";
-                // If the card uses tailwind ring classes (ring-4 etc), removing inline border/ring-visible parts helps
-                // also ensure rounded corners/background are preserved (we don't clear background)
               }
-
-              // Additionally remove any tiny selection outlines that might be on text annotations
               clonedDoc.querySelectorAll("[data-ann-id]").forEach((a) => {
                 a.style.outline = "none";
                 a.style.boxShadow = "none";
               });
-            } catch (err) {
-              console.warn("html2canvas onclone tweak failed", err);
-            }
-          },
-        });
+            },
+          });
 
-        // convert to blob
-        const blob = await new Promise((res) =>
-          canvas.toBlob(res, "image/png", 0.95)
-        );
-        if (!blob) {
-          throw new Error("Failed to create image blob");
-        }
+          const blob = await new Promise((res) =>
+            canvas.toBlob(res, "image/png", 0.95)
+          );
+          if (!blob) throw new Error("Failed to create image blob");
 
-        // 1) Try to write the image to the clipboard (user can paste the image)
-        if (navigator.clipboard && window.ClipboardItem) {
-          try {
+          if (navigator.clipboard && window.ClipboardItem) {
             await navigator.clipboard.write([
               new ClipboardItem({ "image/png": blob }),
             ]);
             setCopied(true);
             showStatusMessage("Image copied to clipboard!");
             setTimeout(() => setCopied(false), 2000);
-          } catch (err) {
-            console.warn("clipboard image write failed:", err);
-            // continue to attempt to upload/copy URL
+          } else {
+            showStatusMessage(
+              "Image clipboard not supported in this browser.",
+              true
+            );
           }
+        } catch (err) {
+          console.error("handleCopy Image error:", err);
+          showStatusMessage(
+            "Image copy failed: " + (err.message || "Unknown"),
+            true
+          );
         }
+      },
+      [selectedImage, shareLink, isPreparingLink]
+    );
 
-        // 2) If you want a shareable URL, attempt to upload to Imgur (requires client id)
-        let publicUrl = null;
-        if (IMGUR_CLIENT_ID) {
-          try {
-            const fd = new FormData();
-            fd.append("image", blob);
-
-            const resp = await fetch("https://api.imgur.com/3/image", {
-              method: "POST",
-              headers: {
-                Authorization: `Client-ID ${IMGUR_CLIENT_ID}`,
-              },
-              body: fd,
-            });
-
-            const j = await resp.json();
-            if (resp.ok && j && j.data && j.data.link) {
-              publicUrl = j.data.link;
-
-              // shorten and copy instead of copying long URL
-              try {
-                const short = await shortenUrl(publicUrl);
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                  await navigator.clipboard.writeText(short);
-                  setCopied(true);
-                  showStatusMessage("Short link copied to clipboard!");
-                  setTimeout(() => setCopied(false), 2000);
-                  return;
-                }
-              } catch (err) {
-                // fallback: copy long publicUrl
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                  await navigator.clipboard.writeText(publicUrl);
-                  setCopied(true);
-                  showStatusMessage("Shareable link copied to clipboard!");
-                  setTimeout(() => setCopied(false), 2000);
-                  return;
-                }
-              }
-            } else {
-              console.warn("Imgur upload failed", j);
-            }
-          } catch (err) {
-            console.warn("Imgur upload error", err);
-          }
-        }
-
-        // 3) If Imgur was not used / failed, try to create a short URL from the blob by:
-        //    - creating an object URL and copying that (ephemeral), or
-        //    - if you have your own upload endpoint, send the blob there and copy returned URL.
-        if (!publicUrl) {
-          // fallback: create a blob: URL and copy it (note: not permanent)
-          const blobUrl = URL.createObjectURL(blob);
-          try {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-              await navigator.clipboard.writeText(blobUrl);
-              setCopied(true);
-              showStatusMessage("Blob URL copied to clipboard (session-only)!");
-              setTimeout(() => setCopied(false), 2000);
-            } else {
-              // fallback: create temporary textarea
-              const ta = document.createElement("textarea");
-              ta.value = blobUrl;
-              ta.style.position = "fixed";
-              ta.style.left = "-9999px";
-              document.body.appendChild(ta);
-              ta.select();
-              document.execCommand("copy");
-              document.body.removeChild(ta);
-              setCopied(true);
-              showStatusMessage("Blob URL copied to clipboard (session-only)!");
-              setTimeout(() => setCopied(false), 2000);
-            }
-          } catch (err) {
-            console.warn("Failed to copy blob URL:", err);
-            showStatusMessage("Copy failed. Use Download or try again.", true);
-          }
-        }
-      } catch (err) {
-        console.error("handleCopy error:", err);
-        showStatusMessage("Copy failed: " + (err.message || "Unknown"), true);
-      }
-    };
-
-    const handleDownload = async () => {
-      console.log("handleDownload: start");
-      if (!selectedImage) {
-        showStatusMessage("No image to download", true);
+    // 3. EFFECT HOOK: Handles image capture and link generation when the modal opens
+    useEffect(() => {
+      if (!showShareModal || !selectedImage) {
+        setShareLink(null);
         return;
       }
 
-      try {
-        const cardEl = document.querySelector(
-          `[data-image-card-id="${selectedImage.id}"]`
-        );
-        console.log("handleDownload: found cardEl?", !!cardEl);
-        if (!cardEl) {
-          showStatusMessage("Could not find the design on the page", true);
-          return;
+      const prepareLink = async () => {
+        setIsPreparingLink(true);
+
+        try {
+          const exportEl = document.querySelector(
+            `[data-image-card-id="${selectedImage.id}"] [data-export-target="true"]`
+          );
+
+          if (!exportEl) throw new Error("Export target not found");
+
+          const canvas = await html2canvas(exportEl, {
+            useCORS: true,
+            backgroundColor: null,
+            scale: 1.5,
+          });
+
+          const blob = await new Promise((res) =>
+            canvas.toBlob(res, "image/png", 0.95)
+          );
+
+          if (!blob) throw new Error("Failed to create image blob");
+
+          const publicUrl = await uploadToCloudinary(blob);
+          setShareLink(publicUrl);
+        } catch (err) {
+          console.error(err);
+          showStatusMessage("Failed to prepare share link", true);
+        } finally {
+          setIsPreparingLink(false);
         }
+      };
 
-        if (document.activeElement && document.activeElement.blur) {
-          document.activeElement.blur();
-        }
+      prepareLink();
+    }, [showShareModal, selectedImage]);
 
-        showStatusMessage("Preparing image…");
-
-        const canvas = await html2canvas(cardEl, {
-          useCORS: true,
-          backgroundColor: null,
-          scale: window.devicePixelRatio > 1 ? 2 : 1.5,
-          onclone: (clonedDoc) => {
-            try {
-              clonedDoc
-                .querySelectorAll(".no-export")
-                .forEach((el) => (el.style.display = "none"));
-              clonedDoc
-                .querySelectorAll(
-                  ".slide-panel, .right-panel, .share-modal, .react-colorful, .tooltip, .popover"
-                )
-                .forEach((el) => (el.style.display = "none"));
-              const clonedCard = clonedDoc.querySelector(
-                `[data-image-card-id="${selectedImage.id}"]`
-              );
-              if (clonedCard) {
-                clonedCard.style.boxShadow = "none";
-                clonedCard.style.outline = "none";
-                clonedCard.style.border = "none";
-                clonedCard.style.borderRadius =
-                  clonedCard.style.borderRadius || "";
-              }
-              clonedDoc.querySelectorAll("[data-ann-id]").forEach((a) => {
-                a.style.outline = "none";
-                a.style.boxShadow = "none";
-                a.style.caretColor = "transparent";
-              });
-              const style = clonedDoc.createElement("style");
-              style.type = "text/css";
-              style.appendChild(
-                clonedDoc.createTextNode(`
-  [data-image-card-id="${selectedImage.id}"], [data-image-card-id="${selectedImage.id}"] * {
-    box-shadow: none !important; outline: none !important; border: none !important;
-  }
-  .ring, [class*="ring-"], [class*="ring"] { box-shadow: none !important; }
-  *:focus { outline: none !important; box-shadow: none !important; caret-color: transparent !important; }
-  [data-image-card-id="${selectedImage.id}"]::before, [data-image-card-id="${selectedImage.id}"]::after { display: none !important; }
-          `)
-              );
-              if (clonedDoc.head) clonedDoc.head.appendChild(style);
-            } catch (err) {
-              console.warn("onclone tweak failed", err);
-            }
-          },
-        });
-
-        if (!canvas) throw new Error("Canvas creation failed");
-        console.log(
-          "handleDownload: canvas created",
-          canvas.width,
-          canvas.height
-        );
-
-        // TUNE THESE if you still see stray pixels (increase cropPercent)
-        const cropPercent = 0.03; // 3% crop on left/top/right
-        const extraBottomPercent = 0.04; // 4% extra bottom crop
-        const inset = Math.round(
-          Math.min(canvas.width, canvas.height) * cropPercent
-        );
-        const extraBottomCrop = Math.round(canvas.height * extraBottomPercent);
-
-        const srcX = inset;
-        const srcY = inset;
-        const srcW = Math.max(1, canvas.width - inset * 2);
-        const srcH = Math.max(1, canvas.height - inset * 2 - extraBottomCrop);
-
-        // final rounded radius
-        const radius = Math.round(Math.min(srcW, srcH) * 0.06); // 6% radius (adjust if needed)
-
-        // create target canvas (transparent background)
-        const out = document.createElement("canvas");
-        out.width = srcW;
-        out.height = srcH;
-        const ctx = out.getContext("2d", { alpha: true });
-
-        // helper: rounded rect path
-        function roundedRectPath(ctx, x, y, w, h, r) {
-          const rad = Math.max(0, Math.min(r, Math.min(w, h) / 2));
-          ctx.beginPath();
-          ctx.moveTo(x + rad, y);
-          ctx.lineTo(x + w - rad, y);
-          ctx.quadraticCurveTo(x + w, y, x + w, y + rad);
-          ctx.lineTo(x + w, y + h - rad);
-          ctx.quadraticCurveTo(x + w, y + h, x + w - rad, y + h);
-          ctx.lineTo(x + rad, y + h);
-          ctx.quadraticCurveTo(x, y + h, x, y + h - rad);
-          ctx.lineTo(x, y + rad);
-          ctx.quadraticCurveTo(x, y, x + rad, y);
-          ctx.closePath();
-        }
-
-        // Clear, apply rounded clip, draw cropped region
-        ctx.clearRect(0, 0, out.width, out.height);
-        roundedRectPath(ctx, 0, 0, out.width, out.height, radius);
-        ctx.save();
-        ctx.clip();
-
-        // draw the cropped area from original canvas into out canvas
-        ctx.drawImage(
-          canvas,
-          srcX,
-          srcY,
-          srcW,
-          srcH,
-          0,
-          0,
-          out.width,
-          out.height
-        );
-
-        ctx.restore();
-
-        // NOTE: no white fill, no stroke. Transparent corners remain transparent.
-        // If you want a subtle border, we can add a stroke here (but you said remove white).
-
-        out.toBlob(
-          (blob) => {
-            if (!blob) {
-              showStatusMessage("Failed to export image", true);
-              return;
-            }
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `ai-styled-image-${Date.now()}.png`;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            URL.revokeObjectURL(url);
-            showStatusMessage("Image downloaded!");
-            console.log("handleDownload: finished download");
-          },
-          "image/png",
-          1
-        );
-      } catch (err) {
-        console.error("handleDownload error:", err);
-        showStatusMessage(
-          "Download failed: " + (err.message || "Unknown error"),
-          true
-        );
-      }
-    };
+    // 4. ACTION HANDLER: Redirects to social share endpoint
+    // INSIDE ShareModalPanel component function scope
 
     const shareToSocial = (platform) => {
-      const text = "Check out my AI styled image!";
-      const url = encodeURIComponent(shareUrl);
+      if (!shareLink) {
+        showStatusMessage(
+          "Please wait for the share link to be prepared.",
+          true
+        );
+        return;
+      }
+
+      const text = "Check out this image I styled with AI!";
+      const url = encodeURIComponent(shareLink);
       const encodedText = encodeURIComponent(text);
 
       const urls = {
         facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
         twitter: `https://twitter.com/intent/tweet?text=${encodedText}&url=${url}`,
         whatsapp: `https://wa.me/?text=${encodedText}%20${url}`,
-        instagram: `https://www.instagram.com/`,
+        pinterest: `https://pinterest.com/pin/create/button/?url=${url}&description=${encodedText}`,
+        // ⚠️ For Instagram, we can only direct them to the site, as there's no direct URL sharing API.
+        // We open the site in a new window, similar to the others.
+        instagram: "https://www.instagram.com/create/details/", // Directs to the post creation flow (might not work well on all devices/browsers)
       };
 
+      // ⚠️ NOTE: We are removing the special case condition for Instagram here,
+      // making it follow the default window.open behavior.
+      window.open(
+        urls[platform] || urls.twitter,
+        "_blank",
+        "width=600,height=400"
+      );
+
+      // You might want a slight custom message for confirmation:
       if (platform === "instagram") {
-        showStatusMessage("Open Instagram app to share", false);
-      } else {
-        window.open(urls[platform], "_blank", "width=600,height=400");
+        showStatusMessage(
+          "Opening Instagram. You will need to paste the copied image/link manually.",
+          false
+        );
       }
     };
 
     if (!showShareModal) return null;
 
     return (
-      <div className="fixed right-10 top-[115px] w-[320px] bg-gray-800 border border-gray-700 rounded-lg shadow-2xl z-50 p-6">
+      <div className="share-modal fixed right-10 top-[115px] w-[320px] bg-gray-800 border border-gray-700 rounded-lg shadow-2xl z-50 p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold text-white">Share Design</h3>
           <button
@@ -2365,60 +2211,64 @@ export default function App() {
         </div>
 
         <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <input
-              readOnly
-              value={shareUrl}
-              className="flex-1 px-3 w-[150px] py-2 bg-gray-900 border border-gray-700 rounded text-white text-sm"
-              onFocus={(e) => {
-                // help users select quickly if they click the field
-                e.currentTarget.select();
-              }}
-            />
-            <button
-              onClick={handleCopy}
-              className="px-4 py-2 bg-teal-600 hover:bg-teal-700 rounded text-white font-semibold transition-colors"
-            >
-              {copied ? "Copied!" : "Copy"}
-            </button>
-          </div>
+          {isPreparingLink ? (
+            <div className="flex items-center justify-center p-4 bg-gray-700 rounded">
+              <Loader2 className="w-5 h-5 animate-spin mr-2" />
+              <span className="text-sm">Preparing share link...</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <input
+                readOnly
+                // Use the pre-generated short link here
+                value={shareLink || "Link not available"}
+                className="flex-1 px-3 w-[150px] py-2 bg-gray-900 border border-gray-700 rounded text-white text-sm"
+                onFocus={(e) => {
+                  e.currentTarget.select();
+                }}
+              />
+              <button
+                onClick={() => handleCopy("link")} // Call the correct handler
+                className="px-4 py-2 bg-teal-600 hover:bg-teal-700 rounded text-white font-semibold transition-colors"
+                disabled={!shareLink}
+              >
+                {copied ? "Copied!" : "Copy Link"}
+              </button>
+            </div>
+          )}
 
-          {/* ---- Social icons: direct to homepage ---- */}
+          {/* Button to copy the image directly to the clipboard */}
+          {/* <button
+             onClick={() => handleCopy('image')}
+             disabled={isPreparingLink}
+             className="w-full py-3 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition-opacity flex items-center justify-center gap-2"
+        >
+            <CopyIcon className="w-5 h-5" />
+            Copy Image to Clipboard
+        </button> */}
+
+          {/* ---- Social icons: CORRECT direct share URLs ---- */}
           <div className="grid grid-cols-4 gap-4 pt-2 justify-items-center">
             {/* Facebook */}
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                window.open("https://www.facebook.com/", "_blank");
-              }}
-              className="p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-all text-white pointer-events-auto cursor-pointer"
-              title="Open Facebook"
-              aria-label="Open Facebook"
+              onClick={() => shareToSocial("facebook")} // Correctly uses the generated link
+              disabled={isPreparingLink}
+              className="p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-all text-white pointer-events-auto cursor-pointer disabled:opacity-50"
+              title="Share on Facebook"
+              aria-label="Share on Facebook"
             >
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path
-                  d="M24 12.073c0-6.627-5.373-12-12-12s-12 
-             5.373-12 12c0 5.99 4.388 10.954 10.125 
-             11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 
-             1.792-4.669 4.533-4.669 1.312 0 2.686.235 
-             2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 
-             1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 
-             23.027 24 18.062 24 12.073z"
-                />
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
               </svg>
             </button>
 
-            {/* Twitter */}
+            {/* Twitter / X */}
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                window.open("https://twitter.com/", "_blank");
-              }}
-              className="p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-all text-white pointer-events-auto cursor-pointer"
-              title="Open Twitter"
-              aria-label="Open Twitter"
+              onClick={() => shareToSocial("twitter")} // Correctly uses the generated link
+              disabled={isPreparingLink}
+              className="p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-all text-white pointer-events-auto cursor-pointer disabled:opacity-50"
+              title="Share on X (Twitter)"
+              aria-label="Share on X (Twitter)"
             >
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
@@ -2427,30 +2277,25 @@ export default function App() {
 
             {/* WhatsApp */}
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                window.open("https://www.whatsapp.com/", "_blank");
-              }}
-              className="p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-all text-white pointer-events-auto cursor-pointer"
-              title="Open WhatsApp"
-              aria-label="Open WhatsApp"
+              onClick={() => shareToSocial("whatsapp")} // Correctly uses the generated link
+              disabled={isPreparingLink}
+              className="p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-all text-white pointer-events-auto cursor-pointer disabled:opacity-50"
+              title="Share on WhatsApp"
+              aria-label="Share on WhatsApp"
             >
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
               </svg>
             </button>
 
-            {/* Instagram (already correct) */}
+            {/* Instagram (In-App Only) */}
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                window.open("https://www.instagram.com/", "_blank");
-              }}
-              className="p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-all text-white pointer-events-auto cursor-pointer"
-              title="Open Instagram"
-              aria-label="Open Instagram"
+              // This explicitly calls the function which shows the "in-app process" message
+              onClick={() => shareToSocial("instagram")}
+              disabled={isPreparingLink}
+              className="p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-all text-white pointer-events-auto cursor-pointer disabled:opacity-50"
+              title="Share on Instagram (In-App Only)"
+              aria-label="Share on Instagram"
             >
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z" />
@@ -2460,6 +2305,7 @@ export default function App() {
           {/* ---- end social icons ---- */}
 
           <button
+            // handleDownload is now passed as a prop from the parent
             onClick={handleDownload}
             className="w-full py-3 rounded-md bg-teal-600 hover:bg-teal-700 text-white font-bold transition-opacity flex items-center justify-center gap-2"
           >
@@ -2481,6 +2327,62 @@ export default function App() {
         </div>
       </div>
     );
+  };
+
+  const getExportElement = (imageId) => {
+    return document.querySelector(
+      `[data-image-card-id="${imageId}"] [data-export-target="true"]`
+    );
+  };
+
+  const handleDownload = async () => {
+    if (!selectedImage) {
+      showStatusMessage("No image to download", true);
+      return;
+    }
+
+    try {
+      const exportEl = getExportElement(selectedImage.id);
+
+      if (!exportEl) {
+        showStatusMessage("Export target not found", true);
+        return;
+      }
+
+      showStatusMessage("Preparing image…");
+
+      const canvas = await html2canvas(exportEl, {
+        useCORS: true,
+        backgroundColor: null,
+        scale: window.devicePixelRatio > 1 ? 2 : 1.5,
+        onclone: (doc) => {
+          doc
+            .querySelectorAll(
+              ".no-export, .slide-panel, .right-panel, .share-modal"
+            )
+            .forEach((el) => (el.style.display = "none"));
+        },
+      });
+
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          showStatusMessage("Export failed", true);
+          return;
+        }
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `ai-styled-image-${Date.now()}.png`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        showStatusMessage("Image downloaded!");
+      }, "image/png");
+    } catch (err) {
+      console.error(err);
+      showStatusMessage("Download failed", true);
+    }
   };
 
   const StatusToast = () =>
@@ -2552,11 +2454,11 @@ export default function App() {
   }
 
   return (
-    <div className="h-screen w-screen ml-[63px] bg-gray-900 text-white font-sans flex overflow-hidden">
+    <div className="h-screen w-screen ml-[63px]  bg-gray-900 text-white font-sans flex overflow-hidden">
       <Sidebar aiBtnRef={aiBtnRef} />
 
       <div className="flex flex-col flex-grow overflow-hidden">
-        <header className="flex justify-between items-center p-4 md:p-6 border-b border-gray-800 flex-shrink-0">
+        <header className="flex justify-between items-center mr-8 p-4 md:p-6 border-b border-gray-800 flex-shrink-0">
           <div>
             <h1 className="text-2xl font-extrabold tracking-wider text-white">
               AI IMAGE STYLER
@@ -2638,6 +2540,7 @@ export default function App() {
           showShareModal={showShareModal}
           setShowShareModal={setShowShareModal}
           selectedImage={selectedImage}
+          handleDownload={handleDownload}
         />
 
         <div className="flex-grow mr-[50px] overflow-y-auto">
@@ -2692,11 +2595,10 @@ export default function App() {
 
               return (
                 <div
-                  key={img.id}
                   data-image-card-id={img.id}
-                  className={`bg-gray-800 rounded-2xl p-4 border ${
+                  className={`bg-gray-800 p-4 border ${
                     isSelected
-                      ? "ring-4 ring-indigo-500 ring-offset-2 ring-offset-gray-900"
+                      ? "ring-4 ring-indigo-500 ring-offset-0"
                       : "border-gray-700"
                   }`}
                 >
@@ -2731,7 +2633,8 @@ export default function App() {
 
                   <div
                     onClick={() => setSelectedImageId(img.id)}
-                    className="rounded-xl overflow-hidden bg-gray-900 flex items-center justify-center cursor-pointer"
+                    data-export-target="true"
+                    className="overflow-hidden bg-gray-900 flex items-center justify-center cursor-pointer"
                     style={{
                       /* keep the container tall enough when the image is switched to absolute */
                       minHeight:
