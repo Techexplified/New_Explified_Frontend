@@ -272,9 +272,7 @@ const RecommendedWorkflowsPage = () => {
                 >
                   {/* LEFT SIDE */}
                   <div className="flex items-center gap-4">
-                    <div
-                      className={`p-3 rounded-xl bg-gradient-to-r ${category.color}`}
-                    >
+                    <div className={`p-3 rounded-xl bg-minimal-primary`}>
                       <CategoryIcon className="w-6 h-6 text-white" />
                     </div>
 

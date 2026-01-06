@@ -315,65 +315,62 @@ export default function IntegrationsPage() {
   // };
 
   const renderTools = (category) => {
-    let toolsToRender = [];
+  let toolsToRender =
+    category === "All"
+      ? categories.flatMap((cat) => categorizedTools[cat])
+      : categorizedTools[category] || [];
 
-    toolsToRender =
-      category === "All"
-        ? categories.flatMap((cat) => categorizedTools[cat])
-        : categorizedTools[category];
+  if (category === "BYOK") {
+    toolsToRender = Object.values(categorizedTools)
+      .flat()
+      .filter((tool) => tool.byok === true);
+  }
 
-    if (category === "BYOK") {
-      toolsToRender = Object.values(categorizedTools)
-        .flat()
-        .filter((tool) => tool.byok === true);
-    }
+  toolsToRender = filterTools(toolsToRender);
 
-    toolsToRender = filterTools(toolsToRender);
-
-    return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-        {toolsToRender.map((tool, index) => (
-          <div
-            key={index}
-            onClick={() => navigate("/locked")}
-            className="px-6 py-4 rounded-2xl bg-gradient-to-br from-gray-950/80 to-gray-900/60 bg-opacity-70 border border-gray-800/40 backdrop-blur-md shadow-lg transition-all duration-200 hover:bg-gray-900/80 hover:shadow-cyan-700/20 hover:scale-[1.02] cursor-pointer"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-700 rounded-lg flex items-center justify-center text-white text-xl shadow-lg group-hover:scale-110 transition-transform duration-200">
-                {tool.icon}
-              </div>
-              <div
-                onClick={handlePlusClick}
-                className="w-8 h-8 bg-gradient-to-r from-teal-500 to-teal-600 rounded-full flex items-center justify-center text-white transition-all duration-200 transform hover:scale-110 shadow-lg"
-              >
-                <Plus size={20} />
-              </div>
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {toolsToRender.map((tool) => (
+        <div
+          key={tool.id || tool.name}
+          onClick={() => navigate("/locked")}
+          className="px-6 py-4 rounded-2xl bg-[#13161a] hover:shadow-xl hover:border-[#23b5b5] border border-transparent transition-all duration-200 cursor-pointer"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-9 h-9 bg-gradient-to-br from-teal-500 to-teal-700 rounded-lg flex items-center justify-center text-white text-xl shadow-lg transition-transform duration-200">
+              {tool.icon}
             </div>
 
-            <h3 className="text-white font-semibold text-sm mb-2 group-hover:text-teal-300 transition-colors flex items-center gap-2">
-              {tool.name}
-              {tool.byok && (
-                <span className="bg-black text-white text-[10px] px-2 py-[2px] rounded-md border border-gray-500">
-                  BYOK
-                </span>
-              )}
-            </h3>
-
-            <p className="text-gray-300 text-xs leading-relaxed mb-3">
-              {tool.description}
-            </p>
-
-            {/* <div className="flex items-center justify-between">
-              {renderStars(tool.rating)}
-              <span className="text-xs text-gray-400">
-                {tool.reviews} reviews
-              </span>
-            </div> */}
+            {/* ✅ FIXED BUTTON */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handlePlusClick(tool);
+              }}
+              className="w-8 h-8 bg-gradient-to-r from-teal-500 to-teal-600 rounded-full flex items-center justify-center text-white transition-all duration-200 transform hover:scale-110 shadow-lg"
+            >
+              <Plus size={20} />
+            </button>
           </div>
-        ))}
-      </div>
-    );
-  };
+
+          <h3 className="text-white font-semibold text-lg mb-2 flex items-center gap-2">
+            {tool.name}
+            {tool.byok && (
+              <span className="bg-black text-white text-[10px] px-2 py-[2px] rounded-md border border-gray-500">
+                BYOK
+              </span>
+            )}
+          </h3>
+
+          <p className="text-gray-300 text-[14px] leading-relaxed">
+            {tool.description}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 
   // Enhanced "My Integrations" with connected status
   const renderMyIntegrations = () => {
@@ -402,12 +399,12 @@ export default function IntegrationsPage() {
     ];
 
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  gap-6">
         {myIntegrations.map((tool, index) => (
           <div
             key={index}
             onClick={() => navigate("/locked")}
-            className="px-6 py-4 rounded-2xl bg-gradient-to-br from-gray-950/80 to-gray-900/60 bg-opacity-70 border border-gray-800/40 backdrop-blur-md shadow-lg transition-all duration-200 hover:bg-gray-900/80 hover:shadow-cyan-700/20 hover:scale-[1.02] cursor-pointer"
+            className="px-6 py-4 rounded-2xl bg-[#13161a] hover:shadow-xl hover:border-[#23b5b5] border border-transparent transition-all duration-200  cursor-pointer"
           >
             {/* Connected status indicator */}
             <div className="absolute top-3 right-3 flex items-center gap-1">
@@ -422,12 +419,12 @@ export default function IntegrationsPage() {
             </div>
 
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-teal-600 to-teal-800 rounded-lg flex items-center justify-center text-white">
+              <div className="w-9 h-9 bg-gradient-to-br from-teal-600 to-teal-800 rounded-lg flex items-center justify-center text-white">
                 {tool.icon}
               </div>
-              <h3 className="text-white font-semibold text-sm">{tool.name}</h3>
+              <h3 className="text-white font-semibold text-lg">{tool.name}</h3>
             </div>
-            <p className="text-gray-300 text-xs leading-relaxed mb-3">
+            <p className="text-gray-300 text-[14px] leading-relaxed mb-3">
               {tool.description}
             </p>
             <div className="flex items-center justify-between text-xs">
@@ -446,7 +443,6 @@ export default function IntegrationsPage() {
       </div>
     );
   };
-
   // Get total count for display
   const getTotalCount = () => {
     let toolsToRender =
@@ -518,7 +514,7 @@ export default function IntegrationsPage() {
       {/* Header */}
       <div className="relative px-12 pl-24 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-teal-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent mb-2 pb-2">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-teal-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent mb-2">
             Integrations
           </h1>
           <p className="text-gray-400 text-lg">
@@ -529,7 +525,7 @@ export default function IntegrationsPage() {
         {/* Enhanced Search Bar */}
         <div className="relative max-w-2xl mx-auto mb-8">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-cyan-400" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-minimal-primary " />
             <input
               type="text"
               placeholder={placeholderText}
@@ -537,7 +533,7 @@ export default function IntegrationsPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-[#0A0F0F] border border-gray-700/60 rounded-2xl 
       pl-12 pr-4 py-4 text-white placeholder-gray-500
-      focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-700/20 
+      focus:outline-none focus:border-minimal-primary focus:ring-2 focus:ring-cyan-700/20 
       transition-all duration-200 shadow-md"
             />
           </div>
@@ -551,8 +547,8 @@ export default function IntegrationsPage() {
               onClick={() => setSelectedCategory("All")}
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                 selectedCategory === "All"
-                  ? "bg-gradient-to-r from-gray-800 to-gray-900 text-cyan-200 shadow-lg transform scale-105"
-                  : "text-white hover:bg-gray-800/80 hover:text-cyan-500"
+                  ? "bg-gradient-to-r from-gray-800 to-gray-900 text-minimal-primary shadow-lg transform scale-105"
+                  : "text-white hover:bg-gray-800/80 hover:text-minimal-primary"
               }`}
             >
               All
@@ -561,8 +557,8 @@ export default function IntegrationsPage() {
               onClick={() => setSelectedCategory("BYOK")}
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                 selectedCategory === "BYOK"
-                  ? "bg-gradient-to-r from-gray-800 to-gray-900 text-cyan-200 shadow-lg transform scale-105"
-                  : "text-white hover:bg-gray-800/80 hover:text-cyan-500"
+                  ? "bg-gradient-to-r from-gray-800 to-gray-900 text-minimal-primary shadow-lg transform scale-105"
+                  : "text-white hover:bg-gray-800/80 hover:text-minimal-primary"
               }`}
             >
               BYOK
@@ -573,8 +569,8 @@ export default function IntegrationsPage() {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                   selectedCategory === cat
-                    ? "bg-gradient-to-r from-gray-800 to-gray-900 text-cyan-200 shadow-lg transform scale-105"
-                    : "text-white hover:bg-gray-800/80 hover:text-cyan-500"
+                    ? "bg-gradient-to-r from-gray-800 to-gray-900 text-minimal-primary shadow-lg transform scale-105"
+                    : "text-white hover:bg-gray-800/80 hover:text-minimal-primary"
                 }`}
               >
                 {cat}
@@ -589,8 +585,8 @@ export default function IntegrationsPage() {
             onClick={() => setActiveTab("New Integrations")}
             className={`px-6 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
               activeTab === "New Integrations"
-                ? "bg-gradient-to-r from-gray-800 to-gray-900 text-cyan-200 shadow-lg"
-                : "text-cyan-300 hover:bg-gray-800/80 hover:text-white"
+                ? "bg-gradient-to-r from-gray-800 to-gray-900 text-minimal-primary shadow-lg"
+                : "text-white hover:bg-gray-800/80 hover:text-white"
             }`}
           >
             New Integrations
@@ -599,8 +595,8 @@ export default function IntegrationsPage() {
             onClick={() => setActiveTab("My Integrations")}
             className={`px-6 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
               activeTab === "My Integrations"
-                ? "bg-gradient-to-r from-gray-800 to-gray-900 text-cyan-200 shadow-lg"
-                : "text-cyan-300 hover:bg-gray-800/80 hover:text-white"
+                ? "bg-gradient-to-r from-gray-800 to-gray-900 text-minimal-primary shadow-lg"
+                : "text-white hover:bg-gray-800/80 hover:text-white"
             }`}
           >
             My Integrations

@@ -197,7 +197,7 @@ export function ExpliProvider({ children }) {
   // ---------- summarization (kept as-is) ----------
   const summarizePrompt = async (prompt, qaId) => {
     try {
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${
         import.meta.env.VITE_TRONE_GEMINI_API_KEY
       }`;
 
@@ -322,7 +322,7 @@ Return **only** the text , without any explanations, formatting, or markdown:
   const handleDefault = async (userMessage, contextPrompt) => {
     setIsTyping((prev) => ({ ...prev, expli: true }));
     try {
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${
         import.meta?.env.REACT_APP_TRONE_GEMINI_API_KEY ||
         import.meta?.env?.VITE_TRONE_GEMINI_API_KEY
       }`;
@@ -412,7 +412,7 @@ Return **only** the text , without any explanations, formatting, or markdown:
   const handleGemini = async (userMessage, contextPrompt) => {
     setIsTyping((prev) => ({ ...prev, gemini: true }));
     try {
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${providerKeys?.gemini}`;
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${providerKeys?.gemini}`;
       const payload = {
         contents: [{ parts: [{ text: contextPrompt }] }],
         generationConfig: {
