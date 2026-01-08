@@ -64,8 +64,15 @@ class PageErrorBoundary extends React.Component {
 
 
 // Backend origin
+
+// const BACKEND_ORIGIN = (
+//   import.meta.env.VITE_API_ORIGIN ||
+//   import.meta.env.REACT_APP_API_ORIGIN ||
+//   "https://api-pf6diz22ka-uc.a.run.app"
+// ).replace(/\/$/, "");
+
 const BACKEND_ORIGIN = (
-  import.meta.env.VITE_API_ORIGIN || "http://localhost:4000"
+  import.meta.env.REACT_APP_API_ORIGIN || "http://localhost:4000"
 ).replace(/\/$/, "");
 
 // Optional Cloudinary env (unsigned upload preset)
@@ -194,7 +201,8 @@ async function translateSubtitlesToBackend(
   const detectedLanguage =
     srcLangCode || (videoData && videoData.detectedLanguage) || "auto";
 
-  const endpoint = `${BACKEND_ORIGIN}/api/subtitler/upload-audio/translate-subtitles`;
+  // const endpoint = `${BACKEND_ORIGIN}/api/subtitler/translate-subtitles`;
+  const endpoint = `${BACKEND_ORIGIN}/translate-subtitles`;
   const payload = { segments, targetLang: target, detectedLanguage };
 
   const res = await fetch(endpoint, {
@@ -636,7 +644,7 @@ const PlayerContainer = ({
             )}
           </AnimatePresence>
 
-          {subtitles?.length > 0 && (
+          {/* {subtitles?.length > 0 && (
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
@@ -644,7 +652,7 @@ const PlayerContainer = ({
             >
               ✓ {subtitles.length} Subtitles
             </motion.div>
-          )}
+          )} */}
 
           <button
             title={isMaximized ? "Minimize" : "Maximize"}
@@ -1697,7 +1705,8 @@ const uploadFileToBackend = async (file) => {
     type: file.type,
   });
 
-  const endpoint = `${BACKEND_ORIGIN}/api/subtitler/upload-audio`;
+  // const endpoint = `${BACKEND_ORIGIN}/api/subtitler/upload-audio`;
+  const endpoint = `${BACKEND_ORIGIN}/upload-audio`;
   const formData = new FormData();
 
   // ensure filename is included (some servers rely on it)
@@ -1741,7 +1750,8 @@ const uploadFileToBackend = async (file) => {
 
 
   async function uploadUrlToBackend(url) {
-    const endpoint = `${BACKEND_ORIGIN}/api/subtitler/upload-from-url`;
+    // const endpoint = `${BACKEND_ORIGIN}/api/subtitler/upload-from-url`;
+    const endpoint = `${BACKEND_ORIGIN}/upload-from-url`;
 
     const parseBodySafely = async (res) => {
       const text = await res.text().catch(() => "");
@@ -2134,7 +2144,10 @@ const uploadFileToBackend = async (file) => {
             "Try to play the URL via backend proxy for testing? (OK = try)"
           );
           if (tryProxy) {
-            const prox = `${BACKEND_ORIGIN}/api/subtitler/proxy/video?url=${encodeURIComponent(
+            // const prox = `${BACKEND_ORIGIN}/api/subtitler/proxy/video?url=${encodeURIComponent(
+            //   pasteToUse
+            // )}`;
+            const prox = `${BACKEND_ORIGIN}/proxy/video?url=${encodeURIComponent(
               pasteToUse
             )}`;
             const meta = {
@@ -3019,16 +3032,6 @@ const uploadFileToBackend = async (file) => {
             zIndex: 60,
           }}
         >
-          {/* <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setPreviewOpen(true);
-            }}
-            disabled={!videoData?.videoUrl || subtitles.length === 0}
-            className="px-3 py-2 rounded bg-sky-600 hover:bg-sky-500 text-white font-semibold"
-          >
-            Preview
-          </button> */}
 
           <button
             onClick={(e) => {
@@ -3038,7 +3041,7 @@ const uploadFileToBackend = async (file) => {
             disabled={subtitles.length === 0}
             className="px-3 py-2 rounded bg-cyan-700 hover:bg-cyan-600 text-white font-bold"
           >
-            EXPORT ({subtitles.length})
+            EXPORT 
           </button>
         </div>
 
