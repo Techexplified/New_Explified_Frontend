@@ -297,31 +297,18 @@ export default function BackgroundRemover() {
 
   const applyImageBackground = (imgUrl) => {
     saveCanvasState();
-    setSelectedBackground(imgUrl); // ✅ store selection
+    setSelectedBackground(imgUrl);
+    setBlurEnabled(false); // ✅ Reset blur on new bg
+    setIsEffectsMode(false); // ✅ Close effects panel (optional UX)
     redrawCanvas(imgUrl).catch((e) => console.error(e));
-    const canvas = canvasRef.current;
-    const ctx = ctxRef.current;
-    const bgImg = new Image();
-    bgImg.src = imgUrl;
-
-    bgImg.onload = () => {
-      ctx.globalCompositeOperation = "destination-over";
-      ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-    };
   };
 
   const applyColorBackground = (color) => {
     saveCanvasState();
-    setSelectedBackground(color); // ✅ store selection
+    setSelectedBackground(color);
+    setBlurEnabled(false); // ✅ Reset blur on new bg
+    setIsEffectsMode(false); // ✅ Close effects panel (optional UX)
     redrawCanvas(color).catch((e) => console.error(e));
-    const canvas = canvasRef.current;
-    const ctx = ctxRef.current;
-
-    ctx.save();
-    ctx.globalCompositeOperation = "destination-over";
-    ctx.fillStyle = color;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.restore();
   };
 
   // Save current canvas state to undo stack
@@ -416,7 +403,6 @@ export default function BackgroundRemover() {
     if (!canvas || !ctx || !processedImage) return;
 
     try {
-      // load the cutout image and optional background image (if image-based)
       const [cutoutImg, bgImg] = await Promise.all([
         loadImage(processedImage),
         bgOption && !bgOption.startsWith("#")
@@ -424,30 +410,26 @@ export default function BackgroundRemover() {
           : Promise.resolve(null),
       ]);
 
-      // ensure canvas matches cutout image resolution
       if (!cutoutImg) return;
       canvas.width = cutoutImg.width;
       canvas.height = cutoutImg.height;
 
-      // clear and draw background first (ALWAYS)
       ctx.save();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.globalCompositeOperation = "source-over";
+
+      // Draw background
       if (bgOption) {
         if (bgOption.startsWith("#")) {
           ctx.fillStyle = bgOption;
           ctx.fillRect(0, 0, canvas.width, canvas.height);
         } else if (bgImg) {
-          // draw bg image stretched to fill canvas
           ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
         }
-      } else {
-        // no bg — keep transparent or white if desired
-        // ctx.clearRect already left it transparent
       }
 
-      // draw cutout image on TOP of background
-      ctx.drawImage(cutoutImg, 0, 0, canvas.width, canvas.height);
+      // ✅ CRITICAL: Draw CURRENT cutout (with brush edits) on top
+      ctx.drawImage(cutoutImg, 0, 0);
 
       ctx.restore();
     } catch (err) {
@@ -508,22 +490,26 @@ export default function BackgroundRemover() {
   };
 
   const downloadImage = async () => {
-    const canvas = canvasRef.current;
-    const ctx = ctxRef.current;
-    if (!canvas || !ctx) return;
-    setHideTextDuringExport(true);
-    // Redraw the image first (if needed)
-    await redrawCanvas(); // Ensure the base image is there (might be async, so better to directly redraw here or ensure ready)
+    if (undoStack.length === 0) {
+      // Fallback for no edits
+      await downloadImage(); // Your existing logic
+      return;
+    }
 
-    // Draw the text elements on the canvas
-    drawTextElements(ctx);
-    await new Promise((res) => setTimeout(res, 50));
+    // Use CURRENT canvas state (includes brush edits)
+    const currentState = {
+      image: canvasRef.current.toDataURL("image/png"),
+      text: JSON.parse(JSON.stringify(textElements)),
+    };
+
+    restoreCanvasFromState(currentState); // Ensures full state
+
+    drawTextElements(ctxRef.current);
+
     const link = document.createElement("a");
     link.download = "cutout.png";
-    link.href = canvas.toDataURL("image/png");
+    link.href = canvasRef.current.toDataURL("image/png");
     link.click();
-    setHideTextDuringExport(false);
-    redrawCanvas();
   };
 
   const reset = () => {
@@ -862,6 +848,7 @@ export default function BackgroundRemover() {
                     {/* Cutout */}
                     <button
                       onClick={() => {
+                        saveCanvasState();
                         setIsCutoutMode(true);
                         setIsBackgroundMode(false);
                         setIsEffectsMode(false);

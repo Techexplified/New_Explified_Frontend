@@ -1,5 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axiosInstance from "../../../network/axiosInstance";
 import { FaArrowRight } from "react-icons/fa";
+import {
+  LayoutDashboard,
+  UploadCloud,
+  FolderKanban,
+  Star,
+  MessageSquare,
+  Clock,
+} from "lucide-react";
 
 export default function AIMemeGenerator() {
   const [inputText, setInputText] = useState("");
@@ -9,6 +18,21 @@ export default function AIMemeGenerator() {
   const [url, setUrl] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedTone, setSelectedTone] = useState("");
+  const [activeItem, setActiveItem] = useState("Tools");
+  const [history, setHistory] = useState([]);
+
+  useEffect(() => {
+    const storedHistory = JSON.parse(localStorage.getItem("memeHistory")) || [];
+    setHistory(storedHistory);
+  }, []);
+
+  const sidebarItems = [
+    { label: "Tools", icon: <LayoutDashboard size={20} /> },
+    { label: "Uploads", icon: <UploadCloud size={20} /> },
+    { label: "Projects", icon: <FolderKanban size={20} /> },
+    { label: "Explore", icon: <Star size={20} />, premium: true },
+    // { label: "Account", icon: <User size={20} /> },
+  ];
 
   const handleMemeGenerate = async () => {
     setShowModal(true);
@@ -22,53 +46,194 @@ export default function AIMemeGenerator() {
     setShowModal(false);
     setIsLoading(true);
     try {
-      // API call would go here
-      console.log("Generating meme...");
-      // Simulating API call for demo
-      setTimeout(() => {
-        setUid("demo-uid-" + Date.now());
-        setIsLoading(false);
-      }, 1000);
+      const response = await axiosInstance.post(
+        "http://localhost:8000/api/aiMemeGenerator",
+        {
+          topic: inputText,
+          template: selectedTone,
+        }
+      );
+
+      const newUid = response?.data?.content;
+      console.log("uid-client", newUid);
+      setUid(newUid);
+
+      // Create new storage entry
+      const newEntry = {
+        uid: newUid,
+        text: inputText,
+        createdAt: new Date().toISOString(),
+      };
+
+      // Retrieve existing stored items or create new array
+      const existingEntries =
+        JSON.parse(localStorage.getItem("memeHistory")) || [];
+
+      // Append new entry
+      const updatedEntries = [...existingEntries, newEntry];
+
+      // Save back to localStorage
+      localStorage.setItem("memeHistory", JSON.stringify(updatedEntries));
+
+      console.log("Updated meme history:", updatedEntries);
     } catch (error) {
       console.error(error);
+    } finally {
       setIsLoading(false);
     }
   };
-
   const getMeme = async () => {
     console.log("getMeme");
     setIsLoading(true);
     try {
-      // API call would go here
-      console.log("Fetching meme with uid:", uid);
-      // Simulating API call for demo
-      setTimeout(() => {
-        setUrl("https://media.giphy.com/media/3o7btPCcdNniyf0ArS/giphy.gif");
-        setIsLoading(false);
-      }, 1000);
+      const response = await axiosInstance.post(
+        "http://localhost:8000/api/aiMemeGenerator/get-meme",
+        {
+          uid,
+        }
+      );
+      console.log(response);
+      setUrl(response?.data?.content);
     } catch (error) {
       console.error(error);
+    } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen relative bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 text-white flex flex-col p-6">
-      {/* Header */}
-      <div className="relative text-center py-6">
-        <div className="inline-block">
-          <h1
-            className="text-3xl md:text-4xl font-bold tracking-tight bg-gradient-to-r from-white via-[#23b5b5] to-white bg-clip-text text-transparent mb-4"
-            style={{ backgroundSize: "200% auto" }}
+    <div className="min-h-screen pl-16 relative flex bg-gradient-to-br from-minimal-background via-minimal-dark-100 to-minimal-dark-200 text-white">
+      {/* Sidebar */}
+      <div className="w-16 bg-black/40 border-r border-gray-800 flex flex-col items-center py-6 gap-8">
+        {sidebarItems.map((item) => (
+          <button
+            key={item.label}
+            onClick={() => setActiveItem(item.label)}
+            className={`flex flex-col items-center gap-2 relative transition-all ${
+              activeItem === item.label ? "text-teal-400" : "text-gray-300"
+            } hover:text-white`}
           >
-            Text to Meme Generator
-          </h1>
-          <div className="h-1 w-full bg-gradient-to-r from-transparent via-[#23b5b5] to-transparent rounded-full"></div>
-        </div>
+            <div
+              className={`w-12 h-12 flex items-center justify-center rounded-xl transition-all ${
+                activeItem === item.label ? "bg-teal-500/20" : "bg-gray-700/30"
+              } hover:bg-teal-500/30`}
+            >
+              {item.icon}
+            </div>
+            <span className="text-xs whitespace-nowrap">{item.label}</span>
+
+            {item.premium && (
+              <span className="absolute -top-2 right-0 bg-yellow-500 text-black text-[9px] px-[5px] rounded font-bold">
+                PRO
+              </span>
+            )}
+          </button>
+        ))}
       </div>
+
+      {/* Uploads History Panel */}
+      {activeItem === "Uploads" && (
+        <div className="absolute left-36 top-16 h-80 w-80 rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border-r-2 border-gray-700 shadow-2xl z-30 overflow-hidden">
+          {/* Header with gradient accent */}
+          <div className="relative p-4 border-b border-gray-700/50 bg-gradient-to-r from-gray-800 to-gray-900">
+            <div className="absolute inset-0 bg-gradient-to-r from-[#23b5b5]/5 to-transparent"></div>
+            <div className="relative flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div>
+                  <h2 className="text-xl font-bold text-white">History</h2>
+                  <p className="text-xs text-gray-400">
+                    {history.length} recent items
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="p-4 overflow-hidden">
+            {history.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full px-4">
+                <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center mb-4">
+                  <Clock className="w-10 h-10 text-gray-600" strokeWidth={2} />
+                </div>
+                <p className="text-gray-400 text-sm text-center font-medium">
+                  No history found
+                </p>
+                <p className="text-gray-600 text-xs text-center mt-2">
+                  Your generated memes will appear here
+                </p>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3 overflow-y-auto h-full pr-2 custom-scrollbar">
+                {history.map((item, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      setInputText(item.text);
+                      setUid(item.uid);
+                      setActiveItem("Tools");
+                    }}
+                    className="group relative text-left p-4 rounded-xl bg-gray-800/50 hover:bg-gray-800 border border-gray-700 hover:border-[#23b5b5] transition-all duration-300 transform hover:shadow-lg hover:shadow-[#23b5b5]/10"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#23b5b5]/0 via-[#23b5b5]/5 to-[#23b5b5]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+
+                    <div className="relative flex items-start gap-3">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gray-700 group-hover:bg-[#23b5b5]/20 flex items-center justify-center transition-all duration-300">
+                        <MessageSquare
+                          className="w-4 h-4 text-gray-400 group-hover:text-[#23b5b5] transition-colors"
+                          strokeWidth={2}
+                        />
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-white truncate group-hover:text-[#23b5b5] transition-colors">
+                          {item.text}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Click to load
+                        </p>
+                      </div>
+
+                      <svg
+                        className="flex-shrink-0 w-4 h-4 text-gray-600 group-hover:text-[#23b5b5] opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Footer indicator */}
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#23b5b5]/50 to-transparent"></div>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="flex-1 max-w-3xl mx-auto w-full px-4 relative z-10">
+        {/* Header */}
+        <div className="relative text-center py-6">
+          <div className="inline-block">
+            <h1
+              className="text-3xl md:text-4xl font-bold tracking-tight bg-gradient-to-r from-white via-[#23b5b5] to-white bg-clip-text text-transparent mb-4"
+              style={{ backgroundSize: "200% auto" }}
+            >
+              Text to Meme Generator
+            </h1>
+            <div className="h-1 w-full bg-gradient-to-r from-transparent via-[#23b5b5] to-transparent rounded-full"></div>
+          </div>
+        </div>
+
         {/* Input Section */}
         <div className="mb-8">
           <h2 className="text-lg font-semibold mb-4 text-gray-300">
@@ -280,13 +445,9 @@ export default function AIMemeGenerator() {
               </div>
 
               {url && (
-                <div className="w-full max-w-2xl">
+                <div className="w-full max-w-xs">
                   <div className="relative group">
-                    <div
-                      className="absolute -inset-1 bg-gradient-to-r from-[#23b5b5] via-[#1a8f8f] to-[#23b5b5] rounded-3xl blur-lg opacity-50 group-hover:opacity-75 transition duration-500"
-                      style={{ backgroundSize: "200% auto" }}
-                    ></div>
-                    <div className="relative bg-gradient-to-br from-gray-900 to-gray-800 p-6 rounded-3xl border-2 border-gray-700">
+                    <div className="relative bg-gradient-to-br from-gray-900 to-gray-800 p-4 rounded-3xl border-2 border-gray-700">
                       <div className="bg-black rounded-2xl overflow-hidden mb-6">
                         <img
                           src={url}
@@ -321,7 +482,7 @@ export default function AIMemeGenerator() {
         </div>
 
         {/* Meme Preset Suggestions */}
-        <div className="mt-12">
+        <div className="mt-12 pb-12">
           <h2 className="text-center text-2xl font-semibold mb-6 text-gray-300">
             Try these meme descriptions
           </h2>

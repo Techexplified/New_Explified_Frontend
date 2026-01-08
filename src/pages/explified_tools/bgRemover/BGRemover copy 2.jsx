@@ -338,24 +338,6 @@ export default function BackgroundRemover() {
     setRedoStack([]); // clear redo after new action
   };
 
-  // Undo the last change
-  const handleUndo = () => {
-    if (undoStack.length === 0) return;
-
-    const last = undoStack[undoStack.length - 1];
-
-    // move current state to redo
-    setRedoStack((prev) => [
-      ...prev,
-      {
-        image: canvasRef.current.toDataURL("image/png"),
-        text: JSON.parse(JSON.stringify(textElements)),
-      },
-    ]);
-
-    restoreCanvasFromState(last);
-    setUndoStack((prev) => prev.slice(0, -1));
-  };
   const restoreCanvasFromState = (state) => {
     const { image, text } = state;
 
@@ -377,28 +359,44 @@ export default function BackgroundRemover() {
     };
   };
 
+  // Undo the last change
+  const handleUndo = () => {
+    if (undoStack.length === 0) return;
+
+    const last = undoStack[undoStack.length - 1];
+
+    // move current state to redo
+    setRedoStack((prev) => [
+      ...prev,
+      {
+        image: canvasRef.current.toDataURL("image/png"),
+        text: JSON.parse(JSON.stringify(textElements)),
+      },
+    ]);
+
+    restoreCanvasFromState(last);
+    setUndoStack((prev) => prev.slice(0, -1));
+  };
   // Redo the previously undone change
   const handleRedo = () => {
     if (redoStack.length === 0) return;
 
     const nextState = redoStack[redoStack.length - 1];
-    setRedoStack((prev) => prev.slice(0, -1));
-    setUndoStack((prev) => [...prev, canvasRef.current.toDataURL("image/png")]);
-    restoreCanvasFromDataURL(nextState);
-  };
 
-  // Helper to restore canvas from saved DataURL
-  const restoreCanvasFromDataURL = (dataUrl) => {
-    const canvas = canvasRef.current;
-    const ctx = ctxRef.current;
-    const img = new Image();
-    img.src = dataUrl;
-    img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0);
-    };
+    // Save current state (same format as undo uses)
+    setUndoStack((prev) => [
+      ...prev,
+      {
+        image: canvasRef.current.toDataURL("image/png"),
+        text: JSON.parse(JSON.stringify(textElements)),
+      },
+    ]);
+
+    // Remove from redo stack
+    setRedoStack((prev) => prev.slice(0, -1));
+
+    // Restore full state (image + text)
+    restoreCanvasFromState(nextState);
   };
 
   // promise loader for images (useful to avoid race conditions)
@@ -437,15 +435,19 @@ export default function BackgroundRemover() {
       ctx.globalCompositeOperation = "source-over";
       if (bgOption) {
         if (bgOption.startsWith("#")) {
+          if (blurEnabled) {
+            ctx.filter = `blur(${blurAmount}px)`;
+          }
           ctx.fillStyle = bgOption;
           ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.filter = "none";
         } else if (bgImg) {
-          // draw bg image stretched to fill canvas
+          if (blurEnabled) {
+            ctx.filter = `blur(${blurAmount}px)`;
+          }
           ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+          ctx.filter = "none";
         }
-      } else {
-        // no bg — keep transparent or white if desired
-        // ctx.clearRect already left it transparent
       }
 
       // draw cutout image on TOP of background
@@ -509,23 +511,98 @@ export default function BackgroundRemover() {
     };
   };
 
-  const downloadImage = async () => {
+  const renderForExport = async () => {
     const canvas = canvasRef.current;
     const ctx = ctxRef.current;
-    if (!canvas || !ctx) return;
-    setHideTextDuringExport(true);
-    // Redraw the image first (if needed)
-    await redrawCanvas(); // Ensure the base image is there (might be async, so better to directly redraw here or ensure ready)
 
-    // Draw the text elements on the canvas
+    if (!canvas || !ctx || !processedImage) return;
+
+    const cutoutImg = await loadImage(processedImage);
+    const bgImg =
+      selectedBackground && !selectedBackground.startsWith("#")
+        ? await loadImage(selectedBackground)
+        : null;
+
+    canvas.width = cutoutImg.width;
+    canvas.height = cutoutImg.height;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.globalCompositeOperation = "source-over";
+
+    // 1️⃣ Draw BACKGROUND with BLUR
+    if (selectedBackground) {
+      ctx.save();
+
+      if (blurEnabled) {
+        ctx.filter = `blur(${blurAmount}px)`;
+      }
+
+      if (selectedBackground.startsWith("#")) {
+        ctx.fillStyle = selectedBackground;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      } else if (bgImg) {
+        ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+      }
+
+      ctx.restore();
+    }
+
+    // 2️⃣ Draw CUTOUT (never blurred)
+    ctx.drawImage(cutoutImg, 0, 0);
+
+    // 3️⃣ Draw TEXT
     drawTextElements(ctx);
-    await new Promise((res) => setTimeout(res, 50));
+  };
+  const renderExportCanvas = async () => {
+    if (!processedImage) return null;
+
+    const exportCanvas = document.createElement("canvas");
+    const exportCtx = exportCanvas.getContext("2d");
+
+    const cutout = await loadImage(processedImage);
+    exportCanvas.width = cutout.width;
+    exportCanvas.height = cutout.height;
+
+    // draw background
+    if (selectedBackground) {
+      exportCtx.save();
+
+      if (blurEnabled) {
+        exportCtx.filter = `blur(${blurAmount}px)`;
+      }
+
+      if (selectedBackground.startsWith("#")) {
+        exportCtx.fillStyle = selectedBackground;
+        exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+      } else {
+        const bg = await loadImage(selectedBackground);
+        exportCtx.drawImage(bg, 0, 0, exportCanvas.width, exportCanvas.height);
+      }
+
+      exportCtx.restore();
+    }
+
+    // draw foreground (never blurred)
+    exportCtx.drawImage(cutout, 0, 0);
+
+    // draw text
+    drawTextElements(exportCtx);
+
+    return exportCanvas;
+  };
+
+  const downloadImage = async () => {
+    setHideTextDuringExport(true);
+
+    const exportCanvas = await renderExportCanvas();
+    if (!exportCanvas) return;
+
     const link = document.createElement("a");
     link.download = "cutout.png";
-    link.href = canvas.toDataURL("image/png");
+    link.href = exportCanvas.toDataURL("image/png");
     link.click();
+
     setHideTextDuringExport(false);
-    redrawCanvas();
   };
 
   const reset = () => {
@@ -664,23 +741,6 @@ export default function BackgroundRemover() {
     });
   };
 
-  const handleDragEnd = (id, e) => {
-    const rect = e.target.getBoundingClientRect();
-    const canvasRect = canvasRef.current.getBoundingClientRect();
-
-    setTextElements((prev) =>
-      prev.map((t) =>
-        t.id === id
-          ? {
-              ...t,
-              x: rect.left - canvasRect.left,
-              y: rect.top - canvasRect.top,
-            }
-          : t
-      )
-    );
-  };
-
   const handleMouseDown = (e, id) => {
     setActiveTextId(id); // also enter edit mode when clicked
 
@@ -743,6 +803,14 @@ export default function BackgroundRemover() {
       scaleX: canvas.width / rect.width,
       scaleY: canvas.height / rect.height,
     };
+  };
+
+  const updateFontSize = (id, newSize) => {
+    saveCanvasState(); // allow undo/redo
+
+    setTextElements((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, fontSize: `${newSize}px` } : t))
+    );
   };
 
   return (
@@ -977,238 +1045,6 @@ export default function BackgroundRemover() {
                 )}
 
                 {/* ✅ RIGHT SIDE CUTOUT TOOL PANEL */}
-                {isCutoutMode && (
-                  <div className="absolute right-4 top-28 w-72 bg-neutral-700 text-gray-300 rounded-2xl shadow-xl p-4 z-40">
-                    <h2 className="font-bold mb-4 text-gray-300">
-                      Magic Brush
-                    </h2>
-
-                    <div className="flex gap-3 mb-4">
-                      <button
-                        onClick={() => setIsErasing(true)}
-                        className={`flex-1 p-3 rounded-xl border ${
-                          isErasing
-                            ? "border-teal-500/40 bg-teal-500/20 text-teal-300"
-                            : "border-neutral-700 bg-neutral-800 hover:bg-neutral-900 text-gray-300"
-                        }`}
-                      >
-                        Erase
-                      </button>
-                    </div>
-
-                    <div className="mb-4">
-                      <p className="font-medium text-gray-700">Brush Size</p>
-                      <input
-                        type="range"
-                        min="5"
-                        max="80"
-                        value={brushSize}
-                        onChange={(e) => setBrushSize(Number(e.target.value))}
-                        className="w-full accent-teal-400"
-                      />
-                    </div>
-
-                    <button
-                      onClick={() => setIsCutoutMode(false)}
-                      className="mt-3 w-full py-2 text-gray-200 font-bold rounded-xl bg-neutral-800 hover:bg-neutral-900 border border-neutral-700 duration-200"
-                    >
-                      Close
-                    </button>
-                  </div>
-                )}
-
-                {/* ✅ RIGHT SIDE BACKGROUND TOOL PANEL */}
-                {isBackgroundMode && (
-                  <div className="absolute right-4 top-28 w-80 bg-neutral-700 text-gray-300 rounded-2xl shadow-2xl p-3 z-40">
-                    <div className="flex gap-3 mb-2 p-1">
-                      <button
-                        onClick={() => setBackgroundType("magic")}
-                        className={`flex-1 py-2 rounded-lg font-semibold duration-200 transition-colors
-        ${
-          backgroundType === "magic"
-            ? "bg-teal-500/20 text-teal-300 border border-teal-500/30"
-            : "bg-neutral-800 hover:bg-neutral-900 border border-neutral-700"
-        }`}
-                      >
-                        Magic
-                      </button>
-                      <button
-                        onClick={() => setBackgroundType("photo")}
-                        className={`flex-1 py-2 rounded-lg font-semibold duration-200 transition-colors
-        ${
-          backgroundType === "photo"
-            ? "bg-teal-500/20 text-teal-300 border border-teal-500/30"
-            : "bg-neutral-800 hover:bg-neutral-900 border border-neutral-700"
-        }`}
-                      >
-                        Photo
-                      </button>
-                      <button
-                        onClick={() => setBackgroundType("color")}
-                        className={`flex-1 py-2 rounded-lg font-semibold duration-200 transition-colors
-        ${
-          backgroundType === "color"
-            ? "bg-teal-500/20 text-teal-300 border border-teal-500/30"
-            : "bg-neutral-800 hover:bg-neutral-900 border border-neutral-700"
-        }`}
-                      >
-                        Color
-                      </button>
-                    </div>
-
-                    {/* ✅ MAGIC / PHOTO GRID */}
-                    {backgroundType === "magic" && (
-                      <div className="grid grid-cols-3 gap-3 max-h-56 overflow-y-auto p-1 custom-scroll">
-                        {backgroundThumbnails.map((thumb, i) => (
-                          <img
-                            key={i}
-                            src={thumb}
-                            onClick={() => applyImageBackground(thumb)}
-                            className={`w-full h-20 rounded-lg object-cover cursor-pointer transition-transform hover:scale-105
-            ${
-              selectedBackground === thumb ? "ring-2 ring-teal-400" : "ring-0"
-            }`}
-                          />
-                        ))}
-                      </div>
-                    )}
-
-                    {/* ✅ PHOTO GRID */}
-                    {backgroundType === "photo" && (
-                      <div className="grid grid-cols-3 gap-3 max-h-56 overflow-y-auto p-1 custom-scroll">
-                        {imageThumbnails.map((thumb, i) => (
-                          <img
-                            key={i}
-                            src={thumb}
-                            onClick={() => applyImageBackground(thumb)}
-                            className={`w-full h-20 rounded-lg object-cover cursor-pointer transition-transform hover:scale-105
-            ${
-              selectedBackground === thumb ? "ring-2 ring-teal-400" : "ring-0"
-            }`}
-                          />
-                        ))}
-                      </div>
-                    )}
-
-                    {/* ✅ COLOR PICKER GRID */}
-                    {backgroundType === "color" && (
-                      <div className="grid grid-cols-3 gap-2 max-h-56 overflow-y-auto p-1 custom-scroll">
-                        {colorOptions.map((color, i) => (
-                          <div
-                            key={i}
-                            onClick={() => applyColorBackground(color)}
-                            className={`w-full h-20 rounded-lg cursor-pointer transition-transform hover:scale-105
-            ${
-              selectedBackground === color ? "ring-2 ring-teal-400" : "ring-0"
-            }`}
-                            style={{ background: color }}
-                          />
-                        ))}
-                      </div>
-                    )}
-
-                    <button
-                      onClick={() => setIsBackgroundMode(false)}
-                      className="mt-4 w-full py-2 rounded-xl bg-neutral-800 hover:bg-neutral-900 border border-neutral-700 duration-200 font-semibold text-gray-200"
-                    >
-                      Close
-                    </button>
-                  </div>
-                )}
-
-                {isEffectsMode && (
-                  <div className="absolute right-4 top-28 w-80 bg-neutral-700 text-gray-300 rounded-2xl shadow-xl p-4 z-40">
-                    {/* Toggle Blur */}
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="font-semibold text-gray-300">
-                        Blur background
-                      </span>
-
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          className="sr-only peer"
-                          checked={blurEnabled}
-                          onChange={() => {
-                            setBlurEnabled(!blurEnabled);
-                            setTimeout(applyEffectsToCanvas, 20);
-                          }}
-                        />
-                        <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-teal-500 transition"></div>
-                        <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5"></div>
-                      </label>
-                    </div>
-
-                    {/* Blur Amount Slider */}
-                    {blurEnabled && (
-                      <>
-                        <p className="font-medium mb-1">Blur amount</p>
-                        <input
-                          type="range"
-                          min="0"
-                          max="25"
-                          value={blurAmount}
-                          onChange={(e) => {
-                            setBlurAmount(Number(e.target.value));
-                            applyEffectsToCanvas();
-                          }}
-                          className="w-full mb-4"
-                        />
-                      </>
-                    )}
-
-                    <button
-                      onClick={() => setIsEffectsMode(false)}
-                      className="w-full py-2 mt-2 rounded-xl bg-neutral-800 hover:bg-neutral-900 font-semibold"
-                    >
-                      Close
-                    </button>
-                  </div>
-                )}
-
-                {isDesignMode && (
-                  <div className="design-panel absolute right-4 top-28 w-80 bg-neutral-700 text-gray-300 rounded-2xl shadow-xl p-4 z-40">
-                    {/* Add Heading */}
-                    <div className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-800 transition-colors rounded-2xl">
-                      <Heading className="w-7 h-7 text-teal-400" />
-                      <button
-                        onClick={() => addTextElement("heading")}
-                        className="font-medium"
-                      >
-                        Add a Heading
-                      </button>
-                    </div>
-
-                    {/* Add Subheading */}
-                    <div className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-800 transition-colors rounded-2xl">
-                      <Type className="w-7 h-7 text-teal-400" />
-                      <button
-                        onClick={() => addTextElement("subheading")}
-                        className="font-medium"
-                      >
-                        Add a Subheading
-                      </button>
-                    </div>
-
-                    {/* Add Paragraph */}
-                    <div className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-800 transition-colors rounded-2xl">
-                      <Pilcrow className="w-7 h-7 text-teal-400" />
-                      <button
-                        onClick={() => addTextElement("paragraph")}
-                        className="font-medium"
-                      >
-                        Add a Paragraph
-                      </button>
-                    </div>
-
-                    <button
-                      onClick={() => setIsDesignMode(false)}
-                      className="w-full py-2 mt-2 rounded-xl bg-neutral-800 hover:bg-neutral-900 font-semibold"
-                    >
-                      Close
-                    </button>
-                  </div>
-                )}
 
                 <div
                   className="relative flex items-center justify-center min-h-96 rounded-2xl overflow-hidden"
@@ -1220,7 +1056,7 @@ export default function BackgroundRemover() {
                 >
                   {/* ✅ White rounded background BEHIND the processed image */}
                   {processedImage && (
-                    <div className="absolute inset-0 flex items-center justify-center p-4">
+                    <div className="absolute inset-0 flex items-center justify-center p-2">
                       <div
                         className="w-full h-full rounded-3xl"
                         style={{
@@ -1321,6 +1157,266 @@ export default function BackgroundRemover() {
                   )}
                 </div>
               </div>
+
+              {isCutoutMode && (
+                <div className="absolute right-4 top-72 w-72 bg-neutral-700 text-gray-300 rounded-2xl shadow-xl p-4 z-40">
+                  <h2 className="font-bold mb-4 text-gray-300">Magic Brush</h2>
+
+                  <div className="flex gap-3 mb-4">
+                    <button
+                      onClick={() => setIsErasing(true)}
+                      className={`flex-1 p-3 rounded-xl border ${
+                        isErasing
+                          ? "border-teal-500/40 bg-teal-500/20 text-teal-300"
+                          : "border-neutral-700 bg-neutral-800 hover:bg-neutral-900 text-gray-300"
+                      }`}
+                    >
+                      Erase
+                    </button>
+                  </div>
+
+                  <div className="mb-4">
+                    <p className="font-medium text-gray-700">Brush Size</p>
+                    <input
+                      type="range"
+                      min="5"
+                      max="80"
+                      value={brushSize}
+                      onChange={(e) => setBrushSize(Number(e.target.value))}
+                      className="w-full accent-teal-400"
+                    />
+                  </div>
+
+                  <button
+                    onClick={() => setIsCutoutMode(false)}
+                    className="mt-3 w-full py-2 text-gray-200 font-bold rounded-xl bg-neutral-800 hover:bg-neutral-900 border border-neutral-700 duration-200"
+                  >
+                    Close
+                  </button>
+                </div>
+              )}
+
+              {/* ✅ RIGHT SIDE BACKGROUND TOOL PANEL */}
+              {isBackgroundMode && (
+                <div className="absolute right-4 top-72 w-72 bg-neutral-700 text-gray-300 rounded-2xl shadow-2xl p-3 z-40">
+                  <div className="flex gap-3 mb-2 p-1">
+                    <button
+                      onClick={() => setBackgroundType("magic")}
+                      className={`flex-1 py-2 rounded-lg font-semibold duration-200 transition-colors
+        ${
+          backgroundType === "magic"
+            ? "bg-teal-500/20 text-teal-300 border border-teal-500/30"
+            : "bg-neutral-800 hover:bg-neutral-900 border border-neutral-700"
+        }`}
+                    >
+                      Magic
+                    </button>
+                    <button
+                      onClick={() => setBackgroundType("photo")}
+                      className={`flex-1 py-2 rounded-lg font-semibold duration-200 transition-colors
+        ${
+          backgroundType === "photo"
+            ? "bg-teal-500/20 text-teal-300 border border-teal-500/30"
+            : "bg-neutral-800 hover:bg-neutral-900 border border-neutral-700"
+        }`}
+                    >
+                      Photo
+                    </button>
+                    <button
+                      onClick={() => setBackgroundType("color")}
+                      className={`flex-1 py-2 rounded-lg font-semibold duration-200 transition-colors
+        ${
+          backgroundType === "color"
+            ? "bg-teal-500/20 text-teal-300 border border-teal-500/30"
+            : "bg-neutral-800 hover:bg-neutral-900 border border-neutral-700"
+        }`}
+                    >
+                      Color
+                    </button>
+                  </div>
+
+                  {/* ✅ MAGIC / PHOTO GRID */}
+                  {backgroundType === "magic" && (
+                    <div className="grid grid-cols-3 gap-3 max-h-56 overflow-y-auto p-1 custom-scroll">
+                      {backgroundThumbnails.map((thumb, i) => (
+                        <img
+                          key={i}
+                          src={thumb}
+                          onClick={() => applyImageBackground(thumb)}
+                          className={`w-full h-20 rounded-lg object-cover cursor-pointer transition-transform hover:scale-105
+            ${
+              selectedBackground === thumb ? "ring-2 ring-teal-400" : "ring-0"
+            }`}
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  {/* ✅ PHOTO GRID */}
+                  {backgroundType === "photo" && (
+                    <div className="grid grid-cols-3 gap-3 max-h-56 overflow-y-auto p-1 custom-scroll">
+                      {imageThumbnails.map((thumb, i) => (
+                        <img
+                          key={i}
+                          src={thumb}
+                          onClick={() => applyImageBackground(thumb)}
+                          className={`w-full h-20 rounded-lg object-cover cursor-pointer transition-transform hover:scale-105
+            ${
+              selectedBackground === thumb ? "ring-2 ring-teal-400" : "ring-0"
+            }`}
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  {/* ✅ COLOR PICKER GRID */}
+                  {backgroundType === "color" && (
+                    <div className="grid grid-cols-3 gap-2 max-h-56 overflow-y-auto p-1 custom-scroll">
+                      {colorOptions.map((color, i) => (
+                        <div
+                          key={i}
+                          onClick={() => applyColorBackground(color)}
+                          className={`w-full h-20 rounded-lg cursor-pointer transition-transform hover:scale-105
+            ${
+              selectedBackground === color ? "ring-2 ring-teal-400" : "ring-0"
+            }`}
+                          style={{ background: color }}
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  <button
+                    onClick={() => setIsBackgroundMode(false)}
+                    className="mt-4 w-full py-2 rounded-xl bg-neutral-800 hover:bg-neutral-900 border border-neutral-700 duration-200 font-semibold text-gray-200"
+                  >
+                    Close
+                  </button>
+                </div>
+              )}
+
+              {isEffectsMode && (
+                <div className="absolute right-4 top-72 w-72 bg-neutral-700 text-gray-300 rounded-2xl shadow-xl p-4 z-40">
+                  {/* Toggle Blur */}
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="font-semibold text-gray-300">
+                      Blur background
+                    </span>
+
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="sr-only peer"
+                        checked={blurEnabled}
+                        onChange={() => {
+                          setBlurEnabled(!blurEnabled);
+                          setTimeout(applyEffectsToCanvas, 20);
+                        }}
+                      />
+                      <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-teal-500 transition"></div>
+                      <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5"></div>
+                    </label>
+                  </div>
+
+                  {/* Blur Amount Slider */}
+                  {blurEnabled && (
+                    <>
+                      <p className="font-medium mb-1">Blur amount</p>
+                      <input
+                        type="range"
+                        min="0"
+                        max="25"
+                        value={blurAmount}
+                        onChange={(e) => {
+                          setBlurAmount(Number(e.target.value));
+                          applyEffectsToCanvas();
+                        }}
+                        className="w-full mb-4"
+                      />
+                    </>
+                  )}
+
+                  <button
+                    onClick={() => setIsEffectsMode(false)}
+                    className="w-full py-2 mt-2 rounded-xl bg-neutral-800 hover:bg-neutral-900 font-semibold"
+                  >
+                    Close
+                  </button>
+                </div>
+              )}
+
+              {isDesignMode && (
+                <div className="design-panel absolute right-4 top-72 w-72 bg-neutral-700 text-gray-300 rounded-2xl shadow-xl p-4 z-40">
+                  {/* Add Heading */}
+                  <div className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-800 transition-colors rounded-2xl">
+                    <Heading className="w-7 h-7 text-teal-400" />
+                    <button
+                      onClick={() => addTextElement("heading")}
+                      className="font-medium"
+                    >
+                      Add a Heading
+                    </button>
+                  </div>
+
+                  {/* Add Subheading */}
+                  <div className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-800 transition-colors rounded-2xl">
+                    <Type className="w-7 h-7 text-teal-400" />
+                    <button
+                      onClick={() => addTextElement("subheading")}
+                      className="font-medium"
+                    >
+                      Add a Subheading
+                    </button>
+                  </div>
+
+                  {/* Add Paragraph */}
+                  <div className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-800 transition-colors rounded-2xl">
+                    <Pilcrow className="w-7 h-7 text-teal-400" />
+                    <button
+                      onClick={() => addTextElement("paragraph")}
+                      className="font-medium"
+                    >
+                      Add a Paragraph
+                    </button>
+                  </div>
+
+                  {activeTextId && (
+                    <div className="px-4 py-3 mt-2  rounded-2xl">
+                      <p className="text-gray-400 font-medium mb-2">
+                        Font Size
+                      </p>
+
+                      <input
+                        type="range"
+                        min="12"
+                        max="96"
+                        value={parseInt(
+                          textElements.find((t) => t.id === activeTextId)
+                            ?.fontSize || 24
+                        )}
+                        onChange={(e) =>
+                          updateFontSize(activeTextId, e.target.value)
+                        }
+                        className="w-full accent-teal-400"
+                      />
+
+                      <p className="text-teal-300 text-sm mt-1">
+                        {
+                          textElements.find((t) => t.id === activeTextId)
+                            ?.fontSize
+                        }
+                      </p>
+                    </div>
+                  )}
+
+                  <button
+                    onClick={() => setIsDesignMode(false)}
+                    className="w-full py-2 mt-2 rounded-xl bg-neutral-800 hover:bg-neutral-900 font-semibold"
+                  >
+                    Close
+                  </button>
+                </div>
+              )}
 
               {error && (
                 <div className="text-red-500 text-sm mt-3 text-center font-medium bg-red-100 px-3 py-2 rounded-lg">
