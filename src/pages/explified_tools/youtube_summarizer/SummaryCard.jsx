@@ -1,8 +1,30 @@
 function SummaryCard({ item }) {
+  const formatTimestamp = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60)
+      .toString()
+      .padStart(2, "0");
+    return `${mins}:${secs}`;
+  };
+
   return (
-    <div className="bg-[#1f1f1f] text-white p-4 rounded-lg shadow">
-      <p className="text-sm text-gray-400 mb-2">Time: {item.timeRange}</p>
-      <p className="text-base whitespace-pre-line">{item.summary}</p>
+    <div className="flex items-start group relative">
+      <div className="flex-shrink-0 w-16 text-white font-mono text-sm relative z-10">
+        {item.timestamp !== undefined ? formatTimestamp(item.timestamp) : item.timeRange?.split(" - ")[0]}
+      </div>
+
+      <div className="absolute left-16 top-2 w-4 h-[1px] bg-white transform -translate-x-1/2 z-10"></div>
+
+      <div className="flex-1 ml-4 relative">
+        <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 mt-6 hover:bg-gray-800 transition-colors cursor-pointer">
+          {item.timeRange && (
+            <p className="text-sm text-minimal-primary mb-2 font-medium">{item.timeRange}</p>
+          )}
+          <p className="text-gray-300 leading-relaxed whitespace-pre-line">
+            {item.text || item.summary}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

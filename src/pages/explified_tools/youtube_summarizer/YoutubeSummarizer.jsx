@@ -6,24 +6,18 @@ import {
   User,
   History,
   KeyRound,
-  Globe,
-  ChevronDown,
   Sparkles,
   FileText,
   Video,
-  ArrowBigDown,
   ArrowRight,
+  PanelLeftCloseIcon,
 } from "lucide-react";
 import axiosInstance from "../../../network/axiosInstance";
-// import axios from "axios";
 import { useSelector } from "react-redux";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import axios from "axios";
 import TranscriptCard from "./TranscriptCard";
 import SummaryCard from "./SummaryCard";
 import HistoryCard from "./HistoryCard";
-import WorkFlowButton from "../../../reusable_components/WorkFlowButton";
-import SidebarOnHover from "../../../reusable_components/SidebarOnHover";
 
 const YoutubeSummarizer = () => {
   const [videoUrl, setVideoUrl] = useState("");
@@ -41,6 +35,7 @@ const YoutubeSummarizer = () => {
   const [historyVideos, setHistoryVideos] = useState(
     JSON.parse(localStorage.getItem("summarize-history")) || []
   );
+  const [recentHistoryOpen, setRecentHistoryOpen] = useState(false);
 
   const [apiModalOpen, setApiModalOpen] = useState(false);
   const [rapidApiKeyInput, setRapidApiKeyInput] = useState(
@@ -52,12 +47,11 @@ const YoutubeSummarizer = () => {
   const [showRapidApiKey, setShowRapidApiKey] = useState(false);
   const [showGeminiApiKey, setShowGeminiApiKey] = useState(false);
 
-  // const videoTranscript = searchParams.get("videoTranscript");
+  const videoTranscript = searchParams.get("videoTranscript");
   const navigate = useNavigate();
 
   const user = useSelector((state) => state.user);
-  // console.log("user", user);
-  // const accessToken = user.accessToken;
+  const accessToken = user.accessToken;
 
   useEffect(() => {
     if (!user) {
@@ -65,33 +59,33 @@ const YoutubeSummarizer = () => {
     }
   }, [user, navigate]);
 
-  // useEffect(() => {
-  //   async function fetchHistory() {
-  //     try {
-  //       const res = await axios.get(
-  //         "https://www.googleapis.com/youtube/v3/playlistItems",
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${accessToken}`,
-  //           },
-  //           params: {
-  //             part: "snippet",
-  //             maxResults: 10,
-  //             playlistId: "WL",
-  //           },
-  //         }
-  //       );
-  //       console.log(res);
+  useEffect(() => {
+    async function fetchHistory() {
+      try {
+        const res = await axios.get(
+          "https://www.googleapis.com/youtube/v3/playlistItems",
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+            params: {
+              part: "snippet",
+              maxResults: 10,
+              playlistId: "WL",
+            },
+          }
+        );
+        console.log(res);
 
-  //       const watchHistory = res.data.items;
-  //       console.log(watchHistory);
-  //       setHistoryVideos(watchHistory);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   }
-  //   fetchHistory();
-  // }, [accessToken]);
+        const watchHistory = res.data.items;
+        console.log(watchHistory);
+        setHistoryVideos(watchHistory);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    fetchHistory();
+  }, [accessToken]);
 
   useEffect(() => {
     if (!videoIdYt) return;
@@ -104,10 +98,7 @@ const YoutubeSummarizer = () => {
 
     let videoId = "";
 
-    // Case 1: Full YouTube URL (with ?v=)
     const fullMatch = Url.match(/v=([^&]+)/);
-
-    // Case 2: Short youtu.be URL
     const shortMatch = Url.match(/youtu\.be\/([^?&]+)/);
 
     if (fullMatch) {
@@ -116,122 +107,121 @@ const YoutubeSummarizer = () => {
       videoId = shortMatch[1];
     }
 
-    setVideoId(videoId); // either the ID or ""
+    setVideoId(videoId);
   }
 
-  const getSummary = async (videoId) => {
-    if (!videoId) return;
-    setLoading(true);
-    setSummary("");
-    try {
-      const response = await axiosInstance.post("api/ytSummarize/summary", {
-        videoId,
-      });
-
-      // Get video metadata from YouTube API - handle missing API key
-      const youtubeApiKey = import.meta.env.VITE_YT_THUMBNAIL_API_KEY;
-      if (!youtubeApiKey) {
-        console.warn("YouTube API key not found, skipping video metadata");
-        // Set basic video data without metadata
-        const newData = {
-          videoId,
-          profile: null,
-          thumbnail: null,
-          chanelId: "",
-          channelTitle: "Unknown Channel",
-          title: `Video ${videoId}`,
-        };
-
-        let storedArray =
-          JSON.parse(localStorage.getItem("summarize-history")) || [];
-        storedArray.push(newData);
-        localStorage.setItem("summarize-history", JSON.stringify(storedArray));
-
-        setHistoryVideos((prev) => [...prev, newData]);
-        setVideoData({
-          title: `Video ${videoId}`,
-          channelTitle: "Unknown Channel",
-          thumbnails: { default: { url: null } },
-        });
-        setImageData(null);
-      } else {
-        // Get full video metadata
-        const response2 = await axios.get(
-          `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${youtubeApiKey}`
-        );
-        const chanelId = response2?.data?.items[0]?.snippet.channelId;
-        const response3 = await axios.get(
-          `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${chanelId}&key=${youtubeApiKey}`
-        );
-
-        const newData = {
-          videoId,
-          profile: response3?.data?.items[0]?.snippet?.thumbnails?.default?.url,
-          thumbnail:
-            response2?.data?.items[0]?.snippet.thumbnails?.default?.url,
-          chanelId: response2?.data?.items[0]?.snippet.channelId,
-          channelTitle: response2?.data?.items[0]?.snippet.channelTitle,
-          title: response2?.data?.items[0]?.snippet.title,
-        };
-
-        let storedArray =
-          JSON.parse(localStorage.getItem("summarize-history")) || [];
-        storedArray.push(newData);
-        localStorage.setItem("summarize-history", JSON.stringify(storedArray));
-
-        setHistoryVideos((prev) => [...prev, newData]);
-        setVideoData(response2?.data?.items[0]?.snippet);
-        setImageData(
-          response3?.data?.items[0]?.snippet?.thumbnails?.default?.url
-        );
-      }
-
-      let content = response.data?.content;
-      setSummary(content);
-      setActiveTab("summary");
-      setVideoUrl("");
-      setVideoId("");
-      setHistoryOpen(false);
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setLoading(false);
+  // Calculate dynamic window size based on video duration
+  const calculateDynamicWindowSize = (videoDurationSeconds) => {
+    if (videoDurationSeconds <= 300) {
+      // 5 minutes or less: 30 second intervals
+      return 30;
+    } else if (videoDurationSeconds <= 600) {
+      // 5-10 minutes: 45 second intervals
+      return 45;
+    } else if (videoDurationSeconds <= 1200) {
+      // 10-20 minutes: 60 second intervals
+      return 60;
+    } else if (videoDurationSeconds <= 1800) {
+      // 20-30 minutes: 90 second intervals
+      return 90;
+    } else {
+      // 30+ minutes: 120 second (2 minute) intervals
+      return 120;
     }
   };
 
-  const getTranscript = async (videoId) => {
+  const groupTranscriptByTime = (items, windowSize = 30) => {
+    const grouped = [];
+    let currentGroup = null;
+
+    for (const item of items) {
+      const time = Number(item.start || item.timestamp || 0);
+      const text =
+        item.subtitle || item.text || item.content || item.transcript || "";
+
+      if (!text.trim()) continue;
+
+      if (!currentGroup || time - currentGroup.startTime >= windowSize) {
+        if (currentGroup) {
+          grouped.push({
+            text: currentGroup.text.trim(),
+            timestamp: currentGroup.startTime,
+          });
+        }
+
+        currentGroup = {
+          startTime: time,
+          text: text + " ",
+        };
+      } else {
+        currentGroup.text += text + " ";
+      }
+    }
+
+    if (currentGroup) {
+      grouped.push({
+        text: currentGroup.text.trim(),
+        timestamp: currentGroup.startTime,
+      });
+    }
+
+    return grouped;
+  };
+
+  // Format time helper for summary display
+  const formatTimeForSummary = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60)
+      .toString()
+      .padStart(2, "0");
+    return `${mins}:${secs}`;
+  };
+
+  // Generate AI summary from transcript
+  const getSummary = async (videoId) => {
     if (!videoId) return;
     setLoading(true);
-    console.log("videoId", videoId);
-    setTranscript([]);
+    setSummary([]);
+
+    const rapidApiKey = localStorage.getItem("ytSummarizerRapidApiKey");
+    const geminiApiKey = localStorage.getItem("ytSummarizerGeminiApiKey");
+
+    if (!rapidApiKey) {
+      setLoading(false);
+      setApiModalOpen(true);
+      alert("Please enter your RapidAPI key to generate the summary.");
+      return;
+    }
+
+    if (!geminiApiKey) {
+      setLoading(false);
+      setApiModalOpen(true);
+      alert("Please enter your Gemini API key to generate the summary.");
+      return;
+    }
 
     try {
-      // Call RapidAPI YouTube transcriptor service
-      const url = `https://youtube-transcriptor.p.rapidapi.com/transcript?video_id=${videoId}&lang=en`;
-      const options = {
+      // Step 1: Get the transcript first
+      const transcriptUrl = `https://youtube-transcriptor.p.rapidapi.com/transcript?video_id=${videoId}&lang=en`;
+      const transcriptOptions = {
         method: "GET",
         headers: {
-          "x-rapidapi-key":
-            "7fc4f1e2f9mshe08cf622ca76678p1edfc2jsn68b57ab4def4",
+          "x-rapidapi-key": rapidApiKey,
           "x-rapidapi-host": "youtube-transcriptor.p.rapidapi.com",
         },
       };
 
-      const response = await fetch(url, options);
-      const result = await response.text();
+      const transcriptResponse = await fetch(transcriptUrl, transcriptOptions);
+      const transcriptResult = await transcriptResponse.text();
 
-      // Parse the transcript result
       let transcriptData;
       try {
-        transcriptData = JSON.parse(result);
-        console.log("Raw RapidAPI response:", transcriptData);
+        transcriptData = JSON.parse(transcriptResult);
       } catch (parseError) {
         console.error("Failed to parse transcript response:", parseError);
-        console.log("Raw response text:", result);
         throw new Error("Invalid transcript response format");
       }
 
-      // Check if the response indicates an error
       if (transcriptData.error || transcriptData.message) {
         console.error("RapidAPI Error:", transcriptData);
         throw new Error(
@@ -241,11 +231,75 @@ const YoutubeSummarizer = () => {
         );
       }
 
-      // Get video metadata from YouTube API - handle missing API key
+      let rawSegments = [];
+      if (
+        Array.isArray(transcriptData) &&
+        transcriptData.length > 0 &&
+        Array.isArray(transcriptData[0].transcription)
+      ) {
+        rawSegments = transcriptData[0].transcription;
+      } else if (Array.isArray(transcriptData?.transcription)) {
+        rawSegments = transcriptData.transcription;
+      }
+
+      // Calculate video duration and dynamic window
+      const lastSegment = rawSegments[rawSegments.length - 1];
+      const videoDuration = lastSegment
+        ? Number(lastSegment.start || lastSegment.timestamp || 0) +
+          Number(lastSegment.dur || 0)
+        : 0;
+      const dynamicWindowSize = calculateDynamicWindowSize(videoDuration);
+
+      // Group transcript by time
+      const groupedTranscript = groupTranscriptByTime(
+        rawSegments,
+        dynamicWindowSize
+      );
+
+      // Step 2: Generate summaries for each chunk using Gemini
+      const { GoogleGenerativeAI } = await import("@google/generative-ai");
+      const genAI = new GoogleGenerativeAI(geminiApiKey);
+      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+      const summaries = [];
+
+      // Process in chunks of ~5 transcript segments for better summaries
+      const chunkSize = 5;
+      for (let i = 0; i < groupedTranscript.length; i += chunkSize) {
+        const chunk = groupedTranscript.slice(i, i + chunkSize);
+        const startTime = formatTimeForSummary(chunk[0]?.timestamp || 0);
+        const endTime = formatTimeForSummary(
+          chunk[chunk.length - 1]?.timestamp || 0
+        );
+        const combinedText = chunk.map((item) => item.text).join(" ");
+
+        const prompt = `You're an AI assistant. Summarize the following content spoken between timestamps ${startTime} and ${endTime}.
+        TEXT:
+        ${combinedText}
+        Return a short and clear summary in 2-3 sentences.`;
+
+        try {
+          const response = await model.generateContent(prompt);
+          const summaryText = response.response.text();
+          summaries.push({
+            timestamp: chunk[0]?.timestamp || 0,
+            text: summaryText,
+            timeRange: `${startTime} - ${endTime}`,
+          });
+        } catch (geminiError) {
+          console.error("Gemini API Error:", geminiError);
+          summaries.push({
+            timestamp: chunk[0]?.timestamp || 0,
+            text: "Summary generation failed for this segment.",
+            timeRange: `${startTime} - ${endTime}`,
+          });
+        }
+      }
+
+      // Store video metadata in history
       const youtubeApiKey = import.meta.env.VITE_YT_THUMBNAIL_API_KEY;
       if (!youtubeApiKey) {
         console.warn("YouTube API key not found, skipping video metadata");
-        // Set basic video data without metadata
         const newData = {
           videoId,
           profile: null,
@@ -299,111 +353,147 @@ const YoutubeSummarizer = () => {
         );
       }
 
-      // Set transcript data - convert RapidAPI response to expected format
-      let formattedTranscript = [];
+      setSummary(summaries);
+      setActiveTab("summary");
+      setVideoUrl("");
+      setVideoId("");
+      setHistoryOpen(false);
+    } catch (err) {
+      console.error("Summary Error:", err);
+      alert(
+        "Failed to generate summary. Please check your API keys and try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      if (transcriptData && typeof transcriptData === "object") {
-        // Handle RapidAPI response structure: array with one object containing transcription array
-        if (
-          Array.isArray(transcriptData) &&
-          transcriptData.length > 0 &&
-          transcriptData[0].transcription
-        ) {
-          console.log(
-            "First transcript item:",
-            transcriptData[0].transcription[0]
-          );
-          formattedTranscript = transcriptData[0].transcription.map(
-            (item, index) => {
-              const text =
-                item.subtitle ||
-                item.text ||
-                item.content ||
-                item.transcript ||
-                "No text available";
-              if (text === "No text available") {
-                console.log(
-                  `Item ${index} has no text. Available fields:`,
-                  Object.keys(item)
-                );
-                console.log(`Item ${index} full data:`, item);
-              }
-              return {
-                text,
-                timestamp:
-                  item.start || item.timestamp || item.time || item.offset || 0,
-              };
-            }
-          );
-        } else if (Array.isArray(transcriptData.transcription)) {
-          // Fallback: direct transcription array
-          console.log(
-            "First transcript item:",
-            transcriptData.transcription[0]
-          );
-          formattedTranscript = transcriptData.transcription.map(
-            (item, index) => {
-              const text =
-                item.subtitle ||
-                item.text ||
-                item.content ||
-                item.transcript ||
-                "No text available";
-              if (text === "No text available") {
-                console.log(
-                  `Item ${index} has no text. Available fields:`,
-                  Object.keys(item)
-                );
-                console.log(`Item ${index} full data:`, item);
-              }
-              return {
-                text,
-                timestamp:
-                  item.start || item.timestamp || item.time || item.offset || 0,
-              };
-            }
-          );
-        } else if (Array.isArray(transcriptData.transcript)) {
-          formattedTranscript = transcriptData.transcript.map((item) => ({
-            text:
-              item.subtitle ||
-              item.text ||
-              item.content ||
-              item.transcript ||
-              "No text available",
-            timestamp: item.start || item.timestamp || item.time || 0,
-          }));
-        } else if (Array.isArray(transcriptData)) {
-          formattedTranscript = transcriptData.map((item) => ({
-            text:
-              item.subtitle ||
-              item.text ||
-              item.content ||
-              item.transcript ||
-              "No text available",
-            timestamp: item.start || item.timestamp || item.time || 0,
-          }));
-        } else if (transcriptData.text) {
-          // If it's a single text response, convert to array format
-          formattedTranscript = [
-            {
-              text: transcriptData.text,
-              timestamp: 0,
-            },
-          ];
-        } else {
-          // Fallback: try to extract any text content
-          console.log("Raw transcript data:", transcriptData);
-          formattedTranscript = [
-            {
-              text: JSON.stringify(transcriptData),
-              timestamp: 0,
-            },
-          ];
-        }
+  const getTranscript = async (videoId) => {
+    if (!videoId) return;
+    setLoading(true);
+    setTranscript([]);
+
+    const rapidApiKey = localStorage.getItem("ytSummarizerRapidApiKey");
+
+    if (!rapidApiKey) {
+      setLoading(false);
+      setApiModalOpen(true);
+      alert("Please enter your RapidAPI key to get the transcript.");
+      return;
+    }
+
+    try {
+      const url = `https://youtube-transcriptor.p.rapidapi.com/transcript?video_id=${videoId}&lang=en`;
+      const options = {
+        method: "GET",
+        headers: {
+          "x-rapidapi-key": rapidApiKey,
+          "x-rapidapi-host": "youtube-transcriptor.p.rapidapi.com",
+        },
+      };
+
+      const response = await fetch(url, options);
+      const result = await response.text();
+
+      let transcriptData;
+      try {
+        transcriptData = JSON.parse(result);
+      } catch (parseError) {
+        console.error("Failed to parse transcript response:", parseError);
+        throw new Error("Invalid transcript response format");
       }
 
-      setTranscript(formattedTranscript);
+      if (transcriptData.error || transcriptData.message) {
+        console.error("RapidAPI Error:", transcriptData);
+        throw new Error(
+          transcriptData.message ||
+            transcriptData.error ||
+            "Failed to get transcript"
+        );
+      }
+
+      const youtubeApiKey = import.meta.env.VITE_YT_THUMBNAIL_API_KEY;
+      if (!youtubeApiKey) {
+        console.warn("YouTube API key not found, skipping video metadata");
+        const newData = {
+          videoId,
+          profile: null,
+          thumbnail: null,
+          chanelId: "",
+          channelTitle: "Unknown Channel",
+          title: `Video ${videoId}`,
+        };
+
+        let storedArray =
+          JSON.parse(localStorage.getItem("summarize-history")) || [];
+        storedArray.push(newData);
+        localStorage.setItem("summarize-history", JSON.stringify(storedArray));
+
+        setHistoryVideos((prev) => [...prev, newData]);
+        setVideoData({
+          title: `Video ${videoId}`,
+          channelTitle: "Unknown Channel",
+          thumbnails: { default: { url: null } },
+        });
+        setImageData(null);
+      } else {
+        // Get full video metadata
+        const response2 = await axios.get(
+          `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${youtubeApiKey}`
+        );
+        const chanelId = response2?.data?.items[0]?.snippet.channelId;
+        const response3 = await axios.get(
+          `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${chanelId}&key=${youtubeApiKey}`
+        );
+
+        const newData = {
+          videoId,
+          profile: response3?.data?.items[0]?.snippet?.thumbnails?.default?.url,
+          thumbnail:
+            response2?.data?.items[0]?.snippet.thumbnails?.default?.url,
+          chanelId: response2?.data?.items[0]?.snippet.channelId,
+          channelTitle: response2?.data?.items[0]?.snippet.channelTitle,
+          title: response2?.data?.items[0]?.snippet.title,
+        };
+
+        let storedArray =
+          JSON.parse(localStorage.getItem("summarize-history")) || [];
+        storedArray.push(newData);
+        localStorage.setItem("summarize-history", JSON.stringify(storedArray));
+
+        setHistoryVideos((prev) => [...prev, newData]);
+        setVideoData(response2?.data?.items[0]?.snippet);
+        setImageData(
+          response3?.data?.items[0]?.snippet?.thumbnails?.default?.url
+        );
+      }
+
+      let rawSegments = [];
+
+      if (
+        Array.isArray(transcriptData) &&
+        transcriptData.length > 0 &&
+        Array.isArray(transcriptData[0].transcription)
+      ) {
+        rawSegments = transcriptData[0].transcription;
+      } else if (Array.isArray(transcriptData?.transcription)) {
+        rawSegments = transcriptData.transcription;
+      }
+
+      // Calculate video duration from last transcript segment
+      const lastSegment = rawSegments[rawSegments.length - 1];
+      const videoDuration = lastSegment
+        ? Number(lastSegment.start || lastSegment.timestamp || 0) +
+          Number(lastSegment.dur || 0)
+        : 0;
+      const dynamicWindowSize = calculateDynamicWindowSize(videoDuration);
+
+      const groupedTranscript = groupTranscriptByTime(
+        rawSegments,
+        dynamicWindowSize
+      );
+
+      setTranscript(groupedTranscript);
       setActiveTab("transcript");
       setVideoUrl("");
       setVideoId("");
@@ -444,20 +534,12 @@ const YoutubeSummarizer = () => {
 
   return (
     <div className="flex flex-col relative min-h-screen bg-black ">
-      {/* <SidebarOnHover
-        link={"https://explified.com/youtube-summariser/"}
-        toolName={"Youtube Summarizer"}
-        id={"ytsummarizer"}
-      /> */}
-
-      {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-minimal-primary/5 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-minimal-primary/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
 
-      {/* Header */}
-      <div className="relative z-10 pt-8 pb-6">
+      <div className="relative z-30 pt-8 pb-6">
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold bg-gradient-to-r from-white via-minimal-primary to-white bg-clip-text text-transparent mb-4">
             YouTube Video Summarizer
@@ -467,59 +549,138 @@ const YoutubeSummarizer = () => {
           </p>
         </div>
 
-        {/* History Button */}
-        <div className="flex justify-center mb-6">
+        <div className="absolute top-44 left-20 z-40">
           <button
-            className="group flex items-center gap-2 px-6 py-3 bg-minimal-dark-100/80 hover:bg-minimal-dark-100 backdrop-blur-sm rounded-xl border border-minimal-border hover:border-minimal-primary/50 transition-all duration-300 hover:transform hover:scale-105"
-            onClick={() => setHistoryOpen(true)}
+            onClick={() => setRecentHistoryOpen(!recentHistoryOpen)}
+            className={`p-3 rounded-xl border backdrop-blur-md transition-all duration-300 shadow-lg ${
+              recentHistoryOpen
+                ? "bg-minimal-primary border-minimal-primary text-white scale-110"
+                : "bg-minimal-dark-100/80 border-minimal-border text-minimal-muted hover:border-minimal-primary/50 hover:text-white"
+            }`}
+            title="Recent History"
           >
-            <History className="w-4 h-4 text-minimal-muted group-hover:text-minimal-primary transition-colors" />
-            <span className="capitalize text-minimal-gray-300 group-hover:text-white transition-colors">
-              history
-            </span>
-            <ChevronDown
-              className={`w-4 h-4 text-minimal-muted group-hover:text-minimal-primary transition-all duration-300 ${
-                historyOpen ? "rotate-180" : ""
-              }`}
-            />
+            <History className="w-4 h-4" />
           </button>
+
+          {recentHistoryOpen && (
+            <div className="absolute top-0 left-16 w-80 bg-minimal-dark-100/90 backdrop-blur-xl rounded-2xl border border-minimal-border p-5 shadow-2xl animate-in fade-in slide-in-from-left-4 duration-300">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xs font-bold text-minimal-muted uppercase tracking-widest flex items-center gap-2">
+                  <Clock className="w-3.5 h-3.5 text-minimal-primary" />
+                  Recent Activity
+                </h3>
+                <button
+                  onClick={() => setRecentHistoryOpen(false)}
+                  className="text-minimal-muted hover:text-white p-1 hover:bg-minimal-dark-100 hover:rounded-full transition-all duration-300"
+                  title="Close"
+                >
+                  <PanelLeftCloseIcon className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {[...historyVideos]
+                  .slice(-3)
+                  .reverse()
+                  .map((video, idx) => (
+                    <div
+                      key={idx}
+                      onClick={() => {
+                        setVideoId(video.videoId);
+                        setVideoUrl(
+                          `https://www.youtube.com/watch?v=${video.videoId}`
+                        );
+                        setRecentHistoryOpen(false);
+                      }}
+                      className="flex gap-4 cursor-pointer hover:bg-white/5 p-2.5 rounded-xl transition-all group"
+                    >
+                      <div className="relative w-20 h-12 shrink-0 overflow-hidden rounded-lg border border-minimal-border/50">
+                        <img
+                          src={
+                            video.thumbnail ||
+                            "https://via.placeholder.com/320x180"
+                          }
+                          alt={video.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-minimal-primary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                      <div className="min-w-0 flex-1 flex flex-col justify-center">
+                        <p className="text-[13px] text-minimal-gray-300 line-clamp-2 font-medium leading-tight group-hover:text-white transition-colors">
+                          {video.title}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+
+                {historyVideos.length === 0 && (
+                  <div className="text-center py-6">
+                    <History className="w-8 h-8 text-minimal-muted mx-auto mb-2 opacity-20" />
+                    <p className="text-xs text-minimal-muted">
+                      Your search history is empty
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {historyVideos.length > 0 && (
+                <button
+                  onClick={() => {
+                    setHistoryOpen(true);
+                    setRecentHistoryOpen(false);
+                  }}
+                  className="w-full mt-5 flex items-center justify-center gap-2 py-2.5 text-xs font-semibold text-white bg-minimal-primary/10 hover:bg-minimal-primary rounded-xl border border-minimal-primary/20 hover:border-minimal-primary transition-all active:scale-[0.98]"
+                >
+                  View Full History
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
       {/* History Section Modal */}
-      {historyVideos.length !== 0 && historyOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="relative bg-minimal-card rounded-lg shadow-lg max-w-4xl w-full mx-4 p-6 overflow-y-auto max-h-[90vh]">
-            {/* Close Button */}
-            <button
-              onClick={() => setHistoryOpen(false)}
-              className="absolute top-3 right-3 text-minimal-gray-300 hover:text-white"
-            >
-              ✕
-            </button>
+      {historyOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md">
+          <div className="relative bg-minimal-dark-100 border border-minimal-border rounded-2xl shadow-2xl max-w-2xl w-full mx-4 overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-minimal-border bg-minimal-dark-200/50">
+              <h2 className="text-xl font-semibold text-white flex items-center gap-3">
+                <History className="w-6 h-6 text-minimal-primary" />
+                Recent Summaries
+              </h2>
+              <button
+                onClick={() => setHistoryOpen(false)}
+                className="p-2 hover:bg-white/10 rounded-full transition-colors text-minimal-muted hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
 
-            {/* Title */}
-            <h2 className="text-xl font-semibold text-minimal-white mb-4 flex items-center gap-2">
-              <History className="w-5 h-5 text-minimal-primary" />
-              Recent Videos
-            </h2>
-
-            {/* Video List */}
-            <div className="space-y-3">
-              {historyVideos.map((item, index) => (
-                <HistoryCard
-                  key={index}
-                  item={item}
-                  setVideoId={setVideoId}
-                  setVideoUrl={setVideoUrl}
-                />
-              ))}
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto max-h-[60vh] space-y-4">
+              {historyVideos.length > 0 ? (
+                historyVideos.map((item, index) => (
+                  <HistoryCard
+                    key={index}
+                    item={item}
+                    setVideoId={setVideoId}
+                    setVideoUrl={setVideoUrl}
+                    onClose={() => setHistoryOpen(false)}
+                  />
+                ))
+              ) : (
+                <div className="text-center py-12">
+                  <History className="w-12 h-12 text-minimal-muted mx-auto mb-4 opacity-20" />
+                  <p className="text-minimal-muted">No history found yet.</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
       )}
 
-      {/* API Key Modal */}
       {apiModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="relative bg-minimal-card rounded-lg shadow-lg w-full max-w-md mx-4 p-6">
@@ -735,7 +896,7 @@ const YoutubeSummarizer = () => {
         loading
       ) && (
         <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 pb-32">
-          <div className="text-center mb-12">
+          <div className="text-center mb-5">
             <h2 className="text-3xl font-bold text-minimal-white mb-4">
               What would you like to do?
             </h2>
@@ -744,7 +905,7 @@ const YoutubeSummarizer = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl">
             <button
               onClick={() => setActiveTab("transcript")}
               className={`group relative overflow-hidden bg-minimal-dark-100 backdrop-blur-sm border border-minimal-border hover:border-minimal-primary/50 rounded-2xl p-8 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-minimal-primary/10 ${
@@ -754,16 +915,19 @@ const YoutubeSummarizer = () => {
               }`}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-minimal-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <div className="relative z-10">
-                <div className="w-16 h-16 bg-minimal-primary/20 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-minimal-primary/30 transition-colors">
+              <div className="relative z-10 flex items-start gap-5">
+                <div className="shrink-0 w-16 h-16 bg-minimal-primary/20 rounded-2xl flex items-center justify-center group-hover:bg-minimal-primary/30 transition-colors">
                   <FileText className="w-8 h-8 text-minimal-primary" />
                 </div>
-                <h3 className="text-xl font-semibold text-minimal-white mb-2 group-hover:text-minimal-primary transition-colors">
-                  Full Transcript
-                </h3>
-                <p className="text-minimal-muted group-hover:text-minimal-gray-300 transition-colors">
-                  Get the complete text transcript with timestamps
-                </p>
+
+                <div className="flex flex-col text-left">
+                  <h3 className="text-xl font-semibold text-minimal-white mb-1 group-hover:text-minimal-primary transition-colors">
+                    Full Transcript
+                  </h3>
+                  <p className="text-minimal-muted group-hover:text-minimal-gray-300 transition-colors">
+                    Get the complete text transcript with timestamps
+                  </p>
+                </div>
               </div>
             </button>
 
@@ -776,16 +940,19 @@ const YoutubeSummarizer = () => {
               }`}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-minimal-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <div className="relative z-10">
-                <div className="w-16 h-16 bg-minimal-primary/20 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-minimal-primary/30 transition-colors">
+              <div className="relative z-10 flex items-start gap-5">
+                <div className="shrink-0 w-16 h-16 bg-minimal-primary/20 rounded-2xl flex items-center justify-center group-hover:bg-minimal-primary/30 transition-colors">
                   <Sparkles className="w-8 h-8 text-minimal-primary" />
                 </div>
-                <h3 className="text-xl font-semibold text-minimal-white mb-2 group-hover:text-minimal-primary transition-colors">
-                  AI Summary
-                </h3>
-                <p className="text-minimal-muted group-hover:text-minimal-gray-300 transition-colors">
-                  Generate intelligent key points and insights
-                </p>
+
+                <div className="flex flex-col text-left">
+                  <h3 className="text-xl font-semibold text-minimal-white mb-1 group-hover:text-minimal-primary transition-colors">
+                    AI Summary
+                  </h3>
+                  <p className="text-minimal-muted group-hover:text-minimal-gray-300 transition-colors">
+                    Generate intelligent key points and insights
+                  </p>
+                </div>
               </div>
             </button>
           </div>
@@ -795,10 +962,13 @@ const YoutubeSummarizer = () => {
       {/* Content Areas */}
       {summary.length !== 0 && activeTab === "summary" && (
         <div className="relative z-10 max-w-4xl mx-auto w-full flex-1 px-4 pb-32">
-          <div className="space-y-6">
-            {summary?.map((item, index) => (
-              <SummaryCard key={index} item={item} />
-            ))}
+          <div className="relative">
+            <div className="absolute left-16 top-0 bottom-0 w-0.5 bg-gradient-to-b from-minimal-primary/50 via-minimal-primary/20 to-transparent"></div>
+            <div className="space-y-8">
+              {summary?.map((item, index) => (
+                <SummaryCard key={index} item={item} />
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -816,7 +986,6 @@ const YoutubeSummarizer = () => {
         </div>
       )}
 
-      {/* Fixed Input Section */}
       <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/95 to-transparent backdrop-blur-sm z-20 border-t border-minimal-border/50">
         <div className="max-w-4xl mx-auto w-full p-6">
           <div className="flex gap-4 items-center bg-minimal-dark-100 backdrop-blur-sm rounded-2xl p-4 border border-minimal-border shadow-2xl">
@@ -828,7 +997,6 @@ const YoutubeSummarizer = () => {
                 placeholder="Paste your YouTube URL here..."
                 className="w-full p-4 pr-12 rounded-xl bg-minimal-dark-200/80 backdrop-blur-sm text-white placeholder-minimal-muted border border-minimal-border focus:border-minimal-primary focus:outline-none focus:ring-2 focus:ring-minimal-primary/25 transition-all"
               />
-              {/* <Video className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-minimal-muted" /> */}
             </div>
             <button
               onClick={() => setApiModalOpen(true)}
@@ -843,34 +1011,6 @@ const YoutubeSummarizer = () => {
               <KeyRound className="w-4 h-4" />
               API
             </button>
-
-            {/* <button
-              onClick={() => setActiveTab("transcript")}
-              disabled={loading}
-              className={`flex items-center gap-2 px-6 py-4 rounded-xl font-semibold transition-all duration-300 border-2 border-minimal-primary text-minimal-primary hover:bg-minimal-primary/10
-               ${
-                 loading
-                   ? "opacity-50 cursor-not-allowed"
-                   : "hover:transform hover:scale-105"
-               } disabled:hover:transform-none disabled:hover:scale-100`}
-            >
-              <FileText className="w-4 h-4" />
-              Transcript
-            </button> */}
-
-            {/* <button
-              onClick={() => setActiveTab("summary")}
-              disabled={loading}
-              className={`flex items-center gap-2 px-6 py-4 rounded-xl font-semibold transition-all duration-300 border-2 border-minimal-primary text-minimal-primary hover:bg-minimal-primary/10
-               ${
-                 loading
-                   ? "opacity-50 cursor-not-allowed"
-                   : "hover:transform hover:scale-105"
-               } disabled:hover:transform-none disabled:hover:scale-100`}
-            >
-              <Sparkles className="w-4 h-4" />
-              Summarize
-            </button> */}
 
             <button
               onClick={handleGenerate}
