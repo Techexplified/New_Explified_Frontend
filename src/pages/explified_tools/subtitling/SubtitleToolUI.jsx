@@ -65,10 +65,18 @@ class PageErrorBoundary extends React.Component {
 
 // Backend origin
 
+// const BACKEND_ORIGIN = (
+//   import.meta.env.VITE_API_ORIGIN ||
+//   import.meta.env.REACT_APP_API_ORIGIN ||
+//   "https://api-pf6diz22ka-uc.a.run.app"
+// ).replace(/\/$/, "");
+
+// const BACKEND_ORIGIN = (
+//   import.meta.env.REACT_APP_API_ORIGIN || "http://localhost:4000"
+// ).replace(/\/$/, "");
+
 const BACKEND_ORIGIN = (
-  import.meta.env.VITE_API_ORIGIN ||
-  import.meta.env.REACT_APP_API_ORIGIN ||
-  "https://api-pf6diz22ka-uc.a.run.app"
+  "https://backend-ai-subtitler.onrender.com"
 ).replace(/\/$/, "");
 
 // Optional Cloudinary env (unsigned upload preset)
@@ -197,7 +205,8 @@ async function translateSubtitlesToBackend(
   const detectedLanguage =
     srcLangCode || (videoData && videoData.detectedLanguage) || "auto";
 
-  const endpoint = `${BACKEND_ORIGIN}/api/subtitler/translate-subtitles`;
+  // const endpoint = `${BACKEND_ORIGIN}/api/subtitler/translate-subtitles`;
+  const endpoint = `${BACKEND_ORIGIN}/translate-subtitles`;
   const payload = { segments, targetLang: target, detectedLanguage };
 
   const res = await fetch(endpoint, {
@@ -1700,7 +1709,8 @@ const uploadFileToBackend = async (file) => {
     type: file.type,
   });
 
-  const endpoint = `${BACKEND_ORIGIN}/api/subtitler/upload-audio`;
+  // const endpoint = `${BACKEND_ORIGIN}/api/subtitler/upload-audio`;
+  const endpoint = `${BACKEND_ORIGIN}/upload-audio`;
   const formData = new FormData();
 
   // ensure filename is included (some servers rely on it)
@@ -1744,7 +1754,8 @@ const uploadFileToBackend = async (file) => {
 
 
   async function uploadUrlToBackend(url) {
-    const endpoint = `${BACKEND_ORIGIN}/api/subtitler/upload-from-url`;
+    // const endpoint = `${BACKEND_ORIGIN}/api/subtitler/upload-from-url`;
+    const endpoint = `${BACKEND_ORIGIN}/upload-from-url`;
 
     const parseBodySafely = async (res) => {
       const text = await res.text().catch(() => "");
@@ -2137,7 +2148,10 @@ const uploadFileToBackend = async (file) => {
             "Try to play the URL via backend proxy for testing? (OK = try)"
           );
           if (tryProxy) {
-            const prox = `${BACKEND_ORIGIN}/api/subtitler/proxy/video?url=${encodeURIComponent(
+            // const prox = `${BACKEND_ORIGIN}/api/subtitler/proxy/video?url=${encodeURIComponent(
+            //   pasteToUse
+            // )}`;
+            const prox = `${BACKEND_ORIGIN}/proxy/video?url=${encodeURIComponent(
               pasteToUse
             )}`;
             const meta = {

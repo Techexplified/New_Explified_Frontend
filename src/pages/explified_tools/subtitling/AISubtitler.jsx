@@ -13,15 +13,20 @@ import {
 
 /* ----------------------------- Helpers ----------------------------- */
 
-const backendOrigin = (
-  import.meta.env.VITE_API_ORIGIN ||
-  import.meta.env.REACT_APP_API_ORIGIN ||
-  "https://api-pf6diz22ka-uc.a.run.app"
-).replace(/\/$/, "");
+// const backendOrigin = (
+//   import.meta.env.VITE_API_ORIGIN ||
+//   import.meta.env.REACT_APP_API_ORIGIN ||
+//   "https://api-pf6diz22ka-uc.a.run.app"
+// ).replace(/\/$/, "");
 
 // const backendOrigin = (
 //   import.meta.env.REACT_APP_API_ORIGIN || "http://localhost:4000"
 // ).replace(/\/$/, "");
+
+const backendOrigin = "https://backend-ai-subtitler.onrender.com".replace(
+  /\/$/,
+  ""
+);
 
 function normalizeVttUrl(vttUrl) {
   if (!vttUrl) return null;
@@ -176,7 +181,8 @@ function AISubtitler() {
     });
 
   async function uploadFileToBackend(file, onProgress) {
-    const UPLOAD_URL = backendOrigin + "/api/subtitler/upload-audio";
+    // const UPLOAD_URL = backendOrigin + "/api/subtitler/upload-audio";
+    const UPLOAD_URL = backendOrigin + "/upload-audio";
     const form = new FormData();
     form.append("file", file);
 
@@ -210,7 +216,8 @@ function AISubtitler() {
 
   // Upload URL to backend (downloads + transcribes)
   async function uploadUrlToBackend(url) {
-    const UPLOAD_URL = backendOrigin + "/api/subtitler/upload-from-url";
+    // const UPLOAD_URL = backendOrigin + "/api/subtitler/upload-from-url";
+    const UPLOAD_URL = backendOrigin + "/upload-from-url";
 
     setExtractingMessage("Downloading video from URL...");
 
