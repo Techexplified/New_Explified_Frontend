@@ -184,8 +184,9 @@ export default function LoginPage() {
                       })
                     );
                     dispatch(loginUser(decoded));
-                    //navigate("/youtube-summarizer");
-                    console.log("dfgd");
+
+                    window.dataLayer = window.dataLayer || [];
+                    window.dataLayer.push({ event: "login_success" });
 
                     navigate("/expli");
                   } catch (error) {
