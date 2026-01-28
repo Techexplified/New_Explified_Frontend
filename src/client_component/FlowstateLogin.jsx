@@ -32,7 +32,7 @@ export default function FlowstateLogin() {
       const res = await axios.post(
         "http://localhost:8000/api/users/login",
         formData,
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       localStorage.setItem("explified", JSON.stringify(res.data.user));
@@ -45,7 +45,7 @@ export default function FlowstateLogin() {
     } catch (error) {
       console.error(
         "Error during login:",
-        error.response?.data || error.message
+        error.response?.data || error.message,
       );
       alert(error.response?.data?.message || "Login failed");
     } finally {
@@ -60,12 +60,12 @@ export default function FlowstateLogin() {
       </div>
       <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
         {/* Left Section */}
-        <div className="space-y-6 p-6 flex flex-col items-center justify-center">
-          <div>
+        <div className="space-y-6 p-6 flex flex-col items-center justify-center w-full">
+          <div className="max-w-xl w-full text-center md:text-left">
             <h2 className="text-4xl text-center font-bold">
               Welcome back to <span className="text-white">Explified</span> ,
             </h2>
-            <p className="mt-2 text-gray-300">
+            <p className="mt-3 text-gray-300 leading-relaxed break-words">
               Where creative video editing meets the efficiency of AI. We
               deliver polished results and provide the intelligent tools to
               enhance your own projects.
@@ -132,7 +132,7 @@ export default function FlowstateLogin() {
                         isLoggedIn: "true",
                         given_name: decoded?.given_name,
                         email: decoded?.email,
-                      })
+                      }),
                     );
                     localStorage.setItem("explified", JSON.stringify(decoded));
                     dispatch(loginUser(decoded));

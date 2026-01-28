@@ -26,7 +26,7 @@ export default function FlowsenseAdminLogin() {
     } catch (error) {
       console.error(
         "Error during login:",
-        error.response?.data || error.message
+        error.response?.data || error.message,
       );
       alert(error.response?.data?.message || "Login failed");
     } finally {
