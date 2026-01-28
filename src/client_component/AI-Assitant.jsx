@@ -80,7 +80,7 @@ const AdminModal = ({ isOpen, onClose }) => {
 };
 
 const webhookUrl =
-  "https://infogaurav.app.n8n.cloud/webhook/7cf23db3-e0c0-40b2-bb8f-77c8399e2e85";
+  "https://explified.app.n8n.cloud/webhook/89463811-ca87-4f95-a6b0-6d5a109b3f22";
 
 const CarPartsAssistant = () => {
   // State for chat/voice card visibility and chat box interactivity
@@ -242,7 +242,7 @@ const CarPartsAssistant = () => {
       const res = await fetch(webhookUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: userMessage }),
+        body: JSON.stringify({ chatInput: userMessage }),
       });
       console.log("Response:", res);
 
