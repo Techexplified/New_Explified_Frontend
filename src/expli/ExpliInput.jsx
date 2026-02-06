@@ -43,15 +43,17 @@ function ExpliInput({
       } left-0 right-0 z-30 transition-all duration-500 px-3 md:px-0`}
     >
       {onlyExpliOpen && chatNotPresent && (
-        <div className="text-center mb-6 text-4xl md:text-5xl">Expli</div>
+        <div className="text-center mb-6 text-4xl md:text-5xl">
+          Ask anything
+        </div>
       )}
 
       <div className="max-w-3xl mx-auto py-2 bg-[#111] border border-gray-800 rounded-2xl shadow-lg">
         {/* Input Row */}
         <div className="w-full px-4 py-2 flex items-center gap-2 md:gap-3">
-          <button className="text-gray-500 hover:text-gray-300 transition hidden md:block">
+          {/* <button className="text-gray-500 hover:text-gray-300 transition hidden md:block">
             <FiGlobe size={18} />
-          </button>
+          </button> */}
 
           <input
             type="text"

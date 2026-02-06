@@ -22,6 +22,9 @@ export default function ChatHistoryPopover({ visible, onClose }) {
   const [portalPos, setPortalPos] = useState(null);
   const navigate = useNavigate();
 
+  const [renamingId, setRenamingId] = useState(null);
+  const [renameValue, setRenameValue] = useState("");
+
   // ✅ FIXED SEARCH LOGIC (checks question + nested qa text)
   const filteredHistory = useMemo(() => {
     if (!searchQuery.trim()) return chatHistory;
@@ -75,8 +78,33 @@ export default function ChatHistoryPopover({ visible, onClose }) {
       setCurrentMessagesOpenAI(messagesOpenAI);
       setCurrentMessagesGemini(messagesGemini);
     },
-    [setCurrentMessages, setCurrentMessagesOpenAI, setCurrentMessagesGemini]
+    [setCurrentMessages, setCurrentMessagesOpenAI, setCurrentMessagesGemini],
   );
+
+  const handleRenameSave = (id) => {
+    if (!renameValue.trim()) {
+      setRenamingId(null);
+      return;
+    }
+
+    setChatHistory((prev) =>
+      prev.map((chat) =>
+        chat.id === id
+          ? {
+              ...chat,
+              question: renameValue.trim(),
+              qa: chat.qa?.map((qaItem, i) =>
+                i === 0
+                  ? { ...qaItem, promptSummary: renameValue.trim() }
+                  : qaItem,
+              ),
+            }
+          : chat,
+      ),
+    );
+
+    setRenamingId(null);
+  };
 
   return (
     <>
@@ -133,14 +161,29 @@ export default function ChatHistoryPopover({ visible, onClose }) {
                       className="group hover:bg-[#1c1f24] rounded-lg px-2 py-1.5 transition-all duration-200 cursor-pointer relative"
                     >
                       <div className="flex items-center justify-between">
-                        <div
-                          dangerouslySetInnerHTML={{
-                            __html: formatText(
-                              item?.qa?.[0]?.promptSummary || item?.question
-                            ),
-                          }}
-                          className="text-sm text-gray-300 group-hover:text-white truncate"
-                        />
+                        {renamingId === item.id ? (
+                          <input
+                            autoFocus
+                            value={renameValue}
+                            onChange={(e) => setRenameValue(e.target.value)}
+                            onBlur={() => handleRenameSave(item.id)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") handleRenameSave(item.id);
+                              if (e.key === "Escape") setRenamingId(null);
+                            }}
+                            className="text-sm bg-transparent border-b border-[#23b5b5] outline-none text-white w-full"
+                          />
+                        ) : (
+                          <div
+                            dangerouslySetInnerHTML={{
+                              __html: formatText(
+                                item?.qa?.[0]?.promptSummary || item?.question,
+                              ),
+                            }}
+                            className="text-sm text-gray-300 group-hover:text-white truncate"
+                          />
+                        )}
+
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -211,7 +254,13 @@ export default function ChatHistoryPopover({ visible, onClose }) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              console.log("Rename clicked:", menuOpen);
+
+              const chat = chatHistory.find((c) => c.id === menuOpen);
+
+              setRenamingId(menuOpen);
+              setRenameValue(
+                chat?.qa?.[0]?.promptSummary || chat?.question || "",
+              );
               setMenuOpen(null);
             }}
             className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-300 hover:bg-gray-700"
@@ -222,7 +271,7 @@ export default function ChatHistoryPopover({ visible, onClose }) {
             onClick={(e) => {
               e.stopPropagation();
               const updatedHistory = chatHistory.filter(
-                (h) => h.id !== menuOpen
+                (h) => h.id !== menuOpen,
               );
               setChatHistory(updatedHistory);
               setMenuOpen(null);

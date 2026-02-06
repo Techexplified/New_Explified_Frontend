@@ -84,7 +84,7 @@ export default function ExpliSidebar({
             alt="Logo"
             src={ExpliLogo}
             onClick={() => {
-              navigate("/expli");
+              navigate("https://expli.explified.com/");
               newChat();
             }}
           />
