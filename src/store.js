@@ -1,6 +1,25 @@
 import { create } from "zustand";
 
-export const useStore = create((set) => ({
+export const useStore = create((set, get) => ({
+  // ======= Theme State =======
+  theme:
+    typeof window !== "undefined"
+      ? localStorage.getItem("explified-theme") || "light"
+      : "light",
+  setTheme: (theme) => {
+    localStorage.setItem("explified-theme", theme);
+    set({ theme });
+  },
+  toggleTheme: () => {
+    const newTheme = get().theme === "light" ? "dark" : "light";
+    localStorage.setItem("explified-theme", newTheme);
+    set({ theme: newTheme });
+  },
+
+  // ======= Current Note State =======
+  currentNoteId: null,
+  setCurrentNoteId: (id) => set({ currentNoteId: id }),
+
   // ======= Drawing & Tool State =======
   shapes: [],
   selectedTool: "hand", // default tool
@@ -13,7 +32,7 @@ export const useStore = create((set) => ({
       shapes: state.shapes.map((s) =>
         s.id === id
           ? { ...s, ...(typeof updater === "function" ? updater(s) : updater) }
-          : s
+          : s,
       ),
     })),
   removeShape: (id) =>
@@ -25,9 +44,9 @@ export const useStore = create((set) => ({
   selectedShapeId: null,
   setSelectedShapeId: (id) => set({ selectedShapeId: id }),
   // ======= Multi-Selection Support =======
-selectedShapes: [],
-setSelectedShapes: (selected) => set({ selectedShapes: selected }),
-clearSelection: () => set({ selectedShapes: [] }),
+  selectedShapes: [],
+  setSelectedShapes: (selected) => set({ selectedShapes: selected }),
+  clearSelection: () => set({ selectedShapes: [] }),
 
   // ======= Text Styles =======
   textStyle: {
@@ -89,21 +108,30 @@ clearSelection: () => set({ selectedShapes: [] }),
   resizeImage: (id, width, height) =>
     set((state) => ({
       shapes: state.shapes.map((s) =>
-        s.id === id ? { ...s, width, height } : s
+        s.id === id ? { ...s, width, height } : s,
       ),
     })),
 
-   // Sticky note selection
+  // Sticky note selection
   selectedShapeId: null,
   selectedShape: null,
   setSelectedShape: (shape) =>
     set({ selectedShape: shape, selectedShapeId: shape?.id || null }),
 
+  // ======= Eraser Mode =======
+  eraserMode: "paint", // 'paint' or 'object'
+  setEraserMode: (mode) => set({ eraserMode: mode }),
+
+  // ======= Perfect Shape Toggle =======
+  isPerfectShape: false,
+  setIsPerfectShape: (isPerfect) => set({ isPerfectShape: isPerfect }),
+
   // Update selected shape directly
   updateSelectedShape: (updater) => {
     const shape = get().selectedShape;
     if (!shape) return;
-    const updatedShape = typeof updater === "function" ? updater(shape) : { ...shape, ...updater };
+    const updatedShape =
+      typeof updater === "function" ? updater(shape) : { ...shape, ...updater };
     get().updateShape(shape.id, updatedShape);
     set({ selectedShape: updatedShape });
   },

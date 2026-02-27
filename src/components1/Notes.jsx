@@ -13,7 +13,9 @@ export default function Notes() {
   const [sidebarOpen, setSidebarOpen] = useState(false); // 🔑 track sidebar state
 
   const navigate = useNavigate();
-  const genAI = new GoogleGenerativeAI("AIzaSyA3iqoMW6g81LMjWdyS24WHM32M0ie7AEs");
+  const genAI = new GoogleGenerativeAI(
+    "AIzaSyA3iqoMW6g81LMjWdyS24WHM32M0ie7AEs",
+  );
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
   // Fetch tasks from localStorage
@@ -32,7 +34,7 @@ export default function Notes() {
             title: t.title || "",
             content: t.content || "",
             lastModified: t.lastModified || new Date().toISOString(),
-          }
+          },
     );
     setTasks(normalized);
   }, []);
@@ -53,7 +55,7 @@ export default function Notes() {
       JSON.stringify([
         ...JSON.parse(localStorage.getItem("alltask") || "[]"),
         newNote,
-      ])
+      ]),
     );
 
     setTasks(updated);
@@ -64,7 +66,7 @@ export default function Notes() {
   return (
     <div className="flex bg-black min-h-screen text-white">
       {/* ✅ Sidebar with toggle callback */}
-      
+
       <SidebarOnHover2 tasks={tasks} onToggle={setSidebarOpen} />
 
       {/* ✅ Main Content Wrapper (centers the note area) */}
@@ -72,7 +74,6 @@ export default function Notes() {
         className="flex flex-1 justify-center items-start p-8 pt-[50px] transition-all duration-300"
         style={{ marginLeft: sidebarOpen ? "14rem" : "0rem" }}
       >
-        
         {/* ✅ Notes Card (centered) */}
         <div className="w-full max-w-3xl">
           {/* Notepad Header */}
@@ -123,7 +124,7 @@ export default function Notes() {
           {/* Notepad Area */}
           <div className="bg-white/5 rounded-xl border border-white/10 shadow-inner relative overflow-hidden">
             {/* Paper-like lines */}
-            
+
             <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[length:100%_2.5rem] pointer-events-none"></div>
 
             <textarea
@@ -148,18 +149,17 @@ export default function Notes() {
         </div>
       </div>
       <div className="mb-8 flex-shrink-0">
-  <button
-    className="fixed bottom-6 right-6 
+        <button
+          className="fixed bottom-6 right-6 
                bg-gradient-to-r from-minimal-primary to-minimal-primary/80 
                hover:from-minimal-primary/80 hover:to-minimal-primary 
                text-white font-semibold py-2 px-4 rounded-2xl 
                transition-all duration-300 hover:scale-105 
                hover:shadow-lg hover:shadow-minimal-primary/25"
-  >
-    Workflow
-  </button>
-</div>
-
+        >
+          Workflow
+        </button>
+      </div>
     </div>
   );
 }

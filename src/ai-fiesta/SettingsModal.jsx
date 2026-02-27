@@ -14,6 +14,7 @@ import {
   FaLock,
 } from "react-icons/fa";
 import { useState, useEffect } from "react";
+import { useExpli } from "../context/ExpliContext";
 
 /* ==============================
    🌙 SETTINGS MODAL (Unified)
@@ -205,55 +206,82 @@ function AccountSettingsView({ onBack }) {
    API KEYS PANEL (Improved)
 ----------------------------- */
 function ApiKeysView({ onBack }) {
+  const { providerKeys, setProviderKeys } = useExpli();
+
   const models = [
     {
       id: "openai",
-      name: "OpenAI",
-      pattern: /^sk-[A-Za-z0-9]{20,}$/,
-      color: "text-blue-400",
+      name: "OpenAI (ChatGPT)",
+      placeholder: "sk-...",
+      color: "text-green-400",
+      docs: "https://platform.openai.com/api-keys",
     },
     {
       id: "gemini",
-      name: "Gemini",
-      pattern: /^AIza[0-9A-Za-z\-_]{35}$/,
-      color: "text-amber-400",
+      name: "Google Gemini",
+      placeholder: "AIza...",
+      color: "text-blue-400",
+      docs: "https://aistudio.google.com/app/apikey",
     },
     {
-      id: "replicate",
-      name: "Replicate",
-      pattern: /^r8_[A-Za-z0-9_]{30,}$/,
-      color: "text-green-400",
+      id: "llama",
+      name: "Meta Llama",
+      placeholder: "nvapi-...",
+      color: "text-blue-500",
+      docs: "https://build.nvidia.com/",
+    },
+    {
+      id: "perplexity",
+      name: "Perplexity",
+      placeholder: "pplx-...",
+      color: "text-teal-400",
+      docs: "https://www.perplexity.ai/settings/api",
+    },
+    {
+      id: "anthropic",
+      name: "Anthropic (Claude)",
+      placeholder: "sk-ant-...",
+      color: "text-orange-400",
+      docs: "https://console.anthropic.com/settings/keys",
+    },
+    {
+      id: "grok",
+      name: "xAI (Grok)",
+      placeholder: "xai-...",
+      color: "text-gray-200",
+      docs: "https://console.x.ai/",
+    },
+    {
+      id: "qwen",
+      name: "Alibaba Cloud (Qwen)",
+      placeholder: "sk-...",
+      color: "text-indigo-400",
+      docs: "https://bailian.console.aliyun.com/",
     },
   ];
 
-  const [keys, setKeys] = useState({});
   const [expanded, setExpanded] = useState(null);
   const [status, setStatus] = useState(null);
+  const [inputValues, setInputValues] = useState({});
 
+  // Initialize input values from context keys
   useEffect(() => {
-    const loaded = {};
-    models.forEach((m) => {
-      const stored = localStorage.getItem(`apiKey_${m.id}`);
-      if (stored) loaded[m.id] = stored;
-    });
-    setKeys(loaded);
-  }, []);
+    setInputValues(providerKeys || {});
+  }, [providerKeys]);
 
-  const saveKey = (id, value) => {
-    const model = models.find((m) => m.id === id);
-    if (!value) {
-      setStatus({ type: "info", text: "🔑 API key removed." });
-      localStorage.removeItem(`apiKey_${id}`);
-      setKeys((prev) => ({ ...prev, [id]: "" }));
-      return;
-    }
-    if (model.pattern.test(value)) {
-      localStorage.setItem(`apiKey_${id}`, value);
-      setKeys((prev) => ({ ...prev, [id]: value }));
-      setStatus({ type: "success", text: "✅ Key saved successfully!" });
+  const handleSave = (id) => {
+    const val = inputValues[id]?.trim();
+
+    // Update context (and thus localStorage)
+    setProviderKeys((prev) => ({ ...prev, [id]: val }));
+
+    if (val) {
+      setStatus({ type: "success", text: `✅ ${id} key saved!` });
     } else {
-      setStatus({ type: "error", text: "❌ Invalid API key format." });
+      setStatus({ type: "info", text: `🗑️ ${id} key removed.` });
     }
+
+    setTimeout(() => setStatus(null), 3000);
   };
 
   return (
@@ -274,13 +302,13 @@ function ApiKeysView({ onBack }) {
 
       <h2 className="font-bold text-xl mb-2 text-white">Manage API Keys</h2>
       <p className="text-gray-400 text-sm mb-5">
-        Securely add or remove your API keys for each provider.
+        Securely add your own API keys. These are stored locally on your device.
       </p>
 
-      <div className="space-y-3">
+      <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
         {models.map((m) => {
           const isExpanded = expanded === m.id;
-          const hasKey = !!keys[m.id];
+          const hasKey = !!providerKeys[m.id];
 
           return (
             <motion.div
@@ -324,30 +352,57 @@ function ApiKeysView({ onBack }) {
                       type="password"
                       placeholder={`Enter ${m.name} API key`}
                       className="w-full px-3 py-2 rounded-xl border border-gray-600 bg-[#1A1A1A] text-sm text-gray-200 focus:ring-2 focus:ring-[#23B5B5] outline-none"
-                      value={keys[m.id] || ""}
+                      value={inputValues[m.id] || ""}
                       onChange={(e) =>
-                        setKeys((prev) => ({
+                        setInputValues((prev) => ({
                           ...prev,
                           [m.id]: e.target.value,
                         }))
                       }
                     />
-                    <div className="flex justify-end gap-2">
-                      <button
-                        onClick={() => saveKey(m.id, keys[m.id])}
-                        className="px-3 py-1.5 text-xs bg-[#23B5B5] text-black rounded-lg font-semibold hover:bg-[#1AA2A2] transition"
+                    <div className="flex justify-between items-center">
+                      <a
+                        href={m.docs}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs text-blue-400 hover:underline"
                       >
-                        Save
-                      </button>
-                      {hasKey && (
+                        Get Key &rarr;
+                      </a>
+                      <div className="flex gap-2">
                         <button
-                          onClick={() => saveKey(m.id, "")}
-                          className="px-3 py-1.5 text-xs bg-gray-700 text-gray-300 rounded-lg font-semibold hover:bg-gray-600 transition"
+                          onClick={() => handleSave(m.id)}
+                          className="px-3 py-1.5 text-xs bg-[#23B5B5] text-black rounded-lg font-semibold hover:bg-[#1AA2A2] transition"
                         >
-                          <FaTrashAlt size={12} className="inline-block mr-1" />
-                          Remove
+                          Save
                         </button>
-                      )}
+                        {hasKey && (
+                          <button
+                            onClick={() => {
+                              setInputValues((prev) => ({
+                                ...prev,
+                                [m.id]: "",
+                              }));
+                              setProviderKeys((prev) => ({
+                                ...prev,
+                                [m.id]: "",
+                              }));
+                              setStatus({
+                                type: "info",
+                                text: `🗑️ ${m.id} key removed.`,
+                              });
+                              setTimeout(() => setStatus(null), 3000);
+                            }}
+                            className="px-3 py-1.5 text-xs bg-gray-700 text-gray-300 rounded-lg font-semibold hover:bg-gray-600 transition"
+                          >
+                            <FaTrashAlt
+                              size={12}
+                              className="inline-block mr-1"
+                            />
+                            Remove
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </motion.div>
                 )}
@@ -368,8 +423,8 @@ function ApiKeysView({ onBack }) {
               status.type === "success"
                 ? "text-green-400"
                 : status.type === "error"
-                ? "text-red-400"
-                : "text-gray-400"
+                  ? "text-red-400"
+                  : "text-gray-400"
             }`}
           >
             {status.text}

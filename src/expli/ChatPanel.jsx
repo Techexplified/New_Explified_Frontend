@@ -1,4 +1,3 @@
-// src/components/expli/ChatPanel.jsx
 import React from "react";
 import { useExpli } from "../context/ExpliContext";
 import ChatContainer from "./ChatContainer";
@@ -28,17 +27,20 @@ export default function ChatPanel() {
     isSidebarOpen,
     sidebarPinned,
     chatNotPresent,
-    // setCurrentMessages,
-    // setCurrentMessagesOpenAI,
-    // setCurrentMessagesGemini,
     closedChats,
     setClosedChats,
     providerKeys,
+    sessionId,
   } = useExpli();
 
   return (
-    <div className="w-full flex-1 border border-cyan-500/20 shadow-[...] bg-black flex flex-col gap-4 relative backdrop-blur-xl">
-      <div className="flex divide-x-1  divide-gray-700 flex-1 overflow-x-auto overflow-y-hidden flex-nowrap [&>*]:min-w-[350px]">
+    <div className="w-full flex-1 bg-black/95 backdrop-blur-xl flex flex-col relative overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#23b5b5]/3 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 left-0 w-72 h-72 bg-purple-500/3 rounded-full blur-[100px]" />
+      </div>
+
+      <div className="flex divide-x divide-gray-800/40 flex-1 overflow-x-auto overflow-y-hidden flex-nowrap [&>*]:min-w-[350px] relative z-10">
         <ChatContainer
           messages={currentMessages}
           isTyping={isTyping.expli}
@@ -50,6 +52,7 @@ export default function ChatPanel() {
             setEnabledProviders((prev) => ({ ...prev, expli: val }))
           }
           onlyExpliOpen={onlyExpliOpen}
+          sessionId={sessionId}
         />
 
         {providerKeys?.openai && !closedChats.openai && (
@@ -67,6 +70,7 @@ export default function ChatPanel() {
             handleCloseChat={(pid) =>
               setClosedChats((prev) => ({ ...prev, [pid]: true }))
             }
+            sessionId={sessionId}
           />
         )}
 
@@ -85,6 +89,7 @@ export default function ChatPanel() {
             handleCloseChat={(pid) =>
               setClosedChats((prev) => ({ ...prev, [pid]: true }))
             }
+            sessionId={sessionId}
           />
         )}
       </div>

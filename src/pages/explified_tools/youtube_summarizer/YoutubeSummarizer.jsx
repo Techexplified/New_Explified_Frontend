@@ -1,5 +1,5 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Play,
   Clock,
@@ -33,22 +33,24 @@ const YoutubeSummarizer = () => {
   const [lang, setLang] = useState("");
   const [historyOpen, setHistoryOpen] = useState(false);
   const [historyVideos, setHistoryVideos] = useState(
-    JSON.parse(localStorage.getItem("summarize-history")) || []
+    JSON.parse(localStorage.getItem("summarize-history")) || [],
   );
   const [recentHistoryOpen, setRecentHistoryOpen] = useState(false);
 
   const [apiModalOpen, setApiModalOpen] = useState(false);
   const [rapidApiKeyInput, setRapidApiKeyInput] = useState(
-    localStorage.getItem("ytSummarizerRapidApiKey") || ""
+    localStorage.getItem("ytSummarizerRapidApiKey") || "",
   );
   const [geminiApiKeyInput, setGeminiApiKeyInput] = useState(
-    localStorage.getItem("ytSummarizerGeminiApiKey") || ""
+    localStorage.getItem("ytSummarizerGeminiApiKey") || "",
   );
   const [showRapidApiKey, setShowRapidApiKey] = useState(false);
   const [showGeminiApiKey, setShowGeminiApiKey] = useState(false);
 
   const videoTranscript = searchParams.get("videoTranscript");
   const navigate = useNavigate();
+
+  const recentHistoryRef = useRef(null);
 
   const user = useSelector((state) => state.user);
   const accessToken = user.accessToken;
@@ -73,9 +75,8 @@ const YoutubeSummarizer = () => {
               maxResults: 10,
               playlistId: "WL",
             },
-          }
+          },
         );
-        console.log(res);
 
         const watchHistory = res.data.items;
         console.log(watchHistory);
@@ -91,6 +92,25 @@ const YoutubeSummarizer = () => {
     if (!videoIdYt) return;
     getSummary(videoIdYt);
   }, [videoIdYt]);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        recentHistoryRef.current &&
+        !recentHistoryRef.current.contains(event.target)
+      ) {
+        setRecentHistoryOpen(false);
+      }
+    }
+
+    if (recentHistoryOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [recentHistoryOpen]);
 
   function handleUrl(e) {
     const Url = e.target.value.trim();
@@ -227,7 +247,7 @@ const YoutubeSummarizer = () => {
         throw new Error(
           transcriptData.message ||
             transcriptData.error ||
-            "Failed to get transcript"
+            "Failed to get transcript",
         );
       }
 
@@ -253,7 +273,7 @@ const YoutubeSummarizer = () => {
       // Group transcript by time
       const groupedTranscript = groupTranscriptByTime(
         rawSegments,
-        dynamicWindowSize
+        dynamicWindowSize,
       );
 
       // Step 2: Generate summaries for each chunk using Gemini
@@ -269,7 +289,7 @@ const YoutubeSummarizer = () => {
         const chunk = groupedTranscript.slice(i, i + chunkSize);
         const startTime = formatTimeForSummary(chunk[0]?.timestamp || 0);
         const endTime = formatTimeForSummary(
-          chunk[chunk.length - 1]?.timestamp || 0
+          chunk[chunk.length - 1]?.timestamp || 0,
         );
         const combinedText = chunk.map((item) => item.text).join(" ");
 
@@ -324,11 +344,11 @@ const YoutubeSummarizer = () => {
       } else {
         // Get full video metadata
         const response2 = await axios.get(
-          `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${youtubeApiKey}`
+          `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${youtubeApiKey}`,
         );
         const chanelId = response2?.data?.items[0]?.snippet.channelId;
         const response3 = await axios.get(
-          `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${chanelId}&key=${youtubeApiKey}`
+          `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${chanelId}&key=${youtubeApiKey}`,
         );
 
         const newData = {
@@ -349,7 +369,7 @@ const YoutubeSummarizer = () => {
         setHistoryVideos((prev) => [...prev, newData]);
         setVideoData(response2?.data?.items[0]?.snippet);
         setImageData(
-          response3?.data?.items[0]?.snippet?.thumbnails?.default?.url
+          response3?.data?.items[0]?.snippet?.thumbnails?.default?.url,
         );
       }
 
@@ -361,7 +381,7 @@ const YoutubeSummarizer = () => {
     } catch (err) {
       console.error("Summary Error:", err);
       alert(
-        "Failed to generate summary. Please check your API keys and try again."
+        "Failed to generate summary. Please check your API keys and try again.",
       );
     } finally {
       setLoading(false);
@@ -408,7 +428,7 @@ const YoutubeSummarizer = () => {
         throw new Error(
           transcriptData.message ||
             transcriptData.error ||
-            "Failed to get transcript"
+            "Failed to get transcript",
         );
       }
 
@@ -439,11 +459,11 @@ const YoutubeSummarizer = () => {
       } else {
         // Get full video metadata
         const response2 = await axios.get(
-          `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${youtubeApiKey}`
+          `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${youtubeApiKey}`,
         );
         const chanelId = response2?.data?.items[0]?.snippet.channelId;
         const response3 = await axios.get(
-          `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${chanelId}&key=${youtubeApiKey}`
+          `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${chanelId}&key=${youtubeApiKey}`,
         );
 
         const newData = {
@@ -464,7 +484,7 @@ const YoutubeSummarizer = () => {
         setHistoryVideos((prev) => [...prev, newData]);
         setVideoData(response2?.data?.items[0]?.snippet);
         setImageData(
-          response3?.data?.items[0]?.snippet?.thumbnails?.default?.url
+          response3?.data?.items[0]?.snippet?.thumbnails?.default?.url,
         );
       }
 
@@ -490,7 +510,7 @@ const YoutubeSummarizer = () => {
 
       const groupedTranscript = groupTranscriptByTime(
         rawSegments,
-        dynamicWindowSize
+        dynamicWindowSize,
       );
 
       setTranscript(groupedTranscript);
@@ -501,7 +521,7 @@ const YoutubeSummarizer = () => {
     } catch (err) {
       console.error("Transcript Error:", err);
       alert(
-        "Failed to get transcript. Please check your API key and try again."
+        "Failed to get transcript. Please check your API key and try again.",
       );
     } finally {
       setLoading(false);
@@ -521,7 +541,7 @@ const YoutubeSummarizer = () => {
     try {
       const response = await axiosInstance.post(
         "api/ytSummarize/translate-transcript",
-        { transcript, language }
+        { transcript, language },
       );
       console.log(response.data.translatedTranscript);
       setTranscript(response?.data?.translatedTranscript);
@@ -549,7 +569,7 @@ const YoutubeSummarizer = () => {
           </p>
         </div>
 
-        <div className="absolute top-44 left-20 z-40">
+        <div className="absolute top-4 left-20 z-40">
           <button
             onClick={() => setRecentHistoryOpen(!recentHistoryOpen)}
             className={`p-3 rounded-xl border backdrop-blur-md transition-all duration-300 shadow-lg ${
@@ -559,11 +579,14 @@ const YoutubeSummarizer = () => {
             }`}
             title="Recent History"
           >
-            <History className="w-4 h-4" />
+            <History className="w-5 h-5" />
           </button>
 
           {recentHistoryOpen && (
-            <div className="absolute top-0 left-16 w-80 bg-minimal-dark-100/90 backdrop-blur-xl rounded-2xl border border-minimal-border p-5 shadow-2xl animate-in fade-in slide-in-from-left-4 duration-300">
+            <div
+              ref={recentHistoryRef}
+              className="absolute top-0 left-16 w-80 bg-minimal-dark-100/90 backdrop-blur-xl rounded-2xl border border-minimal-border p-5 shadow-2xl animate-in fade-in slide-in-from-left-4 duration-300"
+            >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xs font-bold text-minimal-muted uppercase tracking-widest flex items-center gap-2">
                   <Clock className="w-3.5 h-3.5 text-minimal-primary" />
@@ -588,7 +611,7 @@ const YoutubeSummarizer = () => {
                       onClick={() => {
                         setVideoId(video.videoId);
                         setVideoUrl(
-                          `https://www.youtube.com/watch?v=${video.videoId}`
+                          `https://www.youtube.com/watch?v=${video.videoId}`,
                         );
                         setRecentHistoryOpen(false);
                       }}
@@ -743,7 +766,7 @@ const YoutubeSummarizer = () => {
                     if (rapidTrimmed) {
                       localStorage.setItem(
                         "ytSummarizerRapidApiKey",
-                        rapidTrimmed
+                        rapidTrimmed,
                       );
                     } else {
                       localStorage.removeItem("ytSummarizerRapidApiKey");
@@ -751,7 +774,7 @@ const YoutubeSummarizer = () => {
                     if (geminiTrimmed) {
                       localStorage.setItem(
                         "ytSummarizerGeminiApiKey",
-                        geminiTrimmed
+                        geminiTrimmed,
                       );
                     } else {
                       localStorage.removeItem("ytSummarizerGeminiApiKey");
@@ -925,7 +948,7 @@ const YoutubeSummarizer = () => {
                     Full Transcript
                   </h3>
                   <p className="text-minimal-muted group-hover:text-minimal-gray-300 transition-colors">
-                    Get the complete text transcript with timestamps
+                    Get complete transcript with timestamps
                   </p>
                 </div>
               </div>

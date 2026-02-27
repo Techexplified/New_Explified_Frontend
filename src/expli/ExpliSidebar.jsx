@@ -41,6 +41,12 @@ export default function ExpliSidebar({
       section: "discover",
       url: "discover",
     },
+    {
+      icon: LayoutDashboard, // Placeholder icon, using LayoutDashboard from lucide-react as imported
+      label: "Compare",
+      section: "compare",
+      url: "compare",
+    },
   ];
 
   const [showHistory, setShowHistory] = React.useState(false);
@@ -64,10 +70,9 @@ export default function ExpliSidebar({
           flex flex-col justify-between py-2
           bg-black text-white border-r border-gray-900 shadow-inner
           transition-transform duration-300
-          ${
-            isMobileOpen
-              ? "translate-x-0"
-              : "-translate-x-full lg:translate-x-0"
+          ${isMobileOpen
+            ? "translate-x-0"
+            : "-translate-x-full lg:translate-x-0"
           }
         `}
       >
@@ -84,7 +89,7 @@ export default function ExpliSidebar({
             alt="Logo"
             src={ExpliLogo}
             onClick={() => {
-              navigate("https://expli.explified.com/");
+              navigate("/expli");
               newChat();
             }}
           />

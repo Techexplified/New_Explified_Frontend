@@ -10,11 +10,11 @@ import { nanoid } from "nanoid";
 
 const Canvas = forwardRef((_, ref) => {
   const [selectionBox, setSelectionBox] = useState(null);
-const [dragStart, setDragStart] = useState(null);
-const [isDraggingSelection, setIsDraggingSelection] = useState(false);
-const selectedShapes = useStore((s) => s.selectedShapes);
-const setSelectedShapes = useStore((s) => s.setSelectedShapes);
-const clearSelection = useStore((s) => s.clearSelection);
+  const [dragStart, setDragStart] = useState(null);
+  const [isDraggingSelection, setIsDraggingSelection] = useState(false);
+  const selectedShapes = useStore((s) => s.selectedShapes);
+  const setSelectedShapes = useStore((s) => s.setSelectedShapes);
+  const clearSelection = useStore((s) => s.clearSelection);
   const shapes = useStore((s) => s.shapes);
   const addShape = useStore((s) => s.addShape);
   const updateShape = useStore((s) => s.updateShape);
@@ -32,6 +32,7 @@ const clearSelection = useStore((s) => s.clearSelection);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const lastPointer = useRef({ x: 0, y: 0 });
+  const [isEraserDragging, setIsEraserDragging] = useState(false);
 
   const panRef = useRef(pan);
   const zoomRef = useRef(zoom);
@@ -45,12 +46,15 @@ const clearSelection = useStore((s) => s.clearSelection);
   const selectedShape = useStore((s) => s.selectedShape);
   const setSelectedShape = useStore((s) => s.setSelectedShape);
 
-  // Constants
-  const bgColor = "#ffffff";
+  // Constants - use theme-aware background
+  const theme = useStore((s) => s.theme);
+  const bgColor = theme === 'dark' ? '#1a1a1a' : '#ffffff';
   const textStyle = useStore((s) => s.textStyle);
 
   const ERASER_SIZE = 20;
   const freehandStyles = { pencil: 1, pen: 1, brush: 0.6, marker: 0.3 };
+
+  const currentNoteId = useStore((s) => s.currentNoteId);
 
   // keep refs synced
   useEffect(() => {
@@ -58,16 +62,26 @@ const clearSelection = useStore((s) => s.clearSelection);
     zoomRef.current = zoom;
   }, [pan, zoom]);
 
-  // load shapes
+  // load shapes for specific note
   useEffect(() => {
-    const saved = localStorage.getItem("canvasShapes");
-    if (saved) setShapes(JSON.parse(saved));
-  }, [setShapes]);
+    if (!currentNoteId) return;
 
-  // auto-save
+    const storageKey = `canvasShapes_${currentNoteId}`;
+    const saved = localStorage.getItem(storageKey);
+
+    if (saved) {
+      setShapes(JSON.parse(saved));
+    } else {
+      setShapes([]); // Clear canvas for new notes!
+    }
+  }, [currentNoteId, setShapes]);
+
+  // auto-save for specific note
   useEffect(() => {
-    localStorage.setItem("canvasShapes", JSON.stringify(shapes));
-  }, [shapes]);
+    if (!currentNoteId) return;
+    const storageKey = `canvasShapes_${currentNoteId}`;
+    localStorage.setItem(storageKey, JSON.stringify(shapes));
+  }, [shapes, currentNoteId]);
 
   // caret blinking
   useEffect(() => {
@@ -85,32 +99,58 @@ const clearSelection = useStore((s) => s.clearSelection);
     x: (x - panRef.current.x) / zoomRef.current,
     y: (y - panRef.current.y) / zoomRef.current,
   });
-  
-// --- Utility: check shape bounds ---
-const getShapeBounds = (shape) => {
-  if (shape.type === "rect" || shape.type === "square")
-    return { x: shape.x, y: shape.y, w: shape.width || shape.size, h: shape.height || shape.size };
-  if (shape.type === "circle")
-    return { x: shape.x - shape.radius, y: shape.y - shape.radius, w: shape.radius * 2, h: shape.radius * 2 };
-  if (shape.type === "line" || shape.type === "arrow") {
-    const xs = shape.points.map((p) => p.x);
-    const ys = shape.points.map((p) => p.y);
-    return { x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) };
-  }
-  if (shape.type === "sticky" || shape.type === "image")
-    return { x: shape.x, y: shape.y, w: shape.width, h: shape.height };
-  return { x: shape.x, y: shape.y, w: 0, h: 0 };
-};
 
-// --- Detect intersection with selection box ---
-const intersects = (a, b) =>
-  a.x < b.x + b.w &&
-  a.x + a.w > b.x &&
-  a.y < b.y + b.h &&
-  a.y + a.h > b.y;
+  // --- Utility: check shape bounds ---
+  const getShapeBounds = (shape) => {
+    if (shape.type === "rect" || shape.type === "square")
+      return { x: shape.x, y: shape.y, w: shape.width, h: shape.height };
+    if (shape.type === "circle" || shape.type === "ellipse")
+      return { x: shape.x - shape.rx, y: shape.y - shape.ry, w: shape.rx * 2, h: shape.ry * 2 };
+    if (shape.type === "line" || shape.type === "arrow") {
+      const xs = shape.points.map((p) => p.x);
+      const ys = shape.points.map((p) => p.y);
+      return { x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) };
+    }
+    if (shape.type === "sticky" || shape.type === "image")
+      return { x: shape.x, y: shape.y, w: shape.width, h: shape.height };
+    if (shape.type === "text") {
+      // Approx text bounds
+      const lines = shape.lines || [shape.text || ""];
+      const fontSize = shape.fontSize || 18;
+      const lineHeight = fontSize * 1.5;
+      const maxWidth = Math.max(...lines.map(l => l.length)) * (fontSize * 0.6); // approx char width
+      const totalHeight = lines.length * lineHeight;
+      return { x: shape.x, y: shape.y - fontSize, w: maxWidth, h: totalHeight }; // y-fontSize because text anchor is usually bottom-left or similar, checking render... text y is baseline? No, usually top-left for SVG text unless specified. lines 599 y=shape.y + idx*lineHeight. So y is top.
+    }
+    if (shape.type === "freehand") {
+      if (!shape.points || shape.points.length === 0) return { x: shape.x, y: shape.y, w: 0, h: 0 };
+      const xs = shape.points.map((p) => p.x);
+      const ys = shape.points.map((p) => p.y);
+      return { x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) };
+    }
+    return { x: shape.x, y: shape.y, w: 0, h: 0 };
+  };
+
+  // --- Detect intersection with selection box ---
+  const intersects = (a, b) =>
+    a.x < b.x + b.w &&
+    a.x + a.w > b.x &&
+    a.y < b.y + b.h &&
+    a.y + a.h > b.y;
 
   // handle typing
   const handleKeyDown = (e) => {
+    // Handle Delete key for removing selected image
+    if (e.key === "Delete" || e.key === "Backspace") {
+      const currentSelectedShape = useStore.getState().selectedShape;
+      if (currentSelectedShape?.type === "image") {
+        e.preventDefault();
+        useStore.getState().removeShape(currentSelectedShape.id);
+        useStore.getState().setSelectedShape(null);
+        return;
+      }
+    }
+
     if (selectedTool !== "text") return;
     e.preventDefault();
 
@@ -158,8 +198,29 @@ const intersects = (a, b) =>
   const handlePointerDown = (e) => {
     const { offsetX, offsetY } = e.nativeEvent;
     const { x, y } = toCanvasCoords(offsetX, offsetY);
-    
-     
+
+    // 🖼️ Check if clicked on an image (works from ANY tool)
+    const clickedImage = shapes.find(
+      (s) =>
+        s.type === "image" &&
+        x >= s.x &&
+        x <= s.x + s.width &&
+        y >= s.y &&
+        y <= s.y + s.height
+    );
+
+    if (clickedImage) {
+      // Select the image and switch to image tool
+      setSelectedShape(clickedImage);
+      setTool("image");
+      return;
+    }
+
+    // If clicked on empty space and an image was selected, deselect it
+    if (selectedShape?.type === "image") {
+      setSelectedShape(null);
+    }
+
     // ✏️ Text Tool
     if (selectedTool === "text") {
       // Save existing text if present
@@ -187,33 +248,33 @@ const intersects = (a, b) =>
       return;
     }
 
-     if (selectedTool === "select" || selectedTool === "mousepointer") {
-    const clicked = shapes.find((s) => {
-      const b = getShapeBounds(s);
-      return x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h;
-    });
+    if (selectedTool === "select" || selectedTool === "mousepointer") {
+      const clicked = shapes.find((s) => {
+        const b = getShapeBounds(s);
+        return x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h;
+      });
 
-    if (clicked) {
-      // Shift+Click → multi-select toggle
-      if (e.shiftKey) {
-        setSelectedShapes((prev) =>
-          prev.includes(clicked.id)
-            ? prev.filter((id) => id !== clicked.id)
-            : [...prev, clicked.id]
-        );
+      if (clicked) {
+        // Shift+Click → multi-select toggle
+        if (e.shiftKey) {
+          setSelectedShapes((prev) =>
+            prev.includes(clicked.id)
+              ? prev.filter((id) => id !== clicked.id)
+              : [...prev, clicked.id]
+          );
+        } else {
+          setSelectedShapes([clicked.id]);
+        }
+        // Start dragging the selection
+        setDragStart({ x, y });
+        setIsDraggingSelection(true);
       } else {
-        setSelectedShapes([clicked.id]);
+        // Start new selection box
+        clearSelection();
+        setSelectionBox({ x, y, w: 0, h: 0 });
       }
-      // Start dragging the selection
-      setDragStart({ x, y });
-      setIsDraggingSelection(true);
-    } else {
-      // Start new selection box
-      clearSelection();
-      setSelectionBox({ x, y, w: 0, h: 0 });
+      return;
     }
-    return;
-  }
 
     // Pointer down
     if (selectedTool === "pan" || e.nativeEvent.button === 1) {
@@ -241,6 +302,20 @@ const intersects = (a, b) =>
     let newShape = null;
 
     if (selectedTool === "eraser") {
+      // ✅ Object Eraser (Click and drag to erase)
+      if (useStore.getState().eraserMode === "object") {
+        const clicked = shapes.find((s) => {
+          const b = getShapeBounds(s);
+          return x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h;
+        });
+        if (clicked) {
+          useStore.getState().removeShape(clicked.id);
+        }
+        // Set eraser dragging state to enable drag-to-delete
+        setIsEraserDragging(true);
+        return;
+      }
+
       newShape = {
         id: nanoid(),
         type: "freehand",
@@ -340,111 +415,136 @@ const intersects = (a, b) =>
   };
 
   // handle pointer move
- const handlePointerMove = (e) => {
-  const { offsetX, offsetY } = e.nativeEvent;
-  const { x, y } = toCanvasCoords(offsetX, offsetY);
+  const handlePointerMove = (e) => {
+    const { offsetX, offsetY } = e.nativeEvent;
+    const { x, y } = toCanvasCoords(offsetX, offsetY);
 
-  // --- TEXT TOOL ---
-  if (selectedTool === "text") return;
+    // --- TEXT TOOL ---
+    if (selectedTool === "text") return;
 
-  // --- PAN TOOL ---
-  if (isPanning) {
-    const dx = e.clientX - lastPointer.current.x;
-    const dy = e.clientY - lastPointer.current.y;
-    lastPointer.current = { x: e.clientX, y: e.clientY };
-    setPan((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
-    return;
-  }
-
-  // --- SELECT TOOL (drag-select / move shapes) ---
-  if (selectedTool === "select" || selectedTool === "mousepointer") {
-    if (selectionBox) {
-      // Resize selection rectangle
-      setSelectionBox((prev) => ({ ...prev, w: x - prev.x, h: y - prev.y }));
+    // --- PAN TOOL ---
+    if (isPanning) {
+      const dx = e.clientX - lastPointer.current.x;
+      const dy = e.clientY - lastPointer.current.y;
+      lastPointer.current = { x: e.clientX, y: e.clientY };
+      setPan((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
       return;
     }
 
-    if (isDraggingSelection && dragStart) {
-      const dx = x - dragStart.x;
-      const dy = y - dragStart.y;
-      setDragStart({ x, y });
+    // --- SELECT TOOL (drag-select / move shapes) ---
+    if (selectedTool === "select" || selectedTool === "mousepointer") {
+      if (selectionBox) {
+        // Resize selection rectangle
+        setSelectionBox((prev) => ({ ...prev, w: x - prev.x, h: y - prev.y }));
+        return;
+      }
 
-      selectedShapes.forEach((id) => {
-        useStore.getState().updateShape(id, (s) => ({
-          ...s,
-          x: s.x + dx,
-          y: s.y + dy,
-          points: s.points
-            ? s.points.map((p) => ({ x: p.x + dx, y: p.y + dy }))
-            : s.points,
-        }));
+      if (isDraggingSelection && dragStart) {
+        const dx = x - dragStart.x;
+        const dy = y - dragStart.y;
+        setDragStart({ x, y });
+
+        selectedShapes.forEach((id) => {
+          useStore.getState().updateShape(id, (s) => ({
+            ...s,
+            x: s.x + dx,
+            y: s.y + dy,
+            points: s.points
+              ? s.points.map((p) => ({ x: p.x + dx, y: p.y + dy }))
+              : s.points,
+          }));
+        });
+        return;
+      }
+    }
+
+    // --- IMAGE DRAGGING ---
+    const selectedImageId = useStore.getState().selectedImageId;
+    if (
+      selectedTool === "image" &&
+      selectedImageId &&
+      currentShapeId === selectedImageId
+    ) {
+      updateShape(selectedImageId, (prev) => ({
+        ...prev,
+        x: x - dragOffset.current.x,
+        y: y - dragOffset.current.y,
+      }));
+      return;
+    }
+
+    // Object Eraser Logic (Drag to erase) - only when eraser is being dragged
+    if (selectedTool === "eraser" && useStore.getState().eraserMode === "object" && isEraserDragging) {
+      const clicked = shapes.find((s) => {
+        const b = getShapeBounds(s);
+        return x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h;
       });
+      if (clicked) {
+        useStore.getState().removeShape(clicked.id);
+      }
       return;
     }
-  }
 
-  // --- IMAGE DRAGGING ---
-  const selectedImageId = useStore.getState().selectedImageId;
-  if (
-    selectedTool === "image" &&
-    selectedImageId &&
-    currentShapeId === selectedImageId
-  ) {
-    updateShape(selectedImageId, (prev) => ({
-      ...prev,
-      x: x - dragOffset.current.x,
-      y: y - dragOffset.current.y,
-    }));
-    return;
-  }
+    // --- DRAWING TOOLS (freehand or shape) ---
+    if (!currentShapeId) return;
 
-  // --- DRAWING TOOLS (freehand or shape) ---
-  if (!currentShapeId) return;
-  updateShape(currentShapeId, (prev) => {
-    if (prev.type === "freehand")
-      return { ...prev, points: [...prev.points, { x, y }] };
-    if (selectedTool === "shape") return updateShapeDimensions(prev, x, y);
-    return prev;
-  });
-};
+    updateShape(currentShapeId, (prev) => {
+      if (prev.type === "freehand")
+        return { ...prev, points: [...prev.points, { x, y }] };
+      if (selectedTool === "shape") {
+        const isPerfect = useStore.getState().isPerfectShape;
+        return updateShapeDimensions(prev, x, y, isPerfect);
+      }
+      return prev;
+    });
+  };
 
   const handlePointerUp = () => {
     setIsPanning(false);
     setCurrentShapeId(null);
-     if (selectionBox) {
-    const rect = {
-      x: Math.min(selectionBox.x, selectionBox.x + selectionBox.w),
-      y: Math.min(selectionBox.y, selectionBox.y + selectionBox.h),
-      w: Math.abs(selectionBox.w),
-      h: Math.abs(selectionBox.h),
-    };
-    const selected = shapes
-      .filter((s) => intersects(getShapeBounds(s), rect))
-      .map((s) => s.id);
-    setSelectedShapes(selected);
-    setSelectionBox(null);
-  }
-  setIsDraggingSelection(false);
-  setDragStart(null);
+    setIsEraserDragging(false);
+    if (selectionBox) {
+      const rect = {
+        x: Math.min(selectionBox.x, selectionBox.x + selectionBox.w),
+        y: Math.min(selectionBox.y, selectionBox.y + selectionBox.h),
+        w: Math.abs(selectionBox.w),
+        h: Math.abs(selectionBox.h),
+      };
+      const selected = shapes
+        .filter((s) => intersects(getShapeBounds(s), rect))
+        .map((s) => s.id);
+      setSelectedShapes(selected);
+      setSelectionBox(null);
+    }
+    setIsDraggingSelection(false);
+    setDragStart(null);
   };
 
   const handleWheel = (e) => {
     e.preventDefault();
-    const scaleFactor = -e.deltaY * 0.001;
-    const newZoom = Math.min(
-      Math.max(zoomRef.current * (1 + scaleFactor), 0.1),
-      10
-    );
+    e.stopPropagation();
 
-    const rect = svgRef.current.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+    if (e.ctrlKey || e.metaKey) {
+      // Zooming
+      const scaleFactor = -e.deltaY * 0.001;
+      const newZoom = Math.min(Math.max(zoomRef.current * (1 + scaleFactor), 0.1), 10);
 
-    setPan({
-      x: mouseX - ((mouseX - panRef.current.x) / zoomRef.current) * newZoom,
-      y: mouseY - ((mouseY - panRef.current.y) / zoomRef.current) * newZoom,
-    });
-    setZoom(newZoom);
+      const rect = svgRef.current.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      setPan({
+        x: mouseX - ((mouseX - panRef.current.x) / zoomRef.current) * newZoom,
+        y: mouseY - ((mouseY - panRef.current.y) / zoomRef.current) * newZoom,
+      });
+      setZoom(newZoom);
+    } else {
+      // Panning
+      setPan((prev) => ({
+        x: prev.x - e.deltaX,
+        y: prev.y - e.deltaY,
+      }));
+    }
   };
 
   const handleDoubleClick = (e) => {
@@ -470,7 +570,7 @@ const intersects = (a, b) =>
   return (
     <div
       id="canvas-container"
-      className="flex justify-center items-center w-full h-screen"
+      className="w-full h-full outline-none"
       style={{ backgroundColor: bgColor, overflow: "hidden" }}
       tabIndex={0}
       onKeyDown={handleKeyDown}
@@ -479,15 +579,16 @@ const intersects = (a, b) =>
       <svg
         ref={svgRef}
         style={{
-          width: "100vw",
-          height: "100vh",
+          width: "100%",
+          height: "100%",
           backgroundColor: bgColor,
+          touchAction: "none", // 👈 Prevents browser scroll on touch devices
           cursor:
             selectedTool === "text"
               ? "text"
               : selectedTool === "pan"
-              ? "grab"
-              : "crosshair",
+                ? "grab"
+                : "crosshair",
         }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -496,45 +597,7 @@ const intersects = (a, b) =>
       >
         <rect x={0} y={0} width="100%" height="100%" fill={bgColor} />
 
-        {/* ✏️ Live typing preview */}
-        {selectedTool === "text" && textPos && (
-          <>
-            {textContent.split("\n").map((line, i) => (
-              <text
-                key={i}
-                x={textPos.x}
-                y={textPos.y + i * textStyle.fontSize * 1.5}
-                fill={textStyle.color}
-                fontSize={textStyle.fontSize}
-                fontFamily={textStyle.fontFamily}
-                opacity={textStyle.opacity ?? 1}
-                textAnchor={
-                  textStyle.textAlign === "center"
-                    ? "middle"
-                    : textStyle.textAlign === "right"
-                    ? "end"
-                    : "start"
-                }
-              >
-                {line}
-              </text>
-            ))}
-            {caretVisible && (
-              <line
-                x1={
-                  textPos.x + (textContent.split("\n").at(-1)?.length || 0) * 9
-                }
-                y1={textPos.y - 15 + (textContent.split("\n").length - 1) * 24}
-                x2={
-                  textPos.x + (textContent.split("\n").at(-1)?.length || 0) * 9
-                }
-                y2={textPos.y + (textContent.split("\n").length - 1) * 24}
-                stroke={textStyle.color}
-                strokeWidth={1}
-              />
-            )}
-          </>
-        )}
+
 
         {/* 🎨 Saved shapes */}
         <g transform={`translate(${pan.x}, ${pan.y}) scale(${zoom})`}>
@@ -561,8 +624,8 @@ const intersects = (a, b) =>
                     shape.textAlign === "center"
                       ? "middle"
                       : shape.textAlign === "right"
-                      ? "end"
-                      : "start"
+                        ? "end"
+                        : "start"
                   }
                 >
                   {line}
@@ -584,6 +647,46 @@ const intersects = (a, b) =>
             return <Shape key={shape.id} {...shape} />;
           })}
           <ImageTool selectedTool={selectedTool} pan={pan} zoom={zoom} />
+
+          {/* ✏️ Live typing preview (Inside transform to match pan/zoom) */}
+          {selectedTool === "text" && textPos && (
+            <>
+              {textContent.split("\n").map((line, i) => (
+                <text
+                  key={i}
+                  x={textPos.x}
+                  y={textPos.y + i * textStyle.fontSize * 1.5}
+                  fill={textStyle.color}
+                  fontSize={textStyle.fontSize}
+                  fontFamily={textStyle.fontFamily}
+                  opacity={textStyle.opacity ?? 1}
+                  textAnchor={
+                    textStyle.textAlign === "center"
+                      ? "middle"
+                      : textStyle.textAlign === "right"
+                        ? "end"
+                        : "start"
+                  }
+                >
+                  {line}
+                </text>
+              ))}
+              {caretVisible && (
+                <line
+                  x1={
+                    textPos.x + (textContent.split("\n").at(-1)?.length || 0) * (textStyle.fontSize * 0.6)
+                  }
+                  y1={textPos.y - 15 + (textContent.split("\n").length - 1) * 24}
+                  x2={
+                    textPos.x + (textContent.split("\n").at(-1)?.length || 0) * (textStyle.fontSize * 0.6)
+                  }
+                  y2={textPos.y + (textContent.split("\n").length - 1) * 24}
+                  stroke={textStyle.color}
+                  strokeWidth={2}
+                />
+              )}
+            </>
+          )}
         </g>
       </svg>
     </div>

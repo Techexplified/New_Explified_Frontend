@@ -1,5 +1,5 @@
 import React from "react";
-import { Workflow, FileText, ExternalLink, Zap } from "lucide-react";
+import { Workflow, FileText, ExternalLink, Zap, Mail } from "lucide-react";
 import { motion } from "framer-motion";
 
 const WorkflowsSection = () => {
@@ -20,6 +20,14 @@ const WorkflowsSection = () => {
       url: "/notes",
       color: "from-purple-500 to-pink-500",
     },
+    {
+      id: "email-updates",
+      title: "Daily Email Updates",
+      description: "AI-powered email summaries sent to Telegram",
+      icon: <Mail className="w-5 h-5" />,
+      url: "/email-updates",
+      color: "from-teal-500 to-cyan-500",
+    },
   ];
 
   return (
@@ -27,14 +35,18 @@ const WorkflowsSection = () => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="max-w-xl"  // Reduced overall width
+      className="max-w-xl" // Reduced overall width
     >
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-white mb-1">My Workflows</h2>
-        <p className="text-gray-400 text-sm">Access and manage your workflow tools</p>
+        <p className="text-gray-400 text-sm">
+          Access and manage your workflow tools
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4"> {/* Reduced gap */}
+      <div className="grid grid-cols-1 gap-4">
+        {" "}
+        {/* Reduced gap */}
         {workflows.map((workflow, index) => (
           <motion.a
             key={workflow.id}
@@ -49,20 +61,22 @@ const WorkflowsSection = () => {
               className={`absolute inset-0 bg-gradient-to-br ${workflow.color} opacity-0 group-hover:opacity-10 transition-opacity`}
             />
 
-            <div className="relative bg-gradient-to-br from-[#1a2530] to-[#0f1a20] p-4"> {/* Reduced padding */}
+            <div className="relative bg-gradient-to-br from-[#1a2530] to-[#0f1a20] p-4">
+              {" "}
+              {/* Reduced padding */}
               <div className="flex items-start justify-between mb-2">
-                <div className={`p-2.5 rounded-lg bg-gradient-to-br ${workflow.color} text-white`}>
+                <div
+                  className={`p-2.5 rounded-lg bg-gradient-to-br ${workflow.color} text-white`}
+                >
                   {workflow.icon}
                 </div>
               </div>
-
               <h3 className="text-base font-semibold text-white mb-1 group-hover:text-[#23b5b5]">
                 {workflow.title}
               </h3>
               <p className="text-gray-400 text-xs mb-2">
                 {workflow.description}
               </p>
-
               <div className="flex items-center gap-1.5 text-[#23b5b5] font-medium text-xs group-hover:gap-2 transition-all">
                 Open Workflow
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -84,7 +98,8 @@ const WorkflowsSection = () => {
           More Workflows Coming Soon
         </h3>
         <p className="text-gray-400 text-xs">
-          We’re adding more workflow tools to automate and streamline your tasks.
+          We’re adding more workflow tools to automate and streamline your
+          tasks.
         </p>
       </motion.div>
     </motion.div>

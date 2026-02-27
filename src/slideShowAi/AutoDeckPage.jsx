@@ -64,7 +64,7 @@ async function fetchImageDataForSlide(query) {
   async function callServer(q) {
     try {
       const resp = await fetch(
-        `${API_BASE_URL}/api/image?query=${encodeURIComponent(q)}&size=1200x800`
+        `${API_BASE_URL}/api/image?query=${encodeURIComponent(q)}&size=1200x800`,
       );
       if (!resp.ok) {
         console.warn("Image endpoint failed:", resp.status, resp.statusText);
@@ -442,7 +442,7 @@ const MockEditor = ({ slides, setSlides, onClose, onExport, setStatus }) => {
       };
 
       setSlides((prev) =>
-        prev.map((s, i) => (i === promptModalIndex ? newSlide : s))
+        prev.map((s, i) => (i === promptModalIndex ? newSlide : s)),
       );
       setPromptModalOpen(false);
       setPromptModalIndex(null);
@@ -483,8 +483,8 @@ const MockEditor = ({ slides, setSlides, onClose, onExport, setStatus }) => {
           prev.map((s, i) =>
             i === imageDialogIndex
               ? { ...s, imageData: dataUrl, image_query: query }
-              : s
-          )
+              : s,
+          ),
         );
       } else {
         if (setStatus) setStatus("No image found for that query.");
@@ -817,8 +817,8 @@ const GenerationStepper = ({ currentStepIndex }) => {
                         isCompleted
                           ? "bg-[#158b8b] border-[#158b8b] text-white shadow-[0_0_15px_rgba(21,139,139,0.4)]"
                           : isActive
-                          ? "border-[#158b8b] text-[#158b8b]"
-                          : "border-slate-700 text-slate-700 bg-[#0B0F17]"
+                            ? "border-[#158b8b] text-[#158b8b]"
+                            : "border-slate-700 text-slate-700 bg-[#0B0F17]"
                       }
                     `}
                     animate={
@@ -875,8 +875,8 @@ const GenerationStepper = ({ currentStepIndex }) => {
                         isActive
                           ? "text-white"
                           : isCompleted
-                          ? "text-[#158b8b]"
-                          : "text-slate-600"
+                            ? "text-[#158b8b]"
+                            : "text-slate-600"
                       }
                     `}
                     initial={{ opacity: 0, y: -5 }}
@@ -931,7 +931,7 @@ export default function AutoDeckProfessional() {
     {
       label: "Product Roadmap",
       icon: <Share2 size={14} />,
-      prompt: "Product strategy and roadmap for 2025 Q1-Q2",
+      prompt: "Product strategy and roadmap for 2026 Q1-Q2",
     },
   ];
 
@@ -1004,8 +1004,8 @@ export default function AutoDeckProfessional() {
             (tone === "Creative"
               ? "Creative Magazine"
               : tone === "Professional"
-              ? "Corporate Executive"
-              : "Minimal"),
+                ? "Corporate Executive"
+                : "Minimal"),
           polish: sl.polish === true || false,
         });
       }

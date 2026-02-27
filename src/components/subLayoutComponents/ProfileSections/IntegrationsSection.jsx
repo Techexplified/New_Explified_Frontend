@@ -366,6 +366,30 @@ const IntegrationsSection = () => {
       connected: true,
       connectedDate: "Oct 15, 2025",
     },
+    {
+      id: "gmail-automation",
+      name: "Gmail Automation",
+      description: "Read and summarize your emails automatically",
+      icon: "📧",
+      connected: false,
+      automationType: "email-updates",
+    },
+    {
+      id: "telegram-bot",
+      name: "Telegram Bot",
+      description: "Receive email summaries on Telegram",
+      icon: "✈️",
+      connected: false,
+      automationType: "email-updates",
+    },
+    {
+      id: "gemini-ai",
+      name: "Gemini AI",
+      description: "AI-powered email summarization via Gemini",
+      icon: "✨",
+      connected: false,
+      automationType: "email-updates",
+    },
   ]);
 
   const [showAllIntegrations, setShowAllIntegrations] = useState(false);
@@ -373,9 +397,7 @@ const IntegrationsSection = () => {
 
   const removeIntegration = (id) => {
     setIntegrations(
-      integrations.map((i) =>
-        i.id === id ? { ...i, connected: false } : i
-      )
+      integrations.map((i) => (i.id === id ? { ...i, connected: false } : i)),
     );
   };
 
@@ -390,8 +412,8 @@ const IntegrationsSection = () => {
                 connected: true,
                 connectedDate: new Date().toLocaleDateString(),
               }
-            : i
-        )
+            : i,
+        ),
       );
     } else {
       setIntegrations([
@@ -407,7 +429,9 @@ const IntegrationsSection = () => {
 
   const getAllAvailableIntegrations = () => {
     const allTools = Object.values(allIntegrations).flat();
-    return allTools.filter((tool) => !integrations.some((i) => i.id === tool.id));
+    return allTools.filter(
+      (tool) => !integrations.some((i) => i.id === tool.id),
+    );
   };
 
   const availableIntegrations = getAllAvailableIntegrations();
@@ -437,7 +461,8 @@ const IntegrationsSection = () => {
       {/* Connected Integrations */}
       <div className="mb-10">
         <h3 className="text-lg font-semibold text-white mb-4">
-          Connected Integrations ({integrations.filter((i) => i.connected).length})
+          Connected Integrations (
+          {integrations.filter((i) => i.connected).length})
         </h3>
         <div className="grid grid-cols-1 gap-4">
           {integrations.filter((i) => i.connected).length > 0 ? (
@@ -454,7 +479,9 @@ const IntegrationsSection = () => {
                   <div className="flex items-center gap-4">
                     <div className="text-3xl">{integration.icon}</div>
                     <div>
-                      <p className="text-white font-medium">{integration.name}</p>
+                      <p className="text-white font-medium">
+                        {integration.name}
+                      </p>
                       <p className="text-sm text-gray-400">
                         {integration.description}
                       </p>
@@ -514,7 +541,7 @@ const IntegrationsSection = () => {
           >
             {categories.map((category, catIndex) => {
               const categoryTools = (allIntegrations[category] || []).filter(
-                (tool) => !integrations.some((i) => i.id === tool.id)
+                (tool) => !integrations.some((i) => i.id === tool.id),
               );
 
               if (categoryTools.length === 0) return null;

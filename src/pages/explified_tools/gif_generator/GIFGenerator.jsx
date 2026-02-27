@@ -23,8 +23,8 @@ export default function AIGIFGenerator() {
         import.meta.env.VITE_GIPHY_API_KEY || "your_giphy_api_key";
       const response = await fetch(
         `https://api.giphy.com/v1/gifs/search?api_key=${API_KEY}&q=${encodeURIComponent(
-          category
-        )}&limit=6&rating=g&lang=en`
+          category,
+        )}&limit=6&rating=g&lang=en`,
       );
       const json = await response.json();
       const gifs = Array.isArray(json?.data) ? json.data : [];
@@ -57,8 +57,8 @@ export default function AIGIFGenerator() {
     const API_KEY = import.meta.env.VITE_GIPHY_API_KEY || "your_giphy_api_key";
     const response = await fetch(
       `https://api.giphy.com/v1/gifs/translate?api_key=${API_KEY}&s=${encodeURIComponent(
-        text
-      )}`
+        text,
+      )}`,
     );
     const data = await response.json();
     return data.data; // Returns single GIF object
@@ -160,7 +160,7 @@ export default function AIGIFGenerator() {
                           : "bg-[#1a9999] ring-[#1a9999]/20 hover:bg-[#1a9999]"
                       }`}
                     >
-                      {isLoading ? "Searching..." : "Find Best GIF"}
+                      {isLoading ? "Searching..." : "Search Best GIF"}
                     </button>
                   </div>
                 </div>

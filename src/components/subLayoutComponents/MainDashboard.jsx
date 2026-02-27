@@ -54,6 +54,19 @@ import { MdEdit } from "react-icons/md";
 
 const sampleWorkflows = [
   {
+    id: "DailyEmailUpdates",
+    title: "Daily Email Updates on Telegram",
+    description:
+      "Get AI-powered email summaries sent directly to your Telegram using Gemini.",
+    tools: [
+      { name: "Gmail", icon: <SiGmail />, bgColor: "bg-red-500/30" },
+      { name: "Telegram", icon: <SiWhatsapp />, bgColor: "bg-blue-500/30" },
+    ],
+    category: "Automation",
+    recommended: true,
+    route: "/email-updates",
+  },
+  {
     id: "GoogleSheets-Gmail",
     title: "Email Drip Campaigns",
     description:
@@ -412,7 +425,7 @@ const MainDashboard = () => {
   ].filter((app) =>
     searchText.trim().length === 0
       ? true
-      : app.name.toLowerCase().includes(searchText.toLowerCase())
+      : app.name.toLowerCase().includes(searchText.toLowerCase()),
   );
 
   useEffect(() => {
@@ -428,7 +441,7 @@ const MainDashboard = () => {
     setCurrentSlide((prev) => (prev + 1) % carouselItems.length);
   const prevSlide = () =>
     setCurrentSlide(
-      (prev) => (prev - 1 + carouselItems.length) % carouselItems.length
+      (prev) => (prev - 1 + carouselItems.length) % carouselItems.length,
     );
 
   // Limit items when not expanded
@@ -476,7 +489,7 @@ const MainDashboard = () => {
                             .filter((app) =>
                               app.title
                                 .toLowerCase()
-                                .includes(searchText.toLowerCase())
+                                .includes(searchText.toLowerCase()),
                             )
                             .map((app) => (
                               <div
@@ -502,7 +515,7 @@ const MainDashboard = () => {
                           {allTools.filter((app) =>
                             app.title
                               .toLowerCase()
-                              .includes(searchText.toLowerCase())
+                              .includes(searchText.toLowerCase()),
                           ).length === 0 && (
                             <div className="px-4 py-2 text-gray-400">
                               No apps found
@@ -739,7 +752,7 @@ const MainDashboard = () => {
                       {displayedWorkflows.map((wf) => (
                         <div
                           key={wf.id}
-                          onClick={() => navigate("/locked")}
+                          onClick={() => navigate(wf.route || "/locked")}
                           className="relative bg-[#13161a] rounded-xl p-5 cursor-pointer hover:shadow-xl hover:border-[#23b5b5] border border-transparent transition-all group flex flex-col"
                         >
                           {/* Integrations/Icons Top Row */}

@@ -77,7 +77,7 @@ export default function Shape(props) {
       );
 
 
-      // ✅ NEW: Arrow shape support
+    // ✅ NEW: Arrow shape support
     case "arrow": {
       if (!points || points.length < 2) return null;
       const [start, end] = points;
@@ -130,8 +130,19 @@ export default function Shape(props) {
         <rect
           x={x}
           y={y}
-          width={size}
-          height={size}
+          width={width}
+          height={height}
+          fill={fill}
+          stroke={color}
+          strokeWidth={strokeWidth}
+          opacity={opacity}
+        />
+      );
+
+    case "diamond":
+      return (
+        <polygon
+          points={`${x + width / 2},${y} ${x + width},${y + height / 2} ${x + width / 2},${y + height} ${x},${y + height / 2}`}
           fill={fill}
           stroke={color}
           strokeWidth={strokeWidth}
@@ -141,10 +152,11 @@ export default function Shape(props) {
 
     case "circle":
       return (
-        <circle
+        <ellipse
           cx={x}
           cy={y}
-          r={radius}
+          rx={rx}
+          ry={ry}
           fill={fill}
           stroke={color}
           strokeWidth={strokeWidth}
@@ -205,8 +217,8 @@ export default function Shape(props) {
             textAlign === "center"
               ? "middle"
               : textAlign === "right"
-              ? "end"
-              : "start"
+                ? "end"
+                : "start"
           }
           style={{
             fontWeight: bold ? "bold" : "normal",
@@ -220,43 +232,43 @@ export default function Shape(props) {
       );
 
 
-      case "sticky":
-  return (
-    <foreignObject
-      x={x}
-      y={y}
-      width={width}
-      height={height}
-      style={{ overflow: "visible" }}
-    >
-      <div
-        xmlns="http://www.w3.org/1999/xhtml"
-        style={{
-          width: "100%",
-          height: "100%",
-          backgroundColor: fill,
-          borderRadius: "8px",
-          padding: "8px",
-          boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-          fontFamily: fontFamily || "Arial",
-          fontSize: fontSize || 16,
-          color: color || "#000",
-          whiteSpace: "pre-wrap",
-        }}
-        contentEditable
-        suppressContentEditableWarning
-        onInput={(e) => {
-          const updatedText = e.currentTarget.textContent;
-          useStore.getState().updateShape(props.id, (prev) => ({
-            ...prev,
-            text: updatedText,
-          }));
-        }}
-      >
-        {text || "Your note here"}
-      </div>
-    </foreignObject>
-  );
+    case "sticky":
+      return (
+        <foreignObject
+          x={x}
+          y={y}
+          width={width}
+          height={height}
+          style={{ overflow: "visible" }}
+        >
+          <div
+            xmlns="http://www.w3.org/1999/xhtml"
+            style={{
+              width: "100%",
+              height: "100%",
+              backgroundColor: fill,
+              borderRadius: "8px",
+              padding: "8px",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+              fontFamily: fontFamily || "Arial",
+              fontSize: fontSize || 16,
+              color: color || "#000",
+              whiteSpace: "pre-wrap",
+            }}
+            contentEditable
+            suppressContentEditableWarning
+            onInput={(e) => {
+              const updatedText = e.currentTarget.textContent;
+              useStore.getState().updateShape(props.id, (prev) => ({
+                ...prev,
+                text: updatedText,
+              }));
+            }}
+          >
+            {text || "Your note here"}
+          </div>
+        </foreignObject>
+      );
 
     default:
       return null;

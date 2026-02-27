@@ -155,6 +155,10 @@ import BackgroundRemover from "./pages/explified_tools/bgRemover/BGRemover.jsx";
 import AutoDeckPage from "./slideShowAi/AutoDeckPage.jsx";
 import DeckTitle from "./slideShowAi/DeckTitle.jsx";
 import TextToMeme from "./pages/explified_tools/text-to-meme/TextToMeme.jsx";
+import CompareSelection from "./expli/CompareSelection.jsx";
+import CompareChat from "./expli/CompareChat.jsx";
+import EmailAutomation from "./pages/email_automation/EmailAutomation.jsx";
+
 function App() {
   usePageTracking();
   const navigate = useNavigate();
@@ -265,6 +269,7 @@ function App() {
         <Route path="/notes" element={<LexicalEditor />} />
         <Route path="/" element={<UpdatedDashboard />}>
           <Route index element={<MainDashboard />}></Route>
+          <Route path="/email-updates" element={<EmailAutomation />} />
           <Route path="/all-apps" element={<AllApps />} />
           <Route path="/socials" element={<SocialsPage />}></Route>
           <Route path="/history" element={<History />}></Route>
@@ -461,6 +466,8 @@ function App() {
           <Route index element={<ChatPanel />} />
           <Route path="discover" element={<DiscoverPage />} />
           <Route path="discover/:newsTitle" element={<NewsPage />} />
+          <Route path="compare" element={<CompareSelection />} />
+          <Route path="compare/chat" element={<CompareChat />} />
         </Route>
 
         {/* Tools Page */}
