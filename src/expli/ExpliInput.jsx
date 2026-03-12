@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FiGlobe,
   FiPaperclip,
@@ -14,13 +15,16 @@ import {
 } from "react-icons/tb";
 import { RiFlowChart } from "react-icons/ri";
 import { HiOutlineLightBulb } from "react-icons/hi";
+import { MdOutlineQuestionAnswer } from "react-icons/md";
+import { BsListCheck } from "react-icons/bs";
+import { Sparkles, Map } from "lucide-react";
 import UpgradePopup from "./UpgradePopup";
 
 const QUICK_ACTIONS = [
-  { id: "diagram", icon: RiFlowChart, label: "Generate Diagram", color: "#23b5b5" },
-  { id: "translate", icon: TbLanguage, label: "Translate", color: "#8b5cf6" },
-  { id: "explain", icon: HiOutlineLightBulb, label: "Explain Simply", color: "#f59e0b" },
-  { id: "summarize", icon: TbSparkles, label: "Summarize", color: "#ec4899" },
+  { id: "diagram", icon: RiFlowChart, label: "Generate Diagram", color: "#3b82f6", navigate: "/expli/diagrams" },
+  { id: "ask", icon: Sparkles, label: "Focus Mode", color: "#8b5cf6", navigate: "/expli/ask" },
+  { id: "plan", icon: Map, label: "Build Plan", color: "#f59e0b", navigate: "/expli/plans" },
+  { id: "flash", icon: BsListCheck, label: "Generate Flashcards", color: "#10b981", navigate: "/expli/flashcards" },
 ];
 
 function ExpliInput({
@@ -34,6 +38,7 @@ function ExpliInput({
   onlyExpliOpen,
   chatNotPresent,
 }) {
+  const nav = useNavigate();
   const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef(null);
   const inputRef = useRef(null);
@@ -50,11 +55,13 @@ function ExpliInput({
   };
 
   const handleQuickAction = (action) => {
+    if (action.disabled) return;
+    if (action.navigate) {
+      nav(action.navigate);
+      return;
+    }
     const prefixes = {
-      diagram: "Create a flowchart/diagram explaining: ",
       translate: "Translate the following to [language]: ",
-      explain: "Explain in simple terms: ",
-      summarize: "Provide a concise summary of: ",
     };
     handleInputChange({ target: { value: prefixes[action.id] || "" } });
     inputRef.current?.focus();
@@ -79,86 +86,45 @@ function ExpliInput({
 
   return (
     <div
-      style={{
-        position: "absolute",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        zIndex: 30,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: showHero ? "center" : "flex-end",
-        top: showHero ? 0 : "auto",
-        padding: "20px 16px",
-        pointerEvents: "none",
-      }}
+      className={`absolute bottom-0 left-0 right-0 z-30 flex flex-col items-center px-4 py-5 pointer-events-none ${showHero ? "justify-center top-0" : "justify-end top-auto"}`}
     >
-      <div style={{ pointerEvents: "auto", width: "100%", maxWidth: "720px" }}>
+      <div className="pointer-events-auto w-full max-w-[720px]">
         {showHero && (
-          <div style={{ textAlign: "center", marginBottom: "40px" }}>
+          <div className="text-center mb-10">
             <h1
-              style={{
-                fontSize: "clamp(2.5rem, 6vw, 4rem)",
-                fontWeight: 700,
-                letterSpacing: "-0.03em",
-                lineHeight: 1.1,
-                marginBottom: "12px",
-                background: "linear-gradient(135deg, #e0e0e0 0%, #23b5b5 60%, #8b5cf6 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
+              className="text-[clamp(2.5rem,6vw,4rem)] font-bold tracking-tight leading-[1.1] mb-3 text-transparent bg-clip-text bg-[linear-gradient(135deg,#e0e0e0_0%,#23b5b5_60%,#8b5cf6_100%)]"
             >
               Expli
             </h1>
-            <p style={{
-              color: "#6b7280",
-              fontSize: "15px",
-              fontWeight: 300,
-              margin: 0,
-            }}>
+            <p className="text-gray-500 text-[15px] font-light m-0">
               Transform complex information into clear explanations
             </p>
 
-            <div style={{
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "center",
-              gap: "8px",
-              marginTop: "24px",
-            }}>
+            <div className="flex flex-wrap justify-center gap-2 mt-6">
               {QUICK_ACTIONS.map((action) => {
                 const Icon = action.icon;
                 return (
                   <button
                     key={action.id}
                     onClick={() => handleQuickAction(action)}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                      padding: "8px 16px",
-                      borderRadius: "999px",
-                      border: "1px solid rgba(255,255,255,0.07)",
-                      background: "rgba(255,255,255,0.03)",
-                      cursor: "pointer",
-                      transition: "all 0.2s ease",
-                      color: "#9ca3af",
-                    }}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full border border-white/5 bg-white/5 transition-all duration-200 text-gray-400 ${action.disabled ? "cursor-not-allowed opacity-40" : "cursor-pointer hover:bg-white/10 hover:border-white/10 hover:text-gray-300"}`}
+                    style={!action.disabled ? { '--hover-bg': `${action.color}12`, '--hover-border': `${action.color}35` } : {}}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = `${action.color}12`;
-                      e.currentTarget.style.borderColor = `${action.color}35`;
+                      if (action.disabled) return;
+                      e.currentTarget.style.background = e.currentTarget.style.getPropertyValue('--hover-bg');
+                      e.currentTarget.style.borderColor = e.currentTarget.style.getPropertyValue('--hover-border');
                       e.currentTarget.style.color = "#d1d5db";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.background = "rgba(255,255,255,0.03)";
-                      e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)";
-                      e.currentTarget.style.color = "#9ca3af";
+                      if (action.disabled) return;
+                      e.currentTarget.style.background = "";
+                      e.currentTarget.style.borderColor = "";
+                      e.currentTarget.style.color = "";
                     }}
+                    title={action.disabled ? "Coming in V4" : action.label}
                   >
-                    <Icon size={14} style={{ color: action.color, flexShrink: 0 }} />
-                    <span style={{ fontSize: "13px", whiteSpace: "nowrap" }}>{action.label}</span>
+                    <Icon size={14} style={{ color: action.color }} className="shrink-0" />
+                    <span className="text-[13px] whitespace-nowrap">{action.label}</span>
                   </button>
                 );
               })}
@@ -167,41 +133,21 @@ function ExpliInput({
         )}
 
         {selectedFile && (
-          <div
-            style={{
-              marginBottom: "8px",
-              padding: "10px 14px",
-              borderRadius: "12px",
-              background: "rgba(35, 181, 181, 0.06)",
-              border: "1px solid rgba(35, 181, 181, 0.12)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              fontSize: "13px",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <div style={{
-                width: "32px",
-                height: "32px",
-                borderRadius: "8px",
-                background: "rgba(35, 181, 181, 0.12)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}>
-                <FiPaperclip style={{ color: "#23b5b5" }} size={14} />
+          <div className="flex items-center justify-between mb-2 px-3.5 py-2.5 rounded-xl bg-[#23b5b5]/5 border border-[#23b5b5]/10 text-[13px]">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-[#23b5b5]/10 flex items-center justify-center">
+                <FiPaperclip className="text-[#23b5b5]" size={14} />
               </div>
-              <span style={{ color: "#d1d5db", maxWidth: "180px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <span className="text-gray-300 max-w-[180px] overflow-hidden text-ellipsis whitespace-nowrap">
                 {selectedFile.name}
               </span>
-              <span style={{ color: "#6b7280", fontSize: "12px" }}>
+              <span className="text-gray-500 text-xs">
                 {(selectedFile.size / 1024).toFixed(1)} KB
               </span>
             </div>
             <button
               onClick={handleRemoveFile}
-              style={{ padding: "4px", color: "#6b7280", cursor: "pointer" }}
+              className="p-1 text-gray-500 cursor-pointer hover:text-gray-300 transition-colors"
               title="Remove file"
             >
               <FiX size={14} />
@@ -210,17 +156,10 @@ function ExpliInput({
         )}
 
         <div
-          style={{
-            borderRadius: "20px",
-            border: "1px solid rgba(255,255,255,0.08)",
-            background: "rgba(24, 24, 30, 0.95)",
-            boxShadow: prompt.trim()
-              ? "0 0 0 1px rgba(35,181,181,0.12), 0 12px 48px rgba(0,0,0,0.5)"
-              : "0 8px 32px rgba(0,0,0,0.4)",
-            transition: "box-shadow 0.3s ease, border-color 0.3s ease",
-            overflow: "hidden",
-            backdropFilter: "blur(20px)",
-          }}
+          className={`rounded-[20px] border transition-all duration-300 overflow-hidden backdrop-blur-xl bg-[#18181e]/95 ${prompt.trim()
+            ? "border-[#23b5b5]/10 shadow-[0_0_0_1px_rgba(35,181,181,0.12),0_12px_48px_rgba(0,0,0,0.5)]"
+            : "border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
+            }`}
         >
           <textarea
             ref={inputRef}
@@ -236,32 +175,13 @@ function ExpliInput({
             placeholder="Ask anything..."
             disabled={isTyping}
             rows={1}
-            style={{
-              width: "100%",
-              background: "transparent",
-              color: "#f3f4f6",
-              border: "none",
-              outline: "none",
-              resize: "none",
-              fontSize: "15px",
-              lineHeight: "1.6",
-              padding: "18px 20px 8px 20px",
-              minHeight: "28px",
-              maxHeight: "150px",
-              fontFamily: "inherit",
-              boxSizing: "border-box",
-            }}
+            className="w-full bg-transparent text-gray-100 border-none outline-none resize-none text-[15px] leading-relaxed px-5 pt-[18px] pb-2 min-h-[28px] max-h-[150px] font-inherit box-border placeholder:text-gray-500"
           />
 
-          <div style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "6px 10px 10px 10px",
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "2px" }}>
+          <div className="flex items-center justify-between px-2.5 pb-2.5 pt-1.5">
+            <div className="flex items-center gap-0.5">
               <div
-                style={{ position: "relative" }}
+                className="relative"
                 onMouseEnter={() => setShowGlobePopup(true)}
                 onMouseLeave={() => setShowGlobePopup(false)}
               >
@@ -288,30 +208,16 @@ function ExpliInput({
               </IconBtn>
 
               {isRecording && (
-                <div style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  marginLeft: "4px",
-                  padding: "4px 10px",
-                  borderRadius: "999px",
-                  background: "rgba(239, 68, 68, 0.08)",
-                }}>
-                  <div style={{
-                    width: "6px",
-                    height: "6px",
-                    borderRadius: "50%",
-                    background: "#ef4444",
-                    animation: "pulse 1.5s ease-in-out infinite",
-                  }} />
-                  <span style={{ fontSize: "11px", color: "#f87171", fontWeight: 500 }}>Listening</span>
+                <div className="flex items-center gap-1.5 ml-1 px-2.5 py-1 rounded-full bg-red-500/10">
+                  <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-[pulse_1.5s_ease-in-out_infinite]" />
+                  <span className="text-[11px] text-red-400 font-medium">Listening</span>
                 </div>
               )}
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <div className="flex items-center gap-2">
               {prompt.length > 0 && (
-                <span style={{ fontSize: "11px", color: "#4b5563", fontVariantNumeric: "tabular-nums" }}>
+                <span className="text-[11px] text-gray-600 tabular-nums">
                   {prompt.length}/2000
                 </span>
               )}
@@ -321,36 +227,14 @@ function ExpliInput({
                   if (prompt.trim()) handleSubmit({ key: "Enter" });
                 }}
                 disabled={!prompt.trim() || isTyping}
-                style={{
-                  width: "34px",
-                  height: "34px",
-                  borderRadius: "10px",
-                  border: "none",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: prompt.trim() && !isTyping ? "pointer" : "default",
-                  background: prompt.trim() && !isTyping
-                    ? "linear-gradient(135deg, #23b5b5, #1a9494)"
-                    : "rgba(255,255,255,0.04)",
-                  color: prompt.trim() && !isTyping ? "#fff" : "rgba(255,255,255,0.15)",
-                  transition: "all 0.25s ease",
-                  boxShadow: prompt.trim() && !isTyping
-                    ? "0 4px 16px rgba(35,181,181,0.25)"
-                    : "none",
-                  flexShrink: 0,
-                }}
+                className={`w-[34px] h-[34px] rounded-[10px] border-none flex items-center justify-center shrink-0 transition-all duration-250 ${prompt.trim() && !isTyping
+                  ? "cursor-pointer bg-[linear-gradient(135deg,#23b5b5,#1a9494)] text-white shadow-[0_4px_16px_rgba(35,181,181,0.25)]"
+                  : "cursor-default bg-white/5 text-white/15 shadow-none"
+                  }`}
                 title="Send message"
               >
                 {isTyping ? (
-                  <div style={{
-                    width: "16px",
-                    height: "16px",
-                    border: "2px solid rgba(255,255,255,0.15)",
-                    borderTopColor: "rgba(255,255,255,0.5)",
-                    borderRadius: "50%",
-                    animation: "spin 0.8s linear infinite",
-                  }} />
+                  <div className="w-4 h-4 border-2 border-white/15 border-t-white/50 rounded-full animate-spin" />
                 ) : (
                   <FiArrowUp size={17} strokeWidth={2.5} />
                 )}
@@ -362,21 +246,13 @@ function ExpliInput({
         <input
           type="file"
           ref={fileInputRef}
-          style={{ display: "none" }}
+          className="hidden"
           onChange={handleFileChange}
         />
 
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "12px",
-          marginTop: "10px",
-          fontSize: "11px",
-          color: "#4b5563",
-        }}>
+        <div className="flex items-center justify-center gap-3 mt-2.5 text-[11px] text-gray-600">
           <span>Enter to send</span>
-          <span style={{ opacity: 0.3 }}>·</span>
+          <span className="opacity-30">·</span>
           <span>Shift+Enter for new line</span>
         </div>
       </div>
@@ -399,32 +275,10 @@ function IconBtn({ children, onClick, title, active }) {
     <button
       onClick={onClick}
       title={title}
-      style={{
-        width: "34px",
-        height: "34px",
-        borderRadius: "8px",
-        border: "none",
-        background: active ? "rgba(239, 68, 68, 0.1)" : "transparent",
-        color: active ? "#f87171" : "#6b7280",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        cursor: "pointer",
-        transition: "all 0.15s ease",
-        flexShrink: 0,
-      }}
-      onMouseEnter={(e) => {
-        if (!active) {
-          e.currentTarget.style.background = "rgba(255,255,255,0.05)";
-          e.currentTarget.style.color = "#d1d5db";
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (!active) {
-          e.currentTarget.style.background = "transparent";
-          e.currentTarget.style.color = "#6b7280";
-        }
-      }}
+      className={`w-[34px] h-[34px] rounded-lg border-none flex items-center justify-center cursor-pointer transition-all duration-150 shrink-0 ${active
+          ? "bg-red-500/10 text-red-400"
+          : "bg-transparent text-gray-500 hover:bg-white/5 hover:text-gray-300"
+        }`}
     >
       {children}
     </button>

@@ -158,6 +158,10 @@ import TextToMeme from "./pages/explified_tools/text-to-meme/TextToMeme.jsx";
 import CompareSelection from "./expli/CompareSelection.jsx";
 import CompareChat from "./expli/CompareChat.jsx";
 import EmailAutomation from "./pages/email_automation/EmailAutomation.jsx";
+import AskQuestion from "./expli/v3/AskQuestion.jsx";
+import BuildPlan from "./expli/v3/BuildPlan.jsx";
+import DiagramBuilder from "./expli/v3/DiagramBuilder.jsx";
+import SmartFlashcards from "./expli/v3/SmartFlashcards.jsx";
 
 function App() {
   usePageTracking();
@@ -464,6 +468,10 @@ function App() {
 
         <Route path="/expli" element={<Trone />}>
           <Route index element={<ChatPanel />} />
+          <Route path="ask" element={<AskQuestion />} />
+          <Route path="plans" element={<BuildPlan />} />
+          <Route path="diagrams" element={<DiagramBuilder />} />
+          <Route path="flashcards" element={<SmartFlashcards />} />
           <Route path="discover" element={<DiscoverPage />} />
           <Route path="discover/:newsTitle" element={<NewsPage />} />
           <Route path="compare" element={<CompareSelection />} />

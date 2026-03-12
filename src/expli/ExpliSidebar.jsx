@@ -15,6 +15,7 @@ import SettingsModal from "./SettingsModal";
 import { ExpliLogo } from "../assets";
 import SettingsPortal from "./SettingsPortal";
 import { ChevronLeft, CircleUserRound, LayoutDashboard } from "lucide-react";
+import { IoIosGitCompare } from "react-icons/io";
 import ProfileSettingsModal from "../components/subLayoutComponents/ProfileSettingsModal";
 import { useExpli } from "../context/ExpliContext";
 
@@ -29,12 +30,12 @@ export default function ExpliSidebar({
   const navigate = useNavigate();
   const [isProfileSettingsOpen, setIsProfileSettingsOpen] = useState(false);
   const sidebarItems = [
-    // {
-    //   icon: LayoutDashboard,
-    //   label: "Dashboard",
-    //   section: "dashboard",
-    //   url: "/",
-    // },
+    {
+      icon: LayoutDashboard,
+      label: "Dashboard",
+      section: "dashboard",
+      url: "/",
+    },
     {
       icon: FaRegFileAlt,
       label: "Discover",
@@ -42,7 +43,7 @@ export default function ExpliSidebar({
       url: "discover",
     },
     {
-      icon: LayoutDashboard, // Placeholder icon, using LayoutDashboard from lucide-react as imported
+      icon: IoIosGitCompare, // Placeholder icon, using LayoutDashboard from lucide-react as imported
       label: "Compare",
       section: "compare",
       url: "compare",
@@ -70,9 +71,10 @@ export default function ExpliSidebar({
           flex flex-col justify-between py-2
           bg-black text-white border-r border-gray-900 shadow-inner
           transition-transform duration-300
-          ${isMobileOpen
-            ? "translate-x-0"
-            : "-translate-x-full lg:translate-x-0"
+          ${
+            isMobileOpen
+              ? "translate-x-0"
+              : "-translate-x-full lg:translate-x-0"
           }
         `}
       >
@@ -84,29 +86,30 @@ export default function ExpliSidebar({
             ✕
           </button>
           {/* Logo */}
-          <img
-            className="h-14 "
-            alt="Logo"
-            src={ExpliLogo}
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer bg-[linear-gradient(135deg,#23b5b5,#1a8888)] shadow-[0_4px_16px_rgba(35,181,181,0.3)]"
             onClick={() => {
               navigate("/expli");
               newChat();
             }}
-          />
+            title="Expli"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="white"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+            </svg>
+          </div>
 
           {/* New Chat + history */}
           <div className="flex flex-col items-center gap-2 relative">
-            {/* <button
-              onClick={() => {
-                navigate("/expli");
-                newChat();
-              }}
-              className="w-10 h-10 mb-2 rounded-full flex items-center justify-center bg-[#1b1b1b] text-gray-200 hover:text-white border border-gray-800 hover:border-[#23b5b5]/30 shadow"
-              title="New Chat"
-            >
-              <FaPlus size={18} />
-            </button> */}
-
             {/* 💬 Chat History modal trigger */}
             <button
               onClick={() => setShowHistory(true)}

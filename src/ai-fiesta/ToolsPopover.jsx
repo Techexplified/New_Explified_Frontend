@@ -6,11 +6,11 @@ import { useNavigate } from "react-router-dom";
 export default function ToolsPopover({ visible }) {
   const navigate = useNavigate();
   const tools = [
-    {
-      label: "Dashboard",
-      icon: FaChartLine,
-      url: "/",
-    },
+    // {
+    //   label: "Dashboard",
+    //   icon: FaChartLine,
+    //   url: "/",
+    // },
     { label: "Memory", icon: FaBrain, url: "/memory" },
     { label: "Notes", icon: FaStickyNote, url: "/notes" },
   ];

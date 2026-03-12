@@ -100,15 +100,7 @@ function ChatContainer({
   return (
     <div
       ref={chatContainerRef}
-      className="flex-1 w-full bg-black backdrop-blur-xl flex flex-col px-4 sm:px-6 overflow-y-auto scroll-smooth relative z-10"
-      style={{
-        maxHeight: "calc(100vh - 100px)",
-        scrollBehavior: "smooth",
-        paddingTop: "0",
-        paddingBottom: "140px",
-        scrollbarWidth: "thin",
-        scrollbarColor: "#4b5563 transparent",
-      }}
+      className="flex-1 w-full bg-black backdrop-blur-xl flex flex-col px-4 sm:px-6 overflow-y-auto scroll-smooth relative z-10 max-h-[calc(100vh-100px)] pt-0 pb-[140px] [scrollbar-width:thin] [scrollbar-color:#4b5563_transparent]"
     >
       {(!onlyExpliOpen || (messages && messages.length > 0)) && (
         <div className="sticky top-0 z-20 bg-black/80 backdrop-blur-xl py-3 mb-4 -mx-4 sm:-mx-6 px-4 sm:px-6 border-b border-gray-800/60">
@@ -199,7 +191,7 @@ function ChatContainer({
 
             <div className="flex flex-col max-w-[70%]">
               <div
-                className={`px-4 py-2.5 rounded-xl text-sm leading-relaxed shadow-lg ${msg.sender === "user"
+                className={`px-4 py-2.5 rounded-xl text-sm leading-relaxed shadow-lg whitespace-pre-wrap break-words ${msg.sender === "user"
                   ? "bg-gradient-to-r from-gray-800 to-gray-800/80 text-gray-100 border border-gray-700/30"
                   : "bg-gradient-to-r from-gray-900 to-gray-900/80 text-gray-200 border border-gray-700/30"
                   }`}
@@ -208,10 +200,6 @@ function ChatContainer({
                     msg.sender === "bot"
                       ? formatText(translatedMessages[index] || msg.text)
                       : msg.text,
-                }}
-                style={{
-                  whiteSpace: "pre-wrap",
-                  wordWrap: "break-word",
                 }}
               />
 
@@ -301,21 +289,21 @@ function ChatContainer({
         )}
       </div>
 
-      <style jsx>{`
-        ::-webkit-scrollbar {
+      <style>{`
+        .expli-scroll-custom::-webkit-scrollbar {
           width: 6px;
         }
 
-        ::-webkit-scrollbar-track {
+        .expli-scroll-custom::-webkit-scrollbar-track {
           background: transparent;
         }
 
-        ::-webkit-scrollbar-thumb {
+        .expli-scroll-custom::-webkit-scrollbar-thumb {
           background: linear-gradient(180deg, #23b5b5 0%, #4b5563 100%);
           border-radius: 3px;
         }
 
-        ::-webkit-scrollbar-thumb:hover {
+        .expli-scroll-custom::-webkit-scrollbar-thumb:hover {
           background: #23b5b5;
         }
       `}</style>

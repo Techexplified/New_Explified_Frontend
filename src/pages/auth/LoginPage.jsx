@@ -31,7 +31,7 @@ export default function LoginPage() {
             type: "store_token",
             token: user?.email,
           },
-          "*"
+          "*",
         );
         window.postMessage(
           {
@@ -39,7 +39,7 @@ export default function LoginPage() {
             type: "store_token_awesome_screenshot",
             token: user?.email,
           },
-          "*"
+          "*",
         );
         if (attempts > 5) clearInterval(interval);
       }, 1000);
@@ -67,7 +67,7 @@ export default function LoginPage() {
       const res = await axios.post(
         "http://localhost:8000/api/users/login",
         formData,
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       localStorage.setItem("explified", JSON.stringify(res.data.user));
@@ -77,7 +77,7 @@ export default function LoginPage() {
     } catch (error) {
       console.error(
         "Error during login:",
-        error.response?.data || error.message
+        error.response?.data || error.message,
       );
       alert(error.response?.data?.message || "Login failed");
     } finally {
@@ -164,7 +164,7 @@ export default function LoginPage() {
                         type: "store_token",
                         token: decoded?.email,
                       },
-                      "*"
+                      "*",
                     );
                     window.postMessage(
                       {
@@ -172,7 +172,7 @@ export default function LoginPage() {
                         type: "store_token_awesome_screenshot",
                         token: decoded?.email,
                       },
-                      "*"
+                      "*",
                     );
 
                     localStorage.setItem(
@@ -181,7 +181,7 @@ export default function LoginPage() {
                         isLoggedIn: "true",
                         name: decoded?.name,
                         email: decoded?.email,
-                      })
+                      }),
                     );
                     dispatch(loginUser(decoded));
 

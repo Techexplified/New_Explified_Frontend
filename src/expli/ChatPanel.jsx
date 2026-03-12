@@ -35,9 +35,9 @@ export default function ChatPanel() {
 
   return (
     <div className="w-full flex-1 bg-black/95 backdrop-blur-xl flex flex-col relative overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#23b5b5]/3 rounded-full blur-[120px]" />
-        <div className="absolute bottom-0 left-0 w-72 h-72 bg-purple-500/3 rounded-full blur-[100px]" />
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="absolute -top-[120px] -right-[120px] w-[700px] h-[700px] rounded-full bg-[radial-gradient(circle,rgba(35,181,181,0.10)_0%,transparent_70%)]" />
+        <div className="absolute -bottom-[180px] -left-[120px] w-[800px] h-[800px] rounded-full bg-[radial-gradient(circle,rgba(139,92,246,0.08)_0%,transparent_70%)]" />
       </div>
 
       <div className="flex divide-x divide-gray-800/40 flex-1 overflow-x-auto overflow-y-hidden flex-nowrap [&>*]:min-w-[350px] relative z-10">
