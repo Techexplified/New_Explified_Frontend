@@ -18,7 +18,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
-  const { auth } = useAuth();
+  const { auth, setAuth } = useAuth();
 
   const [formData, setFormData] = useState(initialState);
   const [loading, setLoading] = useState(false); // loader state
@@ -67,14 +67,12 @@ export default function LoginPage() {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const res = await axios.post(
-        "http://localhost:8000/api/users/login",
-        formData,
-        { withCredentials: true },
-      );
-
-      localStorage.setItem("explified", JSON.stringify(res.data.user));
-      dispatch(loginUser(res.data.user));
+      const res = await axiosInstance.post("api/new/auth/login", formData, {
+        withCredentials: true,
+      });
+      setAuth(res?.data?.data);
+      // localStorage.setItem("explified", JSON.stringify(res.data.user));
+      // dispatch(loginUser(res.data.user));
 
       navigate("/");
     } catch (error) {

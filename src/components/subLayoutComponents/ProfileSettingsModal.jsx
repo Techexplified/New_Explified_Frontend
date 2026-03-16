@@ -31,15 +31,14 @@ import EnterpriseSection from "./ProfileSections/EnterpriseSection";
 import HistorySection from "./ProfileSections/HistorySection";
 import ContactSupportSection from "./ProfileSections/ContactSupportSection";
 import FAQSection from "./ProfileSections/FAQSection";
-import { useDispatch } from "react-redux";
-import { clearUser } from "../../utils/auth_slice/UserSlice";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 const ProfileSettingsModal = ({ isOpen, onClose }) => {
   const [activeSection, setActiveSection] = useState("accounts");
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const { logout } = useAuth();
 
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleSectionChange = (section) => {
@@ -48,12 +47,6 @@ const ProfileSettingsModal = ({ isOpen, onClose }) => {
       setActiveSection(section);
       setIsTransitioning(false);
     }, 150);
-  };
-
-  const handleSignOut = () => {
-    // Add your sign-out logic here
-    console.log("Signing out...");
-    onClose();
   };
 
   const generalSections = [
@@ -290,8 +283,7 @@ const ProfileSettingsModal = ({ isOpen, onClose }) => {
                     <motion.button
                       // onClick={handleSignOut}
                       onClick={() => {
-                        dispatch(clearUser());
-                        localStorage.removeItem("explified");
+                        logout();
                         navigate("/login");
                       }}
                       className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-400 hover:text-red-300 hover:bg-red-500/5 transition-all duration-200 group"

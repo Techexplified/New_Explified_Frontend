@@ -4,20 +4,23 @@ import { jwtDecode } from "jwt-decode";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../../utils/auth_slice/UserSlice";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
+
 import Logo from "../../reusable_components/Logo";
+import axiosInstance from "../../network/axiosInstance";
+import { useAuth } from "../../context/AuthContext";
 
 const SignupPage = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
+  const { setAuth } = useAuth();
 
   const user = useSelector((state) => state.user?.user); // adjust based on your reducer structure
 
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    name: "",
     email: "",
     password: "",
+    passwordConfirm: "",
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -39,29 +42,30 @@ const SignupPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { firstName, lastName, email, password } = formData;
-    if (!firstName || !lastName || !email || !password) {
+    const { name, email, password, passwordConfirm } = formData;
+
+    console.log(passwordConfirm);
+
+    if (!name || !email || !password || !passwordConfirm) {
       setError("All fields are required.");
       return;
+    }
+
+    if (password !== passwordConfirm) {
+      setError("Passwords don't match.");
+      return false;
     }
 
     setIsLoading(true);
     setError("");
 
     try {
-      const response = await axios.post(
-        "http://localhost:8000/api/users/signup",
+      const response = await axiosInstance.post(
+        "api/new/auth/signup",
         formData,
-        {
-          withCredentials: true,
-        },
       );
-
-      if (response.status === 201) {
-        localStorage.setItem("explified", JSON.stringify(response.data.user));
-        dispatch(loginUser(response.data.user));
-        navigate("/");
-      }
+      setAuth(response?.data?.data);
+      navigate("/");
     } catch (err) {
       setError(err.response?.data?.message || "Signup failed.");
     } finally {
@@ -94,27 +98,13 @@ const SignupPage = () => {
             <form onSubmit={handleSubmit} className="space-y-3">
               <div>
                 <label htmlFor="firstName" className="block text-sm mb-1">
-                  First Name
+                  Name
                 </label>
                 <input
                   type="text"
                   id="firstName"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 rounded bg-gray-900 border border-gray-700 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="lastName" className="block text-sm mb-1">
-                  Last Name
-                </label>
-                <input
-                  type="text"
-                  id="lastName"
-                  name="lastName"
-                  value={formData.lastName}
+                  name="name"
+                  value={formData.name}
                   onChange={handleChange}
                   className="w-full px-4 py-2 rounded bg-gray-900 border border-gray-700 focus:outline-none"
                 />
@@ -147,6 +137,19 @@ const SignupPage = () => {
                   className="w-full px-4 py-2 rounded bg-gray-900 border border-gray-700 focus:outline-none"
                 />
               </div>
+              <div>
+                <label htmlFor="passwordConfirm" className="block text-sm mb-1">
+                  Password Confirm
+                </label>
+                <input
+                  type="password"
+                  id="passwordConfirm"
+                  name="passwordConfirm"
+                  value={formData.passwordConfirm}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 rounded bg-gray-900 border border-gray-700 focus:outline-none"
+                />
+              </div>
 
               {error && <p className="text-red-500 text-sm">{error}</p>}
               {isLoading ? (
@@ -161,7 +164,7 @@ const SignupPage = () => {
               )}
             </form>
 
-            <GoogleLogin
+            {/* <GoogleLogin
               onSuccess={(resp) => {
                 try {
                   const decoded = jwtDecode(resp.credential);
@@ -175,7 +178,7 @@ const SignupPage = () => {
               onError={() => {
                 console.log("Google Signup Failed");
               }}
-            />
+            /> */}
 
             <p className="text-center text-sm text-gray-400">
               Already have an account?{" "}

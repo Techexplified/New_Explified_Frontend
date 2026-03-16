@@ -22,9 +22,7 @@ function AuthProvider({ children }) {
 
   const logout = async () => {
     try {
-      await axiosInstance.get("api/mongo/auth/logout", {
-        withCredentials: true,
-      });
+      await axiosInstance.get("api/new/auth/logout");
       setAuth(null);
     } catch (err) {
       console.log(err.message);
