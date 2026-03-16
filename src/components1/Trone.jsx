@@ -1,10 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ExpliIntegration from "../expli/ExpliIntegration";
 import ExpliSidebar from "../expli/ExpliSidebar";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 function Trone() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const navigate = useNavigate();
+  const { auth } = useAuth();
+
+  useEffect(() => {
+    if (!auth) {
+      navigate("/login");
+    }
+  }, [auth]);
+
   return (
     <div className="flex relative text-white h-screen bg-[#0a0a0a] overflow-hidden">
       {/* Animated Background with Multiple Layers */}

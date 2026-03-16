@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode"; // fixed import (jwtDecode is default export)
+// import { jwtDecode } from "jwt-decode"; // fixed import (jwtDecode is default export)
 import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../../utils/auth_slice/UserSlice";
 import { useDispatch, useSelector } from "react-redux";
 import Logo from "../../reusable_components/Logo";
 import axios from "axios";
+import axiosInstance from "../../network/axiosInstance";
+import { useAuth } from "../../context/AuthContext";
 
 const initialState = {
   email: "",
@@ -16,12 +18,13 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
+  const { auth } = useAuth();
 
   const [formData, setFormData] = useState(initialState);
   const [loading, setLoading] = useState(false); // loader state
 
   useEffect(() => {
-    if (user) {
+    if (auth) {
       let attempts = 0;
       const interval = setInterval(() => {
         attempts++;
@@ -48,12 +51,12 @@ export default function LoginPage() {
         const id = localStorage.getItem("notesShareId");
 
         navigate(`/notes?shareId=${id}`);
-      } else {
-        navigate("/expli");
       }
-      navigate("/expli");
+      navigate("/");
+    } else {
+      navigate("/login");
     }
-  }, [user, navigate]);
+  }, [auth, navigate]);
 
   function handleChange(e) {
     setFormData((prev) => {
@@ -84,6 +87,10 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  function handleGoogleLogin() {
+    window.location.href = `${import.meta.env.VITE_APP_URL}api/new/auth/google`;
+  }
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col px-4">
@@ -152,7 +159,7 @@ export default function LoginPage() {
                 {loading ? "Logging in..." : "Login"}
               </button>
 
-              <GoogleLogin
+              {/* <GoogleLogin
                 onSuccess={(resp) => {
                   try {
                     const decoded = jwtDecode(resp.credential);
@@ -196,7 +203,9 @@ export default function LoginPage() {
                 onError={() => {
                   console.log("Login Failed");
                 }}
-              />
+              /> */}
+
+              <button onClick={handleGoogleLogin}>Sign in with Google</button>
 
               <p className="text-center text-sm text-gray-400">
                 Create an account?{" "}

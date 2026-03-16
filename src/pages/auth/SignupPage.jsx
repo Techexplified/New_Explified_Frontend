@@ -49,9 +49,13 @@ const SignupPage = () => {
     setError("");
 
     try {
-      const response = await axios.post("http://localhost:8000/api/users/signup", formData, {
-        withCredentials: true,
-      });
+      const response = await axios.post(
+        "http://localhost:8000/api/users/signup",
+        formData,
+        {
+          withCredentials: true,
+        },
+      );
 
       if (response.status === 201) {
         localStorage.setItem("explified", JSON.stringify(response.data.user));

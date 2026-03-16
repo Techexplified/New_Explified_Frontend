@@ -35,9 +35,10 @@ import {
 } from "lucide-react";
 
 import UserModal from "./UserModal";
-import { useSelector } from "react-redux";
+// import { useSelector } from "react-redux";
 import MainSidebar from "./MainSidebar";
 import ProfileSettingsModal from "./subLayoutComponents/ProfileSettingsModal";
+import { useAuth } from "../context/AuthContext";
 
 // ---------------- FILTER ITEMS ----------------
 const navItems = [
@@ -84,16 +85,17 @@ const UpdatedDashboard = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
 
-  const user = useSelector((state) => state.user);
+  // const user = useSelector((state) => state.user);
+  const { auth } = useAuth();
 
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    if (!user) {
+    if (!auth) {
       navigate("/login");
     }
-  }, [user]);
+  }, [auth]);
 
   // ---------------- Handlers ----------------
   function PlusClick() {
