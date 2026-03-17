@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { GoogleLogin } from "@react-oauth/google";
+// import { GoogleLogin } from "@react-oauth/google";
 // import { jwtDecode } from "jwt-decode"; // fixed import (jwtDecode is default export)
+// import { loginUser } from "../../utils/auth_slice/UserSlice";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { loginUser } from "../../utils/auth_slice/UserSlice";
 import { useDispatch, useSelector } from "react-redux";
 import Logo from "../../reusable_components/Logo";
-import axios from "axios";
 import axiosInstance from "../../network/axiosInstance";
 import { useAuth } from "../../context/AuthContext";
 

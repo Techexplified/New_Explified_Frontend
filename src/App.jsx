@@ -168,6 +168,10 @@ function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    localStorage.removeItem("explified");
+  }, []);
+
+  useEffect(() => {
     const hostname = window.location.hostname;
 
     if (hostname === "lurph.com" || hostname === "www.lurph.com") {
