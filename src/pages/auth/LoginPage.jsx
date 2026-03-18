@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Logo from "../../reusable_components/Logo";
 import axiosInstance from "../../network/axiosInstance";
 import { useAuth } from "../../context/AuthContext";
-
+import { FcGoogle } from "react-icons/fc";
 const initialState = {
   email: "",
   password: "",
@@ -202,7 +202,14 @@ export default function LoginPage() {
                 }}
               /> */}
 
-              <button onClick={handleGoogleLogin}>Sign in with Google</button>
+              <button
+                onClick={handleGoogleLogin}
+                className="w-full flex items-center justify-center gap-3 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold py-2 transition-all shadow-sm"
+              >
+                {" "}
+                <FcGoogle size={20} />
+                <span>Continue with Google</span>
+              </button>
 
               <p className="text-center text-sm text-gray-400">
                 Create an account?{" "}

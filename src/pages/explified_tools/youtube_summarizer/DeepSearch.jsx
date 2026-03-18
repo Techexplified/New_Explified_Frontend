@@ -28,7 +28,7 @@ function DeepSearch() {
   const videos =
     links.length !== 0
       ? links.filter(
-          (item) => item.type === "youtube_video" || item.type === "youtube"
+          (item) => item.type === "youtube_video" || item.type === "youtube",
         )
       : [];
   const research =
@@ -38,7 +38,7 @@ function DeepSearch() {
   const blogs =
     links.length !== 0
       ? links.filter(
-          (item) => item.type === "blog_post" || item.type === "blog"
+          (item) => item.type === "blog_post" || item.type === "blog",
         )
       : [];
 
