@@ -56,14 +56,14 @@ const AcmecorpInventory = () => {
           {
             onUploadProgress: (progressEvent) => {
               const percent = Math.round(
-                (progressEvent.loaded * 100) / progressEvent.total
+                (progressEvent.loaded * 100) / progressEvent.total,
               );
               setUploadProgress((prev) => ({
                 ...prev,
                 [file.name]: percent,
               }));
             },
-          }
+          },
         );
 
         const fileUrl = response.data?.fileUrl || "";
@@ -74,7 +74,7 @@ const AcmecorpInventory = () => {
 
         setTimeout(() => {
           setUploadingFiles((prev) =>
-            prev.filter((name) => name !== file.name)
+            prev.filter((name) => name !== file.name),
           );
           setUploadProgress((prev) => {
             const updated = { ...prev };

@@ -14,9 +14,11 @@ function AuthProvider({ children }) {
     try {
       const res = await axiosInstance.get("api/new/auth/profile");
       setAuth(res.data.data);
+      console.log({ res });
     } catch (err) {
+      console.log({ err });
       setAuth(null);
-      console.log(err?.response?.data?.message || err.message);
+      // console.log(err?.response?.data?.message || err.message);
     }
   };
 
